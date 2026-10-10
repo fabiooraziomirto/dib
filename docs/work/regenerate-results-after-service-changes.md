@@ -18,3 +18,6 @@ Regola: **prima di ogni merge controllare `verify_artifact.py`**; non fare merge
 
 ## Aggiornamento 2026-10-10 (branch `fix-reconcile-trigger-fanout`)
 `service.py` e' cambiato di nuovo (trigger di `/reconcile` e fan-out D11, audit 05): sha256 attuale `f6860bea35baf1ac…` (dopo il fix D12 `ecb06dd3…`; nei risultati `d09f8db5…`). `verify_artifact.py` resta a **260 passed, 2 failed** (gli stessi due). Restano da fare, una volta sola e a fine di tutte le modifiche a `service.py` (mTLS ancora da venire), le stesse rigenerazioni delle voci 1-4 sopra. Per il confronto con il claim 26 generare il compose con `DIB_DIST_RECONCILE_INTERVAL=0` (con il default del compose, T=5, la chiamata esplicita trova `reconciled: 0`).
+
+## Aggiornamento 2026-10-10 (branch `fix-d19`)
+`service.py` e' cambiato ancora (anti-entropia D19, osservabilita' del trigger, audit 06): sha256 attuale `48415497997fdfcf…`. `verify_artifact.py` resta **260 passed, 2 failed** (gli stessi due sha256). Le rigenerazioni delle voci 1-4 restano da fare una volta sola, a fine di tutte le modifiche (mTLS ancora da venire).
