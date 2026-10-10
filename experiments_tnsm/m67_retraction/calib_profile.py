@@ -31,6 +31,8 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--profile", default="lan", choices=sorted(m67.PROFILES))
     ap.add_argument("--profile-wait", type=float, default=90.0)
+    ap.add_argument("--hold", type=float, default=0.0,
+                    help="seconds to keep the cluster up after the profile is confirmed, so that the user can run `sudo netem_show.sh` (read-only)")
     a = ap.parse_args()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -53,6 +55,10 @@ def main() -> int:
         res.update(rtt_ms=rtt, rtt_check_ok=ok, rtt_check_bad=bad, profile_timing=timing)
         if not ok:
             raise SystemExit(f"profile {a.profile} not confirmed by the RTT: {bad}")
+        if a.hold > 0:
+            print(f"VERIFY_NOW profile={a.profile}: cluster up, run `sudo bash {tree}/experiments_tnsm/m67_retraction/netem_show.sh` "
+                  f"(holding {a.hold:.0f} s; {time.strftime('%FT%TZ', time.gmtime())})", flush=True)
+            time.sleep(a.hold)
         subprocess.run([sys.executable, f"{tree}/experiments_tnsm/m67_retraction/calib_logs.py", "--n", "100", "--out", str(out / f"calib_logs_{a.profile}.json")],
                        check=True, capture_output=True, text=True)
         res["calib_logs"] = json.loads((out / f"calib_logs_{a.profile}.json").read_text())
