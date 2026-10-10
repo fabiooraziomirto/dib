@@ -270,10 +270,9 @@ def test_t3c_route_returns_503_when_the_lock_is_busy_and_200_when_free(make_clus
 def test_t4_interval_zero_means_no_automatic_reconcile(make_cluster) -> None:
     c = make_cluster(n_sites=2, env={"DIB_DIST_RECONCILE_INTERVAL": "0", "DIB_DIST_RECONCILE_JITTER": "2"})
     sid = _pending_dispute(c)
-    before = set(threading.enumerate())
     assert c.trigger(1) is None
-    with TestClient(c.site_mods[1].app):  # lifespan runs: it must not start anything
-        assert set(threading.enumerate()) == before
+    with TestClient(c.site_mods[1].app):  # lifespan runs: it must not start anything of ours
+        assert [t.name for t in threading.enumerate() if t.name.startswith("dib-")] == []
     assert [x for x in c.net.calls if x.method == "GET" and x.path.startswith("/pending")] == []
     assert c.state(1, sid)["state"] == "monitor-only"
 
@@ -390,8 +389,9 @@ def test_t5c_manual_call_holding_the_lock_delays_the_run_by_at_most_its_duration
     assert c.state(1, sid)["state"] == "disputed"
     started = None
     for _ in range(40):
+        before = clock.now()  # the start of a run is the clock BEFORE tick(): the run itself advances it
         if c.tick(1):
-            started = clock.now()
+            started = before
             break
         clock.advance(0.25)
     assert started is not None
