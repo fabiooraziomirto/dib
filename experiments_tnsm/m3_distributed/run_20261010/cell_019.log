@@ -1,0 +1,13 @@
+topology: 10 site container(s) + 1 evidence container
+  n_workers=100: warm-up...
+  n_workers=100 rep=1/1: 20000 ops in 45.52s (439.4 ops/s), p50=257.7ms p95=409.8ms p99=455.5ms, unexpected_errors=1
+  n_workers=100 SUMMARY: throughput=439.4+/-0.0 ops/s, p50=257.7ms p99=455.5+/-0.0ms, unexpected_errors=1 {'commit:httpx.ReadError': 1}
+  n_workers=1: warm-up...
+  n_workers=1 rep=1/1: 200 ops in 0.97s (205.8 ops/s), p50=5.7ms p95=7.0ms p99=8.1ms, unexpected_errors=0
+  n_workers=1 SUMMARY: throughput=205.8+/-0.0 ops/s, p50=5.7ms p99=8.1+/-0.0ms, unexpected_errors=0 
+  n_workers=50: warm-up...
+  n_workers=50 rep=1/1: 10000 ops in 26.61s (375.8 ops/s), p50=139.6ms p95=244.0ms p99=265.2ms, unexpected_errors=0
+  n_workers=50 SUMMARY: throughput=375.8+/-0.0 ops/s, p50=139.6ms p99=265.2+/-0.0ms, unexpected_errors=0 
+  n_workers=10: warm-up...
+  n_workers=10 rep=1/1: 2000 ops in 4.49s (445.4 ops/s), p50=25.4ms p95=38.1ms p99=44.7ms, unexpected_errors=0
+  n_workers=10 SUMMARY: throughput=445.4+/-0.0 ops/s, p50=25.4ms p99=44.7+/-0.0ms, unexpected_errors=0 

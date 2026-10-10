@@ -1,0 +1,13 @@
+topology: 10 site container(s) + 1 evidence container
+  n_workers=1: warm-up...
+  n_workers=1 rep=1/1: 200 ops in 1.64s (121.6 ops/s), p50=9.1ms p95=15.2ms p99=23.1ms, unexpected_errors=0
+  n_workers=1 SUMMARY: throughput=121.6+/-0.0 ops/s, p50=9.1ms p99=23.1+/-0.0ms, unexpected_errors=0 
+  n_workers=10: warm-up...
+  n_workers=10 rep=1/1: 2000 ops in 6.69s (299.1 ops/s), p50=38.0ms p95=62.6ms p99=74.3ms, unexpected_errors=0
+  n_workers=10 SUMMARY: throughput=299.1+/-0.0 ops/s, p50=38.0ms p99=74.3+/-0.0ms, unexpected_errors=0 
+  n_workers=50: warm-up...
+  n_workers=50 rep=1/1: 10000 ops in 27.89s (358.6 ops/s), p50=170.4ms p95=254.4ms p99=288.3ms, unexpected_errors=0
+  n_workers=50 SUMMARY: throughput=358.6+/-0.0 ops/s, p50=170.4ms p99=288.3+/-0.0ms, unexpected_errors=0 
+  n_workers=100: warm-up...
+  n_workers=100 rep=1/1: 20000 ops in 37.98s (526.6 ops/s), p50=203.1ms p95=389.0ms p99=428.3ms, unexpected_errors=1
+  n_workers=100 SUMMARY: throughput=526.6+/-0.0 ops/s, p50=203.1ms p99=428.3+/-0.0ms, unexpected_errors=1 {'query:httpx.ReadError': 1}

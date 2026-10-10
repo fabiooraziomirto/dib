@@ -1,0 +1,13 @@
+topology: 10 site container(s) + 1 evidence container
+  n_workers=10: warm-up...
+  n_workers=10 rep=1/1: 2000 ops in 7.15s (279.8 ops/s), p50=40.9ms p95=64.5ms p99=80.7ms, unexpected_errors=0
+  n_workers=10 SUMMARY: throughput=279.8+/-0.0 ops/s, p50=40.9ms p99=80.7+/-0.0ms, unexpected_errors=0 
+  n_workers=50: warm-up...
+  n_workers=50 rep=1/1: 10000 ops in 27.96s (357.6 ops/s), p50=170.5ms p95=255.3ms p99=283.6ms, unexpected_errors=0
+  n_workers=50 SUMMARY: throughput=357.6+/-0.0 ops/s, p50=170.5ms p99=283.6+/-0.0ms, unexpected_errors=0 
+  n_workers=100: warm-up...
+  n_workers=100 rep=1/1: 20000 ops in 38.48s (519.8 ops/s), p50=200.9ms p95=392.5ms p99=435.5ms, unexpected_errors=0
+  n_workers=100 SUMMARY: throughput=519.8+/-0.0 ops/s, p50=200.9ms p99=435.5+/-0.0ms, unexpected_errors=0 
+  n_workers=1: warm-up...
+  n_workers=1 rep=1/1: 200 ops in 1.70s (117.4 ops/s), p50=9.4ms p95=17.2ms p99=21.5ms, unexpected_errors=0
+  n_workers=1 SUMMARY: throughput=117.4+/-0.0 ops/s, p50=9.4ms p99=21.5+/-0.0ms, unexpected_errors=0 

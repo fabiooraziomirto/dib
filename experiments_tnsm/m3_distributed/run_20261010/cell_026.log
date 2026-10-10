@@ -1,0 +1,13 @@
+topology: 10 site container(s) + 1 evidence container
+  n_workers=50: warm-up...
+  n_workers=50 rep=1/1: 10000 ops in 27.67s (361.4 ops/s), p50=150.7ms p95=248.0ms p99=272.7ms, unexpected_errors=2
+  n_workers=50 SUMMARY: throughput=361.4+/-0.0 ops/s, p50=150.7ms p99=272.7+/-0.0ms, unexpected_errors=2 {'query:httpx.RemoteProtocolError': 1, 'commit:httpx.RemoteProtocolError': 1}
+  n_workers=1: warm-up...
+  n_workers=1 rep=1/1: 200 ops in 1.01s (199.0 ops/s), p50=5.7ms p95=7.2ms p99=9.8ms, unexpected_errors=0
+  n_workers=1 SUMMARY: throughput=199.0+/-0.0 ops/s, p50=5.7ms p99=9.8+/-0.0ms, unexpected_errors=0 
+  n_workers=100: warm-up...
+  n_workers=100 rep=1/1: 20000 ops in 46.92s (426.2 ops/s), p50=261.2ms p95=426.8ms p99=478.7ms, unexpected_errors=0
+  n_workers=100 SUMMARY: throughput=426.2+/-0.0 ops/s, p50=261.2ms p99=478.7+/-0.0ms, unexpected_errors=0 
+  n_workers=10: warm-up...
+  n_workers=10 rep=1/1: 2000 ops in 4.64s (430.9 ops/s), p50=26.3ms p95=39.5ms p99=45.5ms, unexpected_errors=0
+  n_workers=10 SUMMARY: throughput=430.9+/-0.0 ops/s, p50=26.3ms p99=45.5+/-0.0ms, unexpected_errors=0 

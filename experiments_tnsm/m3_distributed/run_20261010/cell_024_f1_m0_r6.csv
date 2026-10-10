@@ -1,0 +1,5 @@
+n_workers,total_ops,throughput_ops_per_sec_mean,p50_latency_s_mean,p95_latency_s_mean,p99_latency_s_mean,p99_latency_s_std,unexpected_errors,error_types
+1,200,121.63,0.009066,0.015228,0.023075,0.0,0,
+10,2000,299.12,0.038019,0.062615,0.074345,0.0,0,
+50,10000,358.57,0.170374,0.254447,0.288342,0.0,0,
+100,20000,526.57,0.203145,0.389049,0.428309,0.0,1,query:httpx.ReadErrorx1

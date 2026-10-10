@@ -1,0 +1,5 @@
+n_workers,total_ops,throughput_ops_per_sec_mean,p50_latency_s_mean,p95_latency_s_mean,p99_latency_s_mean,p99_latency_s_std,unexpected_errors,error_types
+1,200,204.58,0.005371,0.008378,0.01051,0.0,0,
+50,10000,337.32,0.164635,0.267153,0.306581,0.0,0,
+100,20000,436.72,0.254509,0.419602,0.474245,0.0,0,
+10,2000,438.5,0.025724,0.039235,0.046226,0.0,0,

@@ -1,0 +1,5 @@
+n_workers,total_ops,throughput_ops_per_sec_mean,p50_latency_s_mean,p95_latency_s_mean,p99_latency_s_mean,p99_latency_s_std,unexpected_errors,error_types
+10,2000,300.62,0.038428,0.06132,0.071176,0.0,0,
+100,20000,521.58,0.203428,0.388095,0.435636,0.0,1,commit:httpx.ReadErrorx1
+1,200,117.29,0.009308,0.016807,0.022544,0.0,0,
+50,10000,359.93,0.169114,0.25575,0.290369,0.0,0,
