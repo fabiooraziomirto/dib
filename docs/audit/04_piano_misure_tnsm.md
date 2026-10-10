@@ -193,3 +193,44 @@ Processo principale: `k3s-server`, ~0,10 core in media, poi containerd e metrics
 `other_cores` esclude i thread del kernel, che durante una cella fanno soprattutto I/O causato da DIB; sono registrati a parte come `kernel_cores`.
 
 Per ogni cella si registrano prima (2 s), durante e dopo (2 s): load, steal, `busy_pct`, `other_cores`, `kernel_cores` e i 5 processi non DIB con più CPU, oltre allo spazio libero su disco. **Nessuna cella viene scartata in silenzio:** i risultati si riportano su tutte le celle e su quelle non segnalate, con il numero delle segnalate.
+
+### 7.4 Correzioni e decisioni prima di M2 (2026-10-10)
+
+**Il tetto di 30 s non è il `busy_timeout` di SQLite (correzione).** Avevo attribuito il p99 di 30.001 ms delle celle M1 a 100 writer al `PRAGMA busy_timeout=30000` di `code/src/dib/registry/db.py:276`. Quel pragma si applica solo con `DIB_SQLITE_WAL=1` (`db.py:244-249`, `:269`). Nella configurazione predefinita, misurata su un'engine creata dal harness:
+- SQLite: `journal_mode=delete`, `synchronous=2` (FULL), `busy_timeout=5000` (default di pysqlite);
+- pool di SQLAlchemy: `QueuePool`, 5 connessioni più 10 di overflow, **timeout di checkout 30 s**.
+
+Con 100 thread e 15 connessioni, i 30 s sono il timeout di attesa di una connessione dal pool, cioè un **tetto, non una latenza**. Non va mai riportato come latenza. Il `docstring` di `db.py` (`DIB_SQLITE_POOL_SIZE`, `:252-262`) prevedeva già questa ipotesi.
+
+**Analisi (decisione utente):**
+- si riportano sempre separati tasso di errore e di timeout, throughput e p99 delle sole operazioni completate;
+- **il bootstrap ricampiona le celle (ripetizioni), mai le singole operazioni**. Era già così in `experiments_tnsm/common/analyze.py`: le metriche si calcolano per cella e il bootstrap si fa su quei valori;
+- throughput, tre definizioni:
+  - `throughput` = tutte le operazioni misurate / tempo (il numero del harness, fallimenti inclusi);
+  - `throughput_completed` = operazioni senza errore / tempo, con `InvalidStateTransition` (rifiuto di business) contato come completato;
+  - `throughput_clean` = operazioni senza alcuna eccezione / tempo (solo M2);
+- **M1:** il harness dà solo aggregati su tutte le operazioni. Il p99 delle celle con errori e p99 ≥ 29,9 s è troncato al timeout del pool ed è escluso dalle statistiche di latenza (`p99_censored_cells`). Il p99 delle sole riuscite non è disponibile per M1 (nessun dato per operazione); lo dà M2.
+
+**M2 riformulata prima del lancio.** Ipotesi e criteri sono in `experiments_tnsm/m2_p99_tail/run.py`; la strumentazione è in `instrument.py`. Per ogni operazione si misurano:
+- il tempo fino al primo statement (sessione più attesa del pool);
+- la durata della prima scrittura (lock RESERVED, con il busy handler di SQLite fino a 5 s);
+- il tempo fino a quando si tiene il lock di scrittura;
+- il commit (lock EXCLUSIVE più fsync);
+- la distribuzione dell'attesa fra writer.
+
+Ipotesi:
+- **H-M2a:** la quota della coda prima di tenere il lock è ≥ 0,5.
+- **H-M2b:** la quota di commit è < 1%.
+- **H-M2c:** Gini dell'attesa per writer ≤ 0,3, cioè coda equa; oltre, starvation.
+- **Controllo GIL (a), H-G1:** operazione nulla a 100 thread, con throughput ≥ 10 volte quello delle operazioni completate.
+- **Controllo GIL (b), H-G2:** un processo per writer a 10, 50 e 100 (ognuno con la propria engine e il proprio pool), con throughput < 2 volte quello a thread.
+
+Celle mescolate in un unico ordine casuale: thread 1/10/50 × 10 e 100 × 20; nulla 100 × 10; processi 10/50/100 × 10. **Le varianti di controllo hanno 10 ripetizioni anche a 100 writer**, invece di 20: limite dichiarato.
+
+**Manifest.** M2 registra `journal_mode`, `synchronous`, `busy_timeout`, i parametri del pool, il filesystem delle basi dati (da `/proc/self/mountinfo`) e una micro-misura di fsync prima e dopo (500 × write 4 KiB + fsync). Per M1, già in corso con il manifest precedente, le stesse voci si raccolgono subito dopo la fine, sullo stesso albero (`node_env.json`).
+
+**Limiti dichiarati:**
+- database nuovo a ogni cella, quindi niente stato accumulato;
+- M1 e M2 non confrontabili sul throughput assoluto (la strumentazione di M2 aggiunge overhead);
+- G4 (host a riposo) non soddisfatta (sez. 7.3);
+- M1 è stato lanciato prima di queste decisioni: il suo p99 a 100 writer è troncato e il suo manifest non contiene le impostazioni di SQLite.

@@ -108,6 +108,46 @@ def disk_free_mb(path: str = "/") -> int:
     return shutil.disk_usage(path).free // (1024 * 1024)
 
 
+def fs_info(path: str = "/tmp") -> dict:
+    """Filesystem of ``path`` (where the cell databases live) from /proc/self/mountinfo."""
+    real = os.path.realpath(path)
+    best = ("", "", "")
+    with open("/proc/self/mountinfo") as fh:
+        for line in fh:
+            left, right = line.split(" - ", 1)
+            mount = left.split()[4]
+            fstype, source = right.split()[:2]
+            if (real == mount or real.startswith(mount.rstrip("/") + "/")) and len(mount) > len(best[0]):
+                best = (mount, fstype, source)
+    usage = shutil.disk_usage(real)
+    return {"path": path, "mount": best[0], "fstype": best[1], "source": best[2],
+            "free_mb": usage.free // (1024 * 1024), "used_pct": round(100 * usage.used / usage.total, 1)}
+
+
+def fsync_bench(directory: str, n: int = 500, size: int = 4096) -> dict:
+    """Latency of write(size)+fsync, n times on one file in ``directory`` (removed after)."""
+    os.makedirs(directory, exist_ok=True)
+    path = os.path.join(directory, "fsync_probe.bin")
+    lat = []
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    try:
+        block = b"\0" * size
+        for _ in range(n):
+            t = time.perf_counter()
+            os.write(fd, block)
+            os.fsync(fd)
+            lat.append(time.perf_counter() - t)
+    finally:
+        os.close(fd)
+        os.unlink(path)
+    lat.sort()
+
+    def q(p):
+        return round(lat[min(n - 1, int(round(p * (n - 1))))] * 1000, 4)
+    return {"n": n, "bytes": size, "p50_ms": q(0.5), "p95_ms": q(0.95), "p99_ms": q(0.99),
+            "max_ms": round(lat[-1] * 1000, 4), "mean_ms": round(sum(lat) / n * 1000, 4)}
+
+
 def host_info() -> dict:
     model = ""
     with open("/proc/cpuinfo") as fh:

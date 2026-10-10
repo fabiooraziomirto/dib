@@ -42,13 +42,41 @@ def disturbed(rule: dict, during: dict) -> tuple[bool, list[str]]:
     return bool(reasons), reasons
 
 
-def parse_reps(spec: str) -> list[tuple[int, int]]:
-    """'1:10,10:10,50:10,100:20' -> [(1,0)..(1,9),(10,0)..,(100,19)]."""
+def parse_reps(spec: str) -> list[tuple]:
+    """'1:10,100:20' -> [(1,0)..(1,9),(100,0)..(100,19)];
+    'threads:100:20,null:100:10' -> [(("threads",100),0).., (("null",100),0)..]."""
     cells = []
     for part in spec.split(","):
-        n, r = (int(x) for x in part.split(":"))
-        cells += [(n, i) for i in range(r)]
+        bits = part.split(":")
+        if len(bits) == 2:
+            key, r = int(bits[0]), int(bits[1])
+        else:
+            key, r = (bits[0], int(bits[1])), int(bits[2])
+        cells += [(key, i) for i in range(r)]
     return cells
+
+
+def sqlite_settings(harness, db: Path) -> dict:
+    """journal_mode, synchronous, busy_timeout and pool parameters of the engine the
+    harness builds (default configuration), probed on a throw-away database."""
+    import dib.registry.db as db_module
+
+    harness.fresh_engine(db)
+    engine = db_module._engine
+    with engine.connect() as c:
+        out = {k: c.exec_driver_sql(f"PRAGMA {k}").scalar() for k in ("journal_mode", "synchronous", "busy_timeout")}
+    pool = engine.pool
+    out.update({"pool_class": type(pool).__name__, "pool_size": pool.size(),
+                "pool_max_overflow": getattr(pool, "_max_overflow", None),
+                "pool_timeout_s": getattr(pool, "_timeout", None),
+                "DIB_SQLITE_WAL": os.environ.get("DIB_SQLITE_WAL", ""),
+                "DIB_SQLITE_POOL_SIZE": os.environ.get("DIB_SQLITE_POOL_SIZE", "")})
+    engine.dispose()
+    db_module._engine = None
+    db_module._SessionLocal = None
+    for suffix in ("", "-wal", "-shm", "-journal"):
+        Path(f"{db}{suffix}").unlink(missing_ok=True)
+    return out
 
 
 def manifest_base(args, code: Path, files: list[Path]) -> dict:
@@ -73,7 +101,7 @@ def manifest_base(args, code: Path, files: list[Path]) -> dict:
     }
 
 
-def run_cells(args, out: Path, run_cell, files: list[Path]) -> None:
+def run_cells(args, out: Path, run_cell, files: list[Path], sqlite_probe=None) -> None:
     out.mkdir(parents=True, exist_ok=True)
     code = Path(args.code).resolve()
     cells = parse_reps(args.reps)
@@ -83,9 +111,14 @@ def run_cells(args, out: Path, run_cell, files: list[Path]) -> None:
     rule = manifest["discard_rule"]
     tmp = Path(args.tmp_dir)
     tmp.mkdir(parents=True, exist_ok=True)
+    manifest["filesystem"] = nm.fs_info(str(tmp))
+    manifest["fsync_bench_before"] = nm.fsync_bench(str(tmp))
+    if sqlite_probe is not None:
+        manifest["sqlite"] = sqlite_probe(tmp / "probe.db")
     log = (out / "cells.jsonl").open("a")
     stopped = None
-    for k, (n, rep) in enumerate(cells):
+    for k, (spec, rep) in enumerate(cells):
+        n = spec[1] if isinstance(spec, tuple) else spec
         free = nm.disk_free_mb()
         if free < args.min_free_mb:
             stopped = f"disk free {free} MB < {args.min_free_mb} MB before cell {k}"
@@ -94,25 +127,26 @@ def run_cells(args, out: Path, run_cell, files: list[Path]) -> None:
         db = tmp / f"cell_{k}.db"
         a = nm.Snapshot(nm.own_pids())
         t0 = time.time()
-        result = run_cell(n, db)
+        result = run_cell(spec, db)
         b = nm.Snapshot(nm.own_pids())
         during = nm.window(a, b)
         for suffix in ("", "-wal", "-shm", "-journal"):
             Path(f"{db}{suffix}").unlink(missing_ok=True)
         after = nm.short_window(2.0)
         flag, reasons = disturbed(rule, during)
-        rec = {"cell": k, "n_workers": n, "rep": rep, "t_start_unix": round(t0, 2),
+        rec = {"cell": k, "n_workers": n, "mode": spec[0] if isinstance(spec, tuple) else "threads", "rep": rep, "t_start_unix": round(t0, 2),
                "result": result, "monitor": {"before": before, "during": during, "after": after},
                "disk_free_mb_before": free, "disk_free_mb_after": nm.disk_free_mb(),
                "disturbed": flag, "disturbed_reasons": reasons}
         log.write(json.dumps(rec) + "\n")
         log.flush()
-        print(f"[cell {k + 1}/{len(cells)}] n={n} rep={rep} disturbed={flag} "
+        print(f"[cell {k + 1}/{len(cells)}] {spec} rep={rep} disturbed={flag} "
               f"{ {kk: v for kk, v in result.items() if kk in ('throughput', 'p99_ms')} }", flush=True)
     manifest["finished_utc"] = datetime.now(timezone.utc).isoformat()
     manifest["stopped_reason"] = stopped
     manifest["cells_completed"] = sum(1 for _ in (out / "cells.jsonl").open())
     manifest["disk_free_mb_at_end"] = nm.disk_free_mb()
+    manifest["fsync_bench_after"] = nm.fsync_bench(str(tmp))
     (out / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
     print(f"done: {manifest['cells_completed']} cells, stopped={stopped}", flush=True)
 
