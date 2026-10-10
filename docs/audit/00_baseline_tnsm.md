@@ -1,6 +1,6 @@
 # Audit 00 — Baseline per la revisione TNSM (due riferimenti)
 
-Data: 2026-10-10. Branch `revision-tnsm` (portato in fast-forward su `analysis-fs` @ `d22652e`, nessun commit proprio prima), worktree `/root/Desktop/DIB_tnsm`. Nessun file di `code/src`, `formal/`, `claims.json` o `results/` è stato modificato. Numerato 00 perché è un riferimento di partenza come `00_inventario_repo_pulita.md`; le numerazioni 11, 12, 13 restano a h_d, piano misure e test realistici.
+Data: 2026-10-10. Branch `revision-tnsm` (portato in fast-forward su `analysis-fs` @ `d22652e`, nessun commit proprio prima), worktree `/root/Desktop/DIB_tnsm`. Nessun file di `code/src`, `formal/`, `claims.json` o `results/` è stato modificato. Numerato 00 perché è un riferimento di partenza come `00_inventario_repo_pulita.md`; piano misure in `04_piano_misure_tnsm.md` (il 04 era riservato al piano di misure, `05_reconcile_trigger_fanout.md:3`), h_d in `11_hd_distribution.md`, test realistici in `12_test_realistici.md`.
 
 ## Ambiente
 
@@ -37,11 +37,13 @@ I 131 test in più rispetto al tag vengono dai 36 commit `v43-import..analysis-f
 | `DIB_clean` (working tree condivisa) | 47 passed, 1 xfailed |
 | `DIB_tnsm` (worktree pulito) | 45 passed, 2 skipped, 1 xfailed |
 
-I 2 skip sono `analysis_fs/test_spurious_sampling.py:58` ("data or filtered copy missing"): le copie filtrate `analysis_fs/out/observations_enriched*_nospurious.csv` sono in `.gitignore` ed esistono solo in `DIB_clean`. Non le ho copiate.
+I 2 skip sono `analysis_fs/test_spurious_sampling.py:58` ("data or filtered copy missing"): le copie filtrate `analysis_fs/out/observations_enriched*_nospurious.csv` sono in `.gitignore` ed esistono solo in `DIB_clean`. Non le ho copiate. Quindi in un worktree pulito questi 2 test non girano: chi verifica da un clone vede 45 passed e non 47. Per eseguirli bisogna rigenerare le copie filtrate (`analysis_fs/spurious_dates.py`, dai dati in `/root/Desktop/DIB/data/processed`) oppure lanciarli da `DIB_clean`.
 
 ## Discrepanza con la documentazione: `main` non è più la baseline v43
 
 `docs/work/regenerate-results-after-service-changes.md` dice che `main` resta la baseline v43. Non è così: `v43-import..main` contiene il merge `280ddfa` di `integration/2026-10-10`, che integra `tests-gap-closure`, `fix-d12-ack`, `revision-tnsm`, `fix-reconcile-trigger-fanout`, `fix-d19`, `formal-ae` e `analysis-fs`. `main` ha `service.py` = `48415497…`, quindi `verify_artifact.py` su `main` dà gli stessi 2 fallimenti. Questo contraddice anche la regola "non fare merge in main con controlli rossi" dello stesso documento. Rispetto ad `analysis-fs`, `main` ha in più 5 commit di `formal-ae` (`bdc3c38`, `2d6b315`, `0751cc1`, `a6f8060`, `8223480`: audit 07 e cfg/TLA+ in `formal/distributed_ae/`) più i merge. La baseline v43 resta il tag `v43-import`.
+
+Stato reale di `main` (`280ddfa`), in sintesi: 8 merge di `integration/2026-10-10` (`860848c`, `4fe526a`, `51b58b4`, `8ff0472`, `f17969d`, `ce0b795`, `d8004d5`, `280ddfa`), `service.py` = `48415497…`, `verify_artifact.py` con 2 check rossi (gli stessi due sha256 di sopra). Lo riporto come scostamento. La regola del documento ("`main` resta la baseline v43", "non fare merge in main con controlli rossi") non è stata cambiata: decidere se ripristinarla su `main` o aggiornarla spetta all'utente.
 
 ## Dati fuori repo
 
@@ -54,7 +56,7 @@ Mancante: `data/unsw_iotraffic_2025/{flows_extracted/flows,protocols_extracted/p
 File copiati senza sovrascrivere (`cp -n`, verificati con `cmp`) da `DIB_clean`: `analysis_fs/fs_binomial.py` (sha256 `981681c8…`), `analysis_fs/out/fs_binomial.csv` (`ba6ad79c…`), `analysis_fs/test_fstar_math.py` (`5ac6d62e…`), `docs/audit/09_…`, `docs/audit/10_…`. `CLAUDE.md`: diff rispetto a HEAD = 19 righe aggiunte in fondo, nessuna rimossa.
 
 - `PYTHONPATH=code/src python3 -m pytest analysis_fs/test_fstar_math.py`: **7 passed**.
-- `python3 analysis_fs/fs_binomial.py <tmp> && diff <tmp> analysis_fs/out/fs_binomial.csv`: **diff non vuoto**. Differiscono 8 righe su 25, solo nella colonna `p_violation`, ciascuna di esattamente 1 ulp (errore relativo massimo 2,1e-16). Le colonne `N`, `q`, `kmin` e `f_star` sono identiche. La causa più probabile è l'arrotondamento di `q**k * (1-q)**(N-k)` in `analysis_fs/fs_binomial.py:34` (potenze in floating point, `pow` della libm), diverso tra la macchina che ha prodotto il CSV e questa. [?] Non ho la versione di Python o la piattaforma di origine. Nessun valore cambia a più di 15 cifre significative. Il CSV è stato committato così come fornito.
+- `python3 analysis_fs/fs_binomial.py <tmp> && diff <tmp> analysis_fs/out/fs_binomial.csv`: **diff non vuoto**. Differiscono 8 righe su 25, solo nella colonna `p_violation`, ciascuna di esattamente 1 ulp (errore relativo massimo 2,1e-16). Le colonne `N`, `q`, `kmin` e `f_star` sono identiche. La causa più probabile è l'arrotondamento di `q**k * (1-q)**(N-k)` in `analysis_fs/fs_binomial.py:34` (potenze in floating point, `pow` della libm), diverso tra la macchina che ha prodotto il CSV e questa. [?] Non ho la versione di Python o la piattaforma di origine. Nessun valore cambia a più di 15 cifre significative. Il CSV è stato committato così come fornito. Lo scarto è accettato (decisione dell'utente) e il CSV non va modificato. `analysis_fs/test_fstar_math.py::test_h5_regenerated_table_matches_committed` rigenera la tabella e la confronta con tolleranza relativa 1e-9 su `p_violation` e uguaglianza esatta sulle altre colonne: 8 passed.
 
 ## Note per la pubblicazione
 
