@@ -1,0 +1,46 @@
+cells 20, flagged by the discard rule (pre-cell idle sample): 0
+pre-cell background other_cores 0.096-0.182, steal 0.005-0.021
+
+== throughput (ops/s), mean [95% CI over cells]; paired ratio C/D (by block)
+  w=  1: D   353.2 [  339.3,  368.0]  C   212.1 [  208.9,  214.9]  C/D 0.603 [0.575,0.629] (10 blocks)   predicted ~0.61, interval [0.5,0.72] -> not falsified
+  w= 10: D   567.3 [  550.4,  584.3]  C   449.3 [  438.2,  460.1]  C/D 0.794 [0.761,0.828] (10 blocks)   predicted ~0.77, interval [0.68,0.86] -> not falsified
+  w= 50: D   648.4 [  640.0,  656.5]  C   387.8 [  382.6,  393.0]  C/D 0.598 [0.588,0.611] (10 blocks)   (exploratory)
+  w=100: D   824.4 [  819.1,  829.5]  C   448.0 [  444.1,  452.1]  C/D 0.543 [0.540,0.547] (10 blocks)   (exploratory)
+
+== overall latency (ms) mean over cells: p50 / p95 / p99
+  w=  1 D:    3.15 /    3.98 /    4.75
+  w=  1 C:    5.56 /    6.66 /    7.99
+  w= 10 D:   19.71 /   31.85 /   42.65
+  w= 10 C:   25.26 /   37.44 /   44.02
+  w= 50 D:   89.39 /  144.61 /  165.67
+  w= 50 C:  137.41 /  234.37 /  260.11
+  w=100 D:  128.50 /  234.81 /  285.56
+  w=100 C:  248.25 /  406.21 /  454.76
+
+== p50 per operation type (ms), mean [95% CI over cells]
+  w=  1 query    D    3.32 [   3.18,   3.45]   C    5.75 [   5.67,   5.85]   C-D +2.43
+  w=  1 commit   D    3.18 [   3.06,   3.29]   C    5.69 [   5.60,   5.81]   C-D +2.51
+  w=  1 attest   D    3.03 [   2.74,   3.28]   C    2.89 [   2.55,   3.30]   C-D -0.13
+  w=  1 dispute  D    1.36 [   1.31,   1.42]   C    1.48 [   1.42,   1.54]   C-D +0.12
+  w=  1 restore  D    1.37 [   1.32,   1.41]   C    1.41 [   1.38,   1.44]   C-D +0.04
+  w= 10 query    D   22.77 [  21.98,  23.56]   C   27.43 [  26.74,  28.17]   C-D +4.66
+  w= 10 commit   D   21.69 [  20.96,  22.45]   C   27.13 [  26.47,  27.82]   C-D +5.43
+  w= 10 attest   D    4.69 [   4.26,   5.11]   C    8.56 [   7.75,   9.32]   C-D +3.87
+  w= 10 dispute  D    2.80 [   2.71,   2.91]   C    6.79 [   6.12,   7.44]   C-D +3.99
+  w= 10 restore  D    2.91 [   2.75,   3.10]   C    6.72 [   6.07,   7.27]   C-D +3.82
+  w= 50 query    D  107.76 [ 106.28, 109.39]   C  172.73 [ 169.51, 175.81]   C-D +64.97
+  w= 50 commit   D  105.62 [ 104.12, 107.23]   C  172.23 [ 169.10, 175.13]   C-D +66.62
+  w= 50 attest   D   12.91 [  12.36,  13.39]   C   32.04 [  31.11,  33.05]   C-D +19.13
+  w= 50 dispute  D   12.20 [  11.67,  12.70]   C   30.93 [  29.76,  32.26]   C-D +18.73
+  w= 50 restore  D   11.80 [  11.28,  12.29]   C   18.87 [  18.03,  19.74]   C-D +7.07
+  w=100 query    D  150.70 [ 148.96, 152.43]   C  273.61 [ 270.05, 277.32]   C-D +122.91
+  w=100 commit   D  148.17 [ 146.71, 149.62]   C  272.42 [ 268.85, 276.24]   C-D +124.25
+  w=100 attest   D   42.43 [  40.22,  44.68]   C  117.33 [ 115.54, 119.23]   C-D +74.90
+  w=100 dispute  D   41.60 [  39.52,  43.74]   C  117.53 [ 115.68, 119.54]   C-D +75.94
+  w=100 restore  D   41.56 [  39.48,  43.70]   C   72.01 [  70.63,  73.36]   C-D +30.45
+
+== unexpected errors
+  total 7 {'commit:httpx.ReadTimeout': 2, 'query:httpx.ConnectError': 1, 'commit:httpx.ConnectError': 1, 'query:httpx.ReadError': 1, 'query:httpx.RemoteProtocolError': 1, 'commit:httpx.ReadError': 1}
+  by (arm, writers): {'C10': 1, 'C50': 1, 'C100': 1, 'D100': 4}
+
+== cell order: ['C', 'D', 'D', 'C', 'C', 'D', 'C', 'D', 'D', 'C', 'C', 'D', 'D', 'C', 'D', 'C', 'D', 'C', 'D', 'C']

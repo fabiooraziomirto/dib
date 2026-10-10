@@ -1,0 +1,156 @@
+{
+ "started_utc": "2026-10-10T20:10:20.044620+00:00",
+ "argv": [
+  "experiments_tnsm/m3_distributed/run_m4.py",
+  "--out",
+  "experiments_tnsm/m3_distributed/run_m4_20261010",
+  "--pki-local",
+  "/root/Desktop/DIB/outputs/tnsm_pki/pki",
+  "--tree",
+  "~/dib_tnsm/tree-62aaca8"
+ ],
+ "seed": 20261013,
+ "pilot": false,
+ "fanout_concurrency_fixed": 10,
+ "arms": {
+  "C": "mTLS",
+  "D": "plain + launcher_d.py (prebuilt SSL context)"
+ },
+ "cell_order": [
+  [
+   "C",
+   0
+  ],
+  [
+   "D",
+   0
+  ],
+  [
+   "D",
+   1
+  ],
+  [
+   "C",
+   1
+  ],
+  [
+   "C",
+   2
+  ],
+  [
+   "D",
+   2
+  ],
+  [
+   "C",
+   3
+  ],
+  [
+   "D",
+   3
+  ],
+  [
+   "D",
+   4
+  ],
+  [
+   "C",
+   4
+  ],
+  [
+   "C",
+   5
+  ],
+  [
+   "D",
+   5
+  ],
+  [
+   "D",
+   6
+  ],
+  [
+   "C",
+   6
+  ],
+  [
+   "D",
+   7
+  ],
+  [
+   "C",
+   7
+  ],
+  [
+   "D",
+   8
+  ],
+  [
+   "C",
+   8
+  ],
+  [
+   "D",
+   9
+  ],
+  [
+   "C",
+   9
+  ]
+ ],
+ "ops_per_worker": 200,
+ "warmup_ops": 20,
+ "generator_host": "Mirto-LLM-vnet170",
+ "generator_python": "3.12.15 | packaged by Anaconda, Inc. | (main, Oct  1 2026, 20:20:25) [GCC 14.3.0]",
+ "node_tree": "/home/ubuntu/dib_tnsm/tree-62aaca8",
+ "deliberate_difference": "generator on this host; M6/M7 run it on the node; absolute latencies not comparable",
+ "node_service_sha256": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+ "node_launcher_d_sha256": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+ "note_launcher_d": "_HTTP_TLS is set from outside (service._HTTP_TLS = {'verify': prebuilt context}) by launcher_d.py before serving; service.py is unmodified",
+ "sha256_local": {
+  "run_m4.py": "1cd893baccb320ae752c77d7c24a1cef193025ef7414f1840e7490c7ab0400c2",
+  "diag_d.py": "88944b0e847eb328f7d4e79712b900e66dee5fe9c8ce9f2d534798267664d8c5",
+  "launcher_d.py": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+  "benchmark": "035ab45ea5972fb2bad6a294a5705701e48983f6fcdb45e582e19693b61e9eb5",
+  "node_monitor.py": "80fc794e46e6bfe6cff6aaa51f066aa878622ee8290deddf7e0e0f26bd0d3d07",
+  "make_dist_pki.py": "99a2aa3298db09cc4aba582192541ee865c4c5efaddb3668e9d394b029e74fc3",
+  "discard_rule.json": "6b098bec3a9c551ab1f8a087d794f489eb2a5e0c9345fdd96733fff98b5daf68"
+ },
+ "pki": {
+  "not_after": "20261011180000Z",
+  "extra_san_ip": [
+   "192.168.100.57"
+  ],
+  "note": "mTLS certificates carry one more SAN (IP of the node) than the default"
+ },
+ "disk_node_start": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.6G  97% /",
+ "discard_rule": {
+  "fixed_before_measuring": "2026-10-10, after the 5-minute no-DIB baseline (experiments_tnsm/node_baseline/baseline_noDIB.json), before any M1/M2 cell",
+  "rule": "a cell is flagged as disturbed if, over the cell window, other_cores > max_other_cores OR steal_pct > max_steal_pct; flagged cells are never dropped: results are reported on all cells and on unflagged cells, with the flagged count",
+  "max_other_cores": 1.0,
+  "max_steal_pct": 2.0,
+  "other_cores_definition": "CPU of user-space processes other than the measuring process (kernel threads excluded, reported as kernel_cores)",
+  "baseline": {
+   "samples": 60,
+   "interval_s": 5,
+   "other_cores": {
+    "median": 0.123,
+    "p95": 0.23,
+    "max": 0.28
+   },
+   "steal_pct": {
+    "median": 0.013,
+    "p95": 0.013,
+    "max": 0.038
+   },
+   "load1": {
+    "median": 0.145,
+    "max": 0.26
+   },
+   "main_process": "k3s-server ~0.10 cores"
+  },
+  "rationale": "1.0 core = 3.6x the baseline maximum and 8x its median: another tenant taking a whole vCPU; 2% steal = 50x the baseline maximum: hypervisor contention"
+ },
+ "finished_utc": "2026-10-10T20:43:57.974474+00:00",
+ "disk_node_end": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.6G  97% /"
+}

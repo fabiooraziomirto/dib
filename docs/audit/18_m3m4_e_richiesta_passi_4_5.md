@@ -233,6 +233,51 @@ Il lancio parte da `~/dib_tnsm/tree-62aaca8` (hash di `service.py` `3186304363ed
 - **Proposta per il paper vecchio, NON applicata:** togliere l'attribuzione del calo da 125,7 a 99,8 ops/s al fan-out (`main_old.tex:503`): "ten sites are 20.6% slower than one" resta come osservazione, la causa non è isolata. Frase suggerita: *With one writer, ten sites are 20.6% slower than one (125.7 vs 99.8 operations/s); the cause was not isolated.*
 - **Proposta di frase per il paper (caso (ii) della regola E):** *In the prototype, every inter-service call creates an HTTP client and, without a shared context, builds a default SSL context (about 6 ms); reusing a context or a client removes it.*
 
+### 1.7 Rilancio di M4: C (mTLS) contro D (plain, contesto precostruito) (`run_m4_20261010/`, 22:10-22:44)
+
+**Provenienza.** `run_m4.py` commit `62aaca8` (predizioni nel docstring prima del lancio), servizi da `~/dib_tnsm/tree-62aaca8` (`service.py` `3186304363ed…`, `launcher_d.py` `1fe42185…`, entrambi nel manifest), generatore su questo host, PKI con un SAN in più (IP del nodo), FANOUT fisso a 10, 20 celle (10 blocchi, C e D nello stesso blocco, ordine mescolato: C D D C C D C D D C C D D C D C D C D C), writer 1/10/50/100 in ordine mescolato per cella, 200 operazioni per worker (322 000 cronometrate per braccio) dopo un warm-up di 20. Disco del nodo 3,6 GB prima e dopo, nessun container `dibtnsm` residuo, directory dello snap pulita. Analisi: `analyze_m4.py` (bootstrap sulle celle, 10 000 ricampionamenti, rapporti appaiati per blocco).
+
+**Throughput (ops/s), media con IC al 95% sulle 10 celle di ogni braccio, e rapporto appaiato C/D.**
+
+| Writer | D | C | C/D (10 blocchi) | Predizione | Esito |
+|---|---|---|---|---|---|
+| 1 | 353,2 [339,3; 368,0] | 212,1 [208,9; 214,9] | **0,603** [0,575; 0,629] | ≈ 0,61, falsificata se IC fuori da [0,50; 0,72] | **H-M4a non falsificata** |
+| 10 | 567,3 [550,4; 584,3] | 449,3 [438,2; 460,1] | **0,794** [0,761; 0,828] | ≈ 0,77, falsificata se IC fuori da [0,68; 0,86] | **H-M4b non falsificata** |
+| 50 | 648,4 [640,0; 656,5] | 387,8 [382,6; 393,0] | 0,598 [0,588; 0,611] | esplorativo | — |
+| 100 | 824,4 [819,1; 829,5] | 448,0 [444,1; 452,1] | 0,543 [0,540; 0,547] | esplorativo | — |
+
+Le predizioni cadono dentro gli IC osservati. **A 50 e 100 writer il rapporto è più basso (0,60 e 0,54), non più alto**: il costo di mTLS non è nascosto dal collo di bottiglia del database, come temuto, ma cresce con il carico; il 0,83 del vecchio M4 a 100 writer era un rapporto contro il braccio di default e sottostimava il costo, come l'utente aveva indicato. A 50 e 100 writer i valori restano **esplorativi** per decisione presa nel docstring.
+
+**Latenza complessiva (ms, media sulle celle): p50 / p95 / p99.**
+
+| Writer | D | C |
+|---|---|---|
+| 1 | 3,15 / 3,98 / 4,75 | 5,56 / 6,66 / 7,99 |
+| 10 | 19,7 / 31,9 / 42,7 | 25,3 / 37,4 / 44,0 |
+| 50 | 89,4 / 144,6 / 165,7 | 137,4 / 234,4 / 260,1 |
+| 100 | 128,5 / 234,8 / 285,6 | 248,3 / 406,2 / 454,8 |
+
+**p50 per tipo di operazione (ms), media con IC al 95%; differenza C − D.**
+
+| Operazione | 1 w: D | 1 w: C | C−D | 10 w: D | 10 w: C | C−D | 100 w: D | 100 w: C | C−D |
+|---|---|---|---|---|---|---|---|---|---|
+| query (sito) | 3,32 [3,18; 3,45] | 5,75 [5,67; 5,85] | +2,43 | 22,8 [22,0; 23,6] | 27,4 [26,7; 28,2] | +4,7 | 150,7 [149,0; 152,4] | 273,6 [270,1; 277,3] | +122,9 |
+| commit (sito) | 3,18 [3,06; 3,29] | 5,69 [5,60; 5,81] | +2,51 | 21,7 [21,0; 22,5] | 27,1 [26,5; 27,8] | +5,4 | 148,2 [146,7; 149,6] | 272,4 [268,9; 276,2] | +124,3 |
+| attest (evidence) | 3,03 [2,74; 3,28] | 2,89 [2,55; 3,30] | −0,13 | 4,69 [4,26; 5,11] | 8,56 [7,75; 9,32] | +3,9 | 42,4 [40,2; 44,7] | 117,3 [115,5; 119,2] | +74,9 |
+| dispute (evidence) | 1,36 [1,31; 1,42] | 1,48 [1,42; 1,54] | +0,12 | 2,80 [2,71; 2,91] | 6,79 [6,12; 7,44] | +4,0 | 41,6 [39,5; 43,7] | 117,5 [115,7; 119,5] | +75,9 |
+| restore (evidence) | 1,37 [1,32; 1,41] | 1,41 [1,38; 1,44] | +0,04 | 2,91 [2,75; 3,10] | 6,72 [6,07; 7,27] | +3,8 | 41,6 [39,5; 43,7] | 72,0 [70,6; 73,4] | +30,5 |
+
+A 1 writer la differenza sulle operazioni sul sito (+2,4-2,5 ms) coincide con quella della diagnostica (+2,35 ms): è l'handshake TLS completo a ogni chiamata sito → evidence (nessun pool). Le operazioni su evidence sono invariate a 1 writer e pagano ≈ +3,9 ms a 10 writer, perché evidence serve gli handshake dei dieci siti. A 50 e 100 writer il costo si amplifica (code su evidence, un processo Python singolo). Tabelle complete in `analysis.txt` e `summary.json`.
+
+**Errori inattesi: 7 su 644 000 operazioni cronometrate (0,0011%), in 7 celle diverse.**
+- Tipi: `ReadTimeout` 2 (commit), `ConnectError` 2 (query, commit), `ReadError` 2 (query, commit), `RemoteProtocolError` 1 (query).
+- Per braccio e writer: D a 100 writer 4 (su 200 000 operazioni, 0,002%); C a 10 writer 1, a 50 writer 1, a 100 writer 1. Nessun 403.
+- Rispetto a M3: ricompaiono `ReadError` e `RemoteProtocolError`, e per la prima volta `ConnectError` e `ReadTimeout` (timeout del client a 5 s). Causa non determinata; l'ipotesi del keep-alive resta non verificata e non spiega i `ConnectError`. Conservati nei totali.
+
+**Regola di scarto** (soglie invariate): `other_cores` 0,096-0,182, `steal_pct` 0,005-0,021 nel campione pre-cella (12 s a sistema idle, container `dibtnsm` esclusi). **Nessuna cella segnalata su 20**; risultati su tutte le celle. La finestra durante la cella non è misurata (generatore su un altro host).
+
+**Cosa si può riportare.** Il rapporto C/D a 1 e 10 writer (0,60 e 0,79) come costo di mTLS **per questo prototipo, che non ha un pool fra i servizi** (handshake completo a ogni chiamata fra servizi): è un limite superiore del costo di un'implementazione con connessioni riusate, per decisione dell'utente. A 50 e 100 writer (0,60 e 0,54) solo come esplorativo. I dati del vecchio M4 restano come "configurazione di default", con la nota in `run_20261010/README.md`.
+
 ## 2. Richiesta unica per i Passi 4-5 (nulla lanciato)
 
 ### 2.0 Nuovo vincolo: B2-partition con netem a mano
@@ -271,3 +316,26 @@ Albero: `T=~/dib_tnsm/tree-<commit>`; script in `$T/experiments_tnsm/m67_retract
 - Driver `experiments_tnsm/m67_retraction/run.py` con le ipotesi del piano.
 - GATE 3 (decisione utente C3): 10 ripetizioni per braccio e test (d-kill) sui due bracci mTLS **uniti**, con nel docstring l'assunzione che mTLS non cambi la convergenza; prima del test unito, un confronto fra i bracci mTLS a T fisso. Se differiscono, il test unito decade: stop e domanda.
 - L'ordine dei blocchi di profilo è randomizzato con seed e registrato nel manifest (C2).
+
+### 2.4 Aggiornamento dopo le decisioni del 2026-10-10 (sera): richiesta unica per i Passi 4-5
+
+Questa sezione sostituisce §2.0-2.3 dove li contraddice. **Nulla è stato lanciato con sudo.**
+
+**Posizione dell'utente su B2-partition (da confermare):** per il 16 solo **B1 e B2-kill**, con la variante decisa dalla calibrazione di L_dns; l'helper con sudo per B2-partition dopo. Il braccio senza mTLS in M6/M7 è **D** (non il default); il braccio mTLS è C.
+
+**1. Comandi che lanci tu, con sudo sul nodo** (`T=~/dib_tnsm/tree-<commit>`; script in `$T/experiments_tnsm/m67_retraction/`):
+1. `sudo modprobe sch_netem && lsmod | grep sch_netem` (G3).
+2. Rivedere prima l'output di `netem_apply.sh --dry-run <profilo>` (il filtro è sul progetto `dibtnsm`; sul nodo girano anche k3s e wasmbed, che non vanno toccati).
+3. `sudo $T/.../netem_apply.sh wan`, poi `sudo $T/.../netem_show.sh` (verifica del `tc qdisc` in ogni namespace del progetto); poi io lancio L_dns e la calibrazione dei log; lo stesso con `degraded`.
+4. **tcpdump dentro il namespace del container**, con `degraded` applicato, mentre io invio 20 tentativi per braccio (D, poi C; il cluster va ricreato fra i due), annotando l'orologio di inizio:
+   `sudo nsenter -t $(docker inspect -f '{{.State.Pid}}' dibtnsm-evidence-1) -n timeout 300 tcpdump -i eth0 -w /tmp/dib_degraded_<D|C>.pcap 'tcp port 8000'`, poi `sudo chown ubuntu /tmp/dib_degraded_*.pcap`.
+5. **Pulizia finale:** `sudo $T/.../netem_apply.sh lan`, poi `sudo $T/.../netem_show.sh`: **nessun netem deve restare in nessun namespace** (un residuo contaminerebbe le misure successive). Verifica che l'output mostri solo il qdisc di default (`noqueue` o `fq_codel`) per ogni container.
+
+**2. Calibrazioni che lancio io, senza sudo.** Cluster D (plain, il braccio di M6/M7), tutte da `~/dib_tnsm/tree-<commit>`:
+1. **Pipeline dei log con due container in parallelo** (`calib_logs.py --n 100`): evidence da sola e poi evidence con `site-0`, ordine e scarto relativo; a `lan`. Per il braccio mTLS la latenza dei log si assume uguale (la pipeline Docker non dipende da TLS); **è un'assunzione**, e il presenza dell'access log in mTLS è già verificata (diagnostica del 2026-10-10).
+2. **L_dns** (`calib_ldns.sh`): a `lan` subito; a `wan` e `degraded` **solo dopo che avrai applicato i profili** (punto 1.3). Da questo valore si decide la variante di B2 (≤ 50 ms: entrambe; ≥ 0,5 s: solo B2-partition più `kill-min`; nel mezzo ricalcolo e decidi tu).
+3. Dalle calibrazioni: soglie per profilo (P-log usabile se il p95 della latenza è < 10% della mediana del ritiro diretto del profilo, altrimenti ripiego `dispute-rtt`), committate prima del lancio.
+
+**3. Cosa resta da scrivere io prima del lancio di M6/M7:** driver `m67_retraction/run.py` con le ipotesi e la predizione (a) ricongelata (§1.5 B3), GATE 3 (10 ripetizioni, test sui due bracci mTLS **uniti**, verifica preliminare che i bracci non differiscano a T fisso; qui i bracci sono D e C, quindi la verifica va fatta fra D e C: **se differiscono, il test unito perde validità e mi fermo**), ordine dei blocchi di profilo randomizzato e registrato nel manifest.
+
+**4. Decisione che ti chiedo.** Conferma della posizione su B2-partition (solo B1 e B2-kill per il 16, helper dopo). Con le tue decisioni sul sudo (punti 1.1-1.5 li lanci tu) posso procedere con le calibrazioni senza sudo (2.1 e 2.2 a `lan`) appena dai l'OK a partire.
