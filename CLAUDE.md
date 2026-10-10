@@ -22,3 +22,22 @@ Provenienza e inventario: `docs/audit/00_inventario_repo_pulita.md`. Import = ta
 - Esperimenti registry senza dati terzi: `PYTHONPATH=code/src python3 code/scripts/<script>.py` (v36_restore_ablation, v35_lifecycle_experiment, v28_lifecycle_trace, offline_veto_reconciliation --trials 10).
 - Cluster distribuito e gateway OpenWrt: Docker, comandi lunghi → chiedere.
 - Python: l'ambiente è 3.10.13, `pyproject.toml` dichiara >=3.12 (D18, lasciato invariato).
+
+## Fase revisione TNSM (ottobre 2026)
+Obiettivi concordati col supervisor, senza cambiare i concetti principali del paper (interventi dal capitolo 4 in poi):
+1. Ripartire dai design goal e definire il threat model.
+2. Giustificare f_s = 0.30 con la letteratura e con una derivazione (vedi `docs/audit/09_f_s_derivazione_e_letteratura.md`).
+3. Rifare i test per TNSM: latenza, throughput, scalabilità, con rete realistica.
+4. Valutare test più realistici (dataset: `docs/audit/10_dataset_survey.md`).
+5. Dare una spiegazione scientifica ai valori numerici dei parametri (θ, α, β, m, 0.7/0.3).
+
+Ordine di lavoro: baseline (281 test, 262 check) → integrazione dei file nuovi → distribuzione di h_d sui dati reali → piano delle misure di prestazione → solo dopo il mio OK, esecuzione.
+
+Regole aggiuntive per questa fase:
+- Lavora su un branch dedicato (`tnsm-revision`), un commit per passo, messaggio che dice cosa cambia e perché.
+- File nuovi solo in `analysis_fs/`, `docs/audit/` (numerazione successiva: 11, 12, ...) e in una cartella nuova `experiments_tnsm/<nome>/` per i risultati non ancora promossi. Niente scritture in `results/` finché non lo dico io.
+- Ogni esperimento: ipotesi e criterio di falsificazione nel docstring, prima di lanciarlo; seed, versione di Python, hardware e hash dei dati nel manifest.
+- Misure di tempo: almeno 10 ripetizioni, intervalli di confidenza bootstrap, nessun confronto fra macchine diverse.
+- Dati con data sharing agreement (Mon(IoT)r, PingPong): non copiarli nella repo e non committare dati derivati prima di aver verificato la licenza.
+- Il paper non è in questa repo; i numeri da riportare vanno in `docs/audit/`, con file:riga.
+
