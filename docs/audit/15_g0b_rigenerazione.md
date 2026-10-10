@@ -68,3 +68,7 @@ Il confronto dei tempi è **solo descrittivo**: `service.py` è diverso (`d09f8d
 - In `results/` si copiano solo i due file che fanno fallire `verify_artifact.py`: `restore_ablation/results.json` e `offline_veto/results.json`.
 - `fault_injection/{results,trials}.csv` **non** si copia. `scripts/verify_artifact.py:215-220` controlla la convergenza a evento singolo contro **0,51 ± 0,005 s**, il numero del paper; il nuovo valore 0,48 s farebbe fallire il controllo. Copiarlo richiederebbe di cambiare insieme il numero atteso e il paper: va deciso dall'utente.
 - Se la regola E portasse a correggere `service.py`, la copia si rifà con il nuovo hash.
+
+## 5. Aggiornamento (2026-10-10, sera): copia di `fault_injection` fatta da un altro commit
+
+La sezione 4 dice che `fault_injection` non si copia. **Superata:** i commit `062b417` (dati, `README.md` e `verify_artifact.py` aggiornato: 262 → 266 controlli, con atteso 0,48 per l'evento singolo e 0,51 per l'episodio intero e nuovi controlli su `trials.csv`) e `52888bd` (`claims.json`), non scritti da questa sessione ma presenti su `revision-tnsm`, hanno già copiato i file e riallineato verificatore e claim. Verifica al momento della lettura: `verify_artifact.py` dà **266 passed, 0 failed**, `service.py` è invariato (`3186304363ed…`). Resta da aggiornare il testo del paper (`docs/main_tnsm.tex`, l'unico file di paper modificabile secondo `CLAUDE.md`): mancano la frase "< 0,1 s" (massimo 0,105 s, media 0,071 s) e le due convergenze 0,48 ± 0,02 e 0,51 ± 0,03 s.

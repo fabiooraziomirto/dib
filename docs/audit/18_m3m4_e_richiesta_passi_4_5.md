@@ -22,14 +22,19 @@ Data: 2026-10-10. Branch `revision-tnsm`. Decisioni dell'utente: audit 17 (C1-C3
 
 p50 e p99 (ms), FANOUT 10: a 1 writer 9,3 / 24,2 (off) e 5,5 / 8,1 (on); a 100 writer 198,9 / 433,2 (off) e 254,4 / 464,7 (on). Tabella completa in `summary.csv`.
 
-**Ipotesi (criteri fissati nel docstring prima del lancio).**
+**Ipotesi (criteri fissati nel docstring prima del lancio) e classificazione dopo la revisione dell'utente (2026-10-10).**
 
-| Ipotesi | Esito | Dato |
+| Ipotesi | Classificazione | Dato |
 |---|---|---|
-| **H-M3a** (FANOUT 10 / FANOUT 1 a 100 writer, mTLS off, entro ±10%) | **non falsificata** | rapporto 1,003 [0,981; 1,029]; con mTLS 0,999 [0,987; 1,010] |
-| **H-M3b** (nessun errore inatteso) | **FALSIFICATA** | 13 errori inattesi in 8 celle su 40: vedi sotto |
-| **H-M4** (mTLS ≤ 20% di throughput a 100 writer) | **non falsificata**, ma vicina al limite | rapporto 0,831 [0,812; 0,849]: costo 15-19%, IC interamente sopra 0,8 |
-| **H-M4** (≤ 5 ms di p50 a 1 writer) | formalmente non falsificata, **non interpretabile** | differenza mTLS − plain = −3,85 ms [−4,00; −3,70]: mTLS è più veloce, vedi anomalia |
+| **H-M3a** (FANOUT 10 / FANOUT 1 a 100 writer, mTLS off, entro ±10%) | non falsificata | rapporto 1,003 [0,981; 1,029]; con mTLS 0,999 [0,987; 1,010] |
+| **H-M3b** (nessun errore inatteso) | **FALSIFICATA**, resta tale | 13 errori su 1 288 000 operazioni (≈ 0,001%) in 8 celle su 40; conservati nei totali |
+| **H-M4, 1 writer** (≤ 5 ms di p50) | **NON VALUTABILE** | il "soddisfacimento" (−3,85 ms) deriva da un artefatto: mTLS risulta più veloce, il che un costo di TLS non può spiegare |
+| **H-M4, 100 writer** (≤ 20% di throughput) | **non valutabile come stima di costo**; rapporto osservato 0,831 [0,812; 0,849] | il rapporto è un dato descrittivo: vedi sotto |
+
+**Regole di trattamento (decisione utente).**
+- H-M3b: nessun test `xfail` da scrivere (è un'ipotesi di un esperimento, non un test della suite); l'asserzione originale non cambia. Un'ipotesi corretta scritta ora, dopo aver visto i dati, sarebbe **esplorativa**, mai confermativa. Causa: non determinata; l'ipotesi del keep-alive resta un'ipotesi non verificata (la verifica costerebbe più di mezz'ora: richiede un'istrumentazione lato server a scala). Il confronto con i 6 su 64 400 (0,0093%) del paper vecchio è solo descrittivo (cambiano macchina e versioni).
+- H-M4 a 100 writer: **non chiamarlo "limite superiore"**. Se il lanciatore avvantaggia il braccio mTLS (come a 1 e 10 writer), a 100 writer quel vantaggio può essere nascosto dal collo di bottiglia del database: il costo vero del TLS potrebbe essere **maggiore** del 17%. La direzione del bias non è determinata.
+- **Nessun numero di costo di mTLS va nel paper finché la causa dell'anomalia non è isolata** (diagnostica in §1.1).
 
 **H-M3b: errori inattesi.**
 - 13 su 1 288 000 operazioni cronometrate (0,001%): `RemoteProtocolError` 9 (commit 6, query 3) e `ReadError` 4 (commit 2, query 2). **Nessun `http.403`.**
@@ -46,13 +51,13 @@ p50 e p99 (ms), FANOUT 10: a 1 writer 9,3 / 24,2 (off) e 5,5 / 8,1 (on); a 100 w
   - TCP_NODELAY è impostato dal client (`httpcore/_backends/sync.py:215`);
   - il server usa h11 in entrambi i casi (uvicorn 0.51.0 senza extra, `Dockerfile:4`; sottoclasse h11 in `mtls.py:91-95`).
 - Differenze non escluse: il server senza mTLS parte con il CLI di uvicorn (`Dockerfile:20`), con mTLS con `uvicorn.Server(config)` e un protocollo sottoclasse (`mtls.py:158`), con parametri di default diversi; in mTLS il traffico passa su TLS, con record e scritture diverse. **Causa non identificata.**
-- Conseguenza: il confronto mTLS contro plain ai writer bassi **non misura il costo di mTLS**, e quello a 100 writer (−17%) è la sola stima di costo utilizzabile, con la cautela che le due configurazioni server differiscono. Il 5 ms di p50 non è interpretabile.
+- Conseguenza: il confronto mTLS contro plain **non misura il costo di mTLS** a nessun numero di writer; il −17% a 100 writer è un rapporto descrittivo con direzione del bias non determinata (correzione utente). Il 5 ms di p50 non è valutabile.
 - Diagnostica proposta (richiede un OK, dopo la richiesta unica): una misura aggiuntiva a 1 writer che riporti la latenza **per tipo di operazione** nei due modi (il benchmark la calcola ma non la salva), per sapere se il divario sta nelle operazioni sul sito (commit con scrittura SQLite) o anche in quelle su evidence.
 
 **Limiti e cautele.**
 - **Regola di scarto non applicata.** Il driver di M3/M4 registra per cella il carico medio e i primi processi per CPU del nodo (`node_load()`), non `other_cores` né `steal_pct` come `experiments_tnsm/common/node_monitor.py`: non si può quindi applicare `discard_rule.json`, e nessuna cella è stata scartata. G4 (nodo a riposo) resta non soddisfatta.
 - Load average a 1 minuto prima di ogni cella: 0,78-6,5; media per braccio 3,5-4,4 (FANOUT 1 off 3,46; FANOUT 1 on 3,62; FANOUT 10 off 4,03; FANOUT 10 on 4,42). Il valore è contaminato dalla cella precedente e dal riavvio del cluster, quindi **non è una misura pulita del carico di fondo**.
-- Il braccio mTLS è un **limite superiore** del costo, perché fra i servizi non c'è un pool (audit 13 §9.1).
+- Fra i servizi non c'è un pool (audit 13 §9.1): il costo di mTLS fra servizi è l'handshake completo a ogni chiamata. **Non si usa la formula "limite superiore"** per M4 (vedi sopra).
 - Il confronto con i risultati del paper vecchio è solo descrittivo (codice, host e Python diversi): lì il throughput a 100 writer era 530 ops/s (10 siti, FANOUT 1, senza mTLS, in locale), qui 527 senza mTLS; è un'analogia, non un confronto.
 
 ## 2. Richiesta unica per i Passi 4-5 (nulla lanciato)
