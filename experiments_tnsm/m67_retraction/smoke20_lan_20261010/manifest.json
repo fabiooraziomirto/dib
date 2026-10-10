@@ -1,0 +1,222 @@
+{
+ "started_utc": "2026-10-10T21:26:43.830803+00:00",
+ "argv": [
+  "run.py",
+  "--block",
+  "b1",
+  "--profile",
+  "lan",
+  "--arms",
+  "D",
+  "--fanouts",
+  "1,10",
+  "--episodes",
+  "20",
+  "--tree",
+  "/home/ubuntu/dib_tnsm/tree-1d4e18b",
+  "--out",
+  "/home/ubuntu/dib_tnsm/out/smoke20_lan_20261010"
+ ],
+ "profile": "lan",
+ "blocks": "b1",
+ "seed": 20261014,
+ "group_order": [
+  [
+   [
+    "D",
+    1,
+    5
+   ],
+   1
+  ],
+  [
+   [
+    "D",
+    10,
+    5
+   ],
+   1
+  ]
+ ],
+ "cell_order": [
+  {
+   "block": "b1",
+   "arm": "D",
+   "fanout": 1,
+   "T": 5,
+   "episodes": 20
+  },
+  {
+   "block": "b1",
+   "arm": "D",
+   "fanout": 10,
+   "T": 5,
+   "episodes": 20
+  }
+ ],
+ "node_tree": "/home/ubuntu/dib_tnsm/tree-1d4e18b",
+ "generator_host": "ubuntu",
+ "generator_is_node": true,
+ "clock": "time.time() = CLOCK_REALTIME of the node (same clock as docker logs -t)",
+ "cluster_recreations": 2,
+ "plog_thresholds": null,
+ "measure_rule": "dispute-rtt (no P-log calibration applied)",
+ "node_service_sha256": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+ "launcher_d_sha256": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+ "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
+ "run_py_sha256": "e7cd3f3993eaf03c9ce968742e2f28b8d8660682998e0be22685ce4b91222a99",
+ "discard_rule": {
+  "fixed_before_measuring": "2026-10-10, after the 5-minute no-DIB baseline (experiments_tnsm/node_baseline/baseline_noDIB.json), before any M1/M2 cell",
+  "rule": "a cell is flagged as disturbed if, over the cell window, other_cores > max_other_cores OR steal_pct > max_steal_pct; flagged cells are never dropped: results are reported on all cells and on unflagged cells, with the flagged count",
+  "max_other_cores": 1.0,
+  "max_steal_pct": 2.0,
+  "other_cores_definition": "CPU of user-space processes other than the measuring process (kernel threads excluded, reported as kernel_cores)",
+  "baseline": {
+   "samples": 60,
+   "interval_s": 5,
+   "other_cores": {
+    "median": 0.123,
+    "p95": 0.23,
+    "max": 0.28
+   },
+   "steal_pct": {
+    "median": 0.013,
+    "p95": 0.013,
+    "max": 0.038
+   },
+   "load1": {
+    "median": 0.145,
+    "max": 0.26
+   },
+   "main_process": "k3s-server ~0.10 cores"
+  },
+  "rationale": "1.0 core = 3.6x the baseline maximum and 8x its median: another tenant taking a whole vCPU; 2% steal = 50x the baseline maximum: hypervisor contention"
+ },
+ "disk_start": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.6G  97% /",
+ "cells_summary": [
+  {
+   "cell": 1,
+   "spec": {
+    "block": "b1",
+    "arm": "D",
+    "fanout": 1,
+    "T": 5,
+    "episodes": 20
+   },
+   "profile_timing": {
+    "t_created": 1791667610.024432,
+    "t_profile_confirmed": 1791667610.23662,
+    "profile_apply_delay_s": 0.2121882438659668,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.06624399975407869,
+     "1": 0.06414000017684884,
+     "2": 0.07489100244129077,
+     "3": 0.05628500002785586,
+     "4": 0.05824000254506245,
+     "5": 0.05346100078895688,
+     "6": 0.06415000098058954,
+     "7": 0.08125299791572616,
+     "8": 0.0751309999031946,
+     "9": 0.05604499892797321
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 47,
+    "gen_proc_cores_mean": 0.01870570879993518,
+    "gen_proc_cores_max": 0.04996913194159015,
+    "host_busy_pct_mean": 6.834222186156086,
+    "host_busy_pct_max": 9.045539613225202,
+    "near_saturation": false
+   },
+   "summary": {
+    "episodes": 20,
+    "excluded": 0,
+    "client_timeouts": 0,
+    "median_dispute_rtt_s": 0.041339874267578125,
+    "median_direct_plog_s": 0.03999936580657959,
+    "n_direct": 20,
+    "plog_minus_response_gap_ms": {
+     "median": 1.4646053314208984,
+     "max_abs": 2.3009777069091797
+    },
+    "plog_rtt_agree_within_ms": 3.0,
+    "plog_rtt_agree": true,
+    "plog_p95_ms_used": 2.5,
+    "plog_acceptance_ratio": 0.06250099094293063,
+    "plog_acceptable_rule_10pct": true,
+    "dispute_rtt_bias_ratio": 0.0,
+    "median_pending_withdrawal_s": null,
+    "n_pending_episodes": 0,
+    "pending_bias_ratio": null,
+    "pending_bias_flag_gt10pct": false
+   }
+  },
+  {
+   "cell": 2,
+   "spec": {
+    "block": "b1",
+    "arm": "D",
+    "fanout": 10,
+    "T": 5,
+    "episodes": 20
+   },
+   "profile_timing": {
+    "t_created": 1791667680.5439308,
+    "t_profile_confirmed": 1791667680.755141,
+    "profile_apply_delay_s": 0.2112104892730713,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.09661099829827435,
+     "1": 0.11563699808903039,
+     "2": 0.058850000641541556,
+     "3": 0.09340499673271552,
+     "4": 0.09317500007455237,
+     "5": 0.06090399983804673,
+     "6": 0.0889269977051299,
+     "7": 0.0989559994195588,
+     "8": 0.0914109987206757,
+     "9": 0.0959999997576233
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 46,
+    "gen_proc_cores_mean": 0.018028979758506276,
+    "gen_proc_cores_max": 0.04997002492363266,
+    "host_busy_pct_mean": 6.774720890733421,
+    "host_busy_pct_max": 9.085213032581454,
+    "near_saturation": false
+   },
+   "summary": {
+    "episodes": 20,
+    "excluded": 0,
+    "client_timeouts": 0,
+    "median_dispute_rtt_s": 0.01762688159942627,
+    "median_direct_plog_s": 0.015216231346130371,
+    "n_direct": 20,
+    "plog_minus_response_gap_ms": {
+     "median": 2.7233362197875977,
+     "max_abs": 4.3849945068359375
+    },
+    "plog_rtt_agree_within_ms": 3.0,
+    "plog_rtt_agree": false,
+    "plog_p95_ms_used": 2.5,
+    "plog_acceptance_ratio": 0.16429823805457408,
+    "plog_acceptable_rule_10pct": false,
+    "dispute_rtt_bias_ratio": 0.0,
+    "median_pending_withdrawal_s": null,
+    "n_pending_episodes": 0,
+    "pending_bias_ratio": null,
+    "pending_bias_flag_gt10pct": false
+   }
+  }
+ ],
+ "profile_events": [],
+ "aborted": false,
+ "finished_utc": "2026-10-10T21:29:03.346743+00:00",
+ "disk_end": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.6G  97% /"
+}

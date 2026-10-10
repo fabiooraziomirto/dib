@@ -1,0 +1,23 @@
+netem_apply: profile=degraded, 11 of 11 expected containers of project dibtnsm
+dibtnsm-evidence-1 (pid 690552): delay 200ms loss 5%
++ nsenter -t 690552 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-0-1 (pid 691994): delay 200ms loss 5%
++ nsenter -t 691994 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-1-1 (pid 691757): delay 200ms loss 5%
++ nsenter -t 691757 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-2-1 (pid 692939): delay 200ms loss 5%
++ nsenter -t 692939 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-3-1 (pid 690815): delay 200ms loss 5%
++ nsenter -t 690815 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-4-1 (pid 692469): delay 200ms loss 5%
++ nsenter -t 692469 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-5-1 (pid 691050): delay 200ms loss 5%
++ nsenter -t 691050 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-6-1 (pid 691521): delay 200ms loss 5%
++ nsenter -t 691521 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-7-1 (pid 692232): delay 200ms loss 5%
++ nsenter -t 692232 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-8-1 (pid 691285): delay 200ms loss 5%
++ nsenter -t 691285 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-9-1 (pid 692705): delay 200ms loss 5%
++ nsenter -t 692705 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
