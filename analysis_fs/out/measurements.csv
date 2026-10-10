@@ -1,0 +1,7 @@
+label,command,returncode,wall_s,peak_rss_gib
+netatmo_sampling,python3 analysis_fs/netatmo_sampling.py,0,201.7,1.35
+spurious_dates_w3plus1,python3 analysis_fs/spurious_dates.py --workers 3,0,419.1,7.08
+spurious_trust_seed42,python3 analysis_fs/spurious_trust_seed42.py,0,55.9,1.75
+mitigations_w2,python3 analysis_fs/mitigations.py --workers 2,0,95.2,3.72
+worst_case_real_w2,python3 analysis_fs/worst_case_real.py --workers 2,0,105.6,3.37
+a2_raw_k_w2,python3 analysis_fs/a2_raw_k.py --workers 2,0,352.5,2.68

@@ -1,27 +1,31 @@
 # Analisi dell'assunzione f_s = 0,30 (Criterion 1)
 
-Versione 2, 2026-10-10. Repo `DIB_clean`, branch `analysis-fs` (da `formal-ae` @ `cd3b5fa`). Sola analisi: nessun file di produzione, nessuna delle due versioni di `main.tex`, `formal/`, `claims.json`, `results/` o `configs/` è stato modificato. Tutti i file nuovi stanno in `analysis_fs/`.
+Versione 3, 2026-10-10 (v2: commit `7c056ef`). Repo `DIB_clean`, branch `analysis-fs`, creato da `formal-ae` @ `6ed220e` (la v1/v2 diceva `cd3b5fa`: sbagliato). Attenzione: la working tree è condivisa con un'altra sessione, i cui commit `2f1f2e4` e `52dcff6` (`formal:`/`docs: audit 07`) sono finiti su `analysis-fs` e non su `formal-ae`; non li ho spostati. Sola analisi: nessun file di produzione, nessuna delle due versioni di `main.tex`, `formal/`, `claims.json`, `results/` o `configs/` è stato modificato. Tutti i file nuovi stanno in `analysis_fs/`.
 
 **Paper di riferimento.** "paper:N" significa `/root/Desktop/DIB_reframe/docs/main.tex` (853 righe). L'altra versione, `DIB_reframe/main.tex` (771 righe), è indicata come "old:N"; le differenze sono in §9.
 
 **Notazione.** [C] = trovato nel codice o nei dati (file:riga). [D] = mia deduzione. [?] = incerto.
 
-**Nota su CLAUDE.md.** Il CLAUDE.md del progetto chiede di scrivere i risultati in `docs/audit/`. Su tua indicazione ho scritto solo in `analysis_fs/`. Proposta, non eseguita: copiare questo file in `docs/audit/07_assunzione_fs.md` (gli audit esistenti arrivano a 06).
+**Nota su CLAUDE.md.** Il CLAUDE.md del progetto chiede di scrivere i risultati in `docs/audit/`. La copia di questo file è in `docs/audit/08_assunzione_fs.md`, con un commit separato: il numero 07 è già occupato da `07_modello_ae.md` e il 04 è riservato al piano di misure (`05_reconcile_trigger_fanout.md`). Nella copia cambiano solo il titolo e una riga di provenienza (formato `# Audit NN — …`).
 
 ## Riprodurre (dalla root della repo)
 
 | Comando | Tempo | Note |
 |---|---|---|
-| `PYTHONPATH=code/src python3 -m pytest analysis_fs -q -p no:cacheprovider` | ~1 s | 32 passed |
+| `PYTHONPATH=code/src python3 -m pytest analysis_fs -q -p no:cacheprovider` | ~2 s | 40 passed, 1 xfailed (§11) |
 | `PYTHONPATH=code/src python3 analysis_fs/bound_grid.py` | ~13 s | |
 | `PYTHONPATH=code/src python3 analysis_fs/hd_heterogeneity.py` | ~3,5 min | dati in `/root/Desktop/DIB/data/processed` (fuori repo) |
 | `python3 analysis_fs/hd_coverage.py` | <1 s | legge `out/hd_by_device.csv` |
 | `python3 analysis_fs/finite_n.py` | <1 s | |
-| `PYTHONPATH=code/src python3 analysis_fs/a2_raw_k.py` | ~3 min | 5 processi, ~26 GB RAM |
-| `PYTHONPATH=code/src python3 analysis_fs/worst_case_real.py` | ~2,5 min | |
-| `PYTHONPATH=code/src python3 analysis_fs/mitigations.py` | ~2,5 min | |
+| `PYTHONPATH=code/src python3 analysis_fs/a2_raw_k.py [--workers 2]` | 353 s | 2,68 GiB (§13) |
+| `PYTHONPATH=code/src python3 analysis_fs/worst_case_real.py [--workers 2]` | 106 s | 3,37 GiB (§13) |
+| `PYTHONPATH=code/src python3 analysis_fs/mitigations.py [--workers 2]` | 95 s | 3,72 GiB (§13) |
+| `PYTHONPATH=code/src python3 analysis_fs/spurious_dates.py [--workers 3]` | 419 s | 7,08 GiB, 3+1 processi (§11) |
+| `PYTHONPATH=code/src python3 analysis_fs/spurious_trust_seed42.py` | 56 s | 1,75 GiB (§11) |
+| `PYTHONPATH=code/src python3 analysis_fs/netatmo_sampling.py` | 202 s | 1,35 GiB (§12) |
+| `python3 analysis_fs/measure.py <label> -- <comando>` | — | misura tempo e picco RSS dell'albero di processi, scrive `out/measurements.csv` |
 
-Calcolo totale speso in questa sessione: circa 22 min. La cifra comprende due run interrotti e rilanciati: il worst-case con ρ=1000 era troppo lento, e le mitigazioni sono state rifatte per le date spurie (§7).
+Calcolo della sessione v2: circa 22 min (v3: §13). La cifra comprende due run interrotti e rilanciati: il worst-case con ρ=1000 era troppo lento, e le mitigazioni sono state rifatte per le date spurie (§7).
 
 ---
 
@@ -232,10 +236,12 @@ Esito delle ipotesi W1–W4:
 | 8 | Aperta | Script multiseed fuori repo, con θ=0, m=1 e `>` (orig:59-60, :86-90). Ora esiste una copia corretta in `analysis_fs/a2_raw_k.py` |
 | 9 | Nuova | Il cold-start usa uno scoring reimplementato (`moniotr_cross_lab.py:324-373`), non DIBScorer; lì la protezione da un avversario solo-sorgente è solo il quorum |
 | 10 | Nuova | La quarantena per anzianità calcola la data di ingresso dai timestamp (falsificabile), in contrasto con il commento a dib.py:107-110 |
-| 11 | Nuova | **Date spurie nei dati UNSW**: 8 righe su 1.268.020 sono anteriori al 2016-09-01, di cui 5 datate 1970–1990 e 3 tra 2010-08 e 2016. Il periodo risultante è 17.269 giorni (2438 senza le righe precedenti al 2000), mentre il periodo principale, 2016-09 → 2017-04-13, è di circa 7 mesi. Allungano D_d per alcuni tipi; togliere solo le 5 righe porta i fatti ammessi da 349 a 354 (raw, seed 42). [?] Effetto sui numeri del paper non quantificato |
+| 11 | Chiusa (v3) | **Date spurie nei dati UNSW**: 8 righe in 3 tipi. Effetto puro sulle ammissioni nullo (§11). **Correzione della v2:** il passaggio 349 → 354 attribuito alle date dipende dal rimescolamento della partizione (`mitigations.py` filtra prima di `partition_observations`); a parità di partizione la variazione è 0 |
 | 12 | Nuova | `docs/main.tex` non contiene più 0,321/0,490/0,534; si trovano solo in old:451-455 |
 | 13 | Aperta | Refuso paper:177 |
 | 14 | Chiusa | H3: la frase "tie admitted" (old:402) è conservativa, non sbagliata; paper:405 dice già "strictly below θ". Il sup non viene raggiunto |
+| 15 | Nuova | Il commento a `dib.py:107-110` dice che la quarantena si basa sulla data di registrazione, ma il codice usa i timestamp dichiarati (`dib.py:166-173`). Segnalato, non corretto (punto C3) |
+| 16 | Nuova (v3) | Ipotesi S3 smentita: togliere le 8 righe cambia la breadth di qualche sito in 19 seed su 21 e la breadth di riferimento in 8; in trust weighting si muovono anche altri tipi (seed 42: 3738 score, max 4,9·10⁻⁵, 346 → 346) |
 
 **Le due versioni di main.tex sulle stesse affermazioni:**
 
@@ -259,12 +265,111 @@ Esito delle ipotesi W1–W4:
 | 6 | Indagare le date spurie e rifare i numeri sensibili a D_d | Da fare: rischio basso, costo medio |
 | 7 | Portare in repo lo script e i dati del run multiseed | `analysis_fs/orig/` contiene la copia; gli output originali restano fuori repo |
 
+## 11. Date spurie nei dati UNSW (punto A, `spurious_dates.py`, `spurious_trust_seed42.py`)
+
+**Le righe [C]** (`out/spurious_rows.csv`). Sono identiche nei due file: riga in `observations_enriched.csv` / riga in `observations_enriched_item1fixed.csv`. Tutte hanno `site_id = unsw-iotraffic-2025`.
+
+| Riga enriched / item1fixed | device_type | endpoint (fqdn o IP), proto/porta | timestamp |
+|---|---|---|---|
+| 137970 / 102970 | AugustDoorBell | doorbells.august.com, tcp/443 | 1981-01-21 |
+| 558139 / 431045 | AugustDoorBell | dmsv2.video-cloud.net, tcp/443 | 1982-07-31 |
+| 1693545 / 869484 | NestDropCam | 52.87.241.159, syslog/443 | 1970-07-15 |
+| 1693546 / 869485 | NestDropCam | 52.87.241.159, tcp/443 | 1990-11-26 |
+| 1693562 / 869488 | NestDropCam | 52.87.241.159, tcp/443 | 2010-08-10 |
+| 1693808 / 869588 | NestDropCam | 52.87.241.159, tcp/443 | 2011-08-20 |
+| 2162894 / 1187986 | WithingsSleepSensor | 89.30.121.22, tcp/5222 | 2012-08-17 |
+| 2182503 / 1197642 | WithingsSleepSensor | 89.30.121.26, syslog/5222 | 1970-01-01 |
+
+Il periodo "buono" va dal 2016-09-22 al 2017-04-13 (179 giorni distinti). Effetto su |D_d|:
+
+| Tipo | Righe del tipo | \|D_d\| con le spurie | \|D_d\| senza | Bound sull'aumento di score (0,28·(\|D_d\|/\|D_d'\| − 1)) |
+|---|---|---|---|---|
+| AugustDoorBell | 642.734 | 110 | 108 | 0,0052 |
+| NestDropCam | 926 | 93 | 89 | 0,0126 |
+| WithingsSleepSensor | 20.276 | 89 | 87 | 0,0064 |
+
+**Chi usa il file [C].**
+- `observations_enriched.csv` è l'input di default di 26 script in `code/scripts/` (grep su `observations_enriched`) e di 9 directory di `results/` per dichiarazione del manifest: a1, a1_baselines, a1_resolvable, ablation_multiseed, cold_start, masquerade, recall, sybil, sybil_jaccard. `results/drift` non ha manifest, ma lo script `nonstationarity_drift_sweep.py:87` legge questo file per default. Per `results/quorum`, `site_quorum_sensitivity.py:49` richiede `--observations` esplicito: `results/quorum/README.md` (come `results/drift/README.md`) cita `observations_enriched.csv`; [?] non verificato per hash.
+- `observations_enriched_item1fixed.csv` è l'input del run multiseed A2 (fuori repo) e dei miei script `a2_raw_k.py`, `worst_case_real.py`, `mitigations.py`, `netatmo_sampling.py`.
+
+Frasi del paper che ne dipendono, con l'esposizione:
+
+| Riga | Claim | Esposizione |
+|---|---|---|
+| 528 | 36/55 ACE, recall 0,079/0,124, F1 0,112/0,022 | tutti i tipi UNSW |
+| 530 | 346 fatti | ricalcolato, vedi sotto |
+| 627–629 | A1 0/59, 21/150 | da verificare se i cinque tipi A1 includono quelli coinvolti (da calcolare) |
+| 631 | 0,354, 0,562, 0,663 | i massimi stanno su HelloBarbie/CanaryCamera |
+| 637 | Sybil 45/48, 0,905 | **target AugustDoorBell**, tipo coinvolto |
+| 639 | deriva 69/162 | include i tre tipi |
+
+**Metodo.** Pipeline del paper (`read → filter_observations(exclude_non_global_ips) → partition(random, seed) → DIBScorer`), con le 8 righe tolte **dopo** la partizione. Così misuro l'effetto puro delle date; rifare gli script su un file filtrato rimescolerebbe anche la partizione, cioè varianza di seed. Seed 0–19 e 42; config `graph_free_selected` (trust, m=2) e raw. Lo scoring ristretto ai tre tipi è verificato esatto contro lo scoring completo al seed 42 (190/190 chiavi). Copie filtrate: `out/*_nospurious.csv` (8 righe in meno ciascuna, gitignored).
+
+**Risultati.**
+
+| Misura | Risultato |
+|---|---|
+| Fatti ammessi dei tre tipi, trust e raw, 21 seed (`spurious_dates_summary.csv`) | 15 → 15 in ogni seed; **0 nuove ammissioni, 0 nuovi rifiuti** |
+| Endpoint eleggibili dei tre tipi in [θ − bound, θ) prima della rimozione | **0** in tutti i seed |
+| Variazioni di score (raw), endpoint non proprietari delle righe | da 0 a +0,0051 (dentro il bound) |
+| Endpoint proprietari delle righe | **in calo**: dmsv2.video-cloud.net 0,6993 → 0,6985 (resta ammesso); 52.87.241.159 tcp/443 0,622 → 0,556 (classe `other`, non eleggibile); 89.30.121.26 syslog 0,253 → 0,190; 89.30.121.22 0,186 → 0,183 |
+| Trust weighting, popolazione completa, seed 42 (`spurious_dates_trust_seed42.csv`) | **346 → 346 fatti**; 3738 score di altri tipi si muovono, al massimo di 4,9·10⁻⁵ |
+| A2 raw a k=3 e k=5, tipi coinvolti, 20 seed (`spurious_dates_a2.csv`) | variazione del massimo da +0,00005 a +0,0007; 0 cambi di ammissione; i valori "prima" coincidono con `a2_raw_k.csv` (120/120) |
+| Celle dei tipi coinvolti in `results/*.csv` con score in [θ − bound, θ) (`spurious_dates_results_scan.csv`) | **nessuna**, Sybil e deriva inclusi |
+
+**Esito delle ipotesi.**
+- S1 confermata.
+- **S2 smentita in parte:** gli endpoint che possiedono le righe perdono giorni propri e scendono fino a −0,066. Il test A.3 resta con l'asserzione originale ed è marcato `xfail(strict=True)`; il test post-hoc ristretto ai non proprietari passa.
+- **S3 smentita:** la breadth di qualche sito cambia in 19 seed su 21 e quella di riferimento in 8.
+- S4 confermata con 0 cambi; S5 confermata.
+
+**Conclusione [D].** Nessun numero del paper cambia per effetto delle date: nessuna ammissione attraversa θ=0,65 nelle configurazioni ricalcolate, e la scansione dei risultati salvati non trova celle che il bound possa spostare oltre θ. Restano da calcolare:
+- l'effetto del rimescolamento, se gli script vengono rifatti su un file filtrato (varianza di seed, ad esempio 344,55 ± 5,03);
+- il trust completo sugli altri 20 seed (solo il seed 42 è stato rifatto);
+- la sovrapposizione tra i tipi A1 e quelli coinvolti.
+
+## 12. Campionamento di Netatmo e BlipCare: due modelli (punto B, `netatmo_sampling.py`)
+
+Modelli:
+- **uniforme:** k siti tra tutti i 10, con la stessa chiamata RNG dello script originale. K_d segue una ipergeometrica (10, k, |ES_d|).
+- **ES_d:** k siti dentro ES_d (`a2_raw_k.py`), quindi K_d = min(k, |ES_d|).
+
+"Attesa" è P(K_d ≥ 2 e K_d/|ES_d| > 5/12), cioè il fatto è ammissibile in linea di principio; per BlipCare è mediata su |ES_d| per seed (4–8). Single-shot, raw breadth, 20 seed (`out/netatmo_sampling_table.csv`).
+
+| Tipo | Modello | k=1 | k=2 | k=3 | k=4 | k=5 |
+|---|---|---|---|---|---|---|
+| Netatmo (\|ES_d\|=2) | uniforme: attesa / osservata ammessi | 0 / 0 | 0,022 / 0 | 0,067 / **3** (seed 1, 6, 13) | 0,133 / 4 | 0,222 / 8 |
+| Netatmo | ES_d: attesa / osservata | 0 / 0 | 1 / **20** | 1 / 20 | 1 / 20 | 1 / 20 |
+| BlipCare (\|ES_d\| 4–8) | uniforme: attesa ammissibile / ammessi | 0 / 0 | 0,007 / 0 | 0,190 / 0 (3 ammissibili) | 0,492 / 0 (8) | 0,769 / 0 (15) |
+| BlipCare | ES_d: attesa ammissibile / ammessi | 0 / 0 | 0,05 / 0 | 0,90 / 0 | 1 / 2 | 1 / 11 |
+
+Quota effettiva per Netatmo: 0, 0,5 o 1,0 nel modello uniforme; 0,5 (k=1) o 1,0 (k ≥ 2) nel modello ES_d. Per BlipCare l'intervallo per k è in `netatmo_sampling_table.csv` (`share_range`).
+
+Ipotesi N1–N3 confermate: con k=3 il modello uniforme riproduce esattamente i seed 1, 6, 13 del run originale, e Netatmo è ammesso se e solo se K_d = 2. Per BlipCare l'ammissibilità è necessaria ma non sufficiente: con single-shot, C_t resta basso.
+
+**Quale modello citare (senza scegliere per te).**
+- Il modello **uniforme** descrive un consorzio in cui la compromissione colpisce i siti indipendentemente dai tipi che osservano. È quello dello script originale, quindi il 3/20 si cita con questo modello.
+- Il modello **ES_d** descrive un avversario che sceglie di colpire proprio i siti che osservano il tipo bersaglio. È il caso peggiore per un dato k, e tiene la quota per tipo pari a k/|ES_d|, cioè la quantità definita dal Criterion.
+- Il paper deve dire quale dei due usa: il 3/20 e il 20/20 non sono due misure dello stesso evento.
+
+## 13. RAM, parallelismo e riproducibilità (punto C2)
+
+`--workers N` (default 2) in `a2_raw_k.py` (processi sui seed, ciascuno carica i dati), `worst_case_real.py` e `mitigations.py` (fork, dati condivisi copy-on-write). Misure con `analysis_fs/measure.py`, che campiona ogni 0,5 s l'RSS sommato sull'albero dei processi, quindi il picco è un limite inferiore (`out/measurements.csv`).
+
+| Script, N=2 | Tempo | Picco RSS | Output identici a `7c056ef` (sha256) |
+|---|---|---|---|
+| `a2_raw_k.py --workers 2` | 353 s | 2,68 GiB | sì: `a2_raw_k.csv`, `a2_raw_k_summary.csv`, `a2_raw_k_low_coverage.csv` |
+| `worst_case_real.py --workers 2` | 106 s | 3,37 GiB | sì: `worst_case_real.csv`, `worst_case_real_summary.csv` |
+| `mitigations.py --workers 2` | 95 s | 3,72 GiB | sì: `mitigation_recall_cost.csv`, `mitigation_adversary_sup.csv`, `mitigation_tau.csv` |
+
+**Correzione della v2:** i "~26 GB" della v2 venivano da `free -g` sull'intera macchina, con altri run in parallelo; non erano una misura del solo `a2_raw_k.py` con 5 processi. [?] Il picco con 5 processi non è stato rimisurato.
+
+Tempo di calcolo di questa sessione: **somma dei run misurati 1231 s ≈ 20,5 min (`measurements.csv`), più circa 4 min di un primo `spurious_dates.py --workers 2` interrotto perché troppo lento, più circa 1 min di controlli con pandas: in tutto circa 26 min, entro i 30. Molti run sono andati in parallelo, quindi il tempo di orologio è stato minore**.
+
 ## Riassunto
 
-1. L'algebra del Criterion 1 regge sia su dati sintetici (0/3807) sia su dati reali (0/795 celle incoerenti). Il bound è un sup mai raggiunto e il pareggio a 5/12 non viene ammesso; c'è anche un caso reale (BlipCare, H2).
-2. Correggere "0,562 è il massimo a f_s=0,30": il worst-case reale arriva a 0,5788 (bound 0,58). k=5 di 10 viene ammesso in 125/125 celle già con ρ ≤ 2.
-3. Raw breadth contro trust-weighted: k=3 dà 0,317/0,353 (contro 0,321/0,354), k=5 dà 0,474/0,532 (contro 0,490/0,534). Differenze piccole, ma i run del paper non sono in raw breadth.
-4. Bassa copertura: Netatmo (|ES_d|=2) ammesso 20/20 con k ≥ 2 (quota 1,0); BlipCare ammesso solo con quota ≥ 0,8. Va dichiarato, non escluso.
-5. H2: l'attacco con k=8 nuovi id contro h=10 riesce su 25/25 tipi. Lo neutralizza solo una quarantena basata sulla data di registrazione, che il codice non ha: quella attuale è falsificabile.
-6. Cold-start a 2–3 sorgenti: contro l'avversario solo-sorgente protegge il quorum, non lo score.
-7. La riformulazione è corretta: tabella con Fraction, requisito h_d > 7k/5 (5/12) e h_d ≥ 7k/3 (f_s).
+1. **Date spurie (A):** 8 righe in 3 tipi (AugustDoorBell, NestDropCam, WithingsSleepSensor; |D_d| −2/−4/−2). A parità di partizione nessuna ammissione cambia in 21 seed (trust e raw), il 346 del paper resta 346 al seed 42, e nessuna cella salvata in `results/` è entro il bound da θ. **Nessun numero del paper cambia.** Le ipotesi S2 e S3 sono smentite in parte (endpoint proprietari in calo; breadth dei siti modificata). La v2 attribuiva alle date il 349 → 354, che era un rimescolamento della partizione.
+2. **Campionamento (B):** Netatmo con modello uniforme 0/0/3/4/8 su 20 (attese 0/0,022/0,067/0,133/0,222); con modello ES_d 0/20/20/20/20. Il 3/20 originale è riprodotto esattamente. Sono due eventi diversi, e il paper deve dichiarare il modello.
+3. **RAM (C2):** con N=2, worst-case 106 s / 3,37 GiB, mitigazioni 95 s / 3,72 GiB, A2 353 s / 2,68 GiB; output identici byte per byte alla v2.
+4. Restano valide le conclusioni di v1/v2 su bound, worst-case e H2 (§3, §7).
+5. Diff proposto per il paper: `paper_edits_proposed.md`. Le frasi che dipendono dai dati UNSW (§0 del file) vanno toccate solo dopo aver deciso se rigenerare i risultati su dati filtrati.

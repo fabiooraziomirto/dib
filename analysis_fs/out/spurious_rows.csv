@@ -1,0 +1,17 @@
+file,line,site_id,device_id,device_type,fqdn,remote_ip,protocol,port,timestamp
+observations_enriched.csv,137970,unsw-iotraffic-2025,e076d03f00ae,AugustDoorBell,doorbells.august.com,148.62.0.116,tcp,443,1981-01-21T16:15:37.870975+00:00
+observations_enriched.csv,558139,unsw-iotraffic-2025,e076d03f00ae,AugustDoorBell,dmsv2.video-cloud.net,54.250.252.63,tcp,443,1982-07-31T10:10:53.881602+00:00
+observations_enriched.csv,1693545,unsw-iotraffic-2025,308cfb2fe4b2,NestDropCam,,52.87.241.159,syslog,443,1970-07-15T04:36:50.222077+00:00
+observations_enriched.csv,1693546,unsw-iotraffic-2025,308cfb2fe4b2,NestDropCam,,52.87.241.159,tcp,443,1990-11-26T11:32:40.582424+00:00
+observations_enriched.csv,1693562,unsw-iotraffic-2025,308cfb2fe4b2,NestDropCam,,52.87.241.159,tcp,443,2010-08-10T21:38:05.823506+00:00
+observations_enriched.csv,1693808,unsw-iotraffic-2025,308cfb2fe4b2,NestDropCam,,52.87.241.159,tcp,443,2011-08-20T11:59:29.566428+00:00
+observations_enriched.csv,2162894,unsw-iotraffic-2025,0024e42028c6,WithingsSleepSensor,,89.30.121.22,tcp,5222,2012-08-17T19:34:02.587129+00:00
+observations_enriched.csv,2182503,unsw-iotraffic-2025,0024e42028c6,WithingsSleepSensor,,89.30.121.26,syslog,5222,1970-01-01T08:57:08.620602+00:00
+observations_enriched_item1fixed.csv,102970,unsw-iotraffic-2025,e076d03f00ae,AugustDoorBell,doorbells.august.com,148.62.0.116,tcp,443,1981-01-21T16:15:37.870975+00:00
+observations_enriched_item1fixed.csv,431045,unsw-iotraffic-2025,e076d03f00ae,AugustDoorBell,dmsv2.video-cloud.net,54.250.252.63,tcp,443,1982-07-31T10:10:53.881602+00:00
+observations_enriched_item1fixed.csv,869484,unsw-iotraffic-2025,308cfb2fe4b2,NestDropCam,,52.87.241.159,syslog,443,1970-07-15T04:36:50.222077+00:00
+observations_enriched_item1fixed.csv,869485,unsw-iotraffic-2025,308cfb2fe4b2,NestDropCam,,52.87.241.159,tcp,443,1990-11-26T11:32:40.582424+00:00
+observations_enriched_item1fixed.csv,869488,unsw-iotraffic-2025,308cfb2fe4b2,NestDropCam,,52.87.241.159,tcp,443,2010-08-10T21:38:05.823506+00:00
+observations_enriched_item1fixed.csv,869588,unsw-iotraffic-2025,308cfb2fe4b2,NestDropCam,,52.87.241.159,tcp,443,2011-08-20T11:59:29.566428+00:00
+observations_enriched_item1fixed.csv,1187986,unsw-iotraffic-2025,0024e42028c6,WithingsSleepSensor,,89.30.121.22,tcp,5222,2012-08-17T19:34:02.587129+00:00
+observations_enriched_item1fixed.csv,1197642,unsw-iotraffic-2025,0024e42028c6,WithingsSleepSensor,,89.30.121.26,syslog,5222,1970-01-01T08:57:08.620602+00:00

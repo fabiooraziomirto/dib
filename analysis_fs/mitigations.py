@@ -32,7 +32,9 @@ Hypotheses (stated before running):
 """
 from __future__ import annotations
 
+import argparse
 import csv
+import multiprocessing
 import time
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
@@ -145,7 +147,27 @@ def worst_case_rows(observations: list[Observation], *, share_k: dict[str, int],
     return fakes
 
 
+_POPS: dict[str, list[Observation]] = {}
+
+
+def _admitted(task: tuple[str, dict]) -> set[tuple]:
+    pop, kw = task
+    return {k for k, x in score_variant(_POPS[pop], **kw).items() if x["accepted"]}
+
+
+def _fake_stats(task: tuple[str, dict, tuple]) -> dict:
+    pop, kw, full = task
+    v = score_variant(_POPS[pop], **kw)
+    fk = [x for key, x in v.items() if key[1] == FAKE and key[0] in full]
+    return {"types": len(fk), "max_fake_score": round(max(x["score"] for x in fk), 6),
+            "max_fake_ct": round(max(x["temporal_confidence"] for x in fk), 6),
+            "types_admitted": sum(x["accepted"] for x in fk)}
+
+
 def main() -> None:
+    p = argparse.ArgumentParser()
+    p.add_argument("--workers", type=int, default=2, help="processes over variants (fork, data shared copy-on-write)")
+    a = p.parse_args()
     OUT.mkdir(exist_ok=True)
     t0 = time.monotonic()
     # 5 of 1,268,020 rows carry 1970-1990 timestamps (data artefact found while
@@ -157,20 +179,16 @@ def main() -> None:
     print(f"loaded+partitioned {len(part)} in {time.monotonic() - t0:.0f}s", flush=True)
     print("M1 equivalence, keys checked:", check_equivalence(part), f"({time.monotonic() - t0:.0f}s)", flush=True)
     span = (max(o.timestamp.date() for o in part) - min(o.timestamp.date() for o in part)).days
-    base = score_variant(part)
-    base_admitted = {k for k, v in base.items() if v["accepted"]}
-    rows = [{"option": "base", "param": "", "admitted": len(base_admitted), "lost": 0, "gained": 0,
-             "capture_span_days": span}]
-    for T in (1, 7, 30, 90, span, span + 1):
-        v = score_variant(part, tenure_days=T)
-        adm = {k for k, x in v.items() if x["accepted"]}
-        rows.append({"option": "tenure(timestamp first-seen)", "param": f"T={T}", "admitted": len(adm),
-                     "lost": len(base_admitted - adm), "gained": len(adm - base_admitted), "capture_span_days": span})
-    for c in (1, 10, 100, 1000):
-        v = score_variant(part, cap=c)
-        adm = {k for k, x in v.items() if x["accepted"]}
-        rows.append({"option": "cap per site per (d,e)", "param": f"c={c}", "admitted": len(adm),
-                     "lost": len(base_admitted - adm), "gained": len(adm - base_admitted), "capture_span_days": span})
+    _POPS["part"] = part
+    labels = ([("base", "", {})] + [("tenure(timestamp first-seen)", f"T={T}", {"tenure_days": T})
+                                    for T in (1, 7, 30, 90, span, span + 1)]
+              + [("cap per site per (d,e)", f"c={c}", {"cap": c}) for c in (1, 10, 100, 1000)])
+    with multiprocessing.get_context("fork").Pool(a.workers) as pool:
+        admitted_sets = pool.map(_admitted, [("part", kw) for _, _, kw in labels])
+    base_admitted = admitted_sets[0]
+    rows = [{"option": opt, "param": param, "admitted": len(adm), "lost": len(base_admitted - adm),
+             "gained": len(adm - base_admitted), "capture_span_days": span}
+            for (opt, param, _), adm in zip(labels, admitted_sets)]
     with (OUT / "mitigation_recall_cost.csv").open("w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0]))
         w.writeheader()
@@ -185,23 +203,23 @@ def main() -> None:
         es[o.device_type].add(o.site_id)
     full = sorted(d for d, s in es.items() if len(s) == 10)
     as_of = max(o.timestamp.date() for o in part)
-    sup_rows = []
+    tasks, labels = [], []
     for label, newcomer, k in (("insider k=5/10", False, 5), ("H2 newcomers k=8, h=10", True, 8),
                                ("insider k=3/10 (f_s)", False, 3)):
         fakes = worst_case_rows(part, share_k={d: k for d in full}, newcomer=newcomer, flood_per_day=200)
-        pop = part + fakes
+        _POPS[label] = part + fakes
         reg = {f"newcomer{j}": as_of for j in range(k)} if newcomer else None
         variants = [("none", {}), ("tenure T=7, timestamp first-seen", {"tenure_days": 7}),
                     ("tenure T=7, registration first-seen", {"tenure_days": 7, "registration": reg or {}}),
                     ("cap c=1", {"cap": 1}), ("cap c=10", {"cap": 10}), ("cap c=100", {"cap": 100})]
         for name, kw in variants:
-            v = score_variant(pop, **kw)
-            fk = [x for key, x in v.items() if key[1] == FAKE and key[0] in full]
-            sup_rows.append({"adversary": label, "option": name, "types": len(fk),
-                             "max_fake_score": round(max(x["score"] for x in fk), 6),
-                             "max_fake_ct": round(max(x["temporal_confidence"] for x in fk), 6),
-                             "types_admitted": sum(x["accepted"] for x in fk)})
-            print(sup_rows[-1], flush=True)
+            tasks.append((label, kw, tuple(full)))
+            labels.append((label, name))
+    with multiprocessing.get_context("fork").Pool(a.workers) as pool:
+        stats = pool.map(_fake_stats, tasks)
+    sup_rows = [{"adversary": label, "option": name, **st} for (label, name), st in zip(labels, stats)]
+    for r in sup_rows:
+        print(r, flush=True)
     with (OUT / "mitigation_adversary_sup.csv").open("w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(sup_rows[0]))
         w.writeheader()

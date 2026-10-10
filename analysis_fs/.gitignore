@@ -1,0 +1,4 @@
+# Large filtered data copies produced by spurious_dates.py (not committed)
+out/*_nospurious.csv
+*.log
+__pycache__/

@@ -157,7 +157,7 @@ def main() -> None:
                    default=Path("/root/Desktop/DIB/data/processed/observations_enriched_item1fixed.csv"))
     p.add_argument("--seeds", type=int, default=20)
     p.add_argument("--ks", type=int, nargs="+", default=[0, 1, 2, 3, 4, 5])
-    p.add_argument("--workers", type=int, default=5)
+    p.add_argument("--workers", type=int, default=2)
     a = p.parse_args()
     OUT.mkdir(exist_ok=True)
     t0 = time.monotonic()

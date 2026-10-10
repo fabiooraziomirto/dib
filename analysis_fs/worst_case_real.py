@@ -42,8 +42,10 @@ Hypotheses (stated before running):
 """
 from __future__ import annotations
 
+import argparse
 import csv
 import math
+import multiprocessing
 import random
 import time
 from collections import defaultdict
@@ -198,16 +200,27 @@ def validate_full(obs: list[Observation], seed: int = 0, rho: int = 1) -> int:
     return len(expected)
 
 
+_OBS: list[Observation] = []
+
+
+def _seed_worker(seed: int) -> list[dict]:
+    rows = run_seed(_OBS, seed)
+    print(f"seed {seed} done", flush=True)
+    return rows
+
+
 def main() -> None:
+    global _OBS
+    p = argparse.ArgumentParser()
+    p.add_argument("--workers", type=int, default=2, help="processes over seeds (fork, data shared copy-on-write)")
+    a = p.parse_args()
     OUT.mkdir(exist_ok=True)
     t0 = time.monotonic()
-    obs = list(read_observations_csv(DATA))
+    obs = _OBS = list(read_observations_csv(DATA))
     print(f"loaded {len(obs)} in {time.monotonic() - t0:.0f}s", flush=True)
     print("full-population validation, types checked:", validate_full(obs), f"({time.monotonic() - t0:.0f}s)", flush=True)
-    rows = []
-    for seed in range(5):
-        rows += run_seed(obs, seed)
-        print(f"seed {seed} done ({time.monotonic() - t0:.0f}s)", flush=True)
+    with multiprocessing.get_context("fork").Pool(a.workers) as pool:
+        rows = [r for part in pool.map(_seed_worker, range(5)) for r in part]
     with (OUT / "worst_case_real.csv").open("w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0]))
         w.writeheader()

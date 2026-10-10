@@ -1,0 +1,2 @@
+seed,config,admitted_before,admitted_after,newly_admitted,newly_rejected,other_type_keys,other_type_keys_moved,max_abs_delta_other_types
+42,graph_free_selected(trust),346,346,0,0,4330,3738,4.916402518012619e-05
