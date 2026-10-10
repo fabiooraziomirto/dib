@@ -1,0 +1,38 @@
+{
+ "description": "Real h_d histogram (independent sites per device type), anchor point of the synthetic federation (plan rev. 5, Passo 6a). Counts only, no device labels.",
+ "unit": "number of device types with exactly h independent observing sites",
+ "sources": {
+  "base": {
+   "file": "analysis_fs/out/hd_union_histogram.csv",
+   "sha256": "803334912f75bb383295980196416a5e044bd45612f1b860c29a31867441bd6e",
+   "corpus": "union_canonical_h_indep (UNSW, Mon(IoT)r US, Mon(IoT)r UK, YourThings; audit 11 s.2.3)"
+  },
+  "ncsu": "audit 11 s.2.6 (NCSU sample, one more independent site): strict mapping ring-doorbell 4->5; family mapping 7 types gain one site (echoplus 2->3; nestcamera, googleonhub, lgtv-wired, amcrest-cam-wired 1->2; ring-doorbell, smartthings 4->5)"
+ },
+ "histograms": {
+  "base_4_sites": {
+   "1": 87,
+   "2": 28,
+   "3": 1,
+   "4": 3
+  },
+  "with_ncsu_strict": {
+   "1": 87,
+   "2": 28,
+   "3": 1,
+   "4": 2,
+   "5": 1
+  },
+  "with_ncsu_family": {
+   "1": 83,
+   "2": 31,
+   "3": 2,
+   "4": 1,
+   "5": 2
+  }
+ },
+ "anchor_used": "with_ncsu_family",
+ "anchor_reason": "most favourable to the guard among the measured variants (most types with high h); the synthetic sweep is in any case more favourable than this (audit 14, abstract line of Passo 6)",
+ "median_h": 1,
+ "max_independent_sites": 5
+}
