@@ -332,7 +332,7 @@ Questa sezione sostituisce §2.0-2.3 dove li contraddice. **Nulla è stato lanci
 5. **Pulizia finale:** `sudo $T/.../netem_apply.sh lan`, poi `sudo $T/.../netem_show.sh`: **nessun netem deve restare in nessun namespace** (un residuo contaminerebbe le misure successive). Verifica che l'output mostri solo il qdisc di default (`noqueue` o `fq_codel`) per ogni container.
 
 **2. Calibrazioni che lancio io, senza sudo.** Cluster D (plain, il braccio di M6/M7), tutte da `~/dib_tnsm/tree-<commit>`:
-1. **Pipeline dei log con due container in parallelo** (`calib_logs.py --n 100`): evidence da sola e poi evidence con `site-0`, ordine e scarto relativo; a `lan`. Per il braccio mTLS la latenza dei log si assume uguale (la pipeline Docker non dipende da TLS); **è un'assunzione**, e il presenza dell'access log in mTLS è già verificata (diagnostica del 2026-10-10).
+1. **Pipeline dei log con due container in parallelo** (`calib_logs.py --n 100`): evidence da sola e poi evidence con `site-0`, ordine e scarto relativo; a `lan`. Per il braccio mTLS la latenza dei log si assume uguale (la pipeline Docker non dipende da TLS); **è un'assunzione**, e la presenza dell'access log in mTLS è già verificata (diagnostica del 2026-10-10).
 2. **L_dns** (`calib_ldns.sh`): a `lan` subito; a `wan` e `degraded` **solo dopo che avrai applicato i profili** (punto 1.3). Da questo valore si decide la variante di B2 (≤ 50 ms: entrambe; ≥ 0,5 s: solo B2-partition più `kill-min`; nel mezzo ricalcolo e decidi tu).
 3. Dalle calibrazioni: soglie per profilo (P-log usabile se il p95 della latenza è < 10% della mediana del ritiro diretto del profilo, altrimenti ripiego `dispute-rtt`), committate prima del lancio.
 
