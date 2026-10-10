@@ -17,7 +17,7 @@ Provenienza e inventario: `docs/audit/00_inventario_repo_pulita.md`. Import = ta
 
 ## Come si esegue
 - Test: `cd code && PYTHONDONTWRITEBYTECODE=1 timeout 300 python3 -m pytest tests -q -p no:cacheprovider` (atteso 281 passed al tag `v43-import`, ~6 s). `pytest-timeout` non è installato: usa `timeout`.
-- Numeri indicizzati: `python3 scripts/verify_artifact.py [--with-tests]` (secondi, atteso 262 checks passed).
+- Numeri indicizzati: `python3 scripts/verify_artifact.py [--with-tests]` (secondi, atteso 262 checks passed al tag `v43-import`, 266 su `revision-tnsm` dal commit `062b417`).
 - TLC: `python3 scripts/run_formal.py --jar <tla2tools.jar> [--mutations-only] --output <dir>` (richiede Java; versione dei log: TLC2 2026.05.26.235334, rev 4ba7d88). Modello completo: minuti → chiedere.
 - Esperimenti registry senza dati terzi: `PYTHONPATH=code/src python3 code/scripts/<script>.py` (v36_restore_ablation, v35_lifecycle_experiment, v28_lifecycle_trace, offline_veto_reconciliation --trials 10).
 - Cluster distribuito e gateway OpenWrt: Docker, comandi lunghi → chiedere.
