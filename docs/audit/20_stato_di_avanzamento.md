@@ -9,9 +9,9 @@ Ultimo aggiornamento: 2026-10-10 (notte). Branch `revision-tnsm`, worktree `/roo
 | 0-2 (M1 fermato, audit 14, G0b) | fatto, copiato in `results/` (262 → 266 controlli, `verify_artifact` verde) | audit 14, 15 |
 | 6, 6a (sicurezza: H6-1a/b/c, H6-2, D0') | fatto | audit 16 |
 | 3 (M3/M4 + diagnosi dell'anomalia) | **chiuso**: causa = contesto SSL httpx costruito a ogni chiamata nel braccio senza mTLS (6,15 ms); braccio D la rimuove; rilancio M4 C contro D fatto (H-M4a/b non falsificate: C/D 0,60 e 0,79; 50 e 100 writer esplorativi 0,60 e 0,54) | audit 18 §1.1-1.7.1 |
-| Diagnostica CPU a 100 writer | vedi audit 18 §1.8 (se presente) | `experiments_tnsm/m3_distributed/diag_cpu100_20261010/` |
-| Calibrazioni a `lan` (log con due container, L_dns) | vedi audit 18 §1.9 (se presente) | `experiments_tnsm/m67_retraction/calib_lan_20261010/` |
-| Passi 4-5 (M6/M7, rete emulata) | **driver pronto, non integrato sul nodo**; attende i profili netem dell'utente | `experiments_tnsm/m67_retraction/run.py` |
+| Diagnostica CPU a 100 writer | **fatta, quadro misto**: generatore a ~1,1 core in tutte le celle, evidence 0,84-1,02, nodo ~20% | audit 18 §1.8 | `experiments_tnsm/m3_distributed/diag_cpu100_20261010/` |
+| Calibrazioni a `lan` (log con due container, L_dns) | **fatte**: log p95 ~2-2,5 ms, scarto relativo ~0, L_dns 2,6 ms (errore di risoluzione); nessuna soglia dichiarata | audit 18 §1.9 | `experiments_tnsm/m67_retraction/calib_lan_20261010/` |
+| Passi 4-5 (M6/M7, rete emulata) | **driver pronto, non integrato dal vivo**; trovato che il netem si perde a ogni ricreazione del cluster (risolto con grouping + `netem_watch.sh`, da decidere D1); attende il via dell'utente | `experiments_tnsm/m67_retraction/run.py`, audit 18 §2.4 |
 
 ## Decisioni dell'utente che valgono ora
 
@@ -24,7 +24,7 @@ Ultimo aggiornamento: 2026-10-10 (notte). Branch `revision-tnsm`, worktree `/roo
 
 ## Cosa aspetto dall'utente
 
-1. Il via per applicare i profili netem: lo fa lui a mano con sudo, uno per blocco (`wan`, `degraded`), e mi avvisa; la lista esatta dei comandi con i `--dry-run` è in audit 18 §2.4.
+1. **Decisione D1** (come tenere il netem fra le ricreazioni: watcher `netem_watch.sh`, raccomandato) e l'OK alla cella di fumo a `lan`; poi applica i profili con sudo (ordine dei blocchi `wan`, `lan`, `degraded`) e mi avvisa; lista esatta dei comandi con i `--dry-run` in audit 18 §2.4.
 2. Conferma di B2-partition fuori dal primo giro (posizione già espressa) e, dopo il 16, la decisione sull'helper con sudo.
 3. Il via ai lanci di B1/B2-kill dopo la calibrazione `wan` e `degraded` e le soglie committate.
 
@@ -38,4 +38,4 @@ Ultimo aggiornamento: 2026-10-10 (notte). Branch `revision-tnsm`, worktree `/roo
 
 ## Commit rilevanti (più recenti in basso)
 
-`3186304`-hash di `service.py` congelato (G0) · `b29bade` G0b in `results/` · `4bb230c`/`19e2d9b` diagnosi A/B/C/D · `62aaca8`/`8fbe400` M4 rilancio · `6c11e48` predizione (a) · `7e75676` correzioni §1.7.1 · `c1cb846` CPU a 100 writer · `a834834` driver M6/M7.
+`3186304`-hash di `service.py` congelato (G0) · `b29bade` G0b in `results/` · `4bb230c`/`19e2d9b` diagnosi A/B/C/D · `62aaca8`/`8fbe400` M4 rilancio · `6c11e48` predizione (a) · `7e75676` correzioni §1.7.1 · `c1cb846`/`afc415d` CPU a 100 writer · `a834834` driver M6/M7 · `3c7e12f` grouping, watcher, handshake tcpdump · `331c381` dry-run del watcher.

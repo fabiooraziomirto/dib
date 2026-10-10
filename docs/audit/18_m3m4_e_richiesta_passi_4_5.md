@@ -320,6 +320,35 @@ A 1 writer la differenza sulle operazioni sul sito (+2,4-2,5 ms) coincide con qu
 
 **Limiti.** Una sola cella C; soglie euristiche (0,85 core) con evidence esattamente sulla soglia in D; un solo host di generatore; il generatore in M4 era lo stesso processo Python a thread. Causa **del plateau**: determinata solo in parte (tetti di processo singolo del generatore e di evidence; il database non è risultato saturo).
 
+### 1.9 Calibrazioni a `lan` (senza sudo; `calib_lan_20261010/`, 23:11, albero `~/dib_tnsm/tree-d54f3e7`, arm D, FANOUT 10, T = 5)
+
+**Non dichiaro soglie né la variante di B2** (dipendono anche da `wan` e `degraded`, che richiedono i comandi sudo dell'utente).
+
+**Pipeline dei log, latenza di `docker logs -t` (ms; `t_log − t_send`, che include i ~1 ms di gestione di `/health`), 100 campioni.**
+
+| Condizione | p50 | p95 | max | min |
+|---|---|---|---|---|
+| evidence da sola | 1,35 | 1,99 | 22,7 | 1,02 |
+| **in parallelo**, evidence | 1,44 | 2,47 | 3,08 | 0,99 |
+| **in parallelo**, site-0 | 1,43 | 2,14 | 2,56 | 1,08 |
+
+- Scarto relativo fra i due container (p50 site-0 − evidence): **−0,015 ms**: nessun offset sistematico.
+- Ordine relativo: 22 posizioni su 200 hanno un ordine dei log diverso da quello di invio quando i due container ricevono richieste quasi simultanee; è compatibile con la risoluzione della sonda (~1-2,5 ms: jitter di invio fra due thread più jitter dei log). **Il confronto di istanti fra container diversi è affidabile a circa 2-3 ms**, non meglio.
+- La latenza include la gestione dell'operazione, quindi la sonda è un limite superiore.
+- Per il braccio mTLS la latenza dei log si assume uguale (la pipeline non dipende da TLS): è un'assunzione; l'access log in mTLS è già verificato.
+- La regola di accettazione di P-log (p95 < 10% della mediana del ritiro diretto del profilo) si applica quando saranno note le mediane del ritiro diretto: a `lan` il ritiro diretto vale pochi ms (p95 della sonda 2-2,5 ms), quindi la sonda potrebbe non soddisfare la regola a `lan`; **da decidere dopo B1, non ora**.
+
+**L_dns a `lan` (`getaddrinfo('site-3')` da dentro evidence, 50 campioni).**
+
+| Stato di site-3 | p50 | p95 | max | esito |
+|---|---|---|---|---|
+| vivo (controllo) | 0,14 ms | 0,18 ms | 1,65 ms | risolto |
+| fermato con `compose kill` | **2,63 ms** | 2,92 ms | 5,21 ms | `gaierror(-3, 'Temporary failure in name resolution')` |
+
+A `lan` un tentativo verso un sito fermato fallisce in ~2,6 ms, con errore di risoluzione (non RST). Il fatto che sia 18 volte più lento del controllo suggerisce che il resolver incorporato di Docker inoltri la richiesta all'esterno attraverso `eth0`; **se è così, con netem sull'uscita di `eth0` L_dns crescerebbe di almeno `d` per tentativo.** È un'ipotesi: va misurata a `wan` e `degraded` dopo l'applicazione dei profili.
+
+**Altre verifiche della parte live del driver, fatte a `lan` (non è un'integrazione completa):** `Env.up()`, `Env.healthy()` (0,82 s) e la sonda RTT (0,05-0,09 ms, `rtt_matches('lan')` vero) funzionano sul nodo; i dry-run di `netem_apply.sh` per tutti i profili elencano solo gli 11 container del progetto (nessuna traccia di k3s o wasmbed); nessun container residuo, nodo a 3,6 GB liberi. Gli episodi B1/B2, la P-log e il campionamento non sono ancora stati eseguiti dal vivo.
+
 ## 2. Richiesta unica per i Passi 4-5 (nulla lanciato)
 
 ### 2.0 Nuovo vincolo: B2-partition con netem a mano
@@ -359,25 +388,151 @@ Albero: `T=~/dib_tnsm/tree-<commit>`; script in `$T/experiments_tnsm/m67_retract
 - GATE 3 (decisione utente C3): 10 ripetizioni per braccio e test (d-kill) sui due bracci mTLS **uniti**, con nel docstring l'assunzione che mTLS non cambi la convergenza; prima del test unito, un confronto fra i bracci mTLS a T fisso. Se differiscono, il test unito decade: stop e domanda.
 - L'ordine dei blocchi di profilo è randomizzato con seed e registrato nel manifest (C2).
 
-### 2.4 Aggiornamento dopo le decisioni del 2026-10-10 (sera): richiesta unica per i Passi 4-5
+### 2.4 Richiesta unica per i Passi 4-5 (aggiornata la notte del 2026-10-10; nulla lanciato con sudo)
 
-Questa sezione sostituisce §2.0-2.3 dove li contraddice. **Nulla è stato lanciato con sudo.**
+Questa sezione sostituisce §2.0-2.3 dove li contraddice. `T=~/dib_tnsm/tree-3c7e12f` (albero pinnato sul nodo, `service.py` `3186304363ed…`); script in `$T/experiments_tnsm/m67_retraction/`.
 
-**Posizione dell'utente su B2-partition (da confermare):** per il 16 solo **B1 e B2-kill**, con la variante decisa dalla calibrazione di L_dns; l'helper con sudo per B2-partition dopo. Il braccio senza mTLS in M6/M7 è **D** (non il default); il braccio mTLS è C.
+**Problema trovato e come l'ho risolto nel driver.** Il netem vive nel network namespace di ciascun container e **si perde quando il cluster viene ricreato**. Il driver ricreava il cluster a ogni cella, quindi i profili applicati a mano sarebbero andati persi. Ora:
+- le celle con la stessa chiave (arm, FANOUT, T) condividono un cluster e il cluster è ricreato solo quando la chiave cambia (**6 creazioni per profilo** per B1 + B2-kill, test `test_r7`);
+- dopo ogni creazione il driver aspetta (`--profile-wait`, 90 s) che il profilo dichiarato compaia nell'RTT di connessione TCP evidence → sito (misura senza sudo) e **abortisce il blocco** se non compare;
+- i blocchi `tcpdump` aspettano un file di flag creato dall'utente dopo aver avviato la cattura.
 
-**1. Comandi che lanci tu, con sudo sul nodo** (`T=~/dib_tnsm/tree-<commit>`; script in `$T/experiments_tnsm/m67_retraction/`):
-1. `sudo modprobe sch_netem && lsmod | grep sch_netem` (G3).
-2. Rivedere prima l'output di `netem_apply.sh --dry-run <profilo>` (il filtro è sul progetto `dibtnsm`; sul nodo girano anche k3s e wasmbed, che non vanno toccati).
-3. `sudo $T/.../netem_apply.sh wan`, poi `sudo $T/.../netem_show.sh` (verifica del `tc qdisc` in ogni namespace del progetto); poi io lancio L_dns e la calibrazione dei log; lo stesso con `degraded`.
-4. **tcpdump dentro il namespace del container**, con `degraded` applicato, mentre io invio 20 tentativi per braccio (D, poi C; il cluster va ricreato fra i due), annotando l'orologio di inizio:
-   `sudo nsenter -t $(docker inspect -f '{{.State.Pid}}' dibtnsm-evidence-1) -n timeout 300 tcpdump -i eth0 -w /tmp/dib_degraded_<D|C>.pcap 'tcp port 8000'`, poi `sudo chown ubuntu /tmp/dib_degraded_*.pcap`.
-5. **Pulizia finale:** `sudo $T/.../netem_apply.sh lan`, poi `sudo $T/.../netem_show.sh`: **nessun netem deve restare in nessun namespace** (un residuo contaminerebbe le misure successive). Verifica che l'output mostri solo il qdisc di default (`noqueue` o `fq_codel`) per ogni container.
+**DECISIONE D1 (tua): come tenere il profilo fra le ricreazioni.**
+- **(a, raccomandata) `netem_watch.sh <profilo>`, un comando sudo per blocco.** Lo lanci tu con sudo e resta in esecuzione per la durata del blocco: applica il profilo a ogni container del progetto `dibtnsm` (riusa `netem_apply.sh`, che rifiuta qualunque container senza la label `com.docker.compose.project=dibtnsm`) e ogni 0,5 s controlla se i container sono cambiati e riapplica entro circa 1 s. Con Ctrl-C rimuove i qdisc. **Nessuna regola sudoers, nessun demone: si ferma quando lo fermi tu.** È un'alternativa a "lancio a mano a blocchi" che resta a blocchi: un solo comando per profilo, ma resta attivo.
+- (b) Applichi tu il profilo a mano dopo ognuna delle 6 creazioni di cluster per profilo: richiede di fermare e riavviare il driver a ogni creazione (12 interventi su `wan` + `degraded`), poco pratico.
+- (c) Un solo cluster per profilo (solo D e un solo T e FANOUT): riduce il disegno (niente C, FANOUT, T).
 
-**2. Calibrazioni che lancio io, senza sudo.** Cluster D (plain, il braccio di M6/M7), tutte da `~/dib_tnsm/tree-<commit>`:
-1. **Pipeline dei log con due container in parallelo** (`calib_logs.py --n 100`): evidence da sola e poi evidence con `site-0`, ordine e scarto relativo; a `lan`. Per il braccio mTLS la latenza dei log si assume uguale (la pipeline Docker non dipende da TLS); **è un'assunzione**, e la presenza dell'access log in mTLS è già verificata (diagnostica del 2026-10-10).
-2. **L_dns** (`calib_ldns.sh`): a `lan` subito; a `wan` e `degraded` **solo dopo che avrai applicato i profili** (punto 1.3). Da questo valore si decide la variante di B2 (≤ 50 ms: entrambe; ≥ 0,5 s: solo B2-partition più `kill-min`; nel mezzo ricalcolo e decidi tu).
-3. Dalle calibrazioni: soglie per profilo (P-log usabile se il p95 della latenza è < 10% della mediana del ritiro diretto del profilo, altrimenti ripiego `dispute-rtt`), committate prima del lancio.
+**Ordine randomizzato dei blocchi di profilo** (seed 20261014): **`wan`, `lan`, `degraded`**. Va registrato nel manifest di ogni blocco (`seed` e `group_order`); dentro ogni blocco l'ordine delle celle è mescolato con lo stesso seed.
 
-**3. Cosa resta da scrivere io prima del lancio di M6/M7:** driver `m67_retraction/run.py` con le ipotesi e la predizione (a) ricongelata (§1.5 B3), GATE 3 (10 ripetizioni, test sui due bracci mTLS **uniti**, verifica preliminare che i bracci non differiscano a T fisso; qui i bracci sono D e C, quindi la verifica va fatta fra D e C: **se differiscono, il test unito perde validità e mi fermo**), ordine dei blocchi di profilo randomizzato e registrato nel manifest.
+**Comandi che lanci tu (tutti con sudo dove indicato). Un blocco per profilo, nell'ordine sopra.**
 
-**4. Decisione che ti chiedo.** Conferma della posizione su B2-partition (solo B1 e B2-kill per il 16, helper dopo). Con le tue decisioni sul sudo (punti 1.1-1.5 li lanci tu) posso procedere con le calibrazioni senza sudo (2.1 e 2.2 a `lan`) appena dai l'OK a partire.
+0. **Una volta:** `sudo modprobe sch_netem && lsmod | grep sch_netem` (G3).
+
+1. **Blocco `wan`**
+   1. Anteprima, senza sudo: `bash $T/experiments_tnsm/m67_retraction/netem_watch.sh --dry-run wan`. Output: vedi `calib_lan_20261010/watch_dry_wan.txt` (45 righe) e il dry-run di `netem_apply.sh --dry-run wan` qui sotto.
+   2. `sudo bash $T/experiments_tnsm/m67_retraction/netem_watch.sh wan` (resta in esecuzione; lascialo in un terminale).
+   3. Scrivimi "wan attivo". Io lancio B1 e B2-kill con `run.py --profile wan`; il driver verifica il profilo con l'RTT misurato.
+   4. Quando ti dico che il blocco è finito: Ctrl-C nel terminale del watcher (rimuove i qdisc).
+   5. Verifica: `sudo bash $T/experiments_tnsm/m67_retraction/netem_show.sh` a blocco in corso (una riga `tc qdisc show dev eth0` per container, deve mostrare `netem` con `delay 80ms loss 1%`); a blocco finito non esistono più container `dibtnsm` e quindi nessun netem.
+
+2. **Blocco `lan`:** nessun comando sudo (il controllo del driver richiede RTT < 3 ms; serve anche da verifica che non resti nessun residuo dei blocchi precedenti).
+
+3. **Blocco `degraded`**
+   1. `bash $T/experiments_tnsm/m67_retraction/netem_watch.sh --dry-run degraded` (output in `watch_dry_degraded.txt`).
+   2. `sudo bash $T/experiments_tnsm/m67_retraction/netem_watch.sh degraded`; scrivimi "degraded attivo".
+   3. **tcpdump nel namespace con `nsenter`**, per D e poi C (il cluster viene ricreato fra i due), 20 tentativi per braccio. Il driver stampa `TCPDUMP_WAIT arm=<D|C> evidence_pid=<pid>` e aspetta. Allora, dalla riga che stampa, con pcap **fuori dal repository**:
+      - `mkdir -p ~/dib_pcap`
+      - `sudo nsenter -t <pid> -n timeout 600 tcpdump -i eth0 -w ~/dib_pcap/dib_degraded_<D|C>.pcap 'tcp port 8000'` (lascialo in un terminale)
+      - `touch ~/dib_tnsm/m67/tcpdump_ready_<D|C>` e annota l'orologio di inizio (`date -u +%FT%TZ`); il driver stampa `CAPTURE_WINDOW_START` e `CAPTURE_WINDOW_END` con l'epoch del nodo.
+      - a fine cattura: `sudo chown ubuntu ~/dib_pcap/*.pcap`.
+   4. Verifica con `netem_show.sh` come sopra (`delay 200ms loss 5%`); alla fine Ctrl-C sul watcher.
+
+4. **Pulizia finale.** Dopo l'ultimo Ctrl-C: `docker ps -a --filter label=com.docker.compose.project=dibtnsm` deve essere vuoto (i container, e con loro i netns e i qdisc, non esistono più); `sudo bash $T/experiments_tnsm/m67_retraction/netem_show.sh` non deve stampare nulla. Un residuo contaminerebbe le misure successive: il blocco `lan` di verifica ricontrolla comunque l'RTT.
+
+**Anteprime dei comandi di `netem_apply.sh` (`--dry-run`, cluster D acceso a `lan`; i pid cambiano a ogni creazione, lo script li rilegge sempre; nessun container di altri progetti compare):**
+
+`lan` (rimozione):
+```
+dibtnsm-evidence-1 (pid 623297): no qdisc
++ nsenter -t 623297 -n tc qdisc del dev eth0 root
+dibtnsm-site-0-1 (pid 623562): no qdisc
++ nsenter -t 623562 -n tc qdisc del dev eth0 root
+dibtnsm-site-1-1 (pid 623796): no qdisc
++ nsenter -t 623796 -n tc qdisc del dev eth0 root
+dibtnsm-site-2-1 (pid 624744): no qdisc
++ nsenter -t 624744 -n tc qdisc del dev eth0 root
+dibtnsm-site-3-1 (pid 626626): no qdisc
++ nsenter -t 626626 -n tc qdisc del dev eth0 root
+dibtnsm-site-4-1 (pid 625449): no qdisc
++ nsenter -t 625449 -n tc qdisc del dev eth0 root
+dibtnsm-site-5-1 (pid 624509): no qdisc
++ nsenter -t 624509 -n tc qdisc del dev eth0 root
+dibtnsm-site-6-1 (pid 624980): no qdisc
++ nsenter -t 624980 -n tc qdisc del dev eth0 root
+dibtnsm-site-7-1 (pid 624035): no qdisc
++ nsenter -t 624035 -n tc qdisc del dev eth0 root
+dibtnsm-site-8-1 (pid 625214): no qdisc
++ nsenter -t 625214 -n tc qdisc del dev eth0 root
+dibtnsm-site-9-1 (pid 625683): no qdisc
++ nsenter -t 625683 -n tc qdisc del dev eth0 root
+```
+
+`wan`:
+```
+dibtnsm-evidence-1 (pid 623297): delay 80ms loss 1%
++ nsenter -t 623297 -n tc qdisc del dev eth0 root
++ nsenter -t 623297 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-0-1 (pid 623562): delay 80ms loss 1%
++ nsenter -t 623562 -n tc qdisc del dev eth0 root
++ nsenter -t 623562 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-1-1 (pid 623796): delay 80ms loss 1%
++ nsenter -t 623796 -n tc qdisc del dev eth0 root
++ nsenter -t 623796 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-2-1 (pid 624744): delay 80ms loss 1%
++ nsenter -t 624744 -n tc qdisc del dev eth0 root
++ nsenter -t 624744 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-3-1 (pid 626626): delay 80ms loss 1%
++ nsenter -t 626626 -n tc qdisc del dev eth0 root
++ nsenter -t 626626 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-4-1 (pid 625449): delay 80ms loss 1%
++ nsenter -t 625449 -n tc qdisc del dev eth0 root
++ nsenter -t 625449 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-5-1 (pid 624509): delay 80ms loss 1%
++ nsenter -t 624509 -n tc qdisc del dev eth0 root
++ nsenter -t 624509 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-6-1 (pid 624980): delay 80ms loss 1%
++ nsenter -t 624980 -n tc qdisc del dev eth0 root
++ nsenter -t 624980 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-7-1 (pid 624035): delay 80ms loss 1%
++ nsenter -t 624035 -n tc qdisc del dev eth0 root
++ nsenter -t 624035 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-8-1 (pid 625214): delay 80ms loss 1%
++ nsenter -t 625214 -n tc qdisc del dev eth0 root
++ nsenter -t 625214 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-9-1 (pid 625683): delay 80ms loss 1%
++ nsenter -t 625683 -n tc qdisc del dev eth0 root
++ nsenter -t 625683 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+```
+
+`degraded`:
+```
+dibtnsm-evidence-1 (pid 623297): delay 200ms loss 5%
++ nsenter -t 623297 -n tc qdisc del dev eth0 root
++ nsenter -t 623297 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-0-1 (pid 623562): delay 200ms loss 5%
++ nsenter -t 623562 -n tc qdisc del dev eth0 root
++ nsenter -t 623562 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-1-1 (pid 623796): delay 200ms loss 5%
++ nsenter -t 623796 -n tc qdisc del dev eth0 root
++ nsenter -t 623796 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-2-1 (pid 624744): delay 200ms loss 5%
++ nsenter -t 624744 -n tc qdisc del dev eth0 root
++ nsenter -t 624744 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-3-1 (pid 626626): delay 200ms loss 5%
++ nsenter -t 626626 -n tc qdisc del dev eth0 root
++ nsenter -t 626626 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-4-1 (pid 625449): delay 200ms loss 5%
++ nsenter -t 625449 -n tc qdisc del dev eth0 root
++ nsenter -t 625449 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-5-1 (pid 624509): delay 200ms loss 5%
++ nsenter -t 624509 -n tc qdisc del dev eth0 root
++ nsenter -t 624509 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-6-1 (pid 624980): delay 200ms loss 5%
++ nsenter -t 624980 -n tc qdisc del dev eth0 root
++ nsenter -t 624980 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-7-1 (pid 624035): delay 200ms loss 5%
++ nsenter -t 624035 -n tc qdisc del dev eth0 root
++ nsenter -t 624035 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-8-1 (pid 625214): delay 200ms loss 5%
++ nsenter -t 625214 -n tc qdisc del dev eth0 root
++ nsenter -t 625214 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-9-1 (pid 625683): delay 200ms loss 5%
++ nsenter -t 625683 -n tc qdisc del dev eth0 root
++ nsenter -t 625683 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+```
+
+**Calibrazioni che lancio io, senza sudo, dopo che avrai applicato `wan` e `degraded` con il watcher** (un blocco di calibrazione per profilo, a cluster D acceso): L_dns (`calib_ldns.sh <gen.yml> <dist> <profilo> <override>`) e `calib_logs.py --n 100`; da qui le soglie P-log per profilo e la variante di B2 (≤ 50 ms: entrambe; ≥ 0,5 s: solo B2-partition più `kill-min`; nel mezzo decidi tu), committate prima del lancio.
+
+**Stato di B1 e B2-kill.** `run.py` pronto ma **non integrato sul nodo**: provati offline le funzioni pure (7 test) e `--dry-run`; dal vivo solo `Env.up`, `healthy`, sonda RTT e calibrazioni. Prima del lancio reale propongo una cella `lan` di fumo (B1 con 3 episodi a `lan`, nessun sudo) per verificare episodio, P-log e campionamento; ti chiedo l'OK.
+
+**Decisioni che ti chiedo:** D1 (watcher o altro), l'OK alla cella di fumo a `lan`, l'ordine dei blocchi `wan`, `lan`, `degraded`.
