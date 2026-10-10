@@ -187,3 +187,11 @@ Il vantaggio di DIB **non sparisce** a budget grandi: cresce, perché il ranking
 3. La riga per l'abstract (§1, "più favorevole alla guardia") vale anche qui.
 
 Il filtro di classe è applicato a tutte le baseline e non è un contributo dell'ammissione (docstring).
+
+### 5.4 Da dove viene la breadth che determina i pesi (decisione utente A6)
+
+[C] La breadth di un sito è il numero di endpoint distinti presenti nelle **osservazioni che il sito stesso ha inviato** (`code/src/dib/evaluation/trust.py:57-67`). Lo scorer la calcola sulle osservazioni che riceve (`dib.py:157-161`). Nel registry single-node le osservazioni arrivano dai siti con `POST /observation` (`code/src/dib/registry/api.py:105`, `services.py:71`), e l'identità del sito è nel payload (limite dichiarato in audit 13 §9.1, Q4). Il registry ricalcola l'ammissione dalle osservazioni memorizzate (`api.py:126-131`).
+
+**La breadth è quindi calcolata dal registro, ma su evidenza auto-dichiarata:** il registro non può verificare che un sito abbia davvero osservato gli endpoint che riporta. Per aumentare la propria breadth (e il proprio peso) un avversario deve solo inviare osservazioni di più endpoint, anche reali e diffusi: costa poco e non è rilevabile. L'attacco di §5.1 (adv-high, quota grezza ammessa fino a 0,30) è quindi **realistico** nel modello del prototipo. Nel prototipo distribuito non c'è un punto di ingresso delle osservazioni (`contribute` è un no-op, audit 04 §1), quindi la provenienza della breadth in un deployment distribuito resta da specificare.
+
+Nessuna modifica a `dib.py`. **Proposta solo per il paper:** un tetto al peso dei siti con breadth recente non corroborata, oppure pesi derivati da evidenza verificabile (ad esempio l'anzianità dell'identità certificata, `temporal_quarantine_tenure_days`, `dib.py:104-111`), dichiarando che il weighting oggi sposta la garanzia dalla quota grezza a una quota pesata manipolabile.
