@@ -1,0 +1,161 @@
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 150.82s (132.6 ops/s), p50=7.0ms p95=1155.5ms p99=30001.1ms, unexpected_errors=421
+  n_workers=100 SUMMARY over 1 rep(s): throughput=132.6+/-0.0 ops/s, p50=7.0+/-0.0ms p95=1155.5+/-0.0ms p99=30001.1+/-0.0ms, unexpected_errors=421
+[cell 1/50] n=100 rep=18 disturbed=False {'throughput': 132.61, 'p99_ms': 30001.146}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 150.17s (133.2 ops/s), p50=7.0ms p95=1171.5ms p99=30001.2ms, unexpected_errors=348
+  n_workers=100 SUMMARY over 1 rep(s): throughput=133.2+/-0.0 ops/s, p50=7.0+/-0.0ms p95=1171.5+/-0.0ms p99=30001.2+/-0.0ms, unexpected_errors=348
+[cell 2/50] n=100 rep=1 disturbed=False {'throughput': 133.18, 'p99_ms': 30001.193}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 150.45s (132.9 ops/s), p50=7.1ms p95=1140.9ms p99=30001.1ms, unexpected_errors=370
+  n_workers=100 SUMMARY over 1 rep(s): throughput=132.9+/-0.0 ops/s, p50=7.1+/-0.0ms p95=1140.9+/-0.0ms p99=30001.1+/-0.0ms, unexpected_errors=370
+[cell 3/50] n=100 rep=10 disturbed=False {'throughput': 132.94, 'p99_ms': 30001.121}
+  n_workers=10: warm-up (20 ops/worker, discarded)...
+  n_workers=10 rep=1/1: 2000 ops in 9.89s (202.2 ops/s), p50=5.6ms p95=211.3ms p99=1032.1ms, unexpected_errors=0
+  n_workers=10 SUMMARY over 1 rep(s): throughput=202.2+/-0.0 ops/s, p50=5.6+/-0.0ms p95=211.3+/-0.0ms p99=1032.1+/-0.0ms, unexpected_errors=0
+[cell 4/50] n=10 rep=5 disturbed=False {'throughput': 202.22, 'p99_ms': 1032.087}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 149.43s (133.8 ops/s), p50=7.1ms p95=1193.0ms p99=30001.1ms, unexpected_errors=342
+  n_workers=100 SUMMARY over 1 rep(s): throughput=133.8+/-0.0 ops/s, p50=7.1+/-0.0ms p95=1193.0+/-0.0ms p99=30001.1+/-0.0ms, unexpected_errors=342
+[cell 5/50] n=100 rep=4 disturbed=False {'throughput': 133.84, 'p99_ms': 30001.06}
+  n_workers=50: warm-up (20 ops/worker, discarded)...
+  n_workers=50 rep=1/1: 10000 ops in 61.76s (161.9 ops/s), p50=7.0ms p95=720.2ms p99=2409.6ms, unexpected_errors=70
+  n_workers=50 SUMMARY over 1 rep(s): throughput=161.9+/-0.0 ops/s, p50=7.0+/-0.0ms p95=720.2+/-0.0ms p99=2409.6+/-0.0ms, unexpected_errors=70
+[cell 6/50] n=50 rep=3 disturbed=False {'throughput': 161.92, 'p99_ms': 2409.619}
+  n_workers=1: warm-up (20 ops/worker, discarded)...
+  n_workers=1 rep=1/1: 200 ops in 0.69s (291.5 ops/s), p50=3.9ms p95=5.8ms p99=6.5ms, unexpected_errors=0
+  n_workers=1 SUMMARY over 1 rep(s): throughput=291.5+/-0.0 ops/s, p50=3.9+/-0.0ms p95=5.8+/-0.0ms p99=6.5+/-0.0ms, unexpected_errors=0
+[cell 7/50] n=1 rep=4 disturbed=False {'throughput': 291.53, 'p99_ms': 6.475}
+  n_workers=10: warm-up (20 ops/worker, discarded)...
+  n_workers=10 rep=1/1: 2000 ops in 9.85s (203.1 ops/s), p50=5.6ms p95=189.4ms p99=1094.0ms, unexpected_errors=0
+  n_workers=10 SUMMARY over 1 rep(s): throughput=203.1+/-0.0 ops/s, p50=5.6+/-0.0ms p95=189.4+/-0.0ms p99=1094.0+/-0.0ms, unexpected_errors=0
+[cell 8/50] n=10 rep=3 disturbed=False {'throughput': 203.07, 'p99_ms': 1093.984}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 154.21s (129.7 ops/s), p50=7.9ms p95=1331.8ms p99=30001.6ms, unexpected_errors=427
+  n_workers=100 SUMMARY over 1 rep(s): throughput=129.7+/-0.0 ops/s, p50=7.9+/-0.0ms p95=1331.8+/-0.0ms p99=30001.6+/-0.0ms, unexpected_errors=427
+[cell 9/50] n=100 rep=3 disturbed=False {'throughput': 129.69, 'p99_ms': 30001.608}
+  n_workers=50: warm-up (20 ops/worker, discarded)...
+  n_workers=50 rep=1/1: 10000 ops in 61.95s (161.4 ops/s), p50=7.4ms p95=728.4ms p99=2736.5ms, unexpected_errors=70
+  n_workers=50 SUMMARY over 1 rep(s): throughput=161.4+/-0.0 ops/s, p50=7.4+/-0.0ms p95=728.4+/-0.0ms p99=2736.5+/-0.0ms, unexpected_errors=70
+[cell 10/50] n=50 rep=6 disturbed=False {'throughput': 161.43, 'p99_ms': 2736.535}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 150.37s (133.0 ops/s), p50=7.5ms p95=1149.0ms p99=30001.1ms, unexpected_errors=379
+  n_workers=100 SUMMARY over 1 rep(s): throughput=133.0+/-0.0 ops/s, p50=7.5+/-0.0ms p95=1149.0+/-0.0ms p99=30001.1+/-0.0ms, unexpected_errors=379
+[cell 11/50] n=100 rep=0 disturbed=False {'throughput': 133.0, 'p99_ms': 30001.112}
+  n_workers=50: warm-up (20 ops/worker, discarded)...
+  n_workers=50 rep=1/1: 10000 ops in 62.23s (160.7 ops/s), p50=7.6ms p95=736.5ms p99=2329.9ms, unexpected_errors=70
+  n_workers=50 SUMMARY over 1 rep(s): throughput=160.7+/-0.0 ops/s, p50=7.6+/-0.0ms p95=736.5+/-0.0ms p99=2329.9+/-0.0ms, unexpected_errors=70
+[cell 12/50] n=50 rep=7 disturbed=False {'throughput': 160.69, 'p99_ms': 2329.887}
+  n_workers=1: warm-up (20 ops/worker, discarded)...
+  n_workers=1 rep=1/1: 200 ops in 0.81s (245.4 ops/s), p50=4.8ms p95=7.2ms p99=8.1ms, unexpected_errors=0
+  n_workers=1 SUMMARY over 1 rep(s): throughput=245.4+/-0.0 ops/s, p50=4.8+/-0.0ms p95=7.2+/-0.0ms p99=8.1+/-0.0ms, unexpected_errors=0
+[cell 13/50] n=1 rep=7 disturbed=False {'throughput': 245.43, 'p99_ms': 8.14}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 149.07s (134.2 ops/s), p50=6.6ms p95=1183.9ms p99=30001.2ms, unexpected_errors=344
+  n_workers=100 SUMMARY over 1 rep(s): throughput=134.2+/-0.0 ops/s, p50=6.6+/-0.0ms p95=1183.9+/-0.0ms p99=30001.2+/-0.0ms, unexpected_errors=344
+[cell 14/50] n=100 rep=5 disturbed=False {'throughput': 134.17, 'p99_ms': 30001.179}
+  n_workers=10: warm-up (20 ops/worker, discarded)...
+  n_workers=10 rep=1/1: 2000 ops in 8.70s (230.0 ops/s), p50=5.2ms p95=196.5ms p99=964.5ms, unexpected_errors=0
+  n_workers=10 SUMMARY over 1 rep(s): throughput=230.0+/-0.0 ops/s, p50=5.2+/-0.0ms p95=196.5+/-0.0ms p99=964.5+/-0.0ms, unexpected_errors=0
+[cell 15/50] n=10 rep=7 disturbed=False {'throughput': 229.97, 'p99_ms': 964.465}
+  n_workers=50: warm-up (20 ops/worker, discarded)...
+  n_workers=50 rep=1/1: 10000 ops in 62.71s (159.5 ops/s), p50=7.7ms p95=739.4ms p99=2542.6ms, unexpected_errors=70
+  n_workers=50 SUMMARY over 1 rep(s): throughput=159.5+/-0.0 ops/s, p50=7.7+/-0.0ms p95=739.4+/-0.0ms p99=2542.6+/-0.0ms, unexpected_errors=70
+[cell 16/50] n=50 rep=4 disturbed=False {'throughput': 159.47, 'p99_ms': 2542.617}
+  n_workers=10: warm-up (20 ops/worker, discarded)...
+  n_workers=10 rep=1/1: 2000 ops in 9.62s (208.0 ops/s), p50=5.5ms p95=168.5ms p99=1231.1ms, unexpected_errors=0
+  n_workers=10 SUMMARY over 1 rep(s): throughput=208.0+/-0.0 ops/s, p50=5.5+/-0.0ms p95=168.5+/-0.0ms p99=1231.1+/-0.0ms, unexpected_errors=0
+[cell 17/50] n=10 rep=2 disturbed=False {'throughput': 207.98, 'p99_ms': 1231.108}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 157.32s (127.1 ops/s), p50=7.9ms p95=1338.1ms p99=30001.4ms, unexpected_errors=426
+  n_workers=100 SUMMARY over 1 rep(s): throughput=127.1+/-0.0 ops/s, p50=7.9+/-0.0ms p95=1338.1+/-0.0ms p99=30001.4+/-0.0ms, unexpected_errors=426
+[cell 18/50] n=100 rep=8 disturbed=False {'throughput': 127.13, 'p99_ms': 30001.383}
+  n_workers=1: warm-up (20 ops/worker, discarded)...
+  n_workers=1 rep=1/1: 200 ops in 0.76s (263.6 ops/s), p50=4.4ms p95=6.3ms p99=6.6ms, unexpected_errors=0
+  n_workers=1 SUMMARY over 1 rep(s): throughput=263.6+/-0.0 ops/s, p50=4.4+/-0.0ms p95=6.3+/-0.0ms p99=6.6+/-0.0ms, unexpected_errors=0
+[cell 19/50] n=1 rep=8 disturbed=False {'throughput': 263.57, 'p99_ms': 6.634}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 153.43s (130.4 ops/s), p50=7.6ms p95=1337.5ms p99=30001.6ms, unexpected_errors=427
+  n_workers=100 SUMMARY over 1 rep(s): throughput=130.4+/-0.0 ops/s, p50=7.6+/-0.0ms p95=1337.5+/-0.0ms p99=30001.6+/-0.0ms, unexpected_errors=427
+[cell 20/50] n=100 rep=11 disturbed=False {'throughput': 130.35, 'p99_ms': 30001.562}
+  n_workers=1: warm-up (20 ops/worker, discarded)...
+  n_workers=1 rep=1/1: 200 ops in 0.76s (263.9 ops/s), p50=4.2ms p95=6.4ms p99=9.0ms, unexpected_errors=0
+  n_workers=1 SUMMARY over 1 rep(s): throughput=263.9+/-0.0 ops/s, p50=4.2+/-0.0ms p95=6.4+/-0.0ms p99=9.0+/-0.0ms, unexpected_errors=0
+[cell 21/50] n=1 rep=1 disturbed=False {'throughput': 263.93, 'p99_ms': 9.028}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 156.84s (127.5 ops/s), p50=8.1ms p95=1323.5ms p99=30001.3ms, unexpected_errors=426
+  n_workers=100 SUMMARY over 1 rep(s): throughput=127.5+/-0.0 ops/s, p50=8.1+/-0.0ms p95=1323.5+/-0.0ms p99=30001.3+/-0.0ms, unexpected_errors=426
+[cell 22/50] n=100 rep=14 disturbed=False {'throughput': 127.52, 'p99_ms': 30001.288}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 150.81s (132.6 ops/s), p50=7.4ms p95=1151.1ms p99=30001.2ms, unexpected_errors=422
+  n_workers=100 SUMMARY over 1 rep(s): throughput=132.6+/-0.0 ops/s, p50=7.4+/-0.0ms p95=1151.1+/-0.0ms p99=30001.2+/-0.0ms, unexpected_errors=422
+[cell 23/50] n=100 rep=16 disturbed=False {'throughput': 132.62, 'p99_ms': 30001.187}
+  n_workers=1: warm-up (20 ops/worker, discarded)...
+  n_workers=1 rep=1/1: 200 ops in 0.73s (274.5 ops/s), p50=4.2ms p95=6.2ms p99=6.7ms, unexpected_errors=0
+  n_workers=1 SUMMARY over 1 rep(s): throughput=274.5+/-0.0 ops/s, p50=4.2+/-0.0ms p95=6.2+/-0.0ms p99=6.7+/-0.0ms, unexpected_errors=0
+[cell 24/50] n=1 rep=3 disturbed=False {'throughput': 274.53, 'p99_ms': 6.667}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 149.37s (133.9 ops/s), p50=7.0ms p95=1176.7ms p99=30001.0ms, unexpected_errors=345
+  n_workers=100 SUMMARY over 1 rep(s): throughput=133.9+/-0.0 ops/s, p50=7.0+/-0.0ms p95=1176.7+/-0.0ms p99=30001.0+/-0.0ms, unexpected_errors=345
+[cell 25/50] n=100 rep=6 disturbed=False {'throughput': 133.9, 'p99_ms': 30000.987}
+  n_workers=1: warm-up (20 ops/worker, discarded)...
+  n_workers=1 rep=1/1: 200 ops in 0.73s (273.8 ops/s), p50=4.2ms p95=6.3ms p99=7.1ms, unexpected_errors=0
+  n_workers=1 SUMMARY over 1 rep(s): throughput=273.8+/-0.0 ops/s, p50=4.2+/-0.0ms p95=6.3+/-0.0ms p99=7.1+/-0.0ms, unexpected_errors=0
+[cell 26/50] n=1 rep=9 disturbed=False {'throughput': 273.82, 'p99_ms': 7.105}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 153.29s (130.5 ops/s), p50=7.6ms p95=1356.7ms p99=30001.7ms, unexpected_errors=426
+  n_workers=100 SUMMARY over 1 rep(s): throughput=130.5+/-0.0 ops/s, p50=7.6+/-0.0ms p95=1356.7+/-0.0ms p99=30001.7+/-0.0ms, unexpected_errors=426
+[cell 27/50] n=100 rep=9 disturbed=False {'throughput': 130.47, 'p99_ms': 30001.65}
+  n_workers=1: warm-up (20 ops/worker, discarded)...
+  n_workers=1 rep=1/1: 200 ops in 0.73s (272.6 ops/s), p50=4.2ms p95=6.2ms p99=7.1ms, unexpected_errors=0
+  n_workers=1 SUMMARY over 1 rep(s): throughput=272.6+/-0.0 ops/s, p50=4.2+/-0.0ms p95=6.2+/-0.0ms p99=7.1+/-0.0ms, unexpected_errors=0
+[cell 28/50] n=1 rep=6 disturbed=False {'throughput': 272.56, 'p99_ms': 7.149}
+  n_workers=1: warm-up (20 ops/worker, discarded)...
+  n_workers=1 rep=1/1: 200 ops in 0.72s (276.5 ops/s), p50=4.1ms p95=6.1ms p99=6.4ms, unexpected_errors=0
+  n_workers=1 SUMMARY over 1 rep(s): throughput=276.5+/-0.0 ops/s, p50=4.1+/-0.0ms p95=6.1+/-0.0ms p99=6.4+/-0.0ms, unexpected_errors=0
+[cell 29/50] n=1 rep=5 disturbed=False {'throughput': 276.52, 'p99_ms': 6.433}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 148.56s (134.6 ops/s), p50=7.0ms p95=1163.6ms p99=30001.1ms, unexpected_errors=340
+  n_workers=100 SUMMARY over 1 rep(s): throughput=134.6+/-0.0 ops/s, p50=7.0+/-0.0ms p95=1163.6+/-0.0ms p99=30001.1+/-0.0ms, unexpected_errors=340
+[cell 30/50] n=100 rep=7 disturbed=False {'throughput': 134.62, 'p99_ms': 30001.132}
+  n_workers=10: warm-up (20 ops/worker, discarded)...
+  n_workers=10 rep=1/1: 2000 ops in 9.06s (220.7 ops/s), p50=5.3ms p95=187.3ms p99=1021.7ms, unexpected_errors=0
+  n_workers=10 SUMMARY over 1 rep(s): throughput=220.7+/-0.0 ops/s, p50=5.3+/-0.0ms p95=187.3+/-0.0ms p99=1021.7+/-0.0ms, unexpected_errors=0
+[cell 31/50] n=10 rep=9 disturbed=False {'throughput': 220.67, 'p99_ms': 1021.732}
+  n_workers=50: warm-up (20 ops/worker, discarded)...
+  n_workers=50 rep=1/1: 10000 ops in 60.95s (164.1 ops/s), p50=7.2ms p95=634.5ms p99=2740.1ms, unexpected_errors=71
+  n_workers=50 SUMMARY over 1 rep(s): throughput=164.1+/-0.0 ops/s, p50=7.2+/-0.0ms p95=634.5+/-0.0ms p99=2740.1+/-0.0ms, unexpected_errors=71
+[cell 32/50] n=50 rep=8 disturbed=False {'throughput': 164.06, 'p99_ms': 2740.108}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 146.51s (136.5 ops/s), p50=6.7ms p95=1139.5ms p99=30001.6ms, unexpected_errors=344
+  n_workers=100 SUMMARY over 1 rep(s): throughput=136.5+/-0.0 ops/s, p50=6.7+/-0.0ms p95=1139.5+/-0.0ms p99=30001.6+/-0.0ms, unexpected_errors=344
+[cell 33/50] n=100 rep=17 disturbed=False {'throughput': 136.51, 'p99_ms': 30001.567}
+  n_workers=10: warm-up (20 ops/worker, discarded)...
+  n_workers=10 rep=1/1: 2000 ops in 9.67s (206.8 ops/s), p50=5.8ms p95=191.7ms p99=935.8ms, unexpected_errors=0
+  n_workers=10 SUMMARY over 1 rep(s): throughput=206.8+/-0.0 ops/s, p50=5.8+/-0.0ms p95=191.7+/-0.0ms p99=935.8+/-0.0ms, unexpected_errors=0
+[cell 34/50] n=10 rep=8 disturbed=False {'throughput': 206.77, 'p99_ms': 935.8}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 149.13s (134.1 ops/s), p50=7.0ms p95=1169.0ms p99=30001.1ms, unexpected_errors=340
+  n_workers=100 SUMMARY over 1 rep(s): throughput=134.1+/-0.0 ops/s, p50=7.0+/-0.0ms p95=1169.0+/-0.0ms p99=30001.1+/-0.0ms, unexpected_errors=340
+[cell 35/50] n=100 rep=2 disturbed=False {'throughput': 134.11, 'p99_ms': 30001.1}
+  n_workers=1: warm-up (20 ops/worker, discarded)...
+  n_workers=1 rep=1/1: 200 ops in 0.73s (272.8 ops/s), p50=4.3ms p95=6.2ms p99=6.4ms, unexpected_errors=0
+  n_workers=1 SUMMARY over 1 rep(s): throughput=272.8+/-0.0 ops/s, p50=4.3+/-0.0ms p95=6.2+/-0.0ms p99=6.4+/-0.0ms, unexpected_errors=0
+[cell 36/50] n=1 rep=0 disturbed=False {'throughput': 272.84, 'p99_ms': 6.408}
+  n_workers=50: warm-up (20 ops/worker, discarded)...
+  n_workers=50 rep=1/1: 10000 ops in 58.96s (169.6 ops/s), p50=6.7ms p95=635.8ms p99=2245.0ms, unexpected_errors=35
+  n_workers=50 SUMMARY over 1 rep(s): throughput=169.6+/-0.0 ops/s, p50=6.7+/-0.0ms p95=635.8+/-0.0ms p99=2245.0+/-0.0ms, unexpected_errors=35
+[cell 37/50] n=50 rep=9 disturbed=False {'throughput': 169.6, 'p99_ms': 2245.035}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
+  n_workers=100 rep=1/1: 20000 ops in 147.26s (135.8 ops/s), p50=6.8ms p95=1144.8ms p99=30002.0ms, unexpected_errors=345
+  n_workers=100 SUMMARY over 1 rep(s): throughput=135.8+/-0.0 ops/s, p50=6.8+/-0.0ms p95=1144.8+/-0.0ms p99=30002.0+/-0.0ms, unexpected_errors=345
+[cell 38/50] n=100 rep=13 disturbed=False {'throughput': 135.82, 'p99_ms': 30001.979}
+  n_workers=10: warm-up (20 ops/worker, discarded)...
+  n_workers=10 rep=1/1: 2000 ops in 9.65s (207.3 ops/s), p50=5.5ms p95=194.3ms p99=1123.3ms, unexpected_errors=0
+  n_workers=10 SUMMARY over 1 rep(s): throughput=207.3+/-0.0 ops/s, p50=5.5+/-0.0ms p95=194.3+/-0.0ms p99=1123.3+/-0.0ms, unexpected_errors=0
+[cell 39/50] n=10 rep=0 disturbed=False {'throughput': 207.26, 'p99_ms': 1123.329}
+  n_workers=10: warm-up (20 ops/worker, discarded)...
+  n_workers=10 rep=1/1: 2000 ops in 9.59s (208.6 ops/s), p50=5.6ms p95=240.2ms p99=937.0ms, unexpected_errors=0
+  n_workers=10 SUMMARY over 1 rep(s): throughput=208.6+/-0.0 ops/s, p50=5.6+/-0.0ms p95=240.2+/-0.0ms p99=937.0+/-0.0ms, unexpected_errors=0
+[cell 40/50] n=10 rep=1 disturbed=False {'throughput': 208.6, 'p99_ms': 936.994}
+  n_workers=100: warm-up (20 ops/worker, discarded)...
