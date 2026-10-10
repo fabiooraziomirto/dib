@@ -55,3 +55,16 @@ Il confronto dei tempi è **solo descrittivo**: `service.py` è diverso (`d09f8d
 
 - OK alla copia in `results/` dei due file che fanno fallire `verify_artifact.py` (`restore_ablation/results.json`, `offline_veto/results.json`) e, se vuoi, di `fault_injection/{results,trials}.csv`, in un commit separato; poi `verify_artifact.py` deve tornare a 262/0.
 - Decisione sulla frase "< 0,1 s" del paper.
+
+
+## 4. Decisioni dell'utente (2026-10-10) e copia in `results/`
+
+**Correzione per il paper** (`main_old.tex` non è stato modificato).
+- "reconciliation logic takes less than 0.1 s" va sostituita con il valore misurato: **massimo 0,105 s, media 0,071 s** (40 prove, `experiments_tnsm/g0b_regen/trials.csv`, colonna `reconcile_call_s`).
+- Nota: la formulazione dell'utente indicava "media ≈ 0,06 s"; il dato misurato è 0,071 s. 0,06 s era la media del vecchio `results/` (0,064 / 0,061 nei primi due scenari).
+- Convergenza, da riportare separatamente: un solo tipo di evento perso **0,48 ± 0,02 s** (30 prove); episodio intero perso **0,51 ± 0,03 s** (10 prove).
+
+**Copia.**
+- In `results/` si copiano solo i due file che fanno fallire `verify_artifact.py`: `restore_ablation/results.json` e `offline_veto/results.json`.
+- `fault_injection/{results,trials}.csv` **non** si copia. `scripts/verify_artifact.py:215-220` controlla la convergenza a evento singolo contro **0,51 ± 0,005 s**, il numero del paper; il nuovo valore 0,48 s farebbe fallire il controllo. Copiarlo richiederebbe di cambiare insieme il numero atteso e il paper: va deciso dall'utente.
+- Se la regola E portasse a correggere `service.py`, la copia si rifà con il nuovo hash.
