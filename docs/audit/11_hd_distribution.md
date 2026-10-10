@@ -40,6 +40,8 @@ In tutte le contraddizioni lo score supera θ, |S_e| = 1, e il fatto è rifiutat
 | (0.6, 0.7) | 1 | 0.01882; 8, 7 | 0.00119; 8, 8 |
 | (0.55, 0.6) | 3/8 | 0.00144; 5, 13 | 0.00133; 3, 8 |
 
+**Aggiornamento (decisione utente).** `test_h_operating_quorum_m2` è invariato e marcato `xfail(strict=True)` con motivazione "ipotesi H falsificata: il quorum respinge K = 1". Nuovo test `test_h_prime_with_quorum`, sulla stessa griglia e sul DIBScorer reale, con H' = "ammesso ⇔ K > r·h e K ≥ m" per m ∈ {1, 2}: **16 passed**. Stato del file: 26 passed, 8 xfailed. Formulazione corretta riportata in `docs/audit/09_f_s_derivazione_e_letteratura.md` (punto 4).
+
 Riprodurre: `PYTHONPATH=code/src PYTHONDONTWRITEBYTECODE=1 timeout 300 python3 -m pytest analysis_fs/test_fstar_scorer.py -q -p no:cacheprovider` (~10 s).
 
 ## 2. Distribuzione di h_d (Fase 3)

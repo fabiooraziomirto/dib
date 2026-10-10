@@ -33,6 +33,13 @@ should hold on the whole grid. The finite volume (rho >= 100) moves the score
 below the supremum by at most 0.3*beta/101, too little to flip any cell of
 this grid.
 
+Outcome (first run, 2026-10-10): H FALSIFIED exactly where predicted. The
+m = 1 tests pass; under m = 2 the only contradictions are the K = 1 cells
+above (docs/audit/11_hd_distribution.md sez. 1). test_h_operating_quorum_m2
+is kept unchanged and marked xfail(strict=True). The corrected hypothesis
+H' = "admitted iff K > r*h and K >= m" is tested separately
+(test_h_prime_with_quorum, same grid, m in {1, 2}).
+
 Falsification criterion: any (K, h, alpha, theta) where the admission
 decision of DIBScorer differs from "K > r*h". Contradictions are collected
 and reported in full. The assertion is not weakened (repo rule): under
@@ -109,12 +116,32 @@ def test_h_score_only_m1(build, alpha, theta):
     assert not bad, f"H contradicted at (alpha={alpha}, theta={theta}, m=1, {build}): {bad}"
 
 
+@pytest.mark.xfail(strict=True, reason="ipotesi H falsificata: il quorum respinge K = 1 "
+                   "(dib.py:45-46; docs/audit/11_hd_distribution.md sez. 1)")
 @pytest.mark.parametrize("build", list(POPULATIONS))
 @pytest.mark.parametrize("alpha,theta", PAIRS, ids=[f"a{float(a)}-t{float(t)}" for a, t in PAIRS])
 def test_h_operating_quorum_m2(build, alpha, theta):
     """H as stated, with the operating quorum m = 2: predicted to fail only at K = 1."""
     bad = contradictions(build, alpha, theta, m=2)
     assert not bad, f"H contradicted at (alpha={alpha}, theta={theta}, m=2, {build}): {bad}"
+
+
+@pytest.mark.parametrize("m", [1, 2])
+@pytest.mark.parametrize("build", list(POPULATIONS))
+@pytest.mark.parametrize("alpha,theta", PAIRS, ids=[f"a{float(a)}-t{float(t)}" for a, t in PAIRS])
+def test_h_prime_with_quorum(build, alpha, theta, m):
+    """H' (written after H was falsified, see module docstring and audit 11
+    sez. 1): admitted iff K > r*h and K >= m, on the same grid and the real
+    DIBScorer. Falsified by any cell where the decision differs."""
+    r = ratio(alpha, theta)
+    bad = []
+    for K in range(1, K_MAX + 1):
+        for h in range(0, H_MAX + 1):
+            s, _ = scored(build, K, h, alpha, theta, m)
+            expected = K > r * h and K >= m
+            if s.accepted != expected:
+                bad.append((K, h, f"H'={expected}", f"accepted={s.accepted}", round(s.score, 6)))
+    assert not bad, f"H' contradicted at (alpha={alpha}, theta={theta}, m={m}, {build}): {bad}"
 
 
 @pytest.mark.parametrize("build", list(POPULATIONS))
