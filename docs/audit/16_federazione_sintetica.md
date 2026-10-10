@@ -195,3 +195,53 @@ Il filtro di classe è applicato a tutte le baseline e non è un contributo dell
 **La breadth è quindi calcolata dal registro, ma su evidenza auto-dichiarata:** il registro non può verificare che un sito abbia davvero osservato gli endpoint che riporta. Per aumentare la propria breadth (e il proprio peso) un avversario deve solo inviare osservazioni di più endpoint, anche reali e diffusi: costa poco e non è rilevabile. L'attacco di §5.1 (adv-high, quota grezza ammessa fino a 0,30) è quindi **realistico** nel modello del prototipo. Nel prototipo distribuito non c'è un punto di ingresso delle osservazioni (`contribute` è un no-op, audit 04 §1), quindi la provenienza della breadth in un deployment distribuito resta da specificare.
 
 Nessuna modifica a `dib.py`. **Proposta solo per il paper:** un tetto al peso dei siti con breadth recente non corroborata, oppure pesi derivati da evidenza verificabile (ad esempio l'anzianità dell'identità certificata, `temporal_quarantine_tenure_days`, `dib.py:104-111`), dichiarando che il weighting oggi sposta la garanzia dalla quota grezza a una quota pesata manipolabile.
+
+## 7. Decisioni dell'utente su H6-1b e H6-1c esplorativa
+
+**H6-1b resta FALSIFICATA** (§6). Il docstring non è stato modificato.
+
+**Analisi dei 90 test non confermati di H6-1b.**
+- Sono tutti ranked-sites a c = 1.
+- Per q: 0,05 → 16; 0,1 → 20; 0,2 → 25; 0,3 → 29.
+- Per ρ_corr: 0 → 23; 0,3 → 67.
+- Per N: 10 → 26; 20 → 23; 50 → 19; 100 → 17; ancorato → 5.
+- Per presenza: 0,2 → 25; 0,4 → 22; 0,6 → 19; 0,8 → 19; ancorato → 5.
+
+**Soglia.** H6-1b non registrava l'attribuzione per tipo, quindi il controllo è **per replica e necessario**: il numero di A2 ammessi da DIB non supera 3 × il numero di tipi con n_avv ≥ ⌈5N_d/12⌉ e n_avv ≥ 2.
+- Nessuna delle 34 000 repliche lo viola.
+- Nei 90 punti negativi, 15 188 repliche su 18 000 hanno almeno un tipo sopra soglia, e nessuna ammissione è attribuibile sotto soglia.
+- Il controllo **esatto per tipo** è fatto in H6-1c: 0 ammissioni sotto soglia su 34 000 repliche, cioè ogni fatto A2 ammesso appartiene a un tipo con quota avversaria ≥ 5/12.
+
+**Conclusione:** i casi negativi sono tutti fuori dal dominio di garanzia di Criterion 1.
+
+### 7.1 H6-1c (ESPLORATIVA; `h61c.py`, docstring committato in `5bea28c` prima dei dati nuovi)
+
+- Nasce dai dati di H6-1b.
+- Rilancio su **seed nuovi**: base 20261012, seed 20261072783036-20261074121546, intersezione con i seed di H6-1b = 0 (verificata nello script).
+- 34 000 repliche, 942 s. Dati in `runs/h61c/`: `replicas.jsonl.gz` con sha256 del file non compresso, `h61c_tests.csv`, `manifest.json`.
+- Famiglia: 889 test testabili, Holm con FWER 5%.
+
+| Parte | Affermazione | Testabili | Esito Holm | Differenza media (baseline − DIB, in fatti A2) |
+|---|---|---|---|---|
+| C1 | flood: ranked-volume, c ∈ {1, 2, 5}, più A2 di DIB | 510 / 510 | **510 su 510 confermati** | +19,6 |
+| C2 | budget più grande: ranked-sites, c ∈ {2, 5}, più A2 di DIB | 289 / 340 | **289 su 289 confermati** | +9,1 |
+| C3 | budget uguale, solo repliche con quota avversaria ≥ 5/12: ranked-sites altrettanto o più protettivo | 90 / 170 | **0 test "baseline peggiore" rifiutati**: non falsificata | −0,35 |
+
+- **H6-1c non falsificata**: conferma esplorativa su dati freschi.
+- Descrittivo (fuori dalla famiglia): in C3, ranked-sites è **più** protettivo di DIB in 85 punti su 90 (Wilcoxon "less" p < 0,05 non corretto) e ha IC interamente < 0 in 84.
+
+### 7.2 Confronto fra le due prove (separate)
+
+| | H6-1b (confermativa, falsificata) | H6-1c (esplorativa, seed nuovi) |
+|---|---|---|
+| ranked-volume, 1×, 2×, 5× | 510 confermati su 510 | 510 su 510 |
+| ranked-sites, 2× e 5× | 292 su 292 | 289 su 289 |
+| ranked-sites, 1× | **0 su 90** (affermazione "DIB meglio") | C3 (affermazione "ranked-sites ≥ DIB", sopra soglia): non falsificata, 84 su 90 con IC < 0 |
+| riferimento `ranked-support-3`, 1× | meno A2 di DIB in **40 punti** (media −0,31) | meno A2 di DIB in **39 punti** (media −0,31) |
+| `ranked-support-3`, 2× / 5× | IC < 0 in 31 / 31 punti; IC > 0 in 111 / 120 | IC < 0 in 30 / 30; IC > 0 in 109 / 119 |
+
+### 7.3 Cautele per il paper (decisione utente A5)
+
+1. **Il confronto a budget uguale favorisce chi non decide.** La dimensione della coda (B) è fissata da DIB; le baseline ne ereditano il budget senza dover decidere quanti fatti mostrare. Senza DIB nessuna regola dice quale budget usare.
+2. **Sopra 5/12 il Criterion 1 non si applica.** I casi in cui ranked-sites è più protettivo cadono tutti dove la quota avversaria supera la soglia (controllo esatto per tipo), cioè fuori dal dominio di garanzia dell'ammissione. Lì DIB ammette per costruzione.
+3. La riga per l'abstract (§1) vale per entrambe le prove: la federazione sintetica è più favorevole alla guardia della popolazione reale.

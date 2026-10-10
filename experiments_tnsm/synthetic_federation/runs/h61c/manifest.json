@@ -1,0 +1,51 @@
+{
+ "argv": [
+  "experiments_tnsm/synthetic_federation/h61c.py",
+  "run",
+  "--replicas",
+  "200",
+  "--seed",
+  "20261012",
+  "--workers",
+  "12",
+  "--out",
+  "experiments_tnsm/synthetic_federation/runs/h61c"
+ ],
+ "seed": 20261012,
+ "h61b_seed": 20261010,
+ "seed_overlap_with_h61b": 0,
+ "seed_range": [
+  20261072783036,
+  20261074121546
+ ],
+ "replicas": 200,
+ "workers": 12,
+ "points": 170,
+ "scoring": {
+  "alpha": 0.6,
+  "beta": 0.4,
+  "gamma": 0.0,
+  "theta": 0.65,
+  "min_reporting_sites": 2,
+  "graph_enabled": false,
+  "trust_weighted": false
+ },
+ "generator": {
+  "TOP_ENDPOINTS": 30,
+  "ZIPF_S": 1.0,
+  "LOCAL_DIVERGENCE": 0.05,
+  "W_DAYS": 7,
+  "A2_FACTS": 3,
+  "FLOOD": 50
+ },
+ "below_margin_admissions_total": 0,
+ "unsw_csv_sha256": "e741b42656e81a1b128d0ecf9cfd6a85cc6dba39629cc22025a1bbef5fd61512",
+ "elapsed_s": 942.14,
+ "python": "3.12.15 | packaged by Anaconda, Inc. | (main, Oct  1 2026, 20:20:25) [GCC 14.3.0]",
+ "platform": "Linux-6.8.12-18-pve-x86_64-with-glibc2.35",
+ "sha256": {
+  "h61c.py": "e930bc9deadb85eb19a429e26ea61ba9200872bcdb9f949c00a7378a692eeb60",
+  "h61b.py": "93baef1e8fe52c93e4b3676be5139d7f2e1e58b11d6ec6f4a86d36fc8e6ed0d5",
+  "anchor_hd.json": "04fa35bd78e175f457a2ac8167f9738b35ef873d07cbf334e81ddd60af0994bf"
+ }
+}
