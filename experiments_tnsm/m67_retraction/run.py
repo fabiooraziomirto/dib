@@ -170,12 +170,13 @@ def first_after(lines, t0: float, status: int = 200):
     return None
 
 
-def plan(profile: str, blocks: list[str], arms: list[str]) -> list[dict]:
+def plan(profile: str, blocks: list[str], arms: list[str], fanouts: list[int] | None = None, episodes: int | None = None) -> list[dict]:
     cells = []
+    fanouts = fanouts or FANOUTS
     if "b1" in blocks:
         for arm in arms:
-            for conc in FANOUTS:
-                cells.append({"block": "b1", "arm": arm, "fanout": conc, "T": 5, "episodes": B1_EPISODES[profile]})
+            for conc in fanouts:
+                cells.append({"block": "b1", "arm": arm, "fanout": conc, "T": 5, "episodes": episodes or B1_EPISODES[profile]})
     if "b2kill" in blocks:
         for arm in arms:
             for T in B2_TS:
@@ -195,6 +196,62 @@ def cell_budget(cell: dict, profile: str) -> dict:
             "B_online_s": round(b_online(profile, arm, cell["T"]), 2),
             "bound_kill_s": round(bound_kill(profile, arm, cell["T"]), 2),
             "D_run_max_s": round(d_run_max(profile, arm), 2)}
+
+
+AGREE_MS = 3.0            # P-log vs dispute-rtt agreement tolerance (lan calibration: p95 2-2.5 ms, relative order ~2-3 ms)
+PLOG_P95_MS_DEFAULT = 2.5  # calibrated p95 latency of docker logs -t at lan (audit 18 s.1.9)
+GEN_SAT_PROC, GEN_SAT_HOST_PCT = 0.85, 80.0
+
+
+def _median(xs):
+    xs = [x for x in xs if x is not None]
+    return statistics.median(xs) if xs else None
+
+
+def summarize_rows(rows: list[dict], profile: str, plog_p95_ms: float = PLOG_P95_MS_DEFAULT) -> dict:
+    """Per-cell summary of B1/tcpdump episodes: median dispute-rtt, median direct withdrawal by P-log (last site), their
+    agreement, the acceptance ratio of the log probe, and the bias ratios of the manifest (user decision B/A4)."""
+    d = PROFILES[profile]["d"]
+    ok = [r for r in rows if not r.get("excluded") and "dispute_rtt_s" in r]
+    direct, rtt, diffs, pend = [], [], [], []
+    for r in ok:
+        rtt.append(r["dispute_rtt_s"])
+        no_pending = not any((r.get("pending_after_response") or {}).values())
+        plog = [v for v in (r.get("withdrawn_plog_s") or {}).values() if v is not None]
+        if no_pending and len(plog) == N_SITES:
+            last = max(plog)
+            direct.append(last)
+            diffs.append((r["dispute_rtt_s"] - last) * 1000.0)
+        if not no_pending:
+            acks = [t - r["t0"] for t in (r.get("plog_ack_ts") or {}).values() if t is not None]
+            if acks:
+                pend.append(max(acks))
+    med_direct, med_rtt, med_pend = _median(direct), _median(rtt), _median(pend)
+    out = {"episodes": len(rows), "excluded": sum(1 for r in rows if r.get("excluded")), "client_timeouts": sum(1 for r in rows if r.get("client_timeout")),
+           "median_dispute_rtt_s": med_rtt, "median_direct_plog_s": med_direct, "n_direct": len(direct),
+           "plog_minus_response_gap_ms": {"median": _median(diffs), "max_abs": max((abs(x) for x in diffs), default=None)},
+           "plog_rtt_agree_within_ms": AGREE_MS,
+           "plog_rtt_agree": (bool(diffs) and all(abs(x) <= AGREE_MS for x in diffs)),
+           "plog_p95_ms_used": plog_p95_ms,
+           "plog_acceptance_ratio": (plog_p95_ms / 1000.0 / med_direct) if med_direct else None,
+           "plog_acceptable_rule_10pct": bool(med_direct and plog_p95_ms / 1000.0 / med_direct < 0.10),
+           "dispute_rtt_bias_ratio": (d / med_rtt) if (med_rtt and d) else (0.0 if med_rtt is not None else None),
+           "median_pending_withdrawal_s": med_pend, "n_pending_episodes": len(pend),
+           "pending_bias_ratio": ((d + 0.05) / med_pend) if med_pend else None}
+    out["pending_bias_flag_gt10pct"] = bool(out["pending_bias_ratio"] and out["pending_bias_ratio"] > 0.10)
+    return out
+
+
+def generator_load(samples: list[dict]) -> dict:
+    """Load of the generator host (= the node) during a cell, from cpu_sampler samples (user decision D): flags a load that
+    approaches the thresholds fixed in diag_cpu100 (0.85 cores for the generator process, 80% of the host)."""
+    procs = [s["proc_cores"] for s in samples if s.get("proc_cores") is not None]
+    host = [s["host_busy_pct"] for s in samples]
+    out = {"samples": len(samples), "gen_proc_cores_mean": (statistics.mean(procs) if procs else None),
+           "gen_proc_cores_max": max(procs, default=None),
+           "host_busy_pct_mean": (statistics.mean(host) if host else None), "host_busy_pct_max": max(host, default=None)}
+    out["near_saturation"] = bool((out["gen_proc_cores_mean"] or 0) >= GEN_SAT_PROC or (out["host_busy_pct_mean"] or 0) >= GEN_SAT_HOST_PCT)
+    return out
 
 
 def group_cells(cells: list[dict], rng: random.Random) -> list[tuple[tuple, list[dict]]]:
@@ -425,17 +482,24 @@ def sha(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def wait_profile(env: "Env", profile: str, wait_s: float) -> tuple[bool, dict, list]:
-    """Profile check with a wait: a watcher run by the user (netem_watch.sh) applies the profile to a
-    freshly created container within ~1-2 s; the cluster is measured only once the TCP connect RTT
-    evidence->site matches the claimed profile. No sudo here: it only reads timings."""
-    t0 = time.time()
+def wait_profile(env: "Env", profile: str, wait_s: float) -> tuple[bool, dict, list, dict]:
+    """Profile check with a wait: a watcher run by the user (netem_watch.sh) applies the profile to a freshly created
+    container within ~1-2 s; the cluster is measured only once the TCP connect RTT evidence->site matches the claimed
+    profile. No sudo here: it only reads timings. Returns the timing of the confirmation for the manifest: during a
+    recreation the cluster runs WITHOUT netem until the watcher applies it (the window recorded here)."""
+    t_created = time.time()
+    first = None
+    attempts = 0
     while True:
         rtt = env.measure_rtt_ms()
+        attempts += 1
+        first = first if first is not None else dict(rtt)
         ok, bad = rtt_matches(profile, rtt)
-        if ok or time.time() - t0 > wait_s:
-            return ok, rtt, bad
-        time.sleep(2.0)
+        if ok or time.time() - t_created > wait_s:
+            return ok, rtt, bad, {"t_created": t_created, "t_profile_confirmed": time.time() if ok else None,
+                                  "profile_apply_delay_s": (time.time() - t_created) if ok else None,
+                                  "rtt_attempts": attempts, "first_rtt_ms": first}
+        time.sleep(1.0)
 
 
 def live(a, cells, rng) -> int:
@@ -476,10 +540,10 @@ def live(a, cells, rng) -> int:
         env.up()
         try:
             ready = env.healthy()
-            ok, rtt, bad = wait_profile(env, a.profile, a.profile_wait)
+            ok, rtt, bad, timing = wait_profile(env, a.profile, a.profile_wait)
             if not ok:
                 log.write(json.dumps({"group": [arm, fo, T], "aborted": "profile check failed: the claimed netem profile does not match the measured RTT",
-                                      "rtt_ms_evidence_to_site": rtt, "profile_check_bad": bad}) + "\n")
+                                      "rtt_ms_evidence_to_site": rtt, "profile_check_bad": bad, "timing": timing}) + "\n")
                 log.flush()
                 print(f"ABORT group {arm} f={fo} T={T}: profile check failed after {a.profile_wait}s: {bad}", flush=True)
                 aborted = True
@@ -489,7 +553,7 @@ def live(a, cells, rng) -> int:
                 bg = nm.idle_window(12.0, project="dibtnsm")
                 flagged = bg["other_cores"] > rule["max_other_cores"] or bg["steal_pct"] > rule["max_steal_pct"]
                 rec = {"cell": n_cell, "cell_spec": cell, "profile": a.profile, "ready_s": ready, "background_idle": bg, "flagged_pre": flagged,
-                       "rtt_ms_evidence_to_site": rtt, "profile_check_ok": ok, "budget": cell_budget(cell, a.profile)}
+                       "rtt_ms_evidence_to_site": rtt, "profile_check_ok": ok, "profile_timing": timing, "budget": cell_budget(cell, a.profile)}
                 tag = f"{a.profile}-{arm}-f{fo}-T{int(T)}"
                 if cell["block"] == "tcpdump":
                     flag = Path(f"{home}/dib_tnsm/m67/tcpdump_ready_{arm}")
@@ -521,13 +585,20 @@ def live(a, cells, rng) -> int:
                         rows.append(trial_b2kill(env, a.profile, cell["k"], t, a.l_dns))
                 t_cell1 = time.time()
                 samples = sampler.stop()
-                rec.update(rows=rows, t_cell=[t_cell0, t_cell1], excluded=sum(1 for r in rows if r.get("excluded")), generator_samples=samples)
+                rec.update(rows=rows, t_cell=[t_cell0, t_cell1], excluded=sum(1 for r in rows if r.get("excluded")), generator_samples=samples,
+                           generator_load=generator_load(samples))
+                if cell["block"] in ("b1", "tcpdump"):
+                    rec["summary"] = summarize_rows(rows, a.profile, a.plog_p95_ms)
+                if rec["generator_load"]["near_saturation"]:
+                    print("WARNING: generator load near saturation during this cell", flush=True)
                 log.write(json.dumps(rec) + "\n")
                 log.flush()
                 print(f"[{n_cell}/{total}] {cell['block']} {arm} f={fo} T={T} rows={len(rows)} excluded={rec['excluded']} flagged={flagged} "
-                      f"bg_other={bg['other_cores']} steal={bg['steal_pct']}", flush=True)
+                      f"bg_other={bg['other_cores']} steal={bg['steal_pct']} gen_proc={rec['generator_load']['gen_proc_cores_mean']:.2f}", flush=True)
         finally:
             env.down()
+    ev = out / "profile_events.jsonl"
+    manifest["profile_events"] = [json.loads(l) for l in ev.read_text().splitlines()] if ev.exists() else []
     manifest["aborted"] = aborted
     manifest["finished_utc"] = datetime.now(timezone.utc).isoformat()
     manifest["disk_end"] = subprocess.run(["df", "-h", "/"], capture_output=True, text=True).stdout.splitlines()[-1]
@@ -535,7 +606,27 @@ def live(a, cells, rng) -> int:
     return 1 if aborted else 0
 
 
+def record_event(argv) -> int:
+    """`run.py --record-event applied|removed --profile P --out DIR [--note TEXT]`: appends the time of a profile change, as
+    COMMUNICATED by the user (logged when the message is received, not when sudo ran: an upper bound on the delay)."""
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--record-event", required=True, choices=["applied", "removed"])
+    ap.add_argument("--profile", required=True, choices=sorted(PROFILES))
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--note", default="")
+    a, _ = ap.parse_known_args(argv)
+    Path(a.out).mkdir(parents=True, exist_ok=True)
+    row = {"event": a.record_event, "profile": a.profile, "t_epoch": time.time(), "t_utc": datetime.now(timezone.utc).isoformat(),
+           "source": "communicated by the user, logged on receipt", "note": a.note}
+    with (Path(a.out) / "profile_events.jsonl").open("a") as fh:
+        fh.write(json.dumps(row) + "\n")
+    print(json.dumps(row))
+    return 0
+
+
 def main() -> int:
+    if "--record-event" in sys.argv:
+        return record_event(sys.argv[1:])
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--block", required=True, help="comma list of b1,b2kill,tcpdump")
     ap.add_argument("--profile", required=True, choices=sorted(PROFILES))
@@ -547,11 +638,14 @@ def main() -> int:
     ap.add_argument("--plog-thresholds", default=None)
     ap.add_argument("--l-dns", type=float, default=None, help="calibrated L_dns (s), for the B2-kill client timeout")
     ap.add_argument("--profile-wait", type=float, default=90.0, help="seconds to wait for the claimed netem profile to show up in the measured RTT")
+    ap.add_argument("--fanouts", default="1,10", help="B1 FANOUT values (smoke: 10)")
+    ap.add_argument("--episodes", type=int, default=None, help="override the B1 episode count (smoke: 3)")
+    ap.add_argument("--plog-p95-ms", type=float, default=PLOG_P95_MS_DEFAULT, help="calibrated p95 of the docker logs -t latency")
     ap.add_argument("--dry-run", action="store_true", help="print the plan and exit; nothing is touched")
     a = ap.parse_args()
     blocks = a.block.split(",")
     arms = a.arms.split(",")
-    cells = plan(a.profile, blocks, arms)
+    cells = plan(a.profile, blocks, arms, [int(x) for x in a.fanouts.split(",")], a.episodes)
     rng = random.Random(a.seed)
     rng.shuffle(cells)  # order of the cells inside the block, recorded in the manifest
     if a.dry_run:

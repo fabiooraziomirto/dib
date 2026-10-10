@@ -93,3 +93,46 @@ def test_r7_group_cells_reuse_cluster():
     for key, g in groups:
         assert all((c["arm"], c["fanout"], c["T"]) == key for c in g)
     assert sorted(len(g) for _, g in groups) == [1, 1, 3, 3, 4, 4]
+
+
+def _ep(rtt, plog_s, pending=None, d_ack=None, t0=100.0):
+    row = {"dispute_rtt_s": rtt, "t0": t0, "pending_after_response": pending or {i: 0 for i in range(10)},
+           "withdrawn_plog_s": {i: v for i, v in enumerate(plog_s)}, "plog_ack_ts": {}}
+    if d_ack:
+        row["plog_ack_ts"] = {i: t0 + d_ack for i in range(10)}
+    return row
+
+
+def test_r8_summarize_rows_agreement_bias_and_acceptance():
+    ok = [_ep(0.0100, [0.002 + 0.0007 * i for i in range(10)]) for _ in range(3)]       # last site 0.0083 s, response 0.0100 s
+    s = r.summarize_rows(ok, "lan", plog_p95_ms=2.5)
+    assert abs(s["median_direct_plog_s"] - 0.0083) < 1e-9 and s["n_direct"] == 3
+    assert abs(s["plog_minus_response_gap_ms"]["median"] - 1.7) < 1e-6
+    assert s["plog_rtt_agree"] is True                                  # |gap| 1.7 ms <= 3 ms
+    assert abs(s["plog_acceptance_ratio"] - 0.0025 / 0.0083) < 1e-9 and s["plog_acceptable_rule_10pct"] is False
+    assert s["dispute_rtt_bias_ratio"] == 0.0 and s["client_timeouts"] == 0
+    bad = [_ep(0.0200, [0.001] * 10)]                                   # gap 19 ms: the two measures disagree
+    assert r.summarize_rows(bad, "lan")["plog_rtt_agree"] is False
+    wan = r.summarize_rows([_ep(0.5, [0.2] * 10)], "wan")
+    assert abs(wan["dispute_rtt_bias_ratio"] - 0.08 / 0.5) < 1e-9       # d / median(dispute-rtt)
+    pend = {i: (1 if i == 3 else 0) for i in range(10)}
+    sp = r.summarize_rows([_ep(5.0, [0.2] * 10, pending=pend, d_ack=6.0)], "degraded")
+    assert abs(sp["pending_bias_ratio"] - (0.2 + 0.05) / 6.0) < 1e-9 and sp["pending_bias_flag_gt10pct"] is False
+    ex = r.summarize_rows([{"excluded": True, "client_timeout": "x"}] + ok, "lan")
+    assert ex["excluded"] == 1 and ex["client_timeouts"] == 1 and ex["n_direct"] == 3
+
+
+def test_r9_generator_load_flags():
+    low = r.generator_load([{"proc_cores": 0.1, "host_busy_pct": 2.0} for _ in range(5)])
+    assert low["near_saturation"] is False and abs(low["gen_proc_cores_mean"] - 0.1) < 1e-9
+    high = r.generator_load([{"proc_cores": 0.9, "host_busy_pct": 10.0}] * 3)
+    assert high["near_saturation"] is True
+
+
+def test_r10_plan_overrides_and_event_log(tmp_path, monkeypatch, capsys):
+    assert [c["fanout"] for c in r.plan("lan", ["b1"], ["D"], [10], 3)] == [10]
+    assert r.plan("lan", ["b1"], ["D"], [10], 3)[0]["episodes"] == 3
+    monkeypatch.setattr(sys, "argv", ["run.py", "--record-event", "applied", "--profile", "wan", "--out", str(tmp_path), "--note", "watcher started"])
+    assert r.main() == 0
+    ev = json.loads((tmp_path / "profile_events.jsonl").read_text().splitlines()[0])
+    assert ev["event"] == "applied" and ev["profile"] == "wan" and "communicated by the user" in ev["source"]
