@@ -157,3 +157,39 @@ Tutti con il servizio in-process o su porte locali, con la CA di test. Ipotesi e
 - **Q4.** Il registry single-node (API) è in ambito per mTLS (passo 6), o solo il prototipo distribuito?
 - **Q5.** Mappatura dei tipi per sito (ES_d verificabile): sì o no?
 - **Q6.** Revoca: basta la denylist, o vuoi anche la CRL?
+
+## 9. Decisioni dell'utente e stato dell'implementazione (2026-10-10)
+
+**Risposte:**
+- **Q1:** certificato operatore separato, sì.
+- **Q2:** opzione B con uvicorn bloccato; ripiego su A se richiede più di circa un giorno o risulta fragile.
+- **Q3:** solo OpenSSL; step-ca solo descritto come opzione di deployment.
+- **Q4:** registry single-node solo se usa lo stesso code path del distribuito e il diff è piccolo.
+- **Q5:** lista dei tipi sì, opzionale, spenta di default, accesa nel braccio mTLS. **Scelta di modello da discutere col supervisore.**
+- **Q6:** denylist e certificati a vita breve, niente CRL.
+
+| Passo | Commit | Cosa | Test (scritti prima del codice, eseguiti rossi, poi verdi) |
+|---|---|---|---|
+| 1 | `3f8d6fd` | `code/src/dib/registry/distributed/mtls.py`: `PeerCertH11Protocol` (opzione B), `server_config`, `client_context`, `Identities` (mappatura con denylist, ricaricata quando cambia), entry point `python -m dib.registry.distributed.mtls`; pin `UVICORN_VERSION = "0.51.0"` controllato all'avvio | `test_mtls_peer_identity.py` (7): SAN visibile all'app; handshake rifiutato senza certificato (T2), con CA sconosciuta (T3), certificato scaduto (T4) o solo `codeSigning`, cioè certificato di firma MUD (T13); identità per connessione; pin |
+| 2 | `9413c20` | `service.py`: `_authorize` e `_reporter` secondo la matrice della sez. 3.3, dietro `DIB_DIST_MTLS=1`; chiamate in uscita con `verify=client_context`; `DIB_DIST_TYPE_LIST=1` (richiede mTLS) | `test_mtls_authorization.py` (17), su socket TLS reali (1 evidence + 2 siti come processi): T1, T5 (denylist senza riavvio), T6, T7, T8, T9, T10, T11, T12, T14, Q5, più un controllo che la lista tipi senza mTLS impedisca l'avvio |
+| 3 | `10e3aeb` | Dockerfile con `uvicorn==0.51.0` e `mtls.py`; `generate_compose.py` con `DIB_DIST_MTLS`, `DIB_DIST_TYPE_LIST`, `DIB_DIST_PKI_DIR` | `test_mtls_compose.py` (3): output senza mTLS byte per byte identico al compose committato; topologia mTLS; pin e copia nell'immagine. Nulla costruito né eseguito |
+| 4 | `3cb6d34` | solo test | `test_mtls_oracle.py` (T15): lo stesso episodio con e senza mTLS dà gli stessi (stato, origine, ACE) a ogni passo; un fatto è esportato se e solo se è Active; il veto locale sopravvive; il restore globale non riattiva |
+
+**Opzione B: tempo e fragilità.** Funzionante in meno di un giorno. Il punto di aggancio è `connection_made` più la lettura di `self.app` a ogni richiesta (`uvicorn/protocols/http/h11_impl.py:232`). La fragilità è coperta dal pin, controllato all'avvio e in un test. **Non è stato necessario passare all'opzione A.**
+
+**Dopo ogni commit:**
+- suite: 412 → 419 → 436 → 439 → 440 passed, sia su 3.10.13 sia su 3.12.15 (su 3.12 lo stesso warning di anyio);
+- **i 412 test preesistenti passano invariati con mTLS spento (T16)**;
+- `verify_artifact.py`: sempre 260 passed e 2 failed, gli stessi due controlli sull'hash di `service.py`. L'hash è passato da `48415497…` a `31863043…` al passo 2;
+- nessuna scrittura in `results/`, nessuna rigenerazione (resta G0b).
+
+**Scostamenti dal design, da approvare:**
+1. **Mappatura in JSON, non YAML:** l'immagine non contiene pyyaml.
+2. **Nessun pool di connessioni nelle chiamate fra servizi** (design §4, ultimo paragrafo). I test esistenti sostituiscono le funzioni di modulo `httpx.get` e `httpx.post` (`_dist_harness.py:172-173`); passare a `httpx.Client` richiederebbe di riscrivere il trasporto del harness per 131 test. Quindi ogni chiamata fra servizi con mTLS fa un handshake TLS completo, e M4 avrà i bracci "HTTP senza pool" e "mTLS senza pool". Il braccio con pool richiede una tua decisione sulla modifica del harness.
+3. **Q4: il registry single-node resta fuori.** `api.py` passa per `services.py` (SQLAlchemy), un code path diverso da `service.py`. Limite dichiarato: nel registry single-node l'identità resta nel payload (API:28-29, :104, :200, :271).
+4. **Dove agisce la lista tipi (Q5).** Il distribuito non ha un endpoint di osservazione, quindi la lista limita `/attest` e `/dispute`: un sito può dichiarare evidenza o disputare solo per i tipi che opera. **ES_d all'ingresso delle osservazioni resta non verificato** (manca un punto di ingresso nel distribuito; il single-node è fuori per Q4). La nota di `paper_edits_proposed.md` §1a ("the prototype does not implement this check") resta quindi vera per il denominatore di C_s. Scelta di modello da discutere col supervisore.
+5. **Revoca senza CRL (Q6).** Un SAN revocato è rifiutato appena ogni servizio rilegge la mappatura. Un servizio con una mappatura non aggiornata continua ad accettarlo **fino alla scadenza del certificato**: 24 h nella CA di test, configurabile.
+6. **Ancora da fare per M3 e M4** (non in questo passo):
+   - uno script che generi la PKI per il deployment Docker: certificati server con SAN DNS `evidence` e `site-<i>`, operatori, amministratore, mappatura;
+   - il benchmark (`code/scripts/distributed_concurrency_benchmark.py`) deve presentare i certificati operatore, member e admin;
+   - l'immagine resta `python:3.11-slim` mentre per le misure è stato scelto 3.12 (G1): decidere se l'immagine passa a 3.12, il che cambia anche il braccio senza mTLS.
