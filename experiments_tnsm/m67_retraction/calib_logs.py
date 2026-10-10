@@ -28,10 +28,27 @@ TARGETS = {"dibtnsm-evidence-1": "http://localhost:18100/health", "dibtnsm-site-
 DOCKER = "/snap/bin/docker"
 
 
-def send(url: str, sink: list) -> None:
+_CONNS: dict = {}
+
+
+def send(url: str, sink: list, fresh: bool = False) -> None:
+    """GET /health. By default on a REUSED connection (warmed by the caller): through the userland docker-proxy a fresh
+    connection adds one netem d before the request reaches the container, which would inflate the measured log latency by
+    d at wan/degraded. `fresh=True` opens a new connection (diagnostic only)."""
+    import http.client
+    from urllib.parse import urlparse
+    u = urlparse(url)
+    key = (u.hostname, u.port)
+    if fresh or key not in _CONNS:
+        _CONNS[key] = http.client.HTTPConnection(u.hostname, u.port, timeout=5)
+    c = _CONNS[key]
     t = time.time()
-    urllib.request.urlopen(url, timeout=5).read()
+    c.request("GET", u.path)
+    c.getresponse().read()
     sink.append(t)
+    if fresh:
+        c.close()
+        _CONNS.pop(key, None)
 
 
 def log_times(container: str, since: float) -> list[float]:
@@ -61,6 +78,9 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     res = {}
+    for u in TARGETS.values():                       # warm-up: open the persistent connections, not measured
+        send(u, [])
+    time.sleep(0.5)
     # phase 1: evidence only
     t0 = time.time()
     sent = []
@@ -98,6 +118,15 @@ def main() -> int:
     res["parallel"] = par
     res["parallel_order_mismatch_positions"] = inversions
     res["parallel_offset_p50_ms"] = (par["dibtnsm-site-0-1"].get("p50_ms", 0) - par["dibtnsm-evidence-1"].get("p50_ms", 0))
+    # phase 3 (diagnostic): FRESH connections to evidence, to show the docker-proxy dial effect (+d under netem)
+    t0 = time.time()
+    sent3 = []
+    for _ in range(min(a.n, 30)):
+        send(TARGETS["dibtnsm-evidence-1"], sent3, fresh=True)
+        time.sleep(a.gap)
+    time.sleep(1.0)
+    lg3 = log_times("dibtnsm-evidence-1", t0)
+    res["fresh_connection_diagnostic"] = {"sent": len(sent3), "logged": len(lg3), **stats([l - s for s, l in zip(sent3, lg3)])}
     json.dump(res, open(a.out, "w"), indent=1)
     print(json.dumps(res, indent=1))
     return 0

@@ -67,6 +67,10 @@ def main() -> int:
             return 0
         ok, rtt, bad, timing = m67.wait_profile(env, a.profile, a.profile_wait)
         res.update(rtt_ms=rtt, rtt_check_ok=ok, rtt_check_bad=bad, profile_timing=timing)
+        if ok:
+            gp = env.measure_generator_path_ms()
+            res["generator_path_ms"] = {**gp, **m67.generator_path_matches(a.profile, gp, env.mtls)}
+            print("generator path (ms):", res["generator_path_ms"], flush=True)
         if not ok:
             raise SystemExit(f"profile {a.profile} not confirmed by the RTT: {bad}")
         if a.hold > 0:

@@ -4,6 +4,13 @@ in the root network namespace, one CLOCK_REALTIME for t0 and for `docker logs -t
 tree copy (hash in the manifest), with the node's venv. NOT integration-tested before this commit:
 only the pure functions (tests) and --dry-run were exercised, offline.
 
+Paths and RTTs (user check, 2026-10-10). evidence<->site: netem on both egresses, RTT 2d: that is what the profile probe
+(wait_profile, calib_profile.py, VERIFY_NOW) checks, +-20%. generator->container: the generator is in the root namespace with
+no qdisc on its egress, so only the response leg is delayed: ~d on a reused connection, ~2d on a fresh one (the userland
+docker-proxy dials the container at accept time). The driver therefore warms the connection right before t0 (Env.warm) and
+records the measured generator path per cluster (Env.measure_generator_path_ms, informational, never aborts). dispute-rtt and
+P-log (withdrawal - t0) carry the generator-path bias d (gen_path_d; 0 in `mixed`), not 2d.
+
 Arms. D = DIB_DIST_MTLS=0 + compose override running launcher_d.py (plain, same launcher as the
 mTLS arm, prebuilt SSL context set from outside; service.py untouched); C = mTLS. The default
 "as shipped" configuration appears only in a few reference B1 cells at `lan` (--arm default,
@@ -110,6 +117,9 @@ def _band(r_ms: float) -> tuple[float, float]:
     return (0.8 * r_ms, 1.2 * r_ms)
 
 
+# NOTE: these bands are for the path EVIDENCE <-> SITE (probe run from inside the evidence container; both ends have netem on
+# their egress, hence 2d). The generator's path to the containers is a different one (~d reused, ~2d fresh, see gen_path_d,
+# generator_path_matches, Env.measure_generator_path_ms) and is NOT part of this check.
 RTT_EXPECT_MS = {
     "lan": {i: (0.0, 3.0) for i in range(N_SITES)},
     "regional": {i: _band(40.0) for i in range(N_SITES)},
@@ -160,6 +170,24 @@ def rtt_matches(profile: str, measured_ms: dict[int, float]) -> tuple[bool, list
         if v is None or not (lo <= v <= hi):
             bad.append(f"site-{i}: {v} ms not in [{lo}, {hi}]")
     return (not bad), bad
+
+
+def gen_path_d(profile: str) -> float:
+    """One-way netem delay on the container egress that the GENERATOR's path to evidence crosses (response leg only: the
+    generator is in the root namespace, no qdisc on its egress). Equals the profile's d, except in `mixed`, where evidence
+    has no netem (only sites 5-9 are delayed)."""
+    return 0.0 if profile == "mixed" else PROFILES[profile]["d"]
+
+
+def generator_path_matches(profile: str, gp: dict, mtls: bool) -> dict:
+    """Informational check (never aborts) of the measured generator->evidence GET /health time, in ms: on a REUSED connection
+    ~d; on a FRESH connection the userland docker-proxy first dials the container, so ~2d (no expectation with TLS: the
+    handshake adds round trips). +-20% like the evidence<->site probe; below 3 ms for d = 0."""
+    d = gen_path_d(profile) * 1000.0
+
+    def inside(v, x):
+        return (0.0 <= v <= 3.0) if x == 0 else (0.8 * x <= v <= 1.2 * x)
+    return {"reused_ok": inside(gp["reused_ms"], d), "fresh_ok": None if mtls else inside(gp["fresh_ms"], 2 * d if d else 0)}
 
 
 _LOG = re.compile(r'^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(\.\d+)?Z\s.*"(POST|GET) (/[^ ]*) HTTP/1\.1" (\d{3})')
@@ -267,6 +295,7 @@ def summarize_rows(rows: list[dict], profile: str, plog_p95_ms: float = PLOG_P95
     """Per-cell summary of B1/tcpdump episodes: median dispute-rtt, median direct withdrawal by P-log (last site), their
     agreement, the acceptance ratio of the log probe, and the bias ratios of the manifest (user decision B/A4)."""
     d = PROFILES[profile]["d"]
+    d_gen = gen_path_d(profile)   # dispute-rtt crosses the generator<->evidence path (response leg), not evidence<->site
     ok = [r for r in rows if not r.get("excluded") and "dispute_rtt_s" in r]
     direct, rtt, diffs, pend = [], [], [], []
     for r in ok:
@@ -290,7 +319,7 @@ def summarize_rows(rows: list[dict], profile: str, plog_p95_ms: float = PLOG_P95
            "plog_p95_ms_used": plog_p95_ms,
            "plog_acceptance_ratio": (plog_p95_ms / 1000.0 / med_direct) if med_direct else None,
            "plog_acceptable_rule_10pct": bool(med_direct and plog_p95_ms / 1000.0 / med_direct < 0.10),
-           "dispute_rtt_bias_ratio": (d / med_rtt) if (med_rtt and d) else (0.0 if med_rtt is not None else None),
+           "dispute_rtt_bias_ratio": (d_gen / med_rtt) if (med_rtt and d_gen) else (0.0 if med_rtt is not None else None),
            "median_pending_withdrawal_s": med_pend, "n_pending_episodes": len(pend),
            "pending_bias_ratio": ((d + 0.05) / med_pend) if med_pend else None}
     out["pending_bias_flag_gt10pct"] = bool(out["pending_bias_ratio"] and out["pending_bias_ratio"] > 0.10)
@@ -365,18 +394,50 @@ class Env:
     def down(self):
         self.sh(self.compose() + "down -v --remove-orphans", check=False)
 
-    def client(self, identity: str | None):
+    def _make_client(self, identity: str | None):
         import httpx
         import ssl
+        verify = True
+        if self.mtls:
+            ctx = ssl.create_default_context(cafile=str(self.pki / "ca.crt"))
+            ctx.load_cert_chain(str(self.pki / f"{identity}.crt"), str(self.pki / f"{identity}.key"))
+            verify = ctx
+        return httpx.Client(verify=verify)
+
+    def client(self, identity: str | None):
         key = identity if self.mtls else None
         if key not in self._clients:
-            verify = True
-            if self.mtls:
-                ctx = ssl.create_default_context(cafile=str(self.pki / "ca.crt"))
-                ctx.load_cert_chain(str(self.pki / f"{identity}.crt"), str(self.pki / f"{identity}.key"))
-                verify = ctx
-            self._clients[key] = httpx.Client(verify=verify)
+            self._clients[key] = self._make_client(identity)
         return self._clients[key]
+
+    def warm(self, identity: str | None, url: str | None = None) -> None:
+        """Unmeasured GET /health on the connection the next call will reuse. The generator reaches containers through the
+        userland docker-proxy, which dials the container when a client connection is accepted: a FRESH connection costs
+        one extra d before the request reaches the service (keep-alive expires after ~5 s, and the mTLS arm uses one
+        client per identity). Warming right before t0 makes the measured calls run on a reused connection, so the
+        generator path is ~d (response leg only) in every episode."""
+        self.req("GET", (url or self.ev) + "/health", identity, 5.0)
+
+    def measure_generator_path_ms(self, n: int = 5) -> dict:
+        """Median GET /health time from the generator (root namespace) to evidence on a reused and on a fresh connection."""
+        import statistics
+        ident = "admin"
+        c = self._make_client(ident)
+        c.get(f"{self.ev}/health", timeout=10.0)
+        reused = []
+        for _ in range(n):
+            t = time.perf_counter()
+            c.get(f"{self.ev}/health", timeout=10.0)
+            reused.append((time.perf_counter() - t) * 1000.0)
+        c.close()
+        fresh = []
+        for _ in range(n):
+            f = self._make_client(ident)
+            t = time.perf_counter()
+            f.get(f"{self.ev}/health", timeout=10.0)
+            fresh.append((time.perf_counter() - t) * 1000.0)
+            f.close()
+        return {"reused_ms": statistics.median(reused), "fresh_ms": statistics.median(fresh), "n": n}
 
     def req(self, method: str, url: str, identity: str | None, timeout: float, **kw):
         import httpx
@@ -451,6 +512,7 @@ def episode_b1(env: Env, profile: str, tag: str, e: int, setup: bool = True) -> 
             sid = setup_fact(env, ep, list(range(N_SITES)), 30.0 if profile != "extreme" else 90.0)
         else:
             sid = env.req("POST", f"{env.ev}/seed", "admin", 30.0, json={"device_type": "cam-a", "endpoint": ep}).json()["id"]
+        env.warm("op-site-1")
         t0 = time.time()
         r = env.req("POST", f"{env.ev}/dispute", "op-site-1", tmo, json={"device_type": "cam-a", "endpoint": ep, "site_id": "site-1"})
         t_resp = time.time()
@@ -495,8 +557,11 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
         t_kill = time.time()
         for ep in eps:
             body = {"device_type": "cam-a", "endpoint": ep}
+            env.warm("op-site-1")
             env.req("POST", f"{env.ev}/dispute", "op-site-1", tmo, json={**body, "site_id": "site-1"})
+            env.warm("op-site-2")
             env.req("POST", f"{env.ev}/dispute", "op-site-2", tmo, json={**body, "site_id": "site-2"})
+            env.warm("admin")
             env.req("POST", f"{env.ev}/restore", "admin", tmo, json=body)
         pend = env.req("GET", f"{env.ev}/pending/site-3", "site-3", 5.0).json()["pending"]
         row["pending_queued_for_site3"] = len(pend)
@@ -601,6 +666,10 @@ def live(a, cells, rng) -> int:
         try:
             ready = env.healthy()
             ok, rtt, bad, timing = wait_profile(env, a.profile, a.profile_wait)
+            if ok:
+                gp = env.measure_generator_path_ms()
+                timing["generator_path_ms"] = {**gp, **generator_path_matches(a.profile, gp, env.mtls)}
+                print(f"generator path (ms): {timing['generator_path_ms']}", flush=True)
             if not ok:
                 log.write(json.dumps({"group": [arm, fo, T], "aborted": "profile check failed: the claimed netem profile does not match the measured RTT",
                                       "rtt_ms_evidence_to_site": rtt, "profile_check_bad": bad, "timing": timing}) + "\n")

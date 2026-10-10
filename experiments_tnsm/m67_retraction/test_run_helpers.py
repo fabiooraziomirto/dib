@@ -172,3 +172,22 @@ def test_r12_rtt_tolerance_plus_minus_20_percent():
     one_syn_retransmit[4] = 1401.0                      # median of 3 hit twice: the probe fails and is retried, not an error
     assert not r.rtt_matches("degraded", one_syn_retransmit)[0]
     assert not r.rtt_matches("degraded", {i: 161.0 for i in range(10)})[0]     # wan applied instead of degraded
+
+
+def test_r13_generator_path_is_d_not_2d():
+    """User check A (2026-10-10): the generator (root namespace, no netem egress) reaches a container with the REQUEST leg
+    unshaped; only the response leg crosses the container's qdisc. On a reused connection the path RTT is d; on a fresh
+    connection the userland docker-proxy first dials the container (SYN-ACK delayed by d): ~2d. evidence<->site is 2d.
+    In `mixed` evidence has no netem, so the generator->evidence path is ~0."""
+    assert r.gen_path_d("wan") == 0.080 and r.gen_path_d("degraded") == 0.200 and r.gen_path_d("lan") == 0.0
+    assert r.gen_path_d("mixed") == 0.0
+    ok = r.generator_path_matches("wan", {"reused_ms": 81.0, "fresh_ms": 162.0}, mtls=False)
+    assert ok == {"reused_ok": True, "fresh_ok": True}
+    bad = r.generator_path_matches("wan", {"reused_ms": 161.0, "fresh_ms": 162.0}, mtls=False)   # 2d on a reused connection would be wrong
+    assert bad["reused_ok"] is False and bad["fresh_ok"] is True
+    assert r.generator_path_matches("wan", {"reused_ms": 81.0, "fresh_ms": 400.0}, mtls=True)["fresh_ok"] is None   # TLS fresh: no expectation
+    assert r.generator_path_matches("mixed", {"reused_ms": 0.5, "fresh_ms": 1.0}, mtls=False)["reused_ok"] is True
+    # the dispute-rtt bias uses the generator path, not the profile's evidence<->site d
+    rows = [{"excluded": False, "dispute_rtt_s": 1.0, "withdrawn_plog_s": {i: 0.9 for i in range(10)}, "pending_after_response": {i: 0 for i in range(10)},
+             "pending_left": {i: 0 for i in range(10)}} for _ in range(5)]
+    assert r.summarize_rows(rows, "mixed", 2.5)["dispute_rtt_bias_ratio"] == 0.0
