@@ -47,6 +47,7 @@ import run as m3  # noqa: E402  (sh_node, wait_healthy, NODE_IP; main() is guard
 import distributed_concurrency_benchmark as bench  # noqa: E402
 
 CONFIGS = ("A", "C", "D")
+_TREE = None
 EXPECTED_SAVING_MS = 6.15
 LAUNCHER_B = ("import uvicorn; from dib.registry.distributed.mtls import PeerCertH11Protocol; "
               "uvicorn.Server(uvicorn.Config('service:app', host='0.0.0.0', port=8000, "
@@ -110,6 +111,14 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     writers = [int(x) for x in a.writers.split(",")]
     rng = random.Random(a.seed)
+    home = m3.sh_node("echo $HOME").strip()
+    if a.tree.startswith("~"):  # the snap compose does not expand ~ like the shell: use an absolute path
+        a.tree = home + a.tree[1:]
+    assert a.tree.startswith("/"), a.tree
+    global _TREE
+    _TREE = a.tree
+    # a missing bind source would be created as a (root-owned) directory by the daemon
+    m3.sh_node(f"test -f {a.tree}/experiments_tnsm/m3_distributed/launcher_d.py")
     node_service = m3.sh_node(f"sha256sum {a.tree}/code/src/dib/registry/distributed/service.py").split()[0]
     node_launcher = m3.sh_node(f"sha256sum {a.tree}/experiments_tnsm/m3_distributed/launcher_d.py").split()[0]
     manifest = {"started_utc": datetime.now(timezone.utc).isoformat(), "argv": sys.argv, "node_tree": a.tree,
@@ -199,4 +208,9 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        rc = main()
+    finally:  # always take the project down, also on an error
+        if _TREE:
+            m3.sh_node(compose(_TREE, "A") + "down -v --remove-orphans", check=False)
+    raise SystemExit(rc)

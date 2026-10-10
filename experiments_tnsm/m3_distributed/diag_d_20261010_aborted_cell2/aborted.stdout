@@ -1,0 +1,29 @@
+[1/15] A rep=0 w1:120.5 w10:286.8 bg_other=0.0983 steal=0.01 fanout={'after_seed': 0, 'w1_after_warmup': 1, 'w1_after_timed': 1, 'w10_after_warmup': 6, 'w10_after_timed': 6} launcher_d=None
+Traceback (most recent call last):
+  File "/root/Desktop/DIB_tnsm/experiments_tnsm/m3_distributed/diag_d.py", line 202, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/root/Desktop/DIB_tnsm/experiments_tnsm/m3_distributed/diag_d.py", line 139, in main
+    m3.wait_healthy((10, 1 if cfg == "C" else 0))
+  File "/root/Desktop/DIB_tnsm/experiments_tnsm/m3_distributed/run.py", line 96, in wait_healthy
+    sh_node(probe, timeout=timeout)
+  File "/root/Desktop/DIB_tnsm/experiments_tnsm/m3_distributed/run.py", line 69, in sh_node
+    raise RuntimeError(f"node command failed ({r.returncode}): {cmd}\n{r.stdout}\n{r.stderr}")
+RuntimeError: node command failed (1): python3 - <<'EOF'
+import ssl,urllib.request,time,sys
+urls=['http://localhost:18100/health']+['http://localhost:%d/health'%(18110+i) for i in range(10)]
+ctx=None
+deadline=time.time()+80
+ok=set()
+while time.time()<deadline and len(ok)<len(urls):
+  for u in urls:
+    if u in ok: continue
+    try:
+      urllib.request.urlopen(u,timeout=1,context=ctx); ok.add(u)
+    except Exception: pass
+  time.sleep(0.2)
+print(len(ok)); sys.exit(0 if len(ok)==len(urls) else 1)
+EOF
+0
+
+
