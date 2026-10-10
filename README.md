@@ -1,5 +1,34 @@
 # DIB — Managing Local MUD Policy Lifecycles with Shared IoT Traffic Evidence
 
+> **Provenance of this repository.** Created 2026-10-10 as a clean import of
+> `dib-tnsm-artifact-v43` (source HEAD `ca9c6a0`, paper v42.0): implementation files only,
+> byte-identical to the source (`docs/audit/00_manifest.sha256`, tag `v43-import`).
+> `paper/`, `slides/`, `docs/RELATED_WORK_SCOPE.md` and `docs/REVISION_NOTES_v36.md` are
+> **not** part of this repository, so the references to them below point to files that
+> live only in the source snapshot. Details: `docs/audit/00_inventario_repo_pulita.md`.
+>
+> **Python.** `code/pyproject.toml` declares `requires-python >=3.12`; the test suite
+> was run (281 passed) and `scripts/verify_artifact.py` passes (262 checks) on Python 3.10.13.
+> The constraint is left unchanged.
+>
+> **How to run (verified commands)**
+>
+> | What | Command |
+> |---|---|
+> | Unit tests | `cd code && python3 -m pytest tests -q` |
+> | Headline numbers vs stored evidence | `python3 scripts/verify_artifact.py [--with-tests]` |
+> | TLC (needs Java + `tla2tools.jar`, see below) | `python3 scripts/run_formal.py --jar <tla2tools.jar> --output <dir>`; `--mutations-only` for the six mutations |
+> | Registry experiments, no third-party data | `PYTHONPATH=code/src python3 code/scripts/{v36_restore_ablation,v35_lifecycle_experiment,v28_lifecycle_trace}.py`; `offline_veto_reconciliation.py --trials 10` |
+> | Distributed cluster (10 sites + evidence) | `docker compose` in `code/src/dib/registry/distributed/`, then `code/scripts/fault_injection_experiment.py`, `reconcile_race_experiment.py` |
+> | OpenWrt + osMUD gateway (long: privileged Docker, >= 8 GiB RAM, no retries) | `cd openwrt && python3 run_campaign.py --runs 10` |
+>
+> **TLC version.** The stored logs were produced by `TLC2 Version 2026.05.26.235334
+> (rev: 4ba7d88)` (`formal/logs/full_lifecycle.log:1`). `tla2tools.jar` is not
+> redistributed; obtain that release from the TLA+ tools releases page.
+> **osMUD** is cloned at build time from `https://github.com/osmud/osmud.git`, pinned to
+> commit `852918eb33f3e15225da4de21d440b5b9a5d875f` (`openwrt/Dockerfile.router:2,5`);
+> its licence is that of the upstream project and is not redistributed here.
+
 Reproducibility artifact for the IEEE TNSM submission *DIB: Managing Local MUD Policy
 Lifecycles with Shared IoT Traffic Evidence* (paper version v42.0, `paper/main.pdf`).
 The directory name `dib-tnsm-artifact-v36` is retained for continuity; the current

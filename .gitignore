@@ -16,6 +16,7 @@ dist/
 *.log
 !formal/logs/*.log
 !results/**/*.log
+!formal/mutations/**/result.log
 *.out
 *.synctex.gz
 *.bbl
@@ -31,3 +32,7 @@ states/
 *.db
 *.db-wal
 *.db-shm
+
+# Local tooling
+*.jar
+.claude/
