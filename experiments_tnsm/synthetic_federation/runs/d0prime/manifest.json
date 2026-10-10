@@ -1,0 +1,91 @@
+{
+ "argv": [
+  "experiments_tnsm/synthetic_federation/d0prime.py",
+  "--draws",
+  "20",
+  "--out",
+  "experiments_tnsm/synthetic_federation/runs/d0prime"
+ ],
+ "seed": 20261010,
+ "draws": 20,
+ "REF": 10,
+ "rho_flood": 100,
+ "arms": {
+  "uniform": {
+   "ref": 0.0,
+   "adv_b": 1
+  },
+  "adv-low": {
+   "ref": 10.0,
+   "adv_b": 1
+  },
+  "adv-high": {
+   "ref": 10.0,
+   "adv_b": 10
+  }
+ },
+ "scoring": {
+  "alpha": 0.6,
+  "beta": 0.4,
+  "gamma": 0.0,
+  "theta": 0.65,
+  "min_reporting_sites": 2,
+  "graph_enabled": false
+ },
+ "elapsed_s": 220.39,
+ "python": "3.12.15 | packaged by Anaconda, Inc. | (main, Oct  1 2026, 20:20:25) [GCC 14.3.0]",
+ "platform": "Linux-6.8.12-18-pve-x86_64-with-glibc2.35",
+ "sha256": {
+  "experiments_tnsm/synthetic_federation/d0prime.py": "693fd758d65ee0cae9e6d6dc8dcf4e7709a4f2feba7121e55f2a46fc4a1f1fdb",
+  "analysis_fs/bound_grid.py": "3bf2cde78f5695a1114bfe02624ea1ce7fb393985f71e23b6aed48fe9ed0a07a",
+  "code/src/dib/evaluation/dib.py": "3c461e7ba0be8cdf46de54807795ec62bd2cd328057969d431f1a5de3b873f68",
+  "code/src/dib/evaluation/trust.py": "aabfd78dcccc6567867e71cf19d0de33056426487f8e62adb9b7a94470be12a4"
+ },
+ "summary": {
+  "uniform": {
+   "cases": 185,
+   "admitted_weighted": 110,
+   "D0p_violations": 0,
+   "weighted_ne_raw": 0,
+   "raw_below_margin_admitted": 0,
+   "raw_below_margin_admitted_by_N": {
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "50": 0,
+    "100": 0
+   },
+   "min_raw_share_admitted": 0.42
+  },
+  "adv-low": {
+   "cases": 3700,
+   "admitted_weighted": 628,
+   "D0p_violations": 0,
+   "weighted_ne_raw": 1572,
+   "raw_below_margin_admitted": 0,
+   "raw_below_margin_admitted_by_N": {
+    "5": 0,
+    "10": 0,
+    "20": 0,
+    "50": 0,
+    "100": 0
+   },
+   "min_raw_share_admitted": 0.6
+  },
+  "adv-high": {
+   "cases": 3700,
+   "admitted_weighted": 2445,
+   "D0p_violations": 0,
+   "weighted_ne_raw": 245,
+   "raw_below_margin_admitted": 245,
+   "raw_below_margin_admitted_by_N": {
+    "5": 15,
+    "10": 18,
+    "20": 30,
+    "50": 62,
+    "100": 120
+   },
+   "min_raw_share_admitted": 0.3
+  }
+ }
+}

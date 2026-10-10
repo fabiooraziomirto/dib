@@ -93,3 +93,52 @@ Opzioni (nessuna applicata):
 - **(c)** budget più grandi della coda DIB (c·B, con c ∈ {2, 5}), cioè un operatore che rivede più fatti.
 
 Raccomandazione: (b) + (c) con il gate di classe applicato a tutti; l'ipotesi H6-1b va riscritta nel docstring prima del lancio.
+
+## 5. Decisioni dell'utente (2026-10-10) e lanci di H6-1a, H6-2 e D0'
+
+**Decisioni.**
+- D0' confermato. Va esplicitato **nel paper**: Criterion 1 vale per la configurazione non pesata; per quella pesata vale D0', sulla quota pesata.
+- Prova vera con pesi eterogenei e controllo con pesi uniformi.
+- Se D0' fallisce: stop e report, nessuna modifica a `dib.py`.
+
+**Verifica che D0' misuri il codice e non una definizione mia [C].**
+- `d0prime.py` calcola W = Σ_avv w / Σ_ES_d w con gli stessi pesi di DIB (`compute_site_trust_weights` sulle stesse osservazioni, come `dib.py:157-161`).
+- A ogni caso fa `assert` che W sia uguale al `site_confidence` restituito da DIB (`dib.py:256-259`), con tolleranza relativa 1e-12.
+- Il quorum resta sul conteggio non pesato |S_e| (`dib.py:250,292`), e la soglia è stretta (W·12 < 5).
+- Tutte le asserzioni sono passate.
+
+### 5.1 D0' (`d0prime.py`, commit `9e1e…`, vedi git log; dati in `runs/d0prime/`)
+
+- Griglia: N ∈ {5, 10, 20, 50, 100}, ogni K = 1..N, 20 estrazioni di breadth onesta per caso.
+- Pesi: REF = 10, breadth onesta uniforme su [1, 19]; due bracci avversari più il controllo uniforme. Durata 220 s.
+
+| Braccio | Casi | Ammessi (pesato) | **Violazioni D0'** | Decisioni pesate ≠ grezze | Ammessi con quota **grezza** < 5/12 | Quota grezza minima ammessa |
+|---|---|---|---|---|---|---|
+| uniforme (controllo, pesi = 1) | 185 | 110 | **0** | 0 | 0 | 0,42 |
+| adv-low (avversari b = 1, w = 0,1) | 3700 | 628 | **0** | 1572 | 0 | 0,60 |
+| adv-high (avversari con breadth gonfiata, w = 1) | 3700 | 2445 | **0** | 245 | **245** (N = 5: 15; 10: 18; 20: 30; 50: 62; 100: 120) | **0,30** |
+
+**Esito:**
+- H-D0'u non falsificata: nel controllo la decisione pesata è identica a quella grezza.
+- **H-D0'h non falsificata:** nessuna ammissione con quota pesata < 5/12 né con |S_e| < 2.
+
+**Risultato sul meccanismo [D], da riportare nel paper.**
+- Il trust weighting protegge dai Sybil a breadth bassa: in adv-low la quota grezza minima ammessa sale a 0,60.
+- Lo stesso pesatura **apre** però una superficie di attacco: un avversario che gonfia la propria breadth fino al riferimento (peso 1), contro siti onesti di cui circa metà ha peso < 1, fa ammettere fatti con quota grezza fino a **0,30 < 5/12**.
+- Il Criterion 1 grezzo **non** protegge quindi la configurazione selezionata. La garanzia vale nella forma D0', sulla quota pesata, ed è tanto buona quanto la stima dei pesi.
+- Che un avversario possa guadagnare peso è un'ipotesi di attacco da dichiarare nel threat model.
+
+### 5.2 H6-1a, ρ_corr = 0 (`h61a.py --trials 20000`, configurazione grezza, seed 20261010; `runs/h61a_rho0/`)
+
+- 25 punti in 1,7 s.
+- G-eccesso: 0 difetti su 25. G-difetto: 0 su 9. Il generatore riproduce la binomiale; per esempio N = 5, q = 0,3: X_gen = 3261 su 20 000, CP [0,155; 0,171] contro p* = 0,163.
+- **D0: 0 violazioni.**
+- D1: 0 falsificazioni. X_dib = X_gen in tutti i punti: con la collusione totale e ρ = 100, DIB ammette **esattamente** quando n_avv ≥ ⌈5N/12⌉.
+- **H6-1a non falsificata.**
+
+### 5.3 H6-2, ρ_corr = 0,3 (seed 20261011; `runs/h62_rho03/`)
+
+- Eccesso rilevato in **9 punti su 9** (e anche nei restanti 16): ad esempio N = 100, q = 0,3 dà X_gen/n = 0,304 contro p* = 0,0072 (42×), N = 20, q = 0,2 dà 0,173 contro 0,0100.
+- **H6-2 non falsificata.** D0 resta a 0 violazioni: anche con correlazione DIB ammette solo sopra la soglia.
+- Il bound binomiale sottostima invece di uno a due ordini di grandezza la frequenza con cui la soglia è superata quando i siti sono correlati (firmware o cloud condiviso).
+- Nota: il flag "D1_falsified" in `runs/h62_rho03/points.csv` è calcolato rispetto al p* binomiale. Lì **non** è una falsificazione di H6-1a, che è definita a ρ_corr = 0, ma la misura dell'eccesso dovuto alla correlazione.

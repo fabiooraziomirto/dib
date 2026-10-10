@@ -1,0 +1,47 @@
+{
+ "uniform": {
+  "cases": 185,
+  "admitted_weighted": 110,
+  "D0p_violations": 0,
+  "weighted_ne_raw": 0,
+  "raw_below_margin_admitted": 0,
+  "raw_below_margin_admitted_by_N": {
+   "5": 0,
+   "10": 0,
+   "20": 0,
+   "50": 0,
+   "100": 0
+  },
+  "min_raw_share_admitted": 0.42
+ },
+ "adv-low": {
+  "cases": 3700,
+  "admitted_weighted": 628,
+  "D0p_violations": 0,
+  "weighted_ne_raw": 1572,
+  "raw_below_margin_admitted": 0,
+  "raw_below_margin_admitted_by_N": {
+   "5": 0,
+   "10": 0,
+   "20": 0,
+   "50": 0,
+   "100": 0
+  },
+  "min_raw_share_admitted": 0.6
+ },
+ "adv-high": {
+  "cases": 3700,
+  "admitted_weighted": 2445,
+  "D0p_violations": 0,
+  "weighted_ne_raw": 245,
+  "raw_below_margin_admitted": 245,
+  "raw_below_margin_admitted_by_N": {
+   "5": 15,
+   "10": 18,
+   "20": 30,
+   "50": 62,
+   "100": 120
+  },
+  "min_raw_share_admitted": 0.3
+ }
+}

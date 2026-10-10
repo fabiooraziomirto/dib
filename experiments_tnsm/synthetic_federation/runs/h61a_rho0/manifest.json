@@ -1,0 +1,35 @@
+{
+ "argv": [
+  "experiments_tnsm/synthetic_federation/h61a.py",
+  "--trials",
+  "20000",
+  "--out",
+  "experiments_tnsm/synthetic_federation/runs/h61a_rho0"
+ ],
+ "seed": 20261010,
+ "trials": 20000,
+ "rho_corr": 0.0,
+ "config": "raw",
+ "scoring": {
+  "alpha": 0.6,
+  "beta": 0.4,
+  "gamma": 0.0,
+  "theta": 0.65,
+  "min_reporting_sites": 2,
+  "graph_enabled": false,
+  "trust_weighted": false
+ },
+ "rho_flood": 100,
+ "alpha_per_test": 0.0008474576271186442,
+ "elapsed_s": 1.676,
+ "python": "3.12.15 | packaged by Anaconda, Inc. | (main, Oct  1 2026, 20:20:25) [GCC 14.3.0]",
+ "platform": "Linux-6.8.12-18-pve-x86_64-with-glibc2.35",
+ "numpy": "2.2.6",
+ "sha256": {
+  "experiments_tnsm/synthetic_federation/h61a.py": "30a8d83a8346e0bc4eb3a2e61db0c70dbd6884e8452da687132bb95c18e80ed3",
+  "analysis_fs/bound_grid.py": "3bf2cde78f5695a1114bfe02624ea1ce7fb393985f71e23b6aed48fe9ed0a07a",
+  "analysis_fs/fs_binomial.py": "981681c8b1d07ae3bb3e6167823166af7eafd8b96df51be88211c1ad12f751bb",
+  "code/src/dib/evaluation/dib.py": "3c461e7ba0be8cdf46de54807795ec62bd2cd328057969d431f1a5de3b873f68",
+  "code/src/dib/evaluation/trust.py": "aabfd78dcccc6567867e71cf19d0de33056426487f8e62adb9b7a94470be12a4"
+ }
+}
