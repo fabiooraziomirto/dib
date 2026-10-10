@@ -8,6 +8,16 @@ N-3  any anomaly (unexpected container name, label different from dibtnsm, bad p
      nsenter call (nothing applied partially);
 N-4  the watcher re-applies after the set of containers changes (a recreated cluster has new IDs/pids) and on SIGINT
      removes the qdisc of exactly the validated containers of the current set and nothing else, exiting 0;
+N-6  (user correction A1) the watcher retries a FAILED apply at the next poll even though the container list did not
+     change (`last` is updated only on success);
+N-7  (A2) if the cleanup on Ctrl-C fails (validation abort, or a `tc qdisc del` that fails while netem is still there)
+     it prints the visible warning "ATTENZIONE: pulizia netem NON riuscita, verifica con netem_show.sh" on stderr and
+     exits != 0; a `del` that fails because no qdisc exists (nothing to remove) is NOT a failure;
+N-8  (A3) the signature includes the pid: same container IDs and names but new pids (compose kill/start gives a new
+     namespace) => re-application; pids are read only for names matching the expected pattern, in ONE docker inspect;
+     an unexpected name present in `docker ps` is never inspected and nothing is applied while it is there;
+N-9  (A4) `--poll S` sets the poll interval (validated); the watcher prints millisecond UTC timestamps for "changed" and
+     "applied" (parsed by run.py parse_watch_log);
 N-5  across every scenario: no unfiltered `docker ps`, no docker verb other than ps/inspect (no network/exec/run/rm/kill),
      no decoy container (k3s, wasmbed, an unlabelled dibtnsm-lookalike) ever inspected or entered.
 Falsification: any assertion failing. Requires uid 0 (the scripts refuse non-root outside --dry-run)."""
@@ -32,16 +42,22 @@ case "$1" in
     f="$D/containers_$mode"
     if [[ "$*" == *"{{.ID}} {{.Names}}"* ]]; then awk '{print $1" "$2}' "$f"; else awk '{print $2}' "$f"; fi ;;
   inspect)
-    fmt="$3"; name="$4"
-    line=$(awk -v n="$name" '$2==n' "$D/containers_$mode")
-    [[ -n "$line" ]] || { echo "NOT-A-FILTERED-CONTAINER: docker $*" >> "$D/violations.log"; exit 98; }
-    if [[ "$fmt" == *"Labels"* ]]; then echo "$line" | awk '{print $4}'; else echo "$line" | awk '{print $3}'; fi ;;
+    fmt="$3"; shift 3
+    for name in "$@"; do
+      line=$(awk -v n="$name" '$2==n' "$D/containers_$mode")
+      [[ -n "$line" ]] || { echo "NOT-A-FILTERED-CONTAINER: docker inspect $name" >> "$D/violations.log"; exit 98; }
+      if [[ "$fmt" == *"Labels"* ]]; then echo "$line" | awk '{print $4}'; else echo "$line" | awk '{print $3}'; fi
+    done ;;
   *) echo "FORBIDDEN: docker $*" >> "$D/violations.log"; exit 97 ;;
 esac
 '''
 FAKE_NSENTER = r'''#!/usr/bin/env bash
 echo "nsenter $*" >> "$FAKE_DIR/nsenter.log"
-if [[ "$*" == *"tc qdisc show"* ]]; then echo "qdisc netem 8001: root refcnt 2 limit 1000 delay 80ms"; fi
+if [[ "$*" == *"tc qdisc show"* ]]; then
+  if [[ -e "$FAKE_DIR/show_clean" ]]; then echo "qdisc noqueue 0: root refcnt 2"; else echo "qdisc netem 8001: root refcnt 2 limit 1000 delay 80ms"; fi
+fi
+if [[ "$*" == *"tc qdisc replace"* && -e "$FAKE_DIR/fail_once" ]]; then rm -f "$FAKE_DIR/fail_once"; echo "boom" >&2; exit 1; fi
+if [[ "$*" == *"tc qdisc del"* && -e "$FAKE_DIR/fail_del" ]]; then echo "Error: Cannot delete qdisc with handle of zero." >&2; exit 2; fi
 exit 0
 '''
 pytestmark = pytest.mark.skipif(os.geteuid() != 0, reason="the scripts refuse to run as non-root outside --dry-run")
@@ -166,7 +182,7 @@ def test_n4_watcher_reapplies_after_recreation_and_ctrl_c_cleans_only_project(tm
 
 def test_n5_docker_shapes_never_unfiltered_never_other_verbs(tmp_path):
     allowed = [re.compile(r"^docker ps --filter label=com\.docker\.compose\.project=dibtnsm --format (\{\{\.Names\}\}|\{\{\.ID\}\} \{\{\.Names\}\})$"),
-               re.compile(r'^docker inspect -f \{\{(index \.Config\.Labels "com\.docker\.compose\.project"|\.State\.Pid)\}\} dibtnsm-(evidence|site-\d)-1$')]
+               re.compile(r'^docker inspect -f \{\{(index \.Config\.Labels "com\.docker\.compose\.project"|\.State\.Pid)\}\}( dibtnsm-(evidence|site-\d)-1)+$')]
     for k, args in enumerate([("--dry-run", "wan"), ("wan",), ("lan",), ("mixed",), ("degraded",)]):
         d = make_fake(tmp_path / f"s{k}")
         run(d, *args)
@@ -175,3 +191,129 @@ def test_n5_docker_shapes_never_unfiltered_never_other_verbs(tmp_path):
         assert lines(d, "violations.log") == []
         for l in lines(d, "docker.log"):
             assert any(a.match(l) for a in allowed), f"docker call outside the allowed shapes: {l}"
+
+
+ALLOWED_DOCKER = [re.compile(r"^docker ps --filter label=com\.docker\.compose\.project=dibtnsm --format (\{\{\.Names\}\}|\{\{\.ID\}\} \{\{\.Names\}\})$"),
+                  re.compile(r'^docker inspect -f \{\{(index \.Config\.Labels "com\.docker\.compose\.project"|\.State\.Pid)\}\}( dibtnsm-(evidence|site-\d)-1)+$')]
+
+
+def assert_docker_shapes(d):
+    assert lines(d, "violations.log") == []
+    for l in lines(d, "docker.log"):
+        assert any(a.match(l) for a in ALLOWED_DOCKER), f"docker call outside the allowed shapes: {l}"
+
+
+def start_watch(d, *args, poll="0.1"):
+    return subprocess.Popen(["bash", str(HERE / "netem_watch.sh"), *args], env=env_for(d, NETEM_WATCH_POLL=poll),
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+
+def wait_for(cond, secs=20):
+    t0 = time.time()
+    while not cond() and time.time() - t0 < secs:
+        time.sleep(0.05)
+    return cond()
+
+
+def n_replace(d):
+    return sum("qdisc replace" in l for l in lines(d, "nsenter.log"))
+
+
+def stop(p):
+    p.send_signal(signal.SIGINT)
+    try:
+        out, err = p.communicate(timeout=30)
+    finally:
+        if p.poll() is None:
+            p.kill()
+    return out, err
+
+
+def test_n6_failed_apply_is_retried_without_a_change_of_the_list(tmp_path):
+    d = make_fake(tmp_path)
+    (d / "fail_once").write_text("")                      # the first `tc qdisc replace` fails once
+    p = start_watch(d, "wan")
+    try:
+        assert wait_for(lambda: n_replace(d) >= 12)       # 1 failed call + 11 on the retry: the list never changed
+    finally:
+        out, err = stop(p)
+    assert p.returncode == 0, err
+    assert "apply FAILED" in err and out.count("applied wan") == 1
+    assert_docker_shapes(d)
+
+
+def test_n7_cleanup_failures_are_loud_and_nonzero(tmp_path):
+    msg = "ATTENZIONE: pulizia netem NON riuscita, verifica con netem_show.sh"
+    # (a) validation abort at cleanup time: a container with a foreign label appears just before Ctrl-C
+    bad = [f"bbbb{i:02d} {n} {7000 + i} dibtnsm" for i, n in enumerate(NAMES)]
+    bad[4] = f"bbbb04 {NAMES[4]} 7004 someother"
+    d = make_fake(tmp_path / "a", mode_b=bad)
+    p = start_watch(d, "wan")
+    try:
+        assert wait_for(lambda: n_replace(d) >= 11)
+        (d / "mode").write_text("b")
+    finally:
+        out, err = stop(p)
+    assert p.returncode != 0 and msg in err
+    # (b) `del` fails and netem is still there (show reports netem)
+    d = make_fake(tmp_path / "b")
+    (d / "fail_del").write_text("")
+    p = start_watch(d, "wan")
+    try:
+        assert wait_for(lambda: n_replace(d) >= 11)
+    finally:
+        out, err = stop(p)
+    assert p.returncode != 0 and msg in err
+    # (c) `del` fails only because there was no qdisc (show is clean): not a failure
+    d = make_fake(tmp_path / "c")
+    (d / "fail_del").write_text("")
+    (d / "show_clean").write_text("")
+    p = start_watch(d, "wan")
+    try:
+        assert wait_for(lambda: n_replace(d) >= 11)
+    finally:
+        out, err = stop(p)
+    assert p.returncode == 0 and msg not in err, err
+    assert_docker_shapes(d)
+
+
+def test_n8_same_id_new_pid_is_reapplied_and_unexpected_names_never_inspected(tmp_path):
+    same_ids_new_pids = [f"aaaa{i:02d} {n} {9000 + i} dibtnsm" for i, n in enumerate(NAMES)]
+    d = make_fake(tmp_path, mode_b=same_ids_new_pids)
+    p = start_watch(d, "wan")
+    try:
+        assert wait_for(lambda: n_replace(d) >= 11)
+        (d / "mode").write_text("b")                       # compose kill/start: same IDs, new namespaces
+        assert wait_for(lambda: n_replace(d) >= 22)
+    finally:
+        out, err = stop(p)
+    assert p.returncode == 0, err
+    got = {re.search(r"-t (\d+)", l).group(1) for l in lines(d, "nsenter.log") if "qdisc replace" in l}
+    assert got == set(pids(d, "a")) | set(pids(d, "b"))
+    assert_docker_shapes(d)
+    # an unexpected name in `docker ps`: never inspected, nothing applied while it is there
+    rows = [f"aaaa{i:02d} {n} {3000 + i} dibtnsm" for i, n in enumerate(NAMES)] + ["aaaa99 dibtnsm-evil-1 3999 dibtnsm"]
+    d = make_fake(tmp_path / "x", mode_a=rows)
+    p = start_watch(d, "wan")
+    try:
+        time.sleep(1.5)
+    finally:
+        out, err = stop(p)
+    assert n_replace(d) == 0 and not any("evil" in l for l in lines(d, "docker.log") if l.startswith("docker inspect"))
+    assert "apply FAILED" in err
+
+
+def test_n9_poll_option_and_timestamps(tmp_path):
+    d = make_fake(tmp_path)
+    bad = subprocess.run(["bash", str(HERE / "netem_watch.sh"), "--poll", "abc", "wan"], env=env_for(d), capture_output=True, text=True)
+    assert bad.returncode != 0 and lines(d, "nsenter.log") == []
+    p = subprocess.Popen(["bash", str(HERE / "netem_watch.sh"), "--poll", "0.1", "wan"], env=env_for(d),
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    try:
+        assert wait_for(lambda: n_replace(d) >= 11)
+    finally:
+        out, err = stop(p)
+    assert p.returncode == 0, err
+    assert re.search(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z netem_watch: containers changed -> applying wan$", out, re.M)
+    assert re.search(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z netem_watch: applied wan \(\d+\.\d+ s\)$", out, re.M)
+    assert "polling every 0.1s" in out

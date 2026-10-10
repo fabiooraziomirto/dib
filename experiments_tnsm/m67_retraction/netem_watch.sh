@@ -16,21 +16,47 @@
 # No other system command, no `docker network`, no sudoers rule, no daemon: it stops when the user stops it.
 # The profile `partition` is not supported here. Poll interval for tests: NETEM_WATCH_POLL (default 0.5).
 #
-# Usage: sudo ./netem_watch.sh <profile>              profiles as in netem_apply.sh
+# Corrections of 2026-10-10 (user review): (1) `last` is updated only if the apply succeeded, a failed apply is retried at
+# the next poll; (2) if the cleanup on Ctrl-C fails, a loud warning on stderr and exit status 1; (3) the signature
+# includes the pid of every expected container (compose kill/start keeps the ID but creates a new namespace), read with
+# ONE `docker inspect -f '{{.State.Pid}}' <expected names>` and only for names matching the expected pattern;
+# (4) `--poll S` (use 0.1 in B2-kill blocks, 0.5 default for B1); millisecond timestamps for "changed" and "applied",
+# which the driver joins to the container restarts (run.py parse_watch_log).
+#
+# Usage: sudo ./netem_watch.sh [--poll S] <profile>   profiles as in netem_apply.sh
 #        ./netem_watch.sh --dry-run <profile>         prints what it would do once; applies nothing
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 source "$HERE/netem_common.sh"
 DRY=0
-if [[ ${1:-} == --dry-run ]]; then DRY=1; shift; fi
+POLL=${NETEM_WATCH_POLL:-0.5}
+while [[ ${1:-} == --* ]]; do
+  case $1 in
+    --dry-run) DRY=1; shift;;
+    --poll) POLL=${2:-}; shift 2 || die "--poll needs a value";;
+    *) die "unknown option $1";;
+  esac
+done
+[[ $POLL =~ ^[0-9]+(\.[0-9]+)?$ ]] && awk "BEGIN{exit !($POLL >= 0.05)}" || die "bad poll interval '$POLL' (seconds, >= 0.05)"
 PROFILE=${1:-}
 [[ -n $PROFILE ]] || die "usage: $0 [--dry-run] <profile>"
 [[ $PROFILE != partition ]] || die "'partition' is not supported"
 [[ $DRY == 1 || $EUID == 0 ]] || die "must run as root (sudo)"
-POLL=${NETEM_WATCH_POLL:-0.5}
 
-signature() {  # "<id> <name>" of the containers of the project, sorted; the only docker call of the loop
-  docker ps --filter "label=com.docker.compose.project=$PROJECT" --format '{{.ID}} {{.Names}}' | sort
+ts() { date -u +%FT%T.%3NZ; }
+signature() {  # "<id> <name>" lines, then "pid <name> <pid>" lines for the expected names only; non-zero if docker fails
+  local psout id n pids i
+  local -a names=()
+  psout=$(docker ps --filter "label=com.docker.compose.project=$PROJECT" --format '{{.ID}} {{.Names}}' | sort) || return 1
+  while read -r id n; do
+    [[ -n ${n:-} && $n =~ $EXPECTED_RE ]] && names+=("$n")
+  done <<< "$psout"
+  echo "$psout"
+  if (( ${#names[@]} )); then
+    pids=$(docker inspect -f '{{.State.Pid}}' "${names[@]}") || return 1   # a container vanished meanwhile: no signature this poll
+    i=0
+    while read -r id; do echo "pid ${names[$i]} $id"; i=$((i + 1)); done <<< "$pids"
+  fi
 }
 
 if [[ $DRY == 1 ]]; then
@@ -41,20 +67,32 @@ if [[ $DRY == 1 ]]; then
 fi
 
 cleanup() {
-  echo "$(date -u +%FT%TZ) netem_watch: stopping, removing the qdisc of the dibtnsm containers" >&2
-  bash "$HERE/netem_apply.sh" lan || true
-  exit 0
+  trap '' INT TERM
+  echo "$(ts) netem_watch: stopping, removing the qdisc of the dibtnsm containers" >&2
+  if bash "$HERE/netem_apply.sh" lan; then
+    echo "$(ts) netem_watch: cleanup done" >&2
+    exit 0
+  fi
+  echo "$(ts) ATTENZIONE: pulizia netem NON riuscita, verifica con netem_show.sh" >&2
+  exit 1
 }
 trap cleanup INT TERM
 
-last=""
-echo "$(date -u +%FT%TZ) netem_watch: profile=$PROFILE, polling every ${POLL}s (Ctrl-C to stop and clean)"
+last=""; fails=0
+echo "$(ts) netem_watch: profile=$PROFILE, polling every ${POLL}s (Ctrl-C to stop and clean)"
 while true; do
-  cur=$(signature)
-  if [[ -n $cur && $cur != "$last" ]]; then
-    echo "$(date -u +%FT%TZ) containers changed -> applying $PROFILE"
-    bash "$HERE/netem_apply.sh" "$PROFILE" || echo "netem_watch: apply failed (will retry on the next change)" >&2
-    last=$cur
+  if cur=$(signature) && [[ -n $cur ]] && [[ $cur != "$last" ]]; then
+    (( fails )) || echo "$(ts) netem_watch: containers changed -> applying $PROFILE"
+    t0=$(date +%s.%N)
+    if bash "$HERE/netem_apply.sh" "$PROFILE" >/dev/null; then
+      last=$cur; fails=0
+      printf '%s netem_watch: applied %s (%.3f s)\n' "$(ts)" "$PROFILE" "$(awk "BEGIN{print $(date +%s.%N) - $t0}")"
+    else
+      fails=$((fails + 1))
+      if (( fails == 1 || fails % 20 == 0 )); then
+        echo "$(ts) netem_watch: apply FAILED (attempt $fails), retrying every ${POLL}s" >&2
+      fi
+    fi
   fi
   sleep "$POLL"
 done

@@ -136,3 +136,39 @@ def test_r10_plan_overrides_and_event_log(tmp_path, monkeypatch, capsys):
     assert r.main() == 0
     ev = json.loads((tmp_path / "profile_events.jsonl").read_text().splitlines()[0])
     assert ev["event"] == "applied" and ev["profile"] == "wan" and "communicated by the user" in ev["source"]
+
+
+def test_r11_watch_log_and_restart_bias():
+    """A4: the watcher log (ms timestamps) joined to a site restart gives the delay between `compose start` and the netem
+    re-application, and says whether the site's first reconcile pull (evidence access log) could have left unshaped."""
+    text = (
+        "2026-10-10T10:00:00.100Z netem_watch: profile=wan, polling every 0.1s (Ctrl-C to stop and clean)\n"
+        "2026-10-10T10:00:00.300Z netem_watch: containers changed -> applying wan\n"
+        "2026-10-10T10:00:00.900Z netem_watch: applied wan (0.600 s)\n"
+        "2026-10-10T10:00:30.050Z netem_watch: containers changed -> applying wan\n"
+        "2026-10-10T10:00:30.250Z netem_watch: applied wan (0.200 s)\n")
+    ev = r.parse_watch_log(text)
+    assert len(ev) == 2 and abs(ev[1]["t_applied"] - ev[1]["t_changed"] - 0.2) < 1e-6
+    t_start = ev[1]["t_changed"] - 0.04            # `compose start` returned, the watcher noticed 40 ms later
+    b = r.restart_netem_bias(t_start, ev, t_first_reconcile=t_start + 0.1)
+    assert abs(b["netem_applied_after_start_s"] - 0.24) < 1e-6
+    assert b["first_reconcile_before_netem"] is True and abs(b["first_reconcile_after_start_s"] - 0.1) < 1e-6
+    b2 = r.restart_netem_bias(t_start, ev, t_first_reconcile=t_start + 0.9)
+    assert b2["first_reconcile_before_netem"] is False
+    assert r.restart_netem_bias(t_start, [], None)["netem_applied_after_start_s"] is None      # no watcher log: undeclared
+    assert r.restart_netem_bias(t_start, ev, None)["first_reconcile_before_netem"] is None
+    get = ('2026-10-10T10:00:30.350000000Z INFO:     10.0.0.5:4242 - "GET /pending/site-3 HTTP/1.1" 200 OK\n'
+           '2026-10-10T10:00:31.350000000Z INFO:     10.0.0.5:4243 - "POST /pending/site-3/ack HTTP/1.1" 200 OK\n')
+    got = r.parse_access_lines(get, "GET", "/pending/site-3")
+    assert len(got) == 1 and got[0][1] == "/pending/site-3"
+    assert r.parse_post_lines(get, "/pending/site-3/ack")[0][2] == 200
+
+
+def test_r12_rtt_tolerance_plus_minus_20_percent():
+    assert r.rtt_matches("degraded", {i: 401.0 for i in range(10)})[0]
+    assert r.rtt_matches("degraded", {i: 321.0 for i in range(10)})[0]
+    assert not r.rtt_matches("degraded", {i: 318.0 for i in range(10)})[0]
+    one_syn_retransmit = {i: 401.0 for i in range(10)}
+    one_syn_retransmit[4] = 1401.0                      # median of 3 hit twice: the probe fails and is retried, not an error
+    assert not r.rtt_matches("degraded", one_syn_retransmit)[0]
+    assert not r.rtt_matches("degraded", {i: 161.0 for i in range(10)})[0]     # wan applied instead of degraded

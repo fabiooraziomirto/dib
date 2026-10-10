@@ -51,13 +51,22 @@ while read -r name pid; do
 done <<< "$ENTRIES"
 echo "netem_apply: profile=$PROFILE, ${#plan[@]} of $NODE_N_EXPECTED expected containers of project $PROJECT"
 
+failed=0
 for line in "${plan[@]}"; do
   read -r name pid args <<< "$line"
   [[ $args == KEEP ]] && continue
   echo "$name (pid $pid): ${args:-no qdisc}"
   if [[ -z $args ]]; then
-    run nsenter -t "$pid" -n tc qdisc del dev eth0 root 2>/dev/null || true
+    # `del` also fails when there is nothing to delete: then read the qdisc (read-only) and fail only if netem is still there
+    if ! run nsenter -t "$pid" -n tc qdisc del dev eth0 root 2>/dev/null; then
+      if shown=$(nsenter -t "$pid" -n tc qdisc show dev eth0 2>/dev/null); then
+        if grep -q netem <<< "$shown"; then echo "$name: netem STILL PRESENT after del" >&2; failed=1; fi
+      else
+        echo "$name: cannot verify the qdisc after del" >&2; failed=1
+      fi
+    fi
   else
     run nsenter -t "$pid" -n tc qdisc replace dev eth0 root netem $args
   fi
 done
+exit $failed

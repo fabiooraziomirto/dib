@@ -30,7 +30,15 @@ from inside the evidence container, expected 2d, and aborts the block on a misma
           site-2 -> revoked, restore) while it is down, `compose start site-3`, poll site-3
           /health and /export_mud (P = 50 ms) until none of the k endpoints is exported; the
           convergence is checked on /state of the k facts (target monitor-only) once.
-  tcpdump  20 fan-out episodes per arm for the user's tcpdump capture on `degraded`.
+  tcpdump  20 fan-out episodes per arm for the user's tcpdump capture on `degraded`. TWO captures in parallel per arm
+          (evidence and site-0 namespaces, the user starts both, noting the clock at start and end; the window is
+          also printed as CAPTURE_WINDOW_START/END). The tap side is NOT assumed: by the kernel source (dev_hard_start_xmit
+          -> xmit_one -> dev_queue_xmit_nit, after the qdisc dequeue) an egress capture on eth0 should see packets AFTER
+          netem, i.e. without the ones netem dropped; TO CONFIRM in the first `degraded` capture: packets seen by the
+          sender and not by the receiver would mean the tap is before the qdisc; none in either direction (with 5% loss
+          over thousands of packets) means after. If after the qdisc, a lost SYN is invisible at the sender and the 1 s RTO
+          (a1) is read from the connect time in the driver rows and from the retransmitted SYN at the receiver, not from
+          the sender's capture. pcap files stay OUTSIDE the repository (arm D carries clear-text payload).
 Measures recorded for every episode: dispute-rtt (response - t0) and the P-log timestamps; the
 analysis applies the per-profile acceptance rule (P-log if its calibrated p95 latency < 10% of
 the profile's median direct withdrawal, else dispute-rtt; thresholds file committed after the
@@ -91,14 +99,24 @@ PROFILES = {
     "extreme": {"d": 0.550, "R": 1.100, "loss_rt": 0.0},
     "mixed": {"d": 0.080, "R": 0.080, "loss_rt": 0.01},   # only sites 5-9 are delayed (their egress): R = d
 }
-# expected TCP connect RTT (ms) evidence -> site-i, as (lo, hi), per profile (profile check, no sudo needed)
+# Expected TCP connect RTT (ms) evidence -> site-i, as (lo, hi), per profile (profile check, no sudo needed).
+# Tolerance (declared 2026-10-10, before the wan block): +-20% of the expected RTT R = 2d, applied to the MEDIAN of 3 connections per
+# site (all 10 sites must match). Bands of neighbouring profiles (R = 40, 160, 400, 1100 ms) are far apart, so +-20% cannot confuse
+# them. Known risk at `degraded` (p = 5% per side, ~10% per connection): a lost SYN or SYN-ACK is retransmitted after 1 s, so such a
+# connection takes ~1.4 s; the median of 3 survives one such sample (fails when >= 2 of 3 are hit: ~2.8% per site, so ~25% of the 10-site
+# probes fail at degraded, ~1% at wan). A failed probe is not an error: the driver retries every second up to --profile-wait (90 s)
+# and only then aborts the block (probability of 90 s of consecutive failures at degraded ~ 0.25^45, negligible).
+def _band(r_ms: float) -> tuple[float, float]:
+    return (0.8 * r_ms, 1.2 * r_ms)
+
+
 RTT_EXPECT_MS = {
     "lan": {i: (0.0, 3.0) for i in range(N_SITES)},
-    "regional": {i: (28.0, 55.0) for i in range(N_SITES)},
-    "wan": {i: (110.0, 220.0) for i in range(N_SITES)},
-    "degraded": {i: (280.0, 560.0) for i in range(N_SITES)},
-    "extreme": {i: (800.0, 1500.0) for i in range(N_SITES)},
-    "mixed": {**{i: (0.0, 3.0) for i in range(5)}, **{i: (55.0, 110.0) for i in range(5, 10)}},
+    "regional": {i: _band(40.0) for i in range(N_SITES)},
+    "wan": {i: _band(160.0) for i in range(N_SITES)},
+    "degraded": {i: _band(400.0) for i in range(N_SITES)},
+    "extreme": {i: _band(1100.0) for i in range(N_SITES)},
+    "mixed": {**{i: (0.0, 3.0) for i in range(5)}, **{i: _band(80.0) for i in range(5, 10)}},
 }
 ARMS = {"D": {"mtls": 0}, "C": {"mtls": 1}, "default": {"mtls": 0}}   # `default` = reference only (B1 at lan)
 N_RTT = {"D": 2, "default": 2, "C": 3}
@@ -144,7 +162,7 @@ def rtt_matches(profile: str, measured_ms: dict[int, float]) -> tuple[bool, list
     return (not bad), bad
 
 
-_LOG = re.compile(r'^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(\.\d+)?Z\s.*"POST (/[^ ]*) HTTP/1\.1" (\d{3})')
+_LOG = re.compile(r'^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(\.\d+)?Z\s.*"(POST|GET) (/[^ ]*) HTTP/1\.1" (\d{3})')
 
 
 def _ts(date: str, frac: str | None) -> float:
@@ -152,14 +170,51 @@ def _ts(date: str, frac: str | None) -> float:
     return base + (float(frac) if frac else 0.0)
 
 
-def parse_post_lines(text: str, path_prefix: str) -> list[tuple[float, str, int]]:
-    """(timestamp, path, status) of every access-log line of a POST whose path starts with
-    path_prefix, from `docker logs -t` text (RFC3339Nano daemon timestamps, same clock as t0)."""
+def parse_access_lines(text: str, method: str, path_prefix: str) -> list[tuple[float, str, int]]:
+    """(timestamp, path, status) of every access-log line of `method` whose path starts with path_prefix, from
+    `docker logs -t` text (RFC3339Nano daemon timestamps, same clock as t0)."""
     out = []
     for line in text.splitlines():
         m = _LOG.match(line)
-        if m and m.group(3).startswith(path_prefix):
-            out.append((_ts(m.group(1), m.group(2)), m.group(3), int(m.group(4))))
+        if m and m.group(3) == method and m.group(4).startswith(path_prefix):
+            out.append((_ts(m.group(1), m.group(2)), m.group(4), int(m.group(5))))
+    return out
+
+
+def parse_post_lines(text: str, path_prefix: str) -> list[tuple[float, str, int]]:
+    return parse_access_lines(text, "POST", path_prefix)
+
+
+_WATCH = re.compile(r"^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(\.\d+)?Z netem_watch: (containers changed -> applying|applied) (\S+)")
+
+
+def parse_watch_log(text: str) -> list[dict]:
+    """Events of netem_watch.sh output (user-saved with tee): each `containers changed` paired with the next `applied`."""
+    out, cur = [], None
+    for line in text.splitlines():
+        m = _WATCH.match(line)
+        if not m:
+            continue
+        t = _ts(m.group(1), m.group(2))
+        if m.group(3).startswith("containers"):
+            cur = {"t_changed": t, "profile": m.group(4)}
+        elif cur is not None:
+            cur["t_applied"] = t
+            out.append(cur)
+            cur = None
+    return out
+
+
+def restart_netem_bias(t_start: float, events: list[dict], t_first_reconcile: float | None) -> dict:
+    """Delay between `compose start site` and the netem re-application (first watcher `applied` after t_start), and whether
+    the site's first reconcile pull (first `GET /pending/<site>` in the evidence access log after t_start) came before it:
+    that first attempt may then have left the site without netem (bias, declared)."""
+    applied = next((e["t_applied"] for e in sorted(events, key=lambda e: e["t_applied"]) if e["t_applied"] > t_start), None)
+    out = {"netem_applied_after_start_s": None if applied is None else applied - t_start,
+           "first_reconcile_after_start_s": None if t_first_reconcile is None else t_first_reconcile - t_start,
+           "first_reconcile_before_netem": None}
+    if applied is not None and t_first_reconcile is not None:
+        out["first_reconcile_before_netem"] = t_first_reconcile < applied
     return out
 
 
@@ -465,6 +520,10 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
                     t_withdrawn = time.time()
                     break
             time.sleep(0.05)
+        ev_logs = env.logs("dibtnsm-evidence-1", t_start)
+        pulls = [t for t, _p, st in parse_access_lines(ev_logs, "GET", "/pending/site-3") if t >= t_start and st == 200]
+        row["t_first_reconcile_pull"] = min(pulls) if pulls else None   # evidence access log, same clock as t_start
+        row["site3_started_at"] = env.sh("/snap/bin/docker inspect -f '{{.State.StartedAt}}' dibtnsm-site-3-1", check=False, timeout=30).strip()
         row.update(t_up=t_up, t_withdrawn=t_withdrawn, bound_s=bound,
                    up_after_start_s=None if t_up is None else t_up - t_start,
                    convergence_s=None if t_withdrawn is None else t_withdrawn - t_start,
@@ -560,7 +619,9 @@ def live(a, cells, rng) -> int:
                     flag = Path(f"{home}/dib_tnsm/m67/tcpdump_ready_{arm}")
                     flag.unlink(missing_ok=True)
                     pid = env.sh("/snap/bin/docker inspect -f '{{.State.Pid}}' dibtnsm-evidence-1").strip()
-                    print(f"TCPDUMP_WAIT arm={arm} evidence_pid={pid}: start the capture, then `touch {flag}` (waiting up to 600 s)", flush=True)
+                    pid_s0 = env.sh("/snap/bin/docker inspect -f '{{.State.Pid}}' dibtnsm-site-0-1").strip()
+                    print(f"TCPDUMP_WAIT arm={arm} evidence_pid={pid} site0_pid={pid_s0}: start TWO captures in parallel (evidence and site-0 namespaces), "
+                          f"then `touch {flag}` (waiting up to 600 s)", flush=True)
                     t_w = time.time()
                     while not flag.exists() and time.time() - t_w < 600:
                         time.sleep(1.0)
@@ -570,6 +631,7 @@ def live(a, cells, rng) -> int:
                         log.flush()
                         continue
                     rec["capture_pid"] = pid
+                    rec["capture_pids"] = {"evidence": pid, "site-0": pid_s0}
                 sampler = Sampler(interval=1.0, project="dibtnsm", pid=os.getpid())
                 sampler.start()
                 t_cell0 = time.time()
@@ -601,6 +663,16 @@ def live(a, cells, rng) -> int:
                       f"bg_other={bg['other_cores']} steal={bg['steal_pct']} gen_proc={rec['generator_load']['gen_proc_cores_mean']:.2f}", flush=True)
         finally:
             env.down()
+    if a.watch_log and Path(a.watch_log).is_file():
+        wev = parse_watch_log(Path(a.watch_log).read_text())
+        manifest["watch_log"] = {"path": a.watch_log, "sha256": sha(Path(a.watch_log)), "events": len(wev)}
+        manifest["site_restarts"] = [
+            {"cell": c["cell"], "trial": r.get("trial"), "t_start": r["t_start"], **restart_netem_bias(r["t_start"], wev, r.get("t_first_reconcile_pull"))}
+            for c in map(json.loads, (out / "cells.jsonl").read_text().splitlines()) for r in c.get("rows", []) if "t_start" in r]
+        manifest["restart_bias_note"] = ("the first reconcile pull of a restarted site (U(0, 0.1T) + ~0.45 s after start) may leave before the "
+                                         "watcher re-applies netem: rows with first_reconcile_before_netem=true carry this bias")
+    elif "b2kill" in a.block:
+        manifest["restart_bias_note"] = "no watcher log supplied (--watch-log): the netem re-application delay after site restarts is NOT measured"
     ev = out / "profile_events.jsonl"
     manifest["profile_events"] = [json.loads(l) for l in ev.read_text().splitlines()] if ev.exists() else []
     manifest["aborted"] = aborted
@@ -645,6 +717,7 @@ def main() -> int:
     ap.add_argument("--fanouts", default="1,10", help="B1 FANOUT values (smoke: 10)")
     ap.add_argument("--episodes", type=int, default=None, help="override the B1 episode count (smoke: 3)")
     ap.add_argument("--plog-p95-ms", type=float, default=PLOG_P95_MS_DEFAULT, help="calibrated p95 of the docker logs -t latency")
+    ap.add_argument("--watch-log", default=None, help="saved output of netem_watch.sh (tee), joined to the B2-kill site restarts")
     ap.add_argument("--dry-run", action="store_true", help="print the plan and exit; nothing is touched")
     a = ap.parse_args()
     blocks = a.block.split(",")
