@@ -401,6 +401,13 @@ Next ==
     \/ \E r \in todo : Deliver(r) \/ Lose(r)
     \/ \E t \in Sites : RcStep(t) \/ SiteDown(t) \/ SiteUp(t)
 
+\* VIEW for SAFETY-ONLY runs (audit 07): every variable except lastOp. lastOp is bookkeeping for the
+\* action properties: they read lastOp' (set by the action) and never the unprimed lastOp, and no
+\* action is enabled as a function of lastOp, so two states differing only in lastOp have the same
+\* successors and the same possible violations. NOT for liveness runs. A definition only: no action.
+View == <<estatus, eseq, edisp, outbox, todo, sstate, sorigin, lastApplied, rc,
+          unreachable, toggleCount, gen, commitGen, evCount, lossCount>>
+
 Spec == Init /\ [][Next]_vars
 
 \* Conditional fairness: a site's run steps only while it is not unreachable; every
