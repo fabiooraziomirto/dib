@@ -1,5 +1,5 @@
-"""H6-1b (plan rev. 5, Passo 6; audit 14 s.4, audit 16): DIB admission against score-ranked
-union baselines under A2, on a synthetic federation anchored on real per-type behaviour.
+"""H6-1b (plan rev. 5, Passo 6; audit 14 s.4, audit 16): DIB admission against ranked-union
+baselines (volume, support; score as reference) under A2, on a synthetic federation anchored on real per-type behaviour.
 
 Abstract line (to be reported verbatim with any result of this script):
   "La federazione sintetica (N >= 10 siti per tipo) e' piu' favorevole alla guardia della
@@ -27,29 +27,48 @@ Generator (assumptions are explicit parameters, all in the manifest)
   endpoints every day with FLOOD observations per day each. A2 endpoints are fresh (no
   honest support). n_avv per type and |S_e & Adv| per A2 fact are recorded BEFORE scoring.
 * DIB = DIBScorer with configs/graph_free_unweighted_federation.yaml (alpha 0.6, beta 0.4,
-  gamma 0, theta 0.65, m = 2, raw breadth); queue = accepted facts, budget B = |queue|.
-* Baselines (all score the same population with the same scorer):
-  ranked-score  = all scored facts by score (code/scripts/union_ranked_budget.py:50-73),
-  ranked-support-2 / -3 = facts with |S_e| >= 2 / 3, then by score.
-  Expected A2 count in the top-B prefix with ties in random order:
-  union_ranked_budget.budget_yield (:76-100).
+  gamma 0, theta 0.65, m = 2, raw breadth); queue = accepted facts, B = |queue|.
 
-Hypothesis H6-1b (declared before running; fixed, does not change after launch)
--------------------------------------------------------------------------------
-For every testable (point, baseline): the A2 share of the baseline's top-B prefix exceeds
-the A2 share of DIB's queue (all q in the sweep are below f* = 5/12).
-* Unit: federation replica (seed); 200 replicas per point; paired differences
-  diff = (A2_baseline - A2_DIB) / B (0 when B = 0).
-* Testable point/baseline: >= 50 of 200 replicas with at least one A2 fact in DIB's queue
-  or in the baseline prefix. Non-testable ones are reported descriptively only.
-* Test: one-sided Wilcoxon signed-rank on the 200 paired differences (H0: median <= 0);
-  bootstrap 95% CI (10000 resamples over replicas, by type groups when rho_corr > 0) only
-  to report the effect size.
-* Multiplicity: Holm over all testable (point, baseline) tests, FWER 5%.
-* Falsified if Holm does not reject H0 for at least one testable (point, baseline).
-* Partial outcomes are reported by factor: only rho_corr > 0 (claim restricted to
-  independent sites), only ranked-support-3 (admission adds protection over score ranking
-  and support >= 2, not over support >= 3), only high q (report the q threshold).
+Design change (2026-10-10, before launch, motivated by the pilot; audit 16 s.4)
+-----------------------------------------------------------------------------
+The first design ranked the union by DIB's own score at budget B. The pilot showed that
+this cannot separate admission from ranking: with the same score an A2 fact reaches the
+top B only when K/N > f*, i.e. when DIB admits it too, so differences came from the class
+gate and from budget filling (one diagnostic replica had the opposite sign). The sign of
+the hypothesis below is fixed from the reasoning that follows, NOT from the pilot outcome.
+
+Baselines (the SAME class filter for all: only facts whose class is eligible,
+dib.py:19, classify_core; the class filter is therefore NOT a contribution of admission,
+and what is measured is the effect of quorum + score threshold net of the class filter):
+  ranked-volume  rank by number of observations of the fact (what a flood maximizes);
+  ranked-sites   rank by number of reporting sites |S_e| (pure support, no score);
+  references (not in the falsification family): ranked-score (DIB score, the old
+  union_ranked_budget.py:50-73 ordering), ranked-support-2 / -3 (|S_e| >= 2 / 3, then score).
+Budgets: c * B with c in {1, 2, 5} (tests) and the curve c in {1, 1.5, 2, 3, 5, 10}
+(descriptive). Expected A2 count in the top round(c*B) with ties in random order:
+union_ranked_budget.budget_yield (:76-100). DIB presents its whole queue (B facts) at every c.
+
+Hypothesis H6-1b (declared before running; does not change after launch)
+-----------------------------------------------------------------------
+Reasoning: the A2 adversaries flood their fabricated facts and all report them, so the
+fabricated facts have the highest volume and, when K is large, a support comparable to
+popular benign facts; neither volume nor support alone encodes the share K/N of the type's
+reporting sites, which is what the score threshold bounds (Criterion 1). Hence, for every
+q in the sweep (all below f* = 5/12):
+  for baseline in {ranked-volume, ranked-sites} and c in {1, 2, 5}:
+  the expected number of A2 facts in the baseline's top round(c*B) EXCEEDS the number of A2
+  facts in DIB's queue.
+* Unit: replica; 200 replicas per point; paired diff = A2_baseline(c) - A2_DIB (counts).
+* Testable (point, baseline, c): >= 50 of 200 replicas with an A2 fact in DIB's queue or in
+  the baseline prefix; others descriptive only.
+* Test: one-sided Wilcoxon signed-rank (H0: median diff <= 0); bootstrap 95% CI for effect.
+* Family: 170 points x 2 baselines x 3 budgets = up to 1020 tests; Holm, FWER 5%, over the
+  testable ones.
+* Falsified if Holm does not reject H0 for at least one testable (point, baseline, c).
+  An outcome unfavourable to DIB is reported as a result.
+* Partial outcomes reported by factor (baseline, c, rho_corr, N, presence, q); in
+  particular whether the advantage disappears at large c ("ranking gets there by volume").
+* References (ranked-score, ranked-support-m): same statistics, reported, not in the family.
 Sweep (170 points): N in {10, 20, 50, 100} x presence in {0.2, 0.4, 0.6, 0.8} x q in
 {0.01, 0.05, 0.1, 0.2, 0.3} x rho_corr in {0, 0.3}, plus the anchored point x q x rho_corr.
 Zipf s = 1.0 and local divergence 5% fixed (their sensitivity is outside H6-1b).
@@ -79,7 +98,7 @@ sys.path.insert(0, str(ROOT / "code" / "src"))
 sys.path.insert(0, str(ROOT / "code" / "scripts"))
 
 from dib.core.models import Observation  # noqa: E402
-from dib.evaluation.dib import DIBScorer, ScoringConfig  # noqa: E402
+from dib.evaluation.dib import ELIGIBLE_CLASSES, DIBScorer, ScoringConfig  # noqa: E402
 from union_ranked_budget import budget_yield  # noqa: E402
 
 UNSW_CSV = Path("/root/Desktop/DIB/data/processed/observations_enriched.csv")
@@ -97,7 +116,11 @@ NS = (10, 20, 50, 100)
 PRESENCES = (0.2, 0.4, 0.6, 0.8)
 QS = (0.01, 0.05, 0.10, 0.20, 0.30)
 RHOS = (0.0, 0.3)
-BASELINES = ("ranked-score", "ranked-support-2", "ranked-support-3")
+FAMILY_BASELINES = ("ranked-volume", "ranked-sites")
+REFERENCE_BASELINES = ("ranked-score", "ranked-support-2", "ranked-support-3")
+BASELINES = FAMILY_BASELINES + REFERENCE_BASELINES
+TEST_C = (1, 2, 5)
+CURVE_C = (1, 1.5, 2, 3, 5, 10)
 TESTABLE_MIN = 50
 SCORING = dict(alpha=0.6, beta=0.4, gamma=0.0, theta=0.65, min_reporting_sites=2,
                graph_enabled=False, trust_weighted=False)
@@ -178,17 +201,23 @@ def replica(point: dict, seed: int, profiles: dict) -> dict:
             for s in adv:
                 obs += [_ob(s, d, ep, "https", 443, x, y) for x in range(W_DAYS) for y in range(FLOOD)]
     scores = DIBScorer(ScoringConfig(**SCORING)).score(obs)
+    volume = Counter(o.endpoint_key for o in obs)
     queue = [s for s in scores if s.accepted]
     budget = len(queue)
     dib_a2 = sum(1 for s in queue if s.endpoint_key in a2_keys)
     out = {"seed": seed, "budget": budget, "dib_a2": dib_a2, "a2_facts": len(a2_keys),
            "types": record, "n_obs": len(obs)}
+    eligible = [s for s in scores if s.endpoint_class in ELIGIBLE_CLASSES]   # same class filter for all
     for b in BASELINES:
-        m = 0 if b == "ranked-score" else int(b[-1])
-        cand = [s for s in scores if s.supporting_sites >= m]
-        ranked = sorted(((s.score, s.endpoint_key) for s in cand), key=lambda t: (-t[0], str(t[1])))
-        exp, _best, _worst = budget_yield(ranked, a2_keys, budget)
-        out[b] = exp
+        if b == "ranked-volume":
+            ranked = [(volume[s.endpoint_key], s.endpoint_key) for s in eligible]
+        elif b == "ranked-sites":
+            ranked = [(s.supporting_sites, s.endpoint_key) for s in eligible]
+        else:
+            m = 0 if b == "ranked-score" else int(b[-1])
+            ranked = [(s.score, s.endpoint_key) for s in eligible if s.supporting_sites >= m]
+        ranked.sort(key=lambda t: (-t[0], str(t[1])))
+        out[b] = {str(c): budget_yield(ranked, a2_keys, round(c * budget))[0] for c in CURVE_C}
     return out
 
 
@@ -250,31 +279,36 @@ def analyze(a) -> int:
     tests = []
     for pid, reps in sorted(by_point.items()):
         for b in BASELINES:
-            diffs = np.array([((r[b] - r["dib_a2"]) / r["budget"]) if r["budget"] else 0.0 for r in reps])
-            n_with_a2 = sum(1 for r in reps if r["dib_a2"] > 0 or r[b] > 0)
-            row = {"point": pid, "baseline": b, "replicas": len(reps), "n_with_a2": n_with_a2,
-                   "testable": n_with_a2 >= TESTABLE_MIN, "mean_diff": float(diffs.mean())}
-            boots = [rng.choice(diffs, len(diffs)).mean() for _ in range(10000)]
-            row["ci_low"], row["ci_high"] = (float(x) for x in np.percentile(boots, [2.5, 97.5]))
-            row["p"] = (float(wilcoxon(diffs, alternative="greater", zero_method="wilcox").pvalue)
-                        if row["testable"] and np.any(diffs != 0) else (1.0 if row["testable"] else None))
-            tests.append(row)
-    family = sorted((t for t in tests if t["testable"]), key=lambda t: t["p"])
+            for c in CURVE_C:
+                diffs = np.array([r[b][str(c)] - r["dib_a2"] for r in reps])
+                n_with_a2 = sum(1 for r in reps if r["dib_a2"] > 0 or r[b][str(c)] > 0)
+                in_family = b in FAMILY_BASELINES and c in TEST_C
+                row = {"point": pid, "baseline": b, "c": c, "family": in_family, "replicas": len(reps),
+                       "n_with_a2": n_with_a2, "testable": n_with_a2 >= TESTABLE_MIN,
+                       "mean_diff": float(diffs.mean()), "mean_dib_a2": float(np.mean([r["dib_a2"] for r in reps]))}
+                boots = [rng.choice(diffs, len(diffs)).mean() for _ in range(2000)]
+                row["ci_low"], row["ci_high"] = (float(x) for x in np.percentile(boots, [2.5, 97.5]))
+                if row["testable"] and c in TEST_C:
+                    row["p"] = (float(wilcoxon(diffs, alternative="greater", zero_method="wilcox").pvalue)
+                                if np.any(diffs != 0) else 1.0)
+                tests.append(row)
+    family = sorted((t for t in tests if t["family"] and t["testable"]), key=lambda t: t["p"])
     m = len(family)
     stop = False
     for i, t in enumerate(family):
         t["holm_threshold"] = 0.05 / (m - i)
         stop = stop or t["p"] > t["holm_threshold"]
         t["holm_reject"] = not stop
+    keys = ["point", "baseline", "c", "family", "replicas", "n_with_a2", "testable", "mean_dib_a2", "mean_diff",
+            "ci_low", "ci_high", "p", "holm_threshold", "holm_reject"]
     with (out / "h61b_tests.csv").open("w", newline="") as fh:
-        keys = ["point", "baseline", "replicas", "n_with_a2", "testable", "mean_diff", "ci_low", "ci_high",
-                "p", "holm_threshold", "holm_reject"]
         w = csv.DictWriter(fh, fieldnames=keys)
         w.writeheader()
         for t in tests:
             w.writerow({k: t.get(k) for k in keys})
     falsified = any(not t["holm_reject"] for t in family)
-    print(f"testable {m}/{len(tests)}; H6-1b {'FALSIFIED' if falsified else 'not falsified'}")
+    n_fam = sum(1 for t in tests if t["family"])
+    print(f"family: {m} testable of {n_fam}; H6-1b {'FALSIFIED' if falsified else 'not falsified'}")
     return 0
 
 
