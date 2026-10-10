@@ -61,7 +61,7 @@ signature() {  # "<id> <name>" lines, then "pid <name> <pid>" lines for the expe
 
 if [[ $DRY == 1 ]]; then
   echo "netem_watch (dry run): profile=$PROFILE; containers of project $PROJECT right now (by name):"
-  signature | awk '{print $2}' | sort | sed 's/^/  /'
+  signature | grep -v '^pid ' | awk '{print $2}' | sort | sed 's/^/  /'
   bash "$HERE/netem_apply.sh" --dry-run "$PROFILE" || true
   exit 0
 fi

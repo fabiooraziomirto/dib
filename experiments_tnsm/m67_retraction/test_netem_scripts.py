@@ -112,7 +112,7 @@ def test_n1_dry_run_lists_11_names_and_exact_commands(tmp_path):
     assert lines(d, "nsenter.log") == []                       # dry-run enters no namespace
     assert lines(d, "violations.log") == []
     w = run(d, "--dry-run", "wan", script="netem_watch.sh")
-    assert w.returncode == 0 and all(f"  {n}" in w.stdout for n in NAMES)
+    assert w.returncode == 0 and all(w.stdout.splitlines().count(f"  {n}") == 1 for n in NAMES)   # each name exactly once
 
 
 def test_n2_apply_uses_replace_only_on_validated_pids(tmp_path):
