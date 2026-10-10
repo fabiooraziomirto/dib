@@ -1,0 +1,23 @@
+netem_apply: profile=extreme, 11 of 11 expected containers of project dibtnsm
+dibtnsm-evidence-1 (pid 720281): delay 550ms
++ nsenter -t 720281 -n tc qdisc replace dev eth0 root netem delay 550ms
+dibtnsm-site-0-1 (pid 722676): delay 550ms
++ nsenter -t 722676 -n tc qdisc replace dev eth0 root netem delay 550ms
+dibtnsm-site-1-1 (pid 721252): delay 550ms
++ nsenter -t 721252 -n tc qdisc replace dev eth0 root netem delay 550ms
+dibtnsm-site-2-1 (pid 721966): delay 550ms
++ nsenter -t 721966 -n tc qdisc replace dev eth0 root netem delay 550ms
+dibtnsm-site-3-1 (pid 721015): delay 550ms
++ nsenter -t 721015 -n tc qdisc replace dev eth0 root netem delay 550ms
+dibtnsm-site-4-1 (pid 720546): delay 550ms
++ nsenter -t 720546 -n tc qdisc replace dev eth0 root netem delay 550ms
+dibtnsm-site-5-1 (pid 722203): delay 550ms
++ nsenter -t 722203 -n tc qdisc replace dev eth0 root netem delay 550ms
+dibtnsm-site-6-1 (pid 721726): delay 550ms
++ nsenter -t 721726 -n tc qdisc replace dev eth0 root netem delay 550ms
+dibtnsm-site-7-1 (pid 720780): delay 550ms
++ nsenter -t 720780 -n tc qdisc replace dev eth0 root netem delay 550ms
+dibtnsm-site-8-1 (pid 722440): delay 550ms
++ nsenter -t 722440 -n tc qdisc replace dev eth0 root netem delay 550ms
+dibtnsm-site-9-1 (pid 721489): delay 550ms
++ nsenter -t 721489 -n tc qdisc replace dev eth0 root netem delay 550ms
