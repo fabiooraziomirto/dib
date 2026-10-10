@@ -163,6 +163,28 @@ def common_args(p) -> None:
     p.add_argument("--min-free-mb", type=int, default=2000)
 
 
+ARMS = ("default", "deploy")
+
+
+def set_arm(arm: str, n: int) -> dict:
+    """Engine configuration arm (plan rev. 5, Passo 7), through the existing opt-in
+    environment variables only (code/src/dib/registry/db.py:244-262), set before the engine
+    of the cell is built (fresh() disposes and rebuilds it):
+      default  DIB_SQLITE_WAL and DIB_SQLITE_POOL_SIZE unset (journal_mode=delete,
+               busy_timeout 5 s, QueuePool 5 + 10 overflow, checkout timeout 30 s);
+      deploy   DIB_SQLITE_WAL=1 (WAL, busy_timeout 30 s, synchronous FULL) and
+               DIB_SQLITE_POOL_SIZE=max(n, 5) (pool n + overflow n >= writers).
+    Returns the values set, recorded in each cell."""
+    if arm not in ARMS:
+        raise ValueError(f"unknown arm {arm!r}")
+    for k in ("DIB_SQLITE_WAL", "DIB_SQLITE_POOL_SIZE"):
+        os.environ.pop(k, None)
+    if arm == "deploy":
+        os.environ["DIB_SQLITE_WAL"] = "1"
+        os.environ["DIB_SQLITE_POOL_SIZE"] = str(max(n, 5))
+    return {k: os.environ.get(k, "") for k in ("DIB_SQLITE_WAL", "DIB_SQLITE_POOL_SIZE")}
+
+
 def import_harness(code: Path):
     sys.path.insert(0, str(code / "src"))
     sys.path.insert(0, str(code / "scripts"))

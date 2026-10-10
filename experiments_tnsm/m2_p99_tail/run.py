@@ -7,6 +7,12 @@ manifest): SQLite journal_mode=delete, synchronous=FULL (2), busy_timeout=5000 m
 M1 showed a p99 equal to 30.0 s at 100 writers: that is the pool checkout timeout, a
 ceiling, not a latency.
 
+Arm (plan rev. 5, Passo 7, added 2026-10-10 before launch): M2 runs on the DEPLOY arm by
+default (--arm deploy: DIB_SQLITE_WAL=1, DIB_SQLITE_POOL_SIZE=max(writers, 5), set through
+common/cells.py:set_arm before each cell's engine is built); the configuration paragraph
+above describes the default arm, kept selectable with --arm default. The hypotheses below
+are unchanged and apply to the arm that is run (recorded in the manifest and in each cell).
+
 Cells (randomized together with --seed, fresh SQLite database per cell, 200 timed ops per
 worker after a discarded warm-up of 20 per worker):
   threads    the unmodified harness (fsm_concurrency_harness.run_throughput_sweep, OS
@@ -180,6 +186,7 @@ def main() -> int:
     cells.common_args(p)
     p.set_defaults(reps="threads:1:10,threads:10:10,threads:50:10,threads:100:20,null:100:10,"
                         "processes:10:10,processes:50:10,processes:100:10")
+    p.add_argument("--arm", choices=("default", "deploy"), default="deploy")
     a = p.parse_args()
     code = Path(a.code).resolve()
     harness = cells.import_harness(code)
@@ -195,6 +202,7 @@ def main() -> int:
 
     def run_cell(spec, db: Path) -> dict:
         mode, n = spec
+        cells.set_arm(a.arm, n)
         get_session = cells.fresh(harness, db)
         if mode in ("threads", "null"):
             harness.timed_call = null_timed_call if mode == "null" else instrumented_timed_call
@@ -239,7 +247,11 @@ def main() -> int:
              code / "scripts/fsm_concurrency_harness.py", code / "scripts/p99_tail_breakdown.py",
              Path(__file__).resolve(), Path(instrument.__file__).resolve(),
              Path(cells.__file__).resolve(), Path(cells.nm.__file__).resolve()]
-    cells.run_cells(a, Path(a.out), run_cell, files, sqlite_probe=lambda db: cells.sqlite_settings(harness, db))
+    def probe(db: Path) -> dict:
+        cells.set_arm(a.arm, 100)
+        return {"arm": a.arm, **cells.sqlite_settings(harness, db)}
+
+    cells.run_cells(a, Path(a.out), run_cell, files, sqlite_probe=probe)
     return 0
 
 
