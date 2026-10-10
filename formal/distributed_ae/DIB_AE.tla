@@ -463,8 +463,15 @@ I2_ApplyConfinement ==
                     /\ sorigin'[t][g] = sorigin[t][g]
                     /\ lastApplied'[t][g] = lastApplied[t][g] ]_vars
 
+\* Corrected after the first s0_smoke run (audit 07): a restore that the site DISCARDS (seq <=
+\* last_applied_seq, a no-op, service.py:365-366) cannot be constrained: a late duplicate
+\* delivery must not (and does not) change a site that has since committed. The property
+\* concerns a restore that is APPLIED (seq > last_applied before the step). Original text, kept
+\* for the record: antecedent `lastOp'.op \in ApplyOps /\ lastOp'.ev = "restore"` only.
+\* Non-vacuity: MutWriteActive must violate this corrected form (cfg mut_ae2_i3).
 I3_ConservativeRestore ==
-    [][ (lastOp'.op \in ApplyOps /\ lastOp'.ev = "restore") =>
+    [][ (lastOp'.op \in ApplyOps /\ lastOp'.ev = "restore"
+         /\ lastOp'.seq > lastApplied[lastOp'.site][lastOp'.fact]) =>
             sstate'[lastOp'.site][lastOp'.fact] # "Active" ]_vars
 
 I3_VetoPreserved ==
