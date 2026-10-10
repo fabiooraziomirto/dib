@@ -92,3 +92,17 @@ Se arrivassero i dati: case come siti, N reale e distribuzione di C_s per endpoi
 - Accesso SSH al nodo libero (audit 04 §7.2) per S7 e GothX.
 - OK al download di IoT-23 leggero (~8,8 GB, licenza da verificare) e al clone di GothX.
 - Decisione su S4 e S5 (estensione del modello: oggi esclusi).
+
+## 7. Aggiornamento (decisioni utente, 2026-10-10)
+
+**GothX: clonato, non eseguito.**
+- Comando: `git clone --depth 1 https://github.com/fukuda-lab/GothX.git /root/Desktop/DIB/external_src/GothX` (fuori dalla repo); commit `004f5853fdad9dc692c0bba539a9bd58d6fc3dd4` del 16 set 2026; 312 MB (di cui `Dockerfiles/` 148 MB e `dataset_details/` 31 MB).
+- **Licenza: MIT** ("Copyright (c) 2024 Manuel Poisson and Fukuda-lab, National Institute of Informatics, Japan", file `LICENSE`).
+- Requisiti dal README, non eseguiti: GNS3 server e GUI (`./install.sh gns3`), reinstallazione di Docker (`./install.sh docker`), utente nei gruppi `ubridge libvirt docker`, **virtualizzazione KVM** (nested se GNS3 gira in una VM), un venv con `requirements.txt` e la build di tutte le immagini con `make`. Testato su Ubuntu 20.04, 22.04 e Fedora 35.
+- [D] Su questo host (LXC) KVM non è disponibile. Sul nodo libero (guest KVM) servirebbe la nested virtualization, che va verificata, e mancano RAM (15 GiB contro ~20 GB) e disco (4,4 GB). Inoltre `install.sh docker` reinstallerebbe Docker, toccando i container di altri progetti: **non va lanciato su nessuno dei due host**. Per eseguire GothX serve una VM dedicata.
+
+**IoT-23: licenza verificata, non scaricato.**
+- **Licenza: Creative Commons Attribution 4.0 International**, dal record Zenodo `https://zenodo.org/records/4743746` (DOI 10.5281/zenodo.4743746), che ospita solo la versione completa (`iot_23_datasets_full.tar.gz`, 21,5 GB, md5 `7132e603f9750b8580b6cebdbcd43e9c`). La pagina Stratosphere non dichiara la licenza e chiede solo la citazione (Garcia, Parmisano, Erquiaga, 2020). [?] Ho assunto che la CC BY 4.0 valga anche per la versione leggera ospitata su `mcfp.felk.cvut.cz`, che è lo stesso dataset senza PCAP.
+- Versione leggera (solo flussi etichettati): `https://mcfp.felk.cvut.cz/publicDatasets/IoT-23-Dataset/iot_23_datasets_small.tar.gz`, **9.373.916.249 byte (8,7 GiB) compressi** (HEAD: `Content-Length`, `Last-Modified` 25 mar 2022). La pagina dice 8,7 o 8,8 GB. La dimensione decompressa non è dichiarata e va stimata dall'indice dell'archivio senza estrarlo.
+- **Destinazione proposta:** `/root/Desktop/DIB/data/external/iot23/` su questo host, l'unico filesystem con spazio (ZFS `poolarray/subvol-170-disk-0`, 34 GB liberi). Dopo il download il pool passa da ~94% a ~96%. L'archivio **non va estratto**: lo si legge in streaming con `tarfile` (come lo zip NCSU, `analysis_fs/ncsu_overlap.py`) e si tengono solo i fatti di endpoint aggregati (pochi MB). Il nodo libero (4,4 GB) è escluso. Alternativa più pulita: allargare il subvolume o aggiungere un disco dall'amministratore Proxmox.
+- Quando: dopo M1/M2 e solo se serve (decisione utente).
