@@ -121,10 +121,10 @@ Servizi dalla copia `~/dib_tnsm/tree-b18fd1e` del nodo; hash degli input in `man
 **Dati disponibili.** I log di accesso dei container di M3 **non esistono**: il cluster è ricreato con `down -v` a ogni cella e il driver non li salvava (`cell_NNN.log` contiene l'output del benchmark, non i log dei container). I conteggi di `POST /apply_fanout` e di `pending_fanout` per cella e per braccio di M3 non sono quindi ricostruibili. Si usano il codice e i conteggi diretti raccolti da D (e dai conteggi totali della prima diagnostica).
 
 **Mix e transizioni [C].**
-- Il mix ha 20 posizioni (`_MIX_REALISTIC`, `distributed_concurrency_benchmark.py:106-109`): `dispute` alla posizione 14, `restore` alla 17, `attest` alla 9. L'endpoint è `ep-{op_index % 5}` (`:131`), il tipo di dispositivo è `worker_id % 3` (`:130`), il sito è `worker_id % N_SITES` (`:129`).
+- Il mix ha 20 posizioni (`_MIX_REALISTIC`, `distributed_concurrency_benchmark.py:106-109`): `dispute` alla posizione 14, `restore` alla 17, `attest` alla 9. L'endpoint è `ep-{op_index % 5}` (`:132`), il tipo di dispositivo è `worker_id % 3` (`:131`), il sito è `worker_id % N_SITES` (`:130`).
 - Quindi **`dispute` cade sempre su `ep-4` e `restore` sempre su `ep-2`**.
-- `/restore` su `ep-2`, mai disputato (stato attivo), risponde **409 senza fan-out** (`service.py:850-852`).
-- `/dispute` su `ep-4` fa fan-out solo nelle transizioni attiva → disputata (`:826-830`) e disputata → revocata da un secondo sito (`:831-834`). Dopo la revoca non fa più nulla.
+- `/restore` su `ep-2`, mai disputato (stato attivo), risponde **409 senza fan-out** (`service.py:851-852`).
+- `/dispute` su `ep-4` fa fan-out solo nelle transizioni attiva → disputata (`:820-831`) e disputata → revocata da un secondo sito (`:832-835`). Dopo la revoca non fa più nulla.
 - In tutto: al più 2 transizioni per tipo di dispositivo, cioè **6 fan-out per cluster**, e ognuno raggiunge ogni sito una volta.
 
 **Conteggio diretto (D, 15 celle: 5 × A, C, D; `apply_fanout_site0` in `cells.jsonl`).** `POST /apply_fanout` ricevuti da site-0, cumulativi:
