@@ -445,32 +445,6 @@ def test_t8b_default_reconcile_timeout_is_5_seconds(make_cluster) -> None:
     assert {x.timeout for x in c.net.calls if x.path.startswith("/pending/site-1")} == {5.0}
 
 
-# ------------------------------------------------------------------ W (characterization)
-
-def test_w_event_lost_between_state_commit_and_fanout_characterization(make_cluster, monkeypatch) -> None:
-    """H-W: crash-like failure between the status transaction (DIST:500) and _fan_out (DIST:502).
-    Characterizes a POSSIBLE defect; asserts the hypothesis, not a desired behaviour."""
-    c = make_cluster(n_sites=2)
-    sid = c.seed()
-    c.stage(0)
-    c.stage(1)
-    real_fan_out = c.evidence_mod._fan_out
-
-    def crash(*args, **kwargs):
-        raise RuntimeError("simulated evidence crash between state commit and fan-out")
-
-    monkeypatch.setattr(c.evidence_mod, "_fan_out", crash)
-    quiet = TestClient(c.evidence_mod.app, raise_server_exceptions=False)
-    r = quiet.post("/dispute", json={**c._fact("api.vendor.com"), "site_id": "rep-a"})
-    assert r.status_code == 500
-    monkeypatch.setattr(c.evidence_mod, "_fan_out", real_fan_out)
-    score = c.evidence_score()
-    assert (score["status"], score["fanout_seq"]) == ("disputed", 1)  # the state change was committed
-    assert c.pending(0) == [] and c.pending(1) == []  # ...but no event was queued anywhere
-    assert c.reconcile(0).json() == {"reconciled": 0} and c.reconcile(1).json() == {"reconciled": 0}
-    assert c.state(0, sid)["state"] == "monitor-only" and c.state(1, sid)["state"] == "monitor-only"
-
-
 # ------------------------------------------------------------------ NC (negative control)
 
 def _trigger_scenario(c):

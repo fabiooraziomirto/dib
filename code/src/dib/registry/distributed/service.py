@@ -64,10 +64,23 @@ swap would just relocate the same bug class:
     the outbox and a site that is running and reaches the evidence service:
     staleness <= T + J + 2*d_run, d_run = duration of one _reconcile_once
     (to be measured; theoretical worst case with the 5 s timeouts of
-    DIB_DIST_RECONCILE_TIMEOUT is ~30 s). An event that never reached the
-    outbox (evidence crash between the status commit and _fan_out) is outside
-    the bound. Run ONE worker process per site: --workers N would start N
-    triggers.
+    DIB_DIST_RECONCILE_TIMEOUT is ~30 s). Run ONE worker process per site:
+    --workers N would start N triggers.
+
+  - State-based anti-entropy (audit 06, D19). The bound above holds from the
+    COMMIT of the status change at the evidence service, not from the outbox
+    insert: GET /pending also returns "current", the (seq, event, target
+    state) of every fact with fanout_seq > 0, read in the same transaction as
+    the outbox rows, and _reconcile_once applies any item newer than the
+    site's last_applied_seq through the same _apply_fanout_row (seq check,
+    local veto, origin rule). This recovers an event lost between the status
+    commit and _fan_out, or whose outbox insert failed. A 500 from /dispute or
+    /restore does NOT imply the state was left unchanged, and a client retry
+    does not redo the fan-out (the second /dispute returns applied=false, the
+    second /restore 409): only the anti-entropy repairs it. Still outside the
+    bound: T = 0, a stopped site process, an evidence service the site cannot
+    reach (the bound restarts when it is reachable), loss of the evidence
+    database. Several missed events collapse to the final state.
 
   - Fan-out concurrency (audit D11). DIB_DIST_FANOUT_CONCURRENCY (default 1)
     is the size of ONE module-wide thread pool shared by all fan-outs; with 1
@@ -137,6 +150,7 @@ if FANOUT_CONCURRENCY < 1:
 _BACKOFF_BASE_S = 1.0
 _BACKOFF_CAP_S = 30.0
 _MIN_WAIT_S = 0.05  # floor of the trigger thread's wait: no busy loop
+_LAST_ERROR_MAX = 200  # /health is unauthenticated: keep last_error short (see PRE_PUBLICATION_CHECKLIST)
 _log = logging.getLogger("dib.distributed")
 
 
@@ -181,7 +195,9 @@ class _ReconcileTrigger:
         self.rng = rng if rng is not None else random.Random()
         self.next_due: float | None = None  # None until arm()
         self.failures = 0
-        self.last_error: Exception | None = None
+        self.last_error: str | None = None  # repr() of the last failure, truncated (audit 06)
+        self.last_attempt_at: float | None = None
+        self.last_success_at: float | None = None
         self.thread: threading.Thread | None = None
         self._stop = threading.Event()
 
@@ -198,28 +214,50 @@ class _ReconcileTrigger:
         if not self.lock.acquire(blocking=False):  # single flight: a run is already in progress
             self.next_due = self.clock() + min(1.0, self.interval)
             return False
+        self.last_attempt_at = self.clock()
         try:
             try:
                 self._run()
             except Exception as exc:  # noqa: BLE001 - a daemon must survive; the error is kept
                 self.failures += 1
-                self.last_error = exc
-                _log.warning("reconcile attempt %d failed: %r", self.failures, exc)
+                self.last_error = repr(exc)[:_LAST_ERROR_MAX]
+                # one WARNING per failed attempt (never per idle tick); traceback only for the first of a series
+                _log.warning("reconcile attempt %d failed: %r", self.failures, exc,
+                             exc_info=exc if self.failures == 1 else None)
                 backoff = min(_BACKOFF_BASE_S * 2 ** min(self.failures - 1, 30), min(self.interval, _BACKOFF_CAP_S))
                 self.next_due = self.clock() + backoff + self.rng.uniform(0.0, self.jitter)
             else:
+                if self.failures:
+                    _log.warning("reconcile recovered after %d failures", self.failures)
                 self.failures = 0
                 self.last_error = None
+                self.last_success_at = self.clock()
                 self.next_due = self.clock() + self.interval + self.rng.uniform(0.0, self.jitter)
         finally:
             self.lock.release()
         return True
 
+    def snapshot(self) -> dict:
+        """In-memory state for /health: no database, no network, no lock."""
+        now = self.clock()
+        return {
+            "enabled": True,
+            "consecutive_failures": self.failures,
+            "last_error": self.last_error,
+            "seconds_since_last_success": None if self.last_success_at is None else now - self.last_success_at,
+            "thread_alive": self.thread is not None and self.thread.is_alive(),
+            "next_due_in": None if self.next_due is None else self.next_due - now,
+        }
+
     def _loop(self) -> None:
         while not self._stop.is_set():
             if self._stop.wait(max(self.next_due - self.clock(), _MIN_WAIT_S)):
                 break
-            self.tick()
+            try:
+                self.tick()
+            except Exception:  # noqa: BLE001 - the thread must not die silently
+                _log.error("reconcile loop error", exc_info=True)
+                self.next_due = self.clock() + _BACKOFF_BASE_S  # no hot loop: at most one log per backoff
 
     def start(self) -> None:
         if self.thread is not None and self.thread.is_alive():
@@ -422,23 +460,50 @@ if ROLE == "site":
         _site_db.run(lambda con: _apply_fanout_row(con, req.score_id, req.seq, req.event_type, req.target_state))
         return {"applied": True}
 
-    def _reconcile_once() -> tuple[int, int]:
+    def _repair_from_snapshot(current: list[dict], applied_seqs: dict[int, int]) -> int:
+        """State-based anti-entropy (audit 06, D19): for every fact whose evidence seq is newer
+        than the one this site applied, apply the evidence's current state through the same
+        _apply_fanout_row as an outbox item (so the seq check, the local veto and the origin
+        rule all hold). No ack: there is no outbox row to delete. Returns the number of items
+        applied."""
+        repaired = 0
+        for item in current:
+            last = applied_seqs.get(item["score_id"])
+            if last is None or item["seq"] <= last:  # no local record, or nothing missed
+                continue
+            _site_db.run(
+                lambda con, item=item: _apply_fanout_row(
+                    con, item["score_id"], item["seq"], item["event_type"], item["target_state"]
+                )
+            )
+            repaired += 1
+        return repaired
+
+    def _reconcile_once() -> tuple[int, int, int]:
         """Pull any events the evidence service could not deliver while this site was
         unreachable and apply them through the same idempotent path. Returns
-        (items of the first pull, rounds that applied something).
+        (items of the first pull, rounds that applied something, facts repaired from the
+        evidence's current state).
 
         Each round is GET /pending, apply, ack of exactly the (score_id, seq)
         pairs applied without error (an item whose apply raised is never
         acked, so it stays queued; items applied before the error are acked).
         After a round that applied something the site pulls again, up to
         _RECONCILE_MAX_ROUNDS rounds, to pick up events queued meanwhile.
+        After the rounds, the evidence's current state of every fact (the "current" list of
+        the last GET, read in the same transaction as the outbox rows) is compared with this
+        site's last_applied_seq and any newer state is applied: this recovers events that
+        never reached the outbox (audit D19).
         Callers hold _reconcile_lock (the route and the trigger)."""
         first_pull = None
         rounds = 0
+        current: list[dict] = []
         for _round in range(_RECONCILE_MAX_ROUNDS):
             resp = httpx.get(f"{EVIDENCE_URL}/pending/{_site_id()}", timeout=RECONCILE_TIMEOUT)
             resp.raise_for_status()
-            pending = resp.json()["pending"]
+            body = resp.json()
+            pending = body["pending"]
+            current = body.get("current", [])  # absent from an older evidence service
             if first_pull is None:
                 first_pull = len(pending)
             if not pending:
@@ -459,7 +524,13 @@ if ROLE == "site":
                         f"{EVIDENCE_URL}/pending/{_site_id()}/ack", json={"applied": applied},
                         timeout=RECONCILE_TIMEOUT,
                     )
-        return first_pull, rounds
+        applied_seqs = {}
+        if current:
+            applied_seqs = dict(_site_db.run(
+                lambda con: con.execute("SELECT score_id, last_applied_seq FROM local_decisions").fetchall()
+            ))
+        repaired = _repair_from_snapshot(current, applied_seqs)
+        return first_pull, rounds, repaired
 
     _reconcile_lock = threading.Lock()
 
@@ -468,16 +539,18 @@ if ROLE == "site":
         """Pull and apply the queued events now (the automatic trigger runs the same
         _reconcile_once). The JSON body keeps its original single field, ``reconciled`` =
         items of the first pull; the number of rounds that applied items is in the
-        X-Dib-Reconcile-Rounds response header. Serialized with the trigger: a manual call
+        X-Dib-Reconcile-Rounds response header and the number of facts repaired from the
+        evidence's current state in X-Dib-Reconcile-Repaired. Serialized with the trigger: a manual call
         may wait up to d_run for a run in progress; after DIB_DIST_RECONCILE_LOCK_TIMEOUT
         it answers 503 (never in normal operation)."""
         if not _reconcile_lock.acquire(timeout=RECONCILE_LOCK_TIMEOUT):
             raise HTTPException(503, "a reconcile is already in progress")
         try:
-            first_pull, rounds = _reconcile_once()
+            first_pull, rounds, repaired = _reconcile_once()
         finally:
             _reconcile_lock.release()
         response.headers["X-Dib-Reconcile-Rounds"] = str(rounds)
+        response.headers["X-Dib-Reconcile-Repaired"] = str(repaired)
         return {"reconciled": first_pull}
 
     if RECONCILE_INTERVAL > 0:
@@ -525,7 +598,13 @@ if ROLE == "site":
 
     @app.get("/health")
     def health():
-        return {"status": "ok", "site_id": _site_id()}
+        # In-memory state only: no database, no network (the evidence lock is contended by
+        # disputes and GET /pending). last_error is unauthenticated: see PRE_PUBLICATION_CHECKLIST.
+        reconcile = _trigger.snapshot() if _trigger is not None else {
+            "enabled": False, "consecutive_failures": 0, "last_error": None,
+            "seconds_since_last_success": None, "thread_alive": False, "next_due_in": None,
+        }
+        return {"status": "ok", "site_id": _site_id(), "reconcile": reconcile}
 
 
 # --------------------------------------------------------------------------
@@ -720,16 +799,34 @@ if ROLE == "evidence":
         _fan_out(score_id, new_seq, "restore", DECISION_MONITOR_ONLY)
         return {"applied": True}
 
+    # status -> (event_type, target_state): the same mapping the dispute, revoke and restore
+    # routes use for the fan-out.
+    _STATUS_EVENT = {
+        STATUS_DISPUTED: ("dispute", DECISION_DISPUTED),
+        STATUS_REVOKED: ("revoke", DECISION_REVOKED),
+        STATUS_ACTIVE: ("restore", DECISION_MONITOR_ONLY),
+    }
+
     @app.get("/pending/{site_id}")
     def get_pending(site_id: str):
-        rows = _evidence_db.run(
-            lambda con: con.execute(
+        def txn(con):  # one transaction: the outbox rows and the current state are one snapshot
+            rows = con.execute(
                 "SELECT score_id, seq, event_type, target_state FROM pending_fanout WHERE site_id=?", (site_id,)
             ).fetchall()
-        )
-        return {"pending": [
-            {"score_id": r[0], "seq": r[1], "event_type": r[2], "target_state": r[3]} for r in rows
-        ]}
+            facts = con.execute("SELECT id, status, fanout_seq FROM scores WHERE fanout_seq > 0").fetchall()
+            return rows, facts
+
+        rows, facts = _evidence_db.run(txn)
+        return {
+            "pending": [{"score_id": r[0], "seq": r[1], "event_type": r[2], "target_state": r[3]} for r in rows],
+            # Current state of every fact that ever had an event (audit 06, D19): lets a site recover an
+            # event that never reached the outbox. Same item shape as "pending"; no ack.
+            "current": [
+                {"score_id": f[0], "seq": f[2], "event_type": _STATUS_EVENT[f[1]][0],
+                 "target_state": _STATUS_EVENT[f[1]][1]}
+                for f in facts if f[1] in _STATUS_EVENT
+            ],
+        }
 
     @app.post("/pending/{site_id}/ack")
     def ack_pending(site_id: str, req: AckReq | None = None):
