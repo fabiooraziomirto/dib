@@ -2,6 +2,8 @@
 
 **Non usare questi dati in nessuna statistica, figura o affermazione del paper.**
 
+**Configurazione censurata.** Queste celle sono state generate con la configurazione di **default** del database (`DIB_SQLITE_WAL` e `DIB_SQLITE_POOL_SIZE` non impostati: journal_mode=delete, pool di 5 + 10 connessioni, timeout di checkout di 30 s). A 100 writer il p99 è **censurato** a 30 s dal timeout del pool (es. 30001,1 ms nella prima cella del log): è un tetto, non una latenza. Non sono confrontabili con il braccio `deploy` del rerun (Passo 7) e non sostituiscono il braccio `default` del rerun.
+
 - **Cosa:** run M1 (`experiments_tnsm/m1_single_node/run.py`, commit `c23d1e3`) sul nodo 192.168.100.57, configurazione SQLite e pool di default.
 - **Perché interrotto:** riprioritizzazione (piano rev. 5, audit 14). Con la configurazione di default il p99 a 100 writer è troncato a 30 s dal timeout di checkout del pool di SQLAlchemy (audit 04 §7.4). M1 sarà rifatto con due bracci, `default` e `deploy` (Passo 7).
 - **Stop:** `kill -TERM 22376` (solo il PID, verificato con `ps` che fosse ancora `run.py … --commit c23d1e3`) alle **2026-10-10T17:14:10Z**. Il processo è uscito entro 3 s, senza processi residui.
