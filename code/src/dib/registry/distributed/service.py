@@ -37,6 +37,18 @@ swap would just relocate the same bug class:
     converges on reconnect" -- the fault-injection experiment
     (fault_injection_experiment.py) measures exactly that convergence
     window, rather than leaving it an unstated assumption.
+
+  - Acknowledgement is per (score_id, seq) actually applied, not per site
+    (audit D12). A site's POST /reconcile acks only the (score_id, seq)
+    pairs it applied without error; the evidence service deletes a queued
+    row only if it has the same score_id and a seq <= the acked one, so an
+    event queued after the site's GET /pending survives the ack. seq is
+    per fact (scores.fanout_seq), never comparable across facts. An ack
+    without a body keeps the legacy "delete everything for the site"
+    behaviour. After the ack /reconcile pulls again, at most
+    _RECONCILE_MAX_ROUNDS rounds in total; an event arriving after the last
+    pull stays queued until the next /reconcile call. Nothing in this
+    service calls /reconcile on its own: the caller decides when.
 """
 from __future__ import annotations
 
@@ -46,7 +58,7 @@ import threading
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
 
 STATUS_ACTIVE = "active"
@@ -63,6 +75,7 @@ ORIGIN_FANOUT = "fanout"
 
 _FANOUT_RETRIES = 3
 _FANOUT_TIMEOUT_S = 1.0
+_RECONCILE_MAX_ROUNDS = 3  # pull/apply/ack rounds per /reconcile call (audit D12)
 
 DATA_DIR = Path(os.environ.get("DIB_DIST_DATA_DIR", "/data"))
 N_SITES = int(os.environ.get("DIB_DIST_N_SITES", "10"))
@@ -252,22 +265,46 @@ if ROLE == "site":
         return {"applied": True}
 
     @app.post("/reconcile")
-    def reconcile():
+    def reconcile(response: Response):
         """Called by this site on startup/reconnect: pull any events the
         evidence service could not deliver while this site was unreachable,
-        and apply them through the same idempotent path."""
-        resp = httpx.get(f"{EVIDENCE_URL}/pending/{_site_id()}", timeout=5.0)
-        resp.raise_for_status()
-        pending = resp.json()["pending"]
-        for item in pending:
-            _site_db.run(
-                lambda con, item=item: _apply_fanout_row(
-                    con, item["score_id"], item["seq"], item["event_type"], item["target_state"]
-                )
-            )
-        if pending:
-            httpx.post(f"{EVIDENCE_URL}/pending/{_site_id()}/ack", timeout=5.0)
-        return {"reconciled": len(pending)}
+        and apply them through the same idempotent path.
+
+        Each round is GET /pending, apply, ack of exactly the (score_id, seq)
+        pairs applied without error (an item whose apply raised is never
+        acked, so it stays queued; items applied before the error are acked).
+        After a round that applied something the site pulls again, up to
+        _RECONCILE_MAX_ROUNDS rounds, to pick up events queued meanwhile.
+        The JSON body keeps its original single field, ``reconciled`` = items
+        of the first pull; the number of rounds that applied items is in the
+        X-Dib-Reconcile-Rounds response header."""
+        first_pull = None
+        rounds = 0
+        for _round in range(_RECONCILE_MAX_ROUNDS):
+            resp = httpx.get(f"{EVIDENCE_URL}/pending/{_site_id()}", timeout=5.0)
+            resp.raise_for_status()
+            pending = resp.json()["pending"]
+            if first_pull is None:
+                first_pull = len(pending)
+            if not pending:
+                break
+            rounds += 1
+            applied = []
+            try:
+                for item in pending:
+                    _site_db.run(
+                        lambda con, item=item: _apply_fanout_row(
+                            con, item["score_id"], item["seq"], item["event_type"], item["target_state"]
+                        )
+                    )
+                    applied.append({"score_id": item["score_id"], "seq": item["seq"]})
+            finally:
+                if applied:
+                    httpx.post(
+                        f"{EVIDENCE_URL}/pending/{_site_id()}/ack", json={"applied": applied}, timeout=5.0
+                    )
+        response.headers["X-Dib-Reconcile-Rounds"] = str(rounds)
+        return {"reconciled": first_pull}
 
     @app.get("/export_mud")
     def export_mud(device_type: str, mud_url: str | None = None):
@@ -338,6 +375,13 @@ if ROLE == "evidence":
         endpoint: str
         protocol: str = "https"
         port: int = 443
+
+    class AckItem(BaseModel):
+        score_id: int
+        seq: int
+
+    class AckReq(BaseModel):
+        applied: list[AckItem]
 
     class ActionReq(BaseModel):
         device_type: str
@@ -491,8 +535,20 @@ if ROLE == "evidence":
         ]}
 
     @app.post("/pending/{site_id}/ack")
-    def ack_pending(site_id: str):
-        _evidence_db.run(lambda con: con.execute("DELETE FROM pending_fanout WHERE site_id=?", (site_id,)))
+    def ack_pending(site_id: str, req: AckReq | None = None):
+        def txn(con):
+            if req is None:  # legacy caller (no body): acknowledge everything queued for the site
+                con.execute("DELETE FROM pending_fanout WHERE site_id=?", (site_id,))
+                return
+            for item in req.applied:
+                # Same fact and not newer than what the site applied; a row updated
+                # after the site's GET (higher seq) or of another fact survives.
+                con.execute(
+                    "DELETE FROM pending_fanout WHERE site_id=? AND score_id=? AND seq<=?",
+                    (site_id, item.score_id, item.seq),
+                )
+
+        _evidence_db.run(txn)
         return {"acked": True}
 
     @app.get("/health")
