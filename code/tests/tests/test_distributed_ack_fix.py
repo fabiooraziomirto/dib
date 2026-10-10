@@ -31,6 +31,12 @@ H-NC      Controlli con bug reintrodotto, su COPIE del sorgente corretto:
               nessuna perdita (converge) ma resta l'esposizione immediata (ACE = 1, revoke
               ancora in outbox).
           Un errore diverso da AssertionError, o un messaggio diverso, fa fallire il controllo.
+
+[fix-d19, audit 06 §3 e addendum] Dopo D19 la mutazione (a) e' MASCHERATA dall'anti-entropia
+(la riparazione dell'ultimo snapshot converge nella stessa chiamata). Il controllo (a) discrimina
+ora la finestra: outbox dopo il primo ack (H-win; con ack senza filtro e' vuota); il controllo
+composto (a + riparazione off, H-comp) conserva le asserzioni originali. Il numero di tick per
+convergere e' 0 in entrambi i casi: non e' asserito, solo riportato nel messaggio.
 """
 from __future__ import annotations
 
@@ -238,8 +244,67 @@ ACK_ANCHOR = "if req is None:"
 ROUNDS_ANCHOR = "_RECONCILE_MAX_ROUNDS = 3"
 
 
+REPAIR_ANCHOR = "repaired = _repair_from_snapshot(current, applied_seqs)"
+
+
+def _record_outbox_after_first_ack(c) -> list:
+    """Hook one-shot: outbox rows of site 1 right after the first ack (the evidence has
+    already answered). Must be armed BEFORE the scenario helper runs the reconcile."""
+    seen: list = []
+    c.net.after("POST", "/pending/site-1/ack", lambda: seen.append(sorted(
+        (p["score_id"], p["seq"]) for p in c.pending(1))))
+    return seen
+
+
+def _window(c, seen: list, expected: list) -> dict:
+    gets = [call for call in c.net.calls if call.method == "GET" and call.path == "/pending/site-1"]
+    return {
+        "outbox_after_first_ack": seen[0] if seen else None,
+        "expected": expected,
+        "gets_pending": len(gets),
+        "ticks_to_converge": 0,  # not asserted: the final repair runs in the same reconcile call
+    }
+
+
+def _assert_row_survives_first_ack(c, seen: list, expected: list) -> None:
+    assert seen and seen[0] == expected, _window(c, seen, expected)
+
+
+def _scenarios(c_factory):
+    """(cluster, seen, expected, final-assert) for the two D12 scenarios; the scenario runs here."""
+    c = c_factory()
+    seen = _record_outbox_after_first_ack(c)
+    sid = _lost_restore(c)
+    yield c, seen, [(sid, 3)], lambda: _converged(c, sid), lambda: _observation(c, sid)
+    c2 = c_factory()
+    seen2 = _record_outbox_after_first_ack(c2)
+    sid_x, _sid_y = _lost_revoke_with_pending_on_other_fact(c2)
+    yield c2, seen2, [(sid_x, 2)], lambda: c2.ace_count(1) == 0, lambda: _observation(c2, sid_x, X)
+
+
+def test_ack_keeps_the_row_queued_after_the_first_ack_d12_scenarios(make_cluster) -> None:
+    """H-win (codice corretto): l'evento accodato fra GET e ack sopravvive all'ack."""
+    for c, seen, expected, _final, _obs in _scenarios(lambda: make_cluster(n_sites=2)):
+        _assert_row_survives_first_ack(c, seen, expected)
+
+
 def test_negative_control_delete_all_ack_reintroduces_d12(make_cluster, tmp_path) -> None:
+    """H-win/H-mask (riscritto dopo D19, audit 06 §3). Ack senza filtro, anti-entropia ATTIVA:
+    la convergenza finale vale ancora (mascherata dalla riparazione, stessa chiamata, 0 tick),
+    ma l'outbox dopo il primo ack e' vuota invece di contenere l'evento accodato."""
     source = make_source_copy(tmp_path, [(ACK_ANCHOR, "if True:")])
+    for c, seen, expected, final, obs in _scenarios(lambda: make_cluster(n_sites=2, source=source)):
+        assert final(), obs()  # masked by D19: converges anyway
+        with pytest.raises(AssertionError) as window:
+            _assert_row_survives_first_ack(c, seen, expected)
+        message = str(window.value)
+        assert "'outbox_after_first_ack': []" in message and "'expected': [(" in message, message
+        assert "'gets_pending': 2" in message and "'ticks_to_converge': 0" in message, message
+
+
+def test_negative_control_delete_all_ack_without_antientropy_reintroduces_d12(make_cluster, tmp_path) -> None:
+    """H-comp: ack senza filtro + riparazione disattivata = controllo originale di audit 03 §4."""
+    source = make_source_copy(tmp_path, [(ACK_ANCHOR, "if True:"), (REPAIR_ANCHOR, "repaired = 0")])
     c = make_cluster(n_sites=2, source=source)
     sid = _lost_restore(c)  # il setup completa senza errori: ci si aspetta solo la perdita
     with pytest.raises(AssertionError) as lost_restore:

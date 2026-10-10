@@ -35,6 +35,11 @@ from fastapi.testclient import TestClient
 
 from _dist_harness import FakeClock, make_cluster, make_source_copy  # noqa: F401
 from test_distributed_d12_reproducer import _converged, _lost_restore, _observation
+from test_distributed_ack_fix import (  # noqa: F401
+    REPAIR_ANCHOR,
+    _assert_row_survives_first_ack,
+    _record_outbox_after_first_ack,
+)
 from test_distributed_fanout_parallel import FakeExecutor, _install
 from test_distributed_reconcile_trigger import D, ENV, FixedRng, J, T, _pending_dispute  # noqa: F401
 
@@ -125,10 +130,36 @@ def test_f4b_d12_lost_restore_with_parallel_fanout_really_uses_the_pool(make_clu
     assert runs == [0, 0, 0, 1, 1, 1], ex.events  # 3 events x 2 sites went through the executor
 
 
-def test_negative_control_f4b_delete_all_ack_with_parallel_fanout_reintroduces_d12(make_cluster, tmp_path) -> None:
-    source = make_source_copy(tmp_path, [(ACK_ANCHOR, "if True:")])
+def _f4b_cluster(make_cluster, source=None):
     c = make_cluster(n_sites=2, env={"DIB_DIST_FANOUT_CONCURRENCY": "8"}, source=source)
     _install(c, FakeExecutor(max_workers=8))
+    return c
+
+
+def test_f4b_ack_keeps_the_row_queued_after_the_first_ack_with_parallel_fanout(make_cluster) -> None:
+    c = _f4b_cluster(make_cluster)
+    seen = _record_outbox_after_first_ack(c)
+    sid = _lost_restore(c)
+    _assert_row_survives_first_ack(c, seen, [(sid, 3)])
+
+
+def test_negative_control_f4b_delete_all_ack_with_parallel_fanout_reintroduces_d12(make_cluster, tmp_path) -> None:
+    """Riscritto dopo D19 (audit 06 §3): D19 maschera la mutazione, si discrimina la finestra."""
+    source = make_source_copy(tmp_path, [(ACK_ANCHOR, "if True:")])
+    c = _f4b_cluster(make_cluster, source)
+    seen = _record_outbox_after_first_ack(c)
+    sid = _lost_restore(c)
+    assert _converged(c, sid), _observation(c, sid)  # masked by D19
+    with pytest.raises(AssertionError) as window:
+        _assert_row_survives_first_ack(c, seen, [(sid, 3)])
+    message = str(window.value)
+    assert "'outbox_after_first_ack': []" in message and "'expected': [(" in message, message
+    assert "'gets_pending': 2" in message and "'ticks_to_converge': 0" in message, message
+
+
+def test_negative_control_f4b_delete_all_ack_without_antientropy_reintroduces_d12(make_cluster, tmp_path) -> None:
+    source = make_source_copy(tmp_path, [(ACK_ANCHOR, "if True:"), (REPAIR_ANCHOR, "repaired = 0")])
+    c = _f4b_cluster(make_cluster, source)
     sid = _lost_restore(c)  # setup completes; only the convergence assertion may fail
     with pytest.raises(AssertionError) as lost:
         assert _converged(c, sid), _observation(c, sid)
