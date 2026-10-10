@@ -340,7 +340,7 @@ The prototype uses automatic admission to limit the proposals presented for loca
 
 \begin{table}[t]
 \centering
-\caption{Admission notation and operating values ($d$: device type; $e$: endpoint).}
+\caption{Admission notation and operating values ($d$: device type; $e$: endpoint). $C_s$ is raw breadth unless an experiment states trust weighting (Table~\ref{tab:configs}).}
 \label{tab:symbols}
 \scriptsize
 \begin{tabular}{@{}p{1.3cm}p{5.00cm}p{0.75cm}@{}}
@@ -433,6 +433,26 @@ Using these observations, we assess sharing by comparing receiver-only evidence 
 We then test robustness with captured and synthetic inputs. The A1 replay injects 165 malicious observations forming 59 endpoint facts at $k=1,\ldots,10$ pseudo-sites, using \emph{frequency filtering} ($n_{d,e}\ge2$ pooled observations) as a baseline. Further tests inject fabrications, resolved-name and port masquerading, Sybil identities (200--3,200 over 20--400 days), and synthetic rollouts, with fabricated endpoint sets diversified by 0/10/25/50\% of a baseline pool. For identity inflation, \emph{reputation-weighted voting (RWV)} provides a comparison requiring weighted support above 0.65, with frozen pre-attack weights and weight 0.1 for unseen identities.
 
 To measure agreement with reference behavior, we match predictions on device, direction, normalized protocol, peer, and port, treating port 0 and unknown protocol as wildcards and CIDR ranges by membership. Micro metrics pool true/false positives and negatives; UNSW macro metrics average over its 28 reference profiles. Aggregates use seeds 0--19, A1/Sybil/drift use seed 42, and cross-lab, OpenWrt, and concurrency use seed 0.
+
+\begin{table}[t]
+\centering
+\caption{Scoring configuration of each experiment ($\alpha=0.6$, $\beta=0.4$, $\theta=0.65$, $m=2$ throughout). Raw: $C_s=|S_{d,e}|/|ES_d|$; trust: $C_s^{trust}$ (Sec.~\ref{sec:scoring}).}
+\label{tab:configs}
+\scriptsize
+\begin{tabular}{@{}p{4.6cm}p{2.5cm}@{}}
+\toprule
+Experiment & $C_s$ \\
+\midrule
+Matched cold-start ablation, ranked union, review volume, bootstrap (Sec.~\ref{sec:loo-results}) & raw \\
+$\theta,\alpha$ sensitivity on Mon(IoT)r (Sec.~\ref{sec:sensitivity-results}) & raw \\
+A1 baseline comparison (captured facts, Sec.~\ref{sec:security-results}) & raw \\
+UNSW recall, pooled cold start, quorum sweep (Sec.~\ref{sec:utility-results}) & trust \\
+A1 resolved-name counterfactual, A2 masquerading (Sec.~\ref{sec:security-results}) & trust \\
+Identity inflation (Sec.~\ref{sec:sensitivity-results}) & raw and trust, side by side \\
+A3 drift (Sec.~\ref{sec:sensitivity-results}) & trust \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 For reproducibility, the anonymized repository supplied with the submission contains configurations, input hashes, adapters, sampling details, generated MUD files, gateway states and probes, TLA+ specifications and logs, matched ablations, parameter and identity-inflation grids, and regression evidence. 
 
@@ -549,7 +569,7 @@ Each receiver then uses the other two deployments as sources, with identical obs
 
 \begin{table}[t]
 \centering
-\caption{Matched cold-start ablation: each receiver uses the other two deployments as sources. Q=two-site quorum; S=raw-breadth score; C=endpoint eligibility; N=candidates; Cov.=device coverage; P/R/F1=macro agreement with receiver traffic over six device types. Full-DIB 95\% F1 CIs (US/UK/YT): [.033,.198]/[.044,.186]/[.116,.384].}
+\caption{Matched cold-start ablation: each receiver uses the other two deployments as sources. Q=two-site quorum; S=score with raw breadth ($\alpha=0.6$, $\beta=0.4$, $\theta=0.65$, no trust weights); C=endpoint eligibility; N=candidates; Cov.=device coverage; P/R/F1=macro agreement with receiver traffic over six device types. Full-DIB 95\% F1 CIs (US/UK/YT): [.033,.198]/[.044,.186]/[.116,.384].}
 \label{tab:threelab}
 \scriptsize
 \begin{tabular}{@{}llrrrrr@{}}
@@ -613,7 +633,7 @@ YT & Union & 1387 & 100\% & .059 & .334 & .095 \\
 \end{groupplot}
 \node at ($(group c2r1.south)+(0,-1.4cm)$) {\ref{paretolegend}};
 \end{tikzpicture}
-\caption{Candidate count and macro recall for cold-start receivers. Solid curves vary $\theta\in[0.50,0.80]$ at $m=2$; dashed curves rank the pooled union by score at increasing budgets.}
+\caption{Candidate count and macro recall for cold-start receivers. Solid curves vary $\theta\in[0.50,0.80]$ at $m=2$; dashed curves rank the pooled union by score at increasing budgets. Scores use raw breadth.}
 \label{fig:pareto}
 \end{figure}
 
