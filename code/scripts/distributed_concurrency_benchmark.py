@@ -17,6 +17,14 @@ endpoint) and is still counted in the throughput denominator.
 The site count is read from --n-sites or DIB_DIST_N_SITES (default 10) and must
 match the running Compose topology, which generate_compose.py builds from the
 same variable.
+
+mTLS (audit 13): with --pki DIR (a make_dist_pki.py layout) every request presents
+the identity the service requires: site-local operations and attest/dispute use the
+worker's site operator (op-site-<i>), restore and seeding the consortium admin; URLs
+switch to https. --evidence-url/--site-urls point the benchmark at a remote host.
+Without --pki the requests are unchanged. In both modes an HTTP 403 is counted as an
+unexpected error ("http.403"): an authorization failure must never pass as a fast
+successful operation. Every other status keeps its old meaning (not inspected).
 """
 from __future__ import annotations
 
@@ -29,14 +37,70 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+import sys
+
 import httpx
 
 N_SITES = int(os.environ.get("DIB_DIST_N_SITES", "10"))
-EVIDENCE_URL = "http://localhost:18100"
+_DEFAULT_EVIDENCE_URL = "http://localhost:18100"
+EVIDENCE_URL = _DEFAULT_EVIDENCE_URL
+_SITE_URLS: list[str] | None = None  # None: http://localhost:18110+i (published Compose ports)
+_MTLS = False
+_site_clients: list = []  # per-site operator clients (mTLS)
+_admin_client = None
 
 
 def site_url(i: int) -> str:
-    return f"http://localhost:{18110 + i}"
+    return _SITE_URLS[i] if _SITE_URLS else f"http://localhost:{18110 + i}"
+
+
+def configure(evidence_url: str | None = None, site_urls: list[str] | None = None, pki_dir=None) -> None:
+    """Target URLs and, with ``pki_dir``, the mTLS client identities (one client per site
+    operator plus the admin, each with its own connection pool). A ``site_urls`` list
+    also sets N_SITES (worker routing is worker_id % N_SITES)."""
+    global EVIDENCE_URL, _SITE_URLS, _MTLS, _site_clients, _admin_client, N_SITES
+    for c in [*_site_clients, *([_admin_client] if _admin_client else [])]:
+        c.close()
+    EVIDENCE_URL = evidence_url or _DEFAULT_EVIDENCE_URL
+    _SITE_URLS = list(site_urls) if site_urls else None
+    if _SITE_URLS:
+        N_SITES = len(_SITE_URLS)  # the URL list is the topology
+    _MTLS = pki_dir is not None
+    _site_clients, _admin_client = [], None
+    if _MTLS:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+        from dib.registry.distributed import mtls
+
+        pki = Path(pki_dir)
+        n = len(_SITE_URLS) if _SITE_URLS else N_SITES
+
+        def client(name):
+            ctx = mtls.client_context(pki / f"{name}.crt", pki / f"{name}.key", pki / "ca.crt")
+            return httpx.Client(timeout=5.0, verify=ctx)
+
+        _site_clients = [client(f"op-site-{i}") for i in range(n)]
+        _admin_client = client("admin")
+
+
+_TARGET = {"query": "site", "commit": "site", "attest": "evidence", "dispute": "evidence", "restore": "evidence"}
+
+
+def route(op: str, site_index: int, mtls: bool | None = None) -> tuple[str | None, str | None]:
+    """(target, identity) of one operation; identity is None without mTLS."""
+    target = _TARGET.get(op)
+    if target is None:
+        return None, None
+    if not (_MTLS if mtls is None else mtls):
+        return target, None
+    return target, "admin" if op == "restore" else f"op-site-{site_index}"
+
+
+def _client_for(identity: str | None):
+    if identity is None:
+        return _client
+    if identity == "admin":
+        return _admin_client
+    return _site_clients[int(identity.rsplit("-", 1)[1])]
 
 
 _MIX_REALISTIC = ["query", "commit", "contribute", "query", "commit", "query", "commit",
@@ -51,12 +115,13 @@ def seed_all(device_types=("cam-a", "cam-b", "cam-c"), n_endpoints=5) -> None:
         for i in range(n_endpoints):
             ep = f"ep-{i}.example"
             try:
-                _client.post(f"{EVIDENCE_URL}/seed", json={"device_type": dt, "endpoint": ep})
+                _client_for("admin" if _MTLS else None).post(
+                    f"{EVIDENCE_URL}/seed", json={"device_type": dt, "endpoint": ep})
             except Exception:
                 pass
             for s in range(N_SITES):
                 try:
-                    _client.post(f"{site_url(s)}/query", json={"device_type": dt, "endpoint": ep})
+                    _client_for(route("query", s)[1]).post(f"{site_url(s)}/query", json={"device_type": dt, "endpoint": ep})
                 except Exception:
                     pass
 
@@ -71,18 +136,24 @@ def do_op(worker_id: int, op_index: int, mix: list[str]) -> tuple[str, float, bo
     error_kind = ""
     try:
         body = {"device_type": device_type, "endpoint": endpoint}
+        _target, identity = route(op, site_index)
+        client = _client_for(identity)
+        resp = None
         if op == "contribute":
             pass  # no observation endpoint in this prototype -- site-local write already covered by query/commit
         elif op == "query":
-            _client.post(f"{site_url(site_index)}/query", json=body)
+            resp = client.post(f"{site_url(site_index)}/query", json=body)
         elif op == "attest":
-            _client.post(f"{EVIDENCE_URL}/attest", json={**body, "site_id": f"site-{site_index}"})
+            resp = client.post(f"{EVIDENCE_URL}/attest", json={**body, "site_id": f"site-{site_index}"})
         elif op == "dispute":
-            _client.post(f"{EVIDENCE_URL}/dispute", json={**body, "site_id": f"site-{site_index}"})
+            resp = client.post(f"{EVIDENCE_URL}/dispute", json={**body, "site_id": f"site-{site_index}"})
         elif op == "commit":
-            _client.post(f"{site_url(site_index)}/commit", json=body)
+            resp = client.post(f"{site_url(site_index)}/commit", json=body)
         else:
-            _client.post(f"{EVIDENCE_URL}/restore", json=body)
+            resp = client.post(f"{EVIDENCE_URL}/restore", json=body)
+        if resp is not None and resp.status_code == 403:
+            unexpected = True
+            error_kind = "http.403"
     except Exception as exc:  # noqa: BLE001 -- classified, not hidden: see error_types in the CSV
         unexpected = True
         error_kind = f"{type(exc).__module__.split('.')[0]}.{type(exc).__name__}"
@@ -124,9 +195,17 @@ def main() -> int:
     parser.add_argument("--output", default="outputs/distributed_concurrency/throughput_distributed.csv")
     parser.add_argument("--n-sites", type=int, default=N_SITES,
                         help="site containers in the running topology (default: DIB_DIST_N_SITES or 10)")
+    parser.add_argument("--pki", default=None, help="make_dist_pki.py output: enables mTLS client identities")
+    parser.add_argument("--evidence-url", default=None)
+    parser.add_argument("--site-urls", default=None, help="comma-separated, one per site, in site order")
     args = parser.parse_args()
 
     N_SITES = args.n_sites
+    scheme = "https" if args.pki else "http"
+    configure(evidence_url=args.evidence_url or f"{scheme}://localhost:18100",
+              site_urls=args.site_urls.split(",") if args.site_urls
+              else [f"{scheme}://localhost:{18110 + i}" for i in range(N_SITES)],
+              pki_dir=args.pki)
     print(f"topology: {N_SITES} site container(s) + 1 evidence container", flush=True)
     seed_all()
     mix = _MIX_REALISTIC

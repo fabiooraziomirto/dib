@@ -138,3 +138,54 @@ def cl(tmp_path_factory):
     cluster.close()
 
 
+
+
+class PkiServices:
+    """Evidence + n sites as real mTLS processes using a make_dist_pki.py layout."""
+
+    def __init__(self, root: Path, pki: Path, n_sites: int, *, type_list: bool = True) -> None:
+        self.root, self.pki, self.n = root, pki, n_sites
+        self.ports = {"evidence": _free_port(), **{i: _free_port() for i in range(n_sites)}}
+        self.url = {k: f"https://127.0.0.1:{p}" for k, p in self.ports.items()}
+        self.procs = []
+        for key in ("evidence", *range(n_sites)):
+            name = "evidence" if key == "evidence" else f"site-{key}"
+            env = {
+                **os.environ, "PYTHONPATH": str(SRC),
+                "DIB_DIST_ROLE": "evidence" if key == "evidence" else "site",
+                "DIB_DIST_SITE_INDEX": "0" if key == "evidence" else str(key),
+                "DIB_DIST_N_SITES": str(n_sites), "DIB_DIST_DATA_DIR": str(root / f"data-{name}"),
+                "DIB_DIST_EVIDENCE_URL": self.url["evidence"],
+                **{f"DIB_DIST_SITE_URL_{i}": self.url[i] for i in range(n_sites)},
+                "DIB_DIST_MTLS": "1", "DIB_DIST_TYPE_LIST": "1" if type_list else "0",
+                "DIB_DIST_TLS_CERT": str(pki / f"{name}.crt"), "DIB_DIST_TLS_KEY": str(pki / f"{name}.key"),
+                "DIB_DIST_TLS_CA": str(pki / "ca.crt"), "DIB_DIST_IDENTITIES": str(pki / "identities.json"),
+            }
+            log = (root / f"log-{name}.txt").open("w")
+            self.procs.append(subprocess.Popen(
+                [sys.executable, "-m", "dib.registry.distributed.mtls", "--app",
+                 "dib.registry.distributed.service:app", "--host", "127.0.0.1", "--port", str(self.ports[key])],
+                env=env, stdout=log, stderr=subprocess.STDOUT))
+        from dib.registry.distributed import mtls
+
+        ctx = mtls.client_context(pki / "admin.crt", pki / "admin.key", pki / "ca.crt")
+        with httpx.Client(verify=ctx, timeout=5) as c:
+            for key, url in self.url.items():
+                deadline = time.monotonic() + 20
+                while True:
+                    try:
+                        if c.get(f"{url}/health").status_code == 200:
+                            break
+                    except httpx.TransportError:
+                        pass
+                    assert time.monotonic() < deadline, f"{key} did not start"
+                    time.sleep(0.1)
+
+    def close(self) -> None:
+        for p in self.procs:
+            p.terminate()
+        for p in self.procs:
+            try:
+                p.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                p.kill()
