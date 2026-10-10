@@ -172,7 +172,7 @@ Il paper (fuori repo, solo letto) dice "only six device types are common to all 
 - `:111` scrive `aligned_device_types = sorted(set(label_map.values()))` nel manifest. I sei tipi sono quindi **per costruzione le righe del file**, non un conteggio fatto sui dati.
 - `results/three_lab_loo/manifest.json` registra `aligned_device_types` = google-home-mini, insteon-hub, philips-hue, ring-doorbell, roku-tv, smartthings e `label_mapping_sha256` = `ff16da15…`, che coincide con `docs/label_mapping_v16.csv` e `results/three_lab_loo/label_mapping_v16.csv`.
 
-Gli stessi sei tipi vengono usati da `v28_matched_ablation.py:21`, `pareto_frontier.py:97` e `union_ranked_budget.py:106`. Questi script cercano il file in `experiments/30_three_lab_loo/label_mapping_v16.csv`, un percorso **assente** dalla repo (il file è in `docs/` e in `results/three_lab_loo/`). `docs/data_provenance.md:123` cita invece `data/label_mapping_v16.csv`, assente anche quello. Lo segnalo senza correggere.
+Gli stessi sei tipi vengono usati da `v28_matched_ablation.py:21`, `pareto_frontier.py:97` e `union_ranked_budget.py:106`. Questi script cercano il file in `experiments/30_three_lab_loo/label_mapping_v16.csv`, un percorso **assente** dalla repo (il file è in `docs/` e in `results/three_lab_loo/`). `docs/data_provenance.md:123` cita invece `data/label_mapping_v16.csv`, assente anche quello. Il percorso esiste invece fuori repo, in `/root/Desktop/DIB_reframe/reproducibility/experiments/30_three_lab_loo/label_mapping_v16.csv`, con lo stesso hash `ff16da15…`: gli script girano nel layout di `DIB_reframe/reproducibility`, non in questa repo. Lo segnalo senza correggere.
 
 **Quanto cambia h_d** (dati sul disco, `hd_union_by_type.csv` fuori repo):
 
