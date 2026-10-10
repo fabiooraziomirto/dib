@@ -107,7 +107,7 @@ Raccomandazione: (b) + (c) con il gate di classe applicato a tutti; l'ipotesi H6
 - Il quorum resta sul conteggio non pesato |S_e| (`dib.py:250,292`), e la soglia è stretta (W·12 < 5).
 - Tutte le asserzioni sono passate.
 
-### 5.1 D0' (`d0prime.py`, commit `9e1e…`, vedi git log; dati in `runs/d0prime/`)
+### 5.1 D0' (`d0prime.py`, commit `06182ce`; dati in `runs/d0prime/`)
 
 - Griglia: N ∈ {5, 10, 20, 50, 100}, ogni K = 1..N, 20 estrazioni di breadth onesta per caso.
 - Pesi: REF = 10, breadth onesta uniforme su [1, 19]; due bracci avversari più il controllo uniforme. Durata 220 s.
