@@ -1,0 +1,45 @@
+netem_watch (dry run): profile=degraded; current containers of the project:
+  dibtnsm-evidence-1:636212
+  dibtnsm-site-0-1:638357
+  dibtnsm-site-1-1:637652
+  dibtnsm-site-2-1:638594
+  dibtnsm-site-3-1:636477
+  dibtnsm-site-4-1:638124
+  dibtnsm-site-5-1:637888
+  dibtnsm-site-6-1:636945
+  dibtnsm-site-7-1:637415
+  dibtnsm-site-8-1:636711
+  dibtnsm-site-9-1:637179
+dibtnsm-evidence-1 (pid 636212): delay 200ms loss 5%
++ nsenter -t 636212 -n tc qdisc del dev eth0 root
++ nsenter -t 636212 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-0-1 (pid 638357): delay 200ms loss 5%
++ nsenter -t 638357 -n tc qdisc del dev eth0 root
++ nsenter -t 638357 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-1-1 (pid 637652): delay 200ms loss 5%
++ nsenter -t 637652 -n tc qdisc del dev eth0 root
++ nsenter -t 637652 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-2-1 (pid 638594): delay 200ms loss 5%
++ nsenter -t 638594 -n tc qdisc del dev eth0 root
++ nsenter -t 638594 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-3-1 (pid 636477): delay 200ms loss 5%
++ nsenter -t 636477 -n tc qdisc del dev eth0 root
++ nsenter -t 636477 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-4-1 (pid 638124): delay 200ms loss 5%
++ nsenter -t 638124 -n tc qdisc del dev eth0 root
++ nsenter -t 638124 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-5-1 (pid 637888): delay 200ms loss 5%
++ nsenter -t 637888 -n tc qdisc del dev eth0 root
++ nsenter -t 637888 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-6-1 (pid 636945): delay 200ms loss 5%
++ nsenter -t 636945 -n tc qdisc del dev eth0 root
++ nsenter -t 636945 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-7-1 (pid 637415): delay 200ms loss 5%
++ nsenter -t 637415 -n tc qdisc del dev eth0 root
++ nsenter -t 637415 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-8-1 (pid 636711): delay 200ms loss 5%
++ nsenter -t 636711 -n tc qdisc del dev eth0 root
++ nsenter -t 636711 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-9-1 (pid 637179): delay 200ms loss 5%
++ nsenter -t 637179 -n tc qdisc del dev eth0 root
++ nsenter -t 637179 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
