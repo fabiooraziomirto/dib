@@ -113,3 +113,31 @@ G0 → G0b (rigenerazione, `verify_artifact` 262/0) → G1 (suite su 3.12 se sce
 - `results/distributed/README.md` cita `throughput_distributed_3rep.csv`; nella cartella il file si chiama `throughput_distributed.csv`. L'hash `c458a3eb…` coincide con la voce `_3rep` del manifest.
 - `results/distributed/manifest.json`: `service.py = 54f635cb…`, che non corrisponde a nessuna versione nella storia della repo. `results/concurrency/manifest_v28_performance.json`: `services_sha256 = bea8a575…`, diverso dal file attuale `609b8043…` (identico a v43).
 - Docstring di `fsm_concurrency_harness.py` (riga 20): "the minimal fix is applied to services.py" durante le prove. Le misure del piano **non** devono correggere nulla: se un invariante cade, si riporta (regola della repo).
+
+## 7. Esiti delle porte (aggiornamento 2026-10-10)
+
+### 7.1 G1: Python 3.12 (opzione A, decisione utente)
+
+**Ambiente.** `/opt/conda/envs/dib312`, fuori dalla repo, creato con `conda create -p /opt/conda/envs/dib312 python=3.12`. Interprete: `Python 3.12.15 | packaged by Anaconda, Inc. | (main, Oct 1 2026) [GCC 14.3.0]`. Ho installato con pip le **stesse versioni** dell'ambiente 3.10 per i pacchetti diretti: pandas 2.3.3, numpy 2.2.6, networkx 3.4.2, scipy 1.15.3, matplotlib 3.10.1, scikit-learn 1.7.2, fastapi 0.128.8, starlette 0.52.1, pydantic 2.12.5, uvicorn 0.51.0, SQLAlchemy 2.0.51, psycopg 3.3.4, PyYAML 6.0.3, httpx 0.28.1, pytest 9.0.2, tldextract 5.3.1, openpyxl 3.1.5.
+
+Le dipendenze transitive sono state risolte da pip. Fra i 50 pacchetti in comune, 24 hanno versioni diverse, fra cui anyio 4.12.1 → 4.15.1, pyparsing 2.4.7 → 3.3.3, urllib3 2.6.3 → 2.8.0, typing_extensions 4.15.0 → 4.16.0, idna 3.11 → 3.20 e certifi 2026.1.4 → 2026.7.22. Il `pip freeze` completo delle due versioni va nel manifest di ogni misura.
+
+| Controllo | 3.10.13 | 3.12.15 |
+|---|---|---|
+| `pytest code/tests` | 412 passed (~22 s) | **412 passed** (18,8 s), **1 warning**: `DeprecationWarning` di `starlette/testclient.py:45` (`anyio.abc.BlockingPortal` deprecato in anyio 4.15) |
+| `verify_artifact.py` | 260 passed, 2 failed | **identico byte per byte** (`diff` vuoto): 260 passed, gli stessi 2 failed (hash di `service.py`) |
+| `verify_artifact.py --with-tests` | — | 261 passed, 2 failed (gli stessi) |
+| `pytest analysis_fs` | 72 passed, 2 skipped, 9 xfailed | 72 passed, 2 skipped, 9 xfailed |
+| `fs_binomial.py` rigenerato vs CSV committato | 8 righe diverse di 1 ulp | **identico** |
+
+**Differenze trovate.**
+1. Il warning di anyio (nessun effetto sui risultati).
+2. La somma `sum()` sui float. Da 3.12 è compensata (Neumaier), e questo spiega lo scarto di 1 ulp di `fs_binomial.csv`: con `math.fsum` su 3.10 le righe diverse sono 0 su 25. Correzione della causa in `00_baseline_tnsm.md`. **Conseguenza per le misure:** qualsiasi aggregato calcolato con `sum()` (statistiche di throughput, medie) può differire all'ultima cifra fra 3.10 e 3.12. Va confrontato con una tolleranza, mai con l'uguaglianza.
+
+**G1 aperta per le misure.** Le misure si eseguono con `/opt/conda/envs/dib312/bin/python`.
+
+### 7.2 G2: secondo nodo 192.168.100.57
+
+- Raggiungibile: `ping -c 5` RTT min/avg/max/mdev = 0,135/0,251/0,448/0,113 ms, 0% perdita; porta 22 aperta.
+- **Accesso SSH non disponibile da questo host.** Con chiave (`id_ed25519_lab`, `BatchMode`): `Permission denied (publickey,password)`. Il nodo accetta password, ma qui mancano `sshpass`, `expect` e `paramiko` per usarla in modo non interattivo.
+- **La caratterizzazione (OS, kernel, `sch_netem`, CPU, RAM, disco, Docker) non è stata fatta.**
