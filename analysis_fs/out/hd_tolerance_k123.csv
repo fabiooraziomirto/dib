@@ -1,0 +1,11 @@
+corpus,n_rows,h_min,h_median,h_max,K1_score,K1_fs030,K2_score,K2_fs030,K3_score,K3_fs030,K1_quorum_m2
+moniotr_US_UK_collapsed,59,1,1,2,26,0,0,0,0,0,59
+moniotr_4_capture_trees,59,2,2,4,59,26,26,0,0,0,59
+yourthings,46,1,1,1,0,0,0,0,0,0,46
+three_lab_US_UK_YT,6,3,3,3,6,6,6,0,0,0,6
+real_federation_6_labels,10,2,3,6,10,5,5,4,4,0,10
+real_federation_independent,10,2,2,4,10,4,4,0,0,0,10
+unsw_10pseudo_all_seeds,540,2,10,10,540,520,520,519,519,509,540
+union_canonical_trees,119,1,2,6,64,27,27,4,4,0,119
+union_canonical_independent,119,1,1,4,32,4,4,0,0,0,119
+union_canonical_plus_v16_independent,116,1,1,4,32,7,7,0,0,0,116
