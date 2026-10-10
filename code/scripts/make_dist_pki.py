@@ -99,8 +99,9 @@ class CA:
              "-startdate", _ts(not_before), "-enddate", _ts(not_after), cwd=self.root)
         return SimpleNamespace(cert=cert, key=key)
 
-    def server(self, name: str, san_uri: str, dns: tuple[str, ...] = (), **kw):
-        sans = [f"URI:{san_uri}", *(f"DNS:{d}" for d in dns), "DNS:localhost", "IP:127.0.0.1"]
+    def server(self, name: str, san_uri: str, dns: tuple[str, ...] = (), extra_ips: tuple[str, ...] = (), **kw):
+        sans = [f"URI:{san_uri}", *(f"DNS:{d}" for d in dns), "DNS:localhost", "IP:127.0.0.1",
+                *(f"IP:{ip}" for ip in extra_ips)]
         return self.issue(name, sans, **kw)
 
     def client(self, name: str, san_uri: str, **kw):
@@ -121,7 +122,7 @@ def _refuse_unignored(paths: list[Path]) -> None:
 
 
 def build(out: Path, n_sites: int, not_before: datetime, valid_hours: float,
-          device_types: list[str]) -> dict:
+          device_types: list[str], extra_san_ip: tuple[str, ...] = ()) -> dict:
     ca_dir = out.with_name(out.name + ".ca")
     _refuse_unignored([out, ca_dir])
     for d in (out, ca_dir):
@@ -143,7 +144,8 @@ def build(out: Path, n_sites: int, not_before: datetime, valid_hours: float,
                      {"site": site, "role": "operator", "device_types": device_types}))
     certs = []
     for name, kind, san, dns, entry in plan:
-        leaf = ca.server(name, san, dns, **window) if kind == "server" else ca.client(name, san, **window)
+        leaf = (ca.server(name, san, dns, extra_ips=extra_san_ip, **window) if kind == "server"
+                else ca.client(name, san, **window))
         identities[san] = entry
         serial = subprocess.run([OPENSSL, "x509", "-in", str(leaf.cert), "-noout", "-serial"],
                                 capture_output=True, text=True, check=True).stdout.strip().split("=", 1)[1]
@@ -158,6 +160,9 @@ def build(out: Path, n_sites: int, not_before: datetime, valid_hours: float,
         "n_sites": n_sites,
         "not_before": _ts(not_before), "not_after": _ts(not_after), "valid_hours": valid_hours,
         "device_types_per_site": device_types,
+        # extra IP SANs on server certificates only (audit 17: a load generator on another host
+        # verifies the node's IP); empty by default, so the default certificates are unchanged
+        "extra_san_ip": list(extra_san_ip),
         "ca_dir": str(ca_dir),
         "key_material": "random (openssl genpkey); everything else is a function of the arguments",
         "ca_sha256": hashlib.sha256(ca.cert.read_bytes()).hexdigest(),
@@ -165,6 +170,15 @@ def build(out: Path, n_sites: int, not_before: datetime, valid_hours: float,
     }
     (out / "pki_manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
     return manifest
+
+
+def _ip(value: str) -> str:
+    import ipaddress
+
+    try:
+        return str(ipaddress.ip_address(value))
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(f"not an IP address: {value!r}") from exc
 
 
 def main() -> int:
@@ -175,9 +189,12 @@ def main() -> int:
                    help="UTC start of validity, e.g. 2026-10-11T00:00:00Z (explicit for determinism)")
     p.add_argument("--valid-hours", type=float, default=24.0)
     p.add_argument("--device-types", default=",".join(BENCH_DEVICE_TYPES))
+    p.add_argument("--extra-san-ip", action="append", default=[], type=_ip,
+                   help="add IP:<ip> to every server certificate (repeatable); default: none")
     a = p.parse_args()
     nb = datetime.fromisoformat(a.not_before.replace("Z", "+00:00"))
-    manifest = build(a.out, a.n_sites, nb, a.valid_hours, [t for t in a.device_types.split(",") if t])
+    manifest = build(a.out, a.n_sites, nb, a.valid_hours, [t for t in a.device_types.split(",") if t],
+                     tuple(a.extra_san_ip))
     print(f"wrote {len(manifest['certificates'])} certificates to {a.out} "
           f"(valid {manifest['not_before']} - {manifest['not_after']})")
     return 0

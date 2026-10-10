@@ -94,3 +94,27 @@ def test_k4_refuses_unignored_repo_path_and_default_is_ignored():
     assert not target.exists()
     ignored = subprocess.run(["git", "check-ignore", "-q", str(DEFAULT_OUT / "ca.crt")], cwd=CODE)
     assert ignored.returncode == 0
+
+
+def test_k5_extra_san_ip(tmp_path):
+    """K5 (audit 17 s.0, user OK 2026-10-10; written before the option): --extra-san-ip IP
+    (repeatable) adds IP:<ip> to SERVER certificates only, records it in the manifest, and
+    without the option the SANs are unchanged (default invariant, K3)."""
+    out = tmp_path / "pki"
+    _run("--out", str(out), "--n-sites", "2", "--not-before", NB,
+         "--extra-san-ip", "192.168.100.57", "--extra-san-ip", "10.0.0.9")
+    for server in ("evidence", "site-0", "site-1"):
+        san = _x509(out / f"{server}.crt", "-ext", "subjectAltName")
+        assert "IP Address:192.168.100.57" in san and "IP Address:10.0.0.9" in san, server
+        assert "IP Address:127.0.0.1" in san and "DNS:localhost" in san
+    for client in ("admin", "op-site-0"):
+        assert "192.168.100.57" not in _x509(out / f"{client}.crt", "-ext", "subjectAltName")
+    m = json.loads((out / "pki_manifest.json").read_text())
+    assert m["extra_san_ip"] == ["192.168.100.57", "10.0.0.9"]
+    plain = tmp_path / "plain"
+    _run("--out", str(plain), "--n-sites", "1", "--not-before", NB)
+    assert "192.168.100.57" not in _x509(plain / "site-0.crt", "-ext", "subjectAltName")
+    assert json.loads((plain / "pki_manifest.json").read_text())["extra_san_ip"] == []
+    bad = _run("--out", str(tmp_path / "bad"), "--n-sites", "1", "--not-before", NB,
+               "--extra-san-ip", "not-an-ip", check=False)
+    assert bad.returncode != 0
