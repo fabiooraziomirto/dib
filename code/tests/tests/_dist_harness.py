@@ -16,6 +16,7 @@ from __future__ import annotations
 import importlib.util
 import itertools
 import sys
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -50,6 +51,41 @@ class _Hook:
     fn: object
 
 
+class FakeClock:
+    """Injectable monotonic clock for the reconcile trigger: time moves only via advance()."""
+
+    def __init__(self, start: float = 1000.0) -> None:
+        self.t = float(start)
+
+    def now(self) -> float:
+        return self.t
+
+    __call__ = now
+
+    def advance(self, dt: float) -> float:
+        assert dt >= 0, "FakeClock never goes backwards"
+        self.t += dt
+        return self.t
+
+
+class Gate:
+    """Blocks one (site, path) call until released. ``reached`` is set when a call is
+    parked here; ``release()`` lets it through. The 5 s wait is only an anti-hang guard:
+    if it expires the call fails loudly instead of hanging the suite."""
+
+    def __init__(self) -> None:
+        self.reached = threading.Event()
+        self._released = threading.Event()
+
+    def release(self) -> None:
+        self._released.set()
+
+    def wait_released(self) -> None:
+        self.reached.set()
+        if not self._released.wait(timeout=5):
+            raise AssertionError("Gate was never released (anti-hang guard)")
+
+
 class FakeNet:
     """Router standing in for httpx.get/httpx.post."""
 
@@ -62,6 +98,15 @@ class FakeNet:
         self.fail_next: dict[tuple[int, str], int] = {}  # (site, path) -> failures left
         self.calls: list[Call] = []
         self._hooks: list[_Hook] = []
+        self.evidence_down = False  # evidence unreachable FROM the sites (site -> evidence calls fail)
+        self._gates: dict[tuple[int, str], Gate] = {}
+        self._lock = threading.Lock()  # protects calls / fail_next when callers run in threads
+
+    def gate(self, site_index: int, path: str) -> Gate:
+        """Park every call to (site, exact path) until the returned Gate is released."""
+        gate = Gate()
+        self._gates[(site_index, path)] = gate
+        return gate
 
     def after(self, method: str, path: str, fn) -> None:
         """One-shot hook: runs after the first call (method, exact path) has been answered
@@ -74,19 +119,28 @@ class FakeNet:
         return [c for c in self.calls if c.host == host and (path is None or c.path == path)]
 
     def _dispatch(self, method: str, url: str, *, json=None, params=None, timeout=None, **_ignored):
-        if len(self.calls) >= self.MAX_CALLS:
-            raise AssertionError(f"FakeNet call cap ({self.MAX_CALLS}) exceeded: probable runaway loop")
         parts = urlsplit(url)
-        self.calls.append(Call(method, parts.netloc, parts.path, json, params, timeout))
+        with self._lock:
+            if len(self.calls) >= self.MAX_CALLS:
+                raise AssertionError(f"FakeNet call cap ({self.MAX_CALLS}) exceeded: probable runaway loop")
+            self.calls.append(Call(method, parts.netloc, parts.path, json, params, timeout))
         site = self.site_index_by_host.get(parts.netloc)
         request = httpx.Request(method, url)
+        if parts.netloc == EVIDENCE_HOST and self.evidence_down:
+            raise httpx.ConnectError("evidence unreachable (FakeNet.evidence_down)", request=request)
         if site is not None:
             if site in self.down:
                 raise httpx.ConnectError("site unreachable (FakeNet.down)", request=request)
             key = (site, parts.path)
-            if self.fail_next.get(key, 0) > 0:
-                self.fail_next[key] -= 1
+            with self._lock:
+                inject = self.fail_next.get(key, 0) > 0
+                if inject:
+                    self.fail_next[key] -= 1
+            if inject:
                 raise httpx.ConnectError("injected failure (FakeNet.fail_next)", request=request)
+            gate = self._gates.get(key)
+            if gate is not None:
+                gate.wait_released()
         response = self.clients[parts.netloc].request(method, parts.path, params=params, json=json)
         for hook in list(self._hooks):
             if hook.method == method and hook.path == parts.path:
@@ -106,8 +160,9 @@ class Cluster:
     """One evidence instance plus ``n_sites`` site instances wired through a FakeNet."""
 
     def __init__(self, tmp_path: Path, monkeypatch, *, n_sites: int = 2, quorum: int = 1,
-                 source: Path | None = None) -> None:
+                 source: Path | None = None, env: dict[str, str] | None = None) -> None:
         self.tmp_path = tmp_path
+        self.extra_env = dict(env or {})  # e.g. DIB_DIST_RECONCILE_INTERVAL, applied to every instance
         self.monkeypatch = monkeypatch
         self.n_sites = n_sites
         self.source = Path(source) if source else DIST_SOURCE
@@ -139,6 +194,8 @@ class Cluster:
         mp.setenv("DIB_DIST_SITE_INDEX", str(index))
         mp.setenv("DIB_DIST_SUSPENSION_QUORUM", str(quorum))
         mp.setenv("DIB_DIST_EVIDENCE_URL", f"http://{EVIDENCE_HOST}")
+        for key, value in self.extra_env.items():
+            mp.setenv(key, str(value))
         spec = importlib.util.spec_from_file_location(name, self.source)
         module = importlib.util.module_from_spec(spec)
         sys.modules[name] = module
@@ -186,6 +243,24 @@ class Cluster:
     def reconcile(self, site: int):
         return self.sites[site].post("/reconcile")
 
+    # ---- reconcile trigger (service.py module attribute ``_trigger``; absent before the feature) ----
+    def trigger(self, site: int):
+        return getattr(self.site_mods[site], "_trigger", None)
+
+    def install_clock(self, site: int, clock: FakeClock, rng=None) -> None:
+        """Inject a fake clock (and optionally an rng) into a site's trigger."""
+        trig = self.trigger(site)
+        assert trig is not None, f"site {site} has no reconcile trigger (DIB_DIST_RECONCILE_INTERVAL is 0?)"
+        trig.clock = clock
+        if rng is not None:
+            trig.rng = rng
+
+    def tick(self, site: int):
+        """Run one scheduler step of the site's trigger: no thread, no sleep."""
+        trig = self.trigger(site)
+        assert trig is not None, f"site {site} has no reconcile trigger"
+        return trig.tick()
+
     def pending(self, site: int) -> list[dict]:
         return self.evidence.get(f"/pending/site-{site}").json()["pending"]
 
@@ -206,7 +281,7 @@ class Cluster:
 
 @pytest.fixture
 def make_cluster(tmp_path, monkeypatch):
-    """Factory fixture: make_cluster(n_sites=..., quorum=..., source=...) -> Cluster."""
+    """Factory fixture: make_cluster(n_sites=..., quorum=..., source=..., env=...) -> Cluster."""
     made: list[Cluster] = []
 
     def _make(**kwargs) -> Cluster:
