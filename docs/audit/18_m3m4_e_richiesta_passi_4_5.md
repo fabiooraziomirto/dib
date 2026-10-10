@@ -278,6 +278,20 @@ A 1 writer la differenza sulle operazioni sul sito (+2,4-2,5 ms) coincide con qu
 
 **Cosa si può riportare.** Il rapporto C/D a 1 e 10 writer (0,60 e 0,79) come costo di mTLS **per questo prototipo, che non ha un pool fra i servizi** (handshake completo a ogni chiamata fra servizi): è un limite superiore del costo di un'implementazione con connessioni riusate, per decisione dell'utente. A 50 e 100 writer (0,60 e 0,54) solo come esplorativo. I dati del vecchio M4 restano come "configurazione di default", con la nota in `run_20261010/README.md`.
 
+#### 1.7.1 Correzioni e cautele (revisione dell'utente dopo i dati grezzi, 2026-10-10)
+
+0. **Verifica.** L'analisi di §1.7 (commit `8fbe400`, `00b2d56`) è stata ricalcolata da zero dai 20 record grezzi (`cells.jsonl`) con `analyze_m4.py` su una copia: l'output è **identico** a `analysis.txt`. Il lancio è finito alle 22:43:57; 644 000 operazioni cronometrate, 20 celle su 20.
+1. **Affermazione da qualificare.** Il testo di §1.7 dice che a 50 e 100 writer "il costo di mTLS cresce con il carico". **Non è un risultato:** il rapporto C/D vale 0,603 (1 writer), 0,794 (10), 0,598 (50), 0,543 (100), cioè **non è monotono**, e il generatore (un solo host, thread Python) **non è misurato durante la cella**: se a 100 writer satura, il rapporto è distorto in una direzione non nota. Va letto come ipotesi. Nessun commento sulla forma della curva oltre i dati.
+2. **Due rapporti, da riportare entrambi, con la differenza spiegata.**
+   - **C/A "come spedito"** (M3, default senza mTLS): 0,83 a 100 writer (438,4 / 528,2, FANOUT 10), 1,01 a 50, 1,47 a 10, 1,84 a 1.
+   - **C/D "TLS isolato"** (questo rilancio): 0,54 a 100 writer, 0,60 a 50, 0,79 a 10, 0,60 a 1.
+   - La differenza è che il braccio di default paga ~6 ms per chiamata fra servizi (contesto SSL costruito a ogni chiamata) e D no. Confronto A (M3) contro D (M4): 528 → 824 ops/s a 100 writer (**+56%**), ma **fra lanci diversi** (cluster, ora e ordine diversi): è descrittivo, non una misura appaiata.
+   - Entrambi valgono per il prototipo senza pool fra i servizi (handshake completo a ogni chiamata), non per un deployment ottimizzato.
+3. **Plateau del paper vecchio da rimettere in discussione** (collo di bottiglia in SQLite / evidence service che limita il guadagno, `main_old.tex:503-505`): con D il throughput a 100 writer è circa il 56% sopra il default, quindi parte del plateau veniva dalla spesa per chiamata. **L'uso di CPU del nodo e dei container durante le celle non è stato misurato** (solo il campione di fondo prima di ciascuna cella): con questi dati **non si può dire se a 100 writer il limite sia la CPU o il database.** Non si cambia il testo del paper. Diagnostica proposta, **da autorizzare**: D a 100 writer, 3 celle, campionamento di `/proc/stat` sul nodo e sull'host del generatore e `docker stats` durante la fase cronometrata.
+4. **Prossimi driver:** campionamento di `/proc/stat` sull'host del generatore durante la fase cronometrata. In questo rilancio non c'era; è un limite dichiarato.
+5. **Errori (7 su 644 000).** Un errore anche nel braccio D (4 a 100 writer) indica che la causa non è mTLS. Sostiene l'ipotesi del keep-alive per `ReadError` e `RemoteProtocolError`, ma non la prova, e non spiega `ConnectError` e `ReadTimeout`, che sono segni tipici di sovraccarico. L'assenza di errori nel braccio senza mTLS di FANOUT 10 in M3 (0 su 322 000) era un caso, non una proprietà.
+6. **Igiene.** Nodo a fine run: nessun container `dibtnsm`, 3,6 GB liberi, nessuna directory residua in `/home/ubuntu/snap/docker/3613`.
+
 ## 2. Richiesta unica per i Passi 4-5 (nulla lanciato)
 
 ### 2.0 Nuovo vincolo: B2-partition con netem a mano
