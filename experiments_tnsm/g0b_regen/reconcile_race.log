@@ -1,0 +1,26 @@
+  trial 1/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 2/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 3/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 4/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 5/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 6/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 7/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 8/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 9/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 10/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 11/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 12/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 13/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 14/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 15/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 16/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 17/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 18/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 19/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+  trial 20/20: state=revoked seq=2 (expected state=revoked seq=2) consistent=True
+
+=== 20/20 trials consistent ===
+
+real	0m46.880s
+user	0m19.183s
+sys	0m3.563s
