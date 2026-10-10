@@ -62,3 +62,12 @@ def test_c3_image_pins_uvicorn_and_ships_mtls():
     assert f"uvicorn=={mtls.UVICORN_VERSION}" in dockerfile
     assert "COPY src/dib/registry/distributed/mtls.py /app/dib/registry/distributed/mtls.py" in dockerfile
     assert "COPY src/dib/registry/__init__.py /app/dib/registry/__init__.py" in dockerfile
+
+
+def test_c4_base_image_python312_pinned_by_digest():
+    """C4 (pre-M3/M4 step 3, user decision G1 = Python 3.12): the service image is
+    python:3.12-slim pinned by digest (index digest on Docker Hub, 2026-10-10: amd64
+    image built 2026-10-06 with PYTHON_VERSION=3.12.15, as /opt/conda/envs/dib312)."""
+    first = (DIST / "Dockerfile").read_text().splitlines()[0]
+    assert re.fullmatch(r"FROM python:3\.12-slim@sha256:[0-9a-f]{64}", first), first
+    assert first.endswith("a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1")

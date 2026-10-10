@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
 WORKDIR /app
 # uvicorn is pinned: dib.registry.distributed.mtls subclasses its HTTP protocol (audit 13).
 RUN pip install --no-cache-dir fastapi>=0.111 uvicorn==0.51.0 httpx>=0.27 pydantic>=2
