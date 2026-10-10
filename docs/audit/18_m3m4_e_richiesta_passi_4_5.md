@@ -54,6 +54,20 @@ p50 e p99 (ms), FANOUT 10: a 1 writer 9,3 / 24,2 (off) e 5,5 / 8,1 (on); a 100 w
 - Conseguenza: il confronto mTLS contro plain **non misura il costo di mTLS** a nessun numero di writer; il −17% a 100 writer è un rapporto descrittivo con direzione del bias non determinata (correzione utente). Il 5 ms di p50 non è valutabile.
 - Diagnostica proposta (richiede un OK, dopo la richiesta unica): una misura aggiuntiva a 1 writer che riporti la latenza **per tipo di operazione** nei due modi (il benchmark la calcola ma non la salva), per sapere se il divario sta nelle operazioni sul sito (commit con scrittura SQLite) o anche in quelle su evidence.
 
+### 1.1 Diagnostica dell'anomalia: lettura fissata PRIMA dei risultati (decisione utente, 2026-10-10)
+
+Scritta e committata mentre la diagnostica (`diag_1writer.py`, commit `b18fd1e`, 15 celle) era in corso; **prima di questa scrittura avevo visto due celle** (C a 1 writer 207,9 ops/s e A a 107,0 ops/s, entrambe coincidenti con i valori di M3, quindi senza informazione sulla configurazione B, che è quella che discrimina le righe della tabella). Configurazioni: A = senza mTLS con il lanciatore di default; B = senza mTLS con lo stesso lanciatore del braccio mTLS; C = mTLS.
+
+| Esito a 1 writer | Interpretazione | Azione |
+|---|---|---|
+| **B ≈ C, entrambi molto sopra A** | il lanciatore del server spiega il divario | rilanciare i bracci senza mTLS con la configurazione B (circa 20 celle) come addendum etichettato; il costo di mTLS si misura fra C e B |
+| **A ≈ B, C sopra** | il divario non dipende da quel lanciatore | l'ipotesi resta aperta: nessun costo di mTLS nel paper, causa dichiarata non determinata |
+| **A, B e C simili** | l'anomalia non si riproduce | cercare un fattore di ordine o di stato del nodo nei dati originali di M3 (ad esempio l'alternanza dei bracci) |
+
+Vincoli: 5 ripetizioni in ordine mescolato, potenza limitata per differenze piccole ma una differenza vicina al doppio è visibile. Se i risultati sono ambigui: nessuna configurazione aggiuntiva oltre il limite di un'ora (iniziato alle 21:32), documentare e proseguire. "Simili" e "≈" si leggono con gli IC al 95% sulla differenza delle medie per ripetizione (H-D1 del docstring è la regola operativa).
+
+**Provenienza.** I servizi girano dalla copia `~/dib_tnsm/tree-b18fd1e` sul nodo, creata con `git archive` del commit; il generatore gira in locale importando i moduli una sola volta all'avvio. Gli hash dei file di input si registrano nel manifest della diagnostica.
+
 **Limiti e cautele.**
 - **Regola di scarto non applicata.** Il driver di M3/M4 registra per cella il carico medio e i primi processi per CPU del nodo (`node_load()`), non `other_cores` né `steal_pct` come `experiments_tnsm/common/node_monitor.py`: non si può quindi applicare `discard_rule.json`, e nessuna cella è stata scartata. G4 (nodo a riposo) resta non soddisfatta.
 - Load average a 1 minuto prima di ogni cella: 0,78-6,5; media per braccio 3,5-4,4 (FANOUT 1 off 3,46; FANOUT 1 on 3,62; FANOUT 10 off 4,03; FANOUT 10 on 4,42). Il valore è contaminato dalla cella precedente e dal riavvio del cluster, quindi **non è una misura pulita del carico di fondo**.
