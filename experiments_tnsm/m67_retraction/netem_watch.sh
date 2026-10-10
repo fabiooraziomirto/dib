@@ -35,7 +35,7 @@ signature() {  # "<id> <name>" of the containers of the project, sorted; the onl
 
 if [[ $DRY == 1 ]]; then
   echo "netem_watch (dry run): profile=$PROFILE; containers of project $PROJECT right now (by name):"
-  signature | awk '{print "  " $2}'
+  signature | awk '{print $2}' | sort | sed 's/^/  /'
   bash "$HERE/netem_apply.sh" --dry-run "$PROFILE" || true
   exit 0
 fi
