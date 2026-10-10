@@ -33,6 +33,8 @@ def main() -> int:
     ap.add_argument("--profile-wait", type=float, default=90.0)
     ap.add_argument("--hold", type=float, default=0.0,
                     help="seconds to keep the cluster up after the profile is confirmed, so that the user can run `sudo netem_show.sh` (read-only)")
+    ap.add_argument("--dry-runs-only", action="store_true",
+                    help="bring up the cluster, run ONLY the netem_apply/netem_watch --dry-run outputs and the script hashes, take it down")
     a = ap.parse_args()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -51,6 +53,18 @@ def main() -> int:
     try:
         env.up()
         res["healthy_s"] = env.healthy()
+        if a.dry_runs_only:
+            sd = f"{tree}/experiments_tnsm/m67_retraction"
+            for prof in ["lan", "regional", "wan", "degraded", "extreme", "mixed"]:
+                d = subprocess.run(["bash", f"{sd}/netem_apply.sh", "--dry-run", prof], capture_output=True, text=True)
+                (out / f"apply_{prof}.txt").write_text(d.stdout + d.stderr)
+            for prof, poll in [("wan", "0.5"), ("degraded", "0.5"), ("degraded", "0.1")]:
+                d = subprocess.run(["bash", f"{sd}/netem_watch.sh", "--poll", poll, "--dry-run", prof], capture_output=True, text=True)
+                (out / f"watch_{prof}_poll{poll}.txt").write_text(d.stdout + d.stderr)
+            h = subprocess.run(f"sha256sum {sd}/netem_*.sh", shell=True, capture_output=True, text=True).stdout
+            (out / "sha256_netem_scripts.txt").write_text(h)
+            print(h)
+            return 0
         ok, rtt, bad, timing = m67.wait_profile(env, a.profile, a.profile_wait)
         res.update(rtt_ms=rtt, rtt_check_ok=ok, rtt_check_bad=bad, profile_timing=timing)
         if not ok:
@@ -64,7 +78,7 @@ def main() -> int:
         res["calib_logs"] = json.loads((out / f"calib_logs_{a.profile}.json").read_text())
         gen = f"{home}/dib_tnsm/m67/gen_D_f10_T5.yml"
         dist = f"{tree}/code/src/dib/registry/distributed"
-        r = subprocess.run(["bash", f"{tree}/experiments_tnsm/m67_retraction/calib_ldns.sh", gen, dist, "lan", str(ov)],
+        r = subprocess.run(["bash", f"{tree}/experiments_tnsm/m67_retraction/calib_ldns.sh", gen, dist, a.profile, str(ov)],
                            capture_output=True, text=True, timeout=600)
         (out / f"calib_ldns_{a.profile}.txt").write_text(r.stdout + r.stderr)
         res["calib_ldns_returncode"] = r.returncode
