@@ -349,6 +349,28 @@ A `lan` un tentativo verso un sito fermato fallisce in ~2,6 ms, con errore di ri
 
 **Altre verifiche della parte live del driver, fatte a `lan` (non è un'integrazione completa):** `Env.up()`, `Env.healthy()` (0,82 s) e la sonda RTT (0,05-0,09 ms, `rtt_matches('lan')` vero) funzionano sul nodo; i dry-run di `netem_apply.sh` per tutti i profili elencano solo gli 11 container del progetto (nessuna traccia di k3s o wasmbed); nessun container residuo, nodo a 3,6 GB liberi. Gli episodi B1/B2, la P-log e il campionamento non sono ancora stati eseguiti dal vivo.
 
+### 1.10 Cella di fumo a `lan` (decisione utente B; `smoke_lan_20261010/` 3 episodi, `smoke20_lan_20261010/` 20 episodi × 2 FANOUT; arm D, albero pinnato, nessun sudo)
+
+**Esito.** Nessun `client_timeout` (0 su 43 episodi), nessuna cella segnalata dalla regola di scarto, carico del generatore (= il nodo) trascurabile (processo 0,02 core, host 7-9%), cluster ricreato una sola volta per cella, profilo `lan` confermato dopo 0,21 s (un solo tentativo di sonda RTT; prima misura 0,05-0,09 ms), nessun container residuo. Il riepilogo di cella calcolato sul nodo coincide con il ricalcolo locale (stesso codice dei test offline: `summarize_rows`, `generator_load`, `client_timeout_s`, `rtt_matches`); il budget del manifest per FANOUT 10 a `lan` (timeout 18 s, H 9 s, B_online 10,5 s) coincide con la tabella dell'audit 18 §1.4. Il manifest contiene ora anche `cells_summary` (tempo di conferma del profilo, riepilogo e carico del generatore per cella).
+
+**Concordanza P-log / `dispute-rtt` (gap = risposta di `/dispute` meno l'istante del log dell'ultimo sito, 20 episodi per FANOUT).**
+
+| | FANOUT 1 (siti in sequenza) | FANOUT 10 (in parallelo) |
+|---|---|---|
+| `dispute-rtt` mediano | 41,3 ms | 17,6 ms |
+| ultimo sito, P-log, mediano | 40,0 ms | 15,2 ms |
+| gap min / mediana / p90 / max | 1,01 / 1,46 / 2,06 / 2,30 ms | 1,51 / 2,72 / 3,81 / 4,38 ms |
+| episodi con gap > 3 ms | **0 / 20** | **9 / 20** |
+| gap negativi | 0 | 0 |
+| rapporto di accettazione (p95 log 2,5 ms / ritiro diretto mediano) | **6,3%** (< 10%: P-log accettabile) | **16,4%** (> 10%: P-log non accettabile secondo la regola) |
+
+- Con FANOUT 1 le due misure concordano **entro la calibrazione** (massimo 2,3 ms, p95 della calibrazione dei log 2,0-2,5 ms).
+- **Con FANOUT 10 non concordano entro 3 ms in 9 episodi su 20** (massimo 4,4 ms). Il gap non è un errore di misura puro: contiene tempo reale (la risposta di evidence parte dopo che ha atteso tutti i thread del fan-out) più la latenza dei log (~1,4 ms). Le due misure sono un **intervallo**: P-log ≤ ritiro vero ≤ `dispute-rtt`; l'ampiezza mediana a `lan` è 1,5 ms (FANOUT 1) e 2,7 ms (FANOUT 10). Non ho spostato la tolleranza di 3 ms per rientrarci.
+- A `lan` d = 0, quindi `dispute-rtt` non ha bias di percorso: per FANOUT 10 a `lan` vale il ripiego `dispute-rtt` previsto dalla regola. La regola va valutata **per cella** (profilo e FANOUT), come fa già `summarize_rows`.
+- τ_D per tentativo a `lan` con FANOUT 1: 3,6-4,7 ms fra siti consecutivi (mediana della dispersione prima-ultimo 33,6 ms su 10 siti); è il valore di base per P-a1.
+- Primo episodio di una cella: più lento (37 ms contro 15-16 ms nel campione da 3): effetto di avvio; con 10 o più episodi per cella pesa meno.
+- Rischio noto, non ancora osservato: a `degraded` (perdita ~10% sul round trip) la sonda RTT (mediana di 3 connessioni per sito) può incappare in una ritrasmissione del SYN da 1 s e far fallire un controllo del profilo; il driver ripete la sonda ogni secondo fino a `--profile-wait` (90 s) prima di abortire.
+
 ## 2. Richiesta unica per i Passi 4-5 (nulla lanciato)
 
 ### 2.0 Nuovo vincolo: B2-partition con netem a mano
@@ -388,151 +410,164 @@ Albero: `T=~/dib_tnsm/tree-<commit>`; script in `$T/experiments_tnsm/m67_retract
 - GATE 3 (decisione utente C3): 10 ripetizioni per braccio e test (d-kill) sui due bracci mTLS **uniti**, con nel docstring l'assunzione che mTLS non cambi la convergenza; prima del test unito, un confronto fra i bracci mTLS a T fisso. Se differiscono, il test unito decade: stop e domanda.
 - L'ordine dei blocchi di profilo è randomizzato con seed e registrato nel manifest (C2).
 
-### 2.4 Richiesta unica per i Passi 4-5 (aggiornata la notte del 2026-10-10; nulla lanciato con sudo)
+### 2.4 Richiesta unica per i Passi 4-5 (versione definitiva della notte del 2026-10-10; nulla lanciato con sudo)
 
-Questa sezione sostituisce §2.0-2.3 dove li contraddice. `T=~/dib_tnsm/tree-3c7e12f` (albero pinnato sul nodo, `service.py` `3186304363ed…`); script in `$T/experiments_tnsm/m67_retraction/`.
+`T=~/dib_tnsm/tree-65b0160` (albero pinnato sul nodo; `service.py` `3186304363ed…`; script in `$T/experiments_tnsm/m67_retraction/`).
 
-**Problema trovato e come l'ho risolto nel driver.** Il netem vive nel network namespace di ciascun container e **si perde quando il cluster viene ricreato**. Il driver ricreava il cluster a ogni cella, quindi i profili applicati a mano sarebbero andati persi. Ora:
-- le celle con la stessa chiave (arm, FANOUT, T) condividono un cluster e il cluster è ricreato solo quando la chiave cambia (**6 creazioni per profilo** per B1 + B2-kill, test `test_r7`);
-- dopo ogni creazione il driver aspetta (`--profile-wait`, 90 s) che il profilo dichiarato compaia nell'RTT di connessione TCP evidence → sito (misura senza sudo) e **abortisce il blocco** se non compare;
-- i blocchi `tcpdump` aspettano un file di flag creato dall'utente dopo aver avviato la cattura.
+**Decisione D1: approvata la (a), `netem_watch.sh`.** Lo lanci tu, con sudo, in un terminale visibile, per il solo blocco, e lo termini a fine blocco. Nessuna regola sudoers, nessun demone.
 
-**DECISIONE D1 (tua): come tenere il profilo fra le ricreazioni.**
-- **(a, raccomandata) `netem_watch.sh <profilo>`, un comando sudo per blocco.** Lo lanci tu con sudo e resta in esecuzione per la durata del blocco: applica il profilo a ogni container del progetto `dibtnsm` (riusa `netem_apply.sh`, che rifiuta qualunque container senza la label `com.docker.compose.project=dibtnsm`) e ogni 0,5 s controlla se i container sono cambiati e riapplica entro circa 1 s. Con Ctrl-C rimuove i qdisc. **Nessuna regola sudoers, nessun demone: si ferma quando lo fermi tu.** È un'alternativa a "lancio a mano a blocchi" che resta a blocchi: un solo comando per profilo, ma resta attivo.
-- (b) Applichi tu il profilo a mano dopo ognuna delle 6 creazioni di cluster per profilo: richiede di fermare e riavviare il driver a ogni creazione (12 interventi su `wan` + `degraded`), poco pratico.
-- (c) Un solo cluster per profilo (solo D e un solo T e FANOUT): riduce il disegno (niente C, FANOUT, T).
+**Script da rivedere (il codice è in questo repository, invariato nell'albero del nodo: gli sha256 coincidono):**
 
-**Ordine randomizzato dei blocchi di profilo** (seed 20261014): **`wan`, `lan`, `degraded`**. Va registrato nel manifest di ogni blocco (`seed` e `group_order`); dentro ogni blocco l'ordine delle celle è mescolato con lo stesso seed.
+| Script | sha256 |
+|---|---|
+| `netem_common.sh` (guardia, sorgente degli altri) | `bfce039a5fb5c313b4b63543ae90382a2678b0df8aaa6969ffcd85f5b363d707` |
+| `netem_apply.sh` | `f07dfb3677534af84f9454adf7efecb5c87342e5fd11e64ec10626a605f38a25` |
+| `netem_watch.sh` | `7ec731d6b01f80323e7c0cf70b831453ad2987b1c61424db30d03f297960ee83` |
+| `netem_show.sh` (sola lettura) | `8a0e8ce5533804bae903734456751ab94ff8a02d4b730fc7807591eab95ee2c5` |
 
-**Comandi che lanci tu (tutti con sudo dove indicato). Un blocco per profilo, nell'ordine sopra.**
+Prima di lanciarli: `sha256sum $T/experiments_tnsm/m67_retraction/netem_*.sh` e confronta.
 
-0. **Una volta:** `sudo modprobe sch_netem && lsmod | grep sch_netem` (G3).
+**Cosa garantiscono (verificato da 8 test con `docker` e `nsenter` finti messi per primi nel `PATH`, `test_netem_scripts.py`, 10 esecuzioni su 10 passate):**
+1. **Filtro doppio.** Selezione con `docker ps --filter label=com.docker.compose.project=dibtnsm` (l'unica forma di `docker ps` usata); poi, per ogni container, la label deve valere esattamente `dibtnsm` **e** il nome deve essere uno degli 11 attesi (`dibtnsm-evidence-1`, `dibtnsm-site-0-1` … `dibtnsm-site-9-1`), con pid numerico > 1. Container senza label, k3s, wasmbed e qualunque sosia non vengono mai ispezionati né toccati (N-5).
+2. **Validazione prima dell'applicazione.** Qualunque anomalia (nome inatteso, label diversa, pid non valido, profilo sconosciuto) abortisce **l'intero script prima di toccare un solo namespace** (N-3). Un difetto della versione precedente, in cui un container sospetto fermava solo un sottoprocesso e il ciclo continuava, è stato corretto e coperto da un test.
+3. **Solo `docker ps --filter` e `docker inspect -f <label|pid> <nome atteso>`.** Nessun `docker network`, `exec`, `run`, `rm`, `kill` (N-5). Il ciclo del watcher interroga **solo** `docker ps --filter … --format '{{.ID}} {{.Names}}'` (gli ID cambiano a ogni ricreazione) e, quando la lista cambia, chiama `netem_apply.sh`.
+4. **Solo `tc qdisc replace`** dentro il namespace dei container validati, via `nsenter -t <pid> -n tc qdisc replace dev eth0 root netem …` (N-2). L'unica cancellazione è `tc qdisc del dev eth0 root`, usata dal profilo `lan` e dalla pulizia.
+5. **Ctrl-C ripulisce solo i container validati (test N-4):** il test avvia il watcher con un cluster finto, simula una ricreazione (nuovi ID e pid) e verifica la riapplicazione sui nuovi pid; poi invia SIGINT e verifica che i `tc qdisc del` vadano **esattamente** ai pid del cluster corrente validato, nessun altro pid, e che il watcher esca con codice 0. `nsenter` compare solo con `tc qdisc`.
+6. **Finestra di riapplicazione.** Dopo una ricreazione il cluster gira senza netem fino a ~1 s (polling a 0,5 s più l'applicazione). Il driver non cronometra finché la connessione TCP evidence → sito (misurata con timer, senza sudo) non corrisponde al profilo dichiarato, ripetendo la sonda ogni secondo per `--profile-wait` (90 s), e **abortisce il blocco** altrimenti; per ogni cella il manifest registra `t_created`, `t_profile_confirmed`, `profile_apply_delay_s`, i tentativi e la prima misura (a `lan` 0,21 s). I tempi di applicazione e rimozione che mi comunichi vanno nel manifest con `run.py --record-event applied|removed --profile P --out <dir>` (registrati alla ricezione: un limite superiore del ritardo reale; il watcher stampa anche le ore UTC nel tuo terminale).
 
-1. **Blocco `wan`**
-   1. Anteprima, senza sudo: `bash $T/experiments_tnsm/m67_retraction/netem_watch.sh --dry-run wan`. Output: vedi `calib_lan_20261010/watch_dry_wan.txt` (45 righe) e il dry-run di `netem_apply.sh --dry-run wan` qui sotto.
-   2. `sudo bash $T/experiments_tnsm/m67_retraction/netem_watch.sh wan` (resta in esecuzione; lascialo in un terminale).
-   3. Scrivimi "wan attivo". Io lancio B1 e B2-kill con `run.py --profile wan`; il driver verifica il profilo con l'RTT misurato.
-   4. Quando ti dico che il blocco è finito: Ctrl-C nel terminale del watcher (rimuove i qdisc).
-   5. Verifica: `sudo bash $T/experiments_tnsm/m67_retraction/netem_show.sh` a blocco in corso (una riga `tc qdisc show dev eth0` per container, deve mostrare `netem` con `delay 80ms loss 1%`); a blocco finito non esistono più container `dibtnsm` e quindi nessun netem.
+**Ordine randomizzato dei blocchi (seme 20261014): `wan`, `lan`, `degraded`.** Nel manifest: seme, `group_order`, `cell_order` e `cluster_recreations` (6 creazioni per profilo per B1 + B2-kill; celle con la stessa chiave (arm, FANOUT, T) condividono un cluster).
 
-2. **Blocco `lan`:** nessun comando sudo (il controllo del driver richiede RTT < 3 ms; serve anche da verifica che non resti nessun residuo dei blocchi precedenti).
+**Comandi che lanci tu, in ordine.** Prima di tutto, una volta: `sudo modprobe sch_netem && lsmod | grep sch_netem` (G3).
 
-3. **Blocco `degraded`**
-   1. `bash $T/experiments_tnsm/m67_retraction/netem_watch.sh --dry-run degraded` (output in `watch_dry_degraded.txt`).
-   2. `sudo bash $T/experiments_tnsm/m67_retraction/netem_watch.sh degraded`; scrivimi "degraded attivo".
-   3. **tcpdump nel namespace con `nsenter`**, per D e poi C (il cluster viene ricreato fra i due), 20 tentativi per braccio. Il driver stampa `TCPDUMP_WAIT arm=<D|C> evidence_pid=<pid>` e aspetta. Allora, dalla riga che stampa, con pcap **fuori dal repository**:
-      - `mkdir -p ~/dib_pcap`
-      - `sudo nsenter -t <pid> -n timeout 600 tcpdump -i eth0 -w ~/dib_pcap/dib_degraded_<D|C>.pcap 'tcp port 8000'` (lascialo in un terminale)
-      - `touch ~/dib_tnsm/m67/tcpdump_ready_<D|C>` e annota l'orologio di inizio (`date -u +%FT%TZ`); il driver stampa `CAPTURE_WINDOW_START` e `CAPTURE_WINDOW_END` con l'epoch del nodo.
-      - a fine cattura: `sudo chown ubuntu ~/dib_pcap/*.pcap`.
-   4. Verifica con `netem_show.sh` come sopra (`delay 200ms loss 5%`); alla fine Ctrl-C sul watcher.
+*Blocco `wan`*
+1. Anteprima, senza sudo (output sotto): `bash $T/experiments_tnsm/m67_retraction/netem_watch.sh --dry-run wan`.
+2. `sudo bash $T/experiments_tnsm/m67_retraction/netem_watch.sh wan` (terminale visibile; lascialo in esecuzione; stampa l'ora UTC a ogni riapplicazione).
+3. Scrivimi "wan attivo". Io registro l'evento e lancio, nell'ordine: (i) `calib_profile.py --profile wan --hold 60`, che crea il cluster D, aspetta che l'RTT confermi il profilo, stampa `VERIFY_NOW` e tiene il cluster 60 s; in quel momento tu esegui **`sudo bash $T/experiments_tnsm/m67_retraction/netem_show.sh`** (sola lettura: una riga `tc qdisc show dev eth0` per container, tutte con `netem … delay 80ms … loss 1%`); poi misura L_dns (`calib_ldns.sh`, con netem sul container che risolve, evidence) e la latenza dei log con due container; (ii) **mi fermo e ti riporto L_dns e le soglie P-log di `wan`**; B2-kill non parte finché non decidi su L_dns; (iii) dopo il tuo via, B1 con `run.py --block b1 --profile wan` (solo B1 se L_dns non è deciso).
+4. A blocco finito ti avviso: Ctrl-C nel terminale del watcher (ripulisce) e mi scrivi "wan rimosso".
 
-4. **Pulizia finale.** Dopo l'ultimo Ctrl-C: `docker ps -a --filter label=com.docker.compose.project=dibtnsm` deve essere vuoto (i container, e con loro i netns e i qdisc, non esistono più); `sudo bash $T/experiments_tnsm/m67_retraction/netem_show.sh` non deve stampare nulla. Un residuo contaminerebbe le misure successive: il blocco `lan` di verifica ricontrolla comunque l'RTT.
+*Blocco `lan`* (nessun netem; serve anche da prova di pulizia dopo `wan`)
+5. Io lancio `calib_profile.py --profile lan --hold 60`; durante `VERIFY_NOW` tu esegui `sudo bash $T/experiments_tnsm/m67_retraction/netem_show.sh`: **nessuna riga deve contenere `netem`**. Poi B1 (e il riferimento "default come spedito", poche celle B1 a `lan`).
 
-**Anteprime dei comandi di `netem_apply.sh` (`--dry-run`, cluster D acceso a `lan`; i pid cambiano a ogni creazione, lo script li rilegge sempre; nessun container di altri progetti compare):**
+*Blocco `degraded`*
+6. `bash $T/experiments_tnsm/m67_retraction/netem_watch.sh --dry-run degraded`, poi `sudo bash $T/experiments_tnsm/m67_retraction/netem_watch.sh degraded`; scrivimi "degraded attivo".
+7. Come al punto 3 (`--hold 60` con la verifica `netem_show.sh`, che deve mostrare `delay 200ms … loss 5%`; calibrazioni; stop su L_dns e soglie; poi B1).
+8. **tcpdump nel namespace con `nsenter`**, per i bracci D e C (il cluster è ricreato fra i due), 20 tentativi per braccio (`run.py --block tcpdump --profile degraded`). Per ogni braccio il driver stampa `TCPDUMP_WAIT arm=<D|C> evidence_pid=<pid>` e aspetta; tu, con la riga stampata:
+   - `mkdir -p ~/dib_pcap` (fuori dal repository);
+   - `sudo nsenter -t <pid> -n timeout 600 tcpdump -i eth0 -w ~/dib_pcap/dib_degraded_<D|C>.pcap 'tcp port 8000'` (terminale visibile);
+   - `touch ~/dib_tnsm/m67/tcpdump_ready_<D|C>` e annota `date -u +%FT%TZ`; il driver stampa `CAPTURE_WINDOW_START`/`END` con l'epoch del nodo;
+   - a fine cattura `sudo chown ubuntu ~/dib_pcap/*.pcap`.
+9. A blocco finito: Ctrl-C del watcher; mi scrivi "degraded rimosso".
 
-`lan` (rimozione):
+*Pulizia finale e verifica*
+10. Io lancio un ultimo `calib_profile.py --profile lan --hold 60`; tu esegui `sudo bash $T/experiments_tnsm/m67_retraction/netem_show.sh` durante il `VERIFY_NOW`: nessuna riga con `netem` in nessun namespace del progetto. Dopo il teardown `docker ps -a --filter label=com.docker.compose.project=dibtnsm` deve essere vuoto. Un residuo contaminerebbe le misure successive.
+
+**Anteprime (`--dry-run`) con gli script definitivi, cluster D acceso a `lan`; i pid cambiano a ogni creazione e vengono sempre riletti; tutti e soli gli 11 container del progetto, per nome:**
+
+`netem_watch.sh --dry-run wan` (include il dry-run di `netem_apply.sh wan`):
 ```
-dibtnsm-evidence-1 (pid 623297): no qdisc
-+ nsenter -t 623297 -n tc qdisc del dev eth0 root
-dibtnsm-site-0-1 (pid 623562): no qdisc
-+ nsenter -t 623562 -n tc qdisc del dev eth0 root
-dibtnsm-site-1-1 (pid 623796): no qdisc
-+ nsenter -t 623796 -n tc qdisc del dev eth0 root
-dibtnsm-site-2-1 (pid 624744): no qdisc
-+ nsenter -t 624744 -n tc qdisc del dev eth0 root
-dibtnsm-site-3-1 (pid 626626): no qdisc
-+ nsenter -t 626626 -n tc qdisc del dev eth0 root
-dibtnsm-site-4-1 (pid 625449): no qdisc
-+ nsenter -t 625449 -n tc qdisc del dev eth0 root
-dibtnsm-site-5-1 (pid 624509): no qdisc
-+ nsenter -t 624509 -n tc qdisc del dev eth0 root
-dibtnsm-site-6-1 (pid 624980): no qdisc
-+ nsenter -t 624980 -n tc qdisc del dev eth0 root
-dibtnsm-site-7-1 (pid 624035): no qdisc
-+ nsenter -t 624035 -n tc qdisc del dev eth0 root
-dibtnsm-site-8-1 (pid 625214): no qdisc
-+ nsenter -t 625214 -n tc qdisc del dev eth0 root
-dibtnsm-site-9-1 (pid 625683): no qdisc
-+ nsenter -t 625683 -n tc qdisc del dev eth0 root
-```
-
-`wan`:
-```
-dibtnsm-evidence-1 (pid 623297): delay 80ms loss 1%
-+ nsenter -t 623297 -n tc qdisc del dev eth0 root
-+ nsenter -t 623297 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
-dibtnsm-site-0-1 (pid 623562): delay 80ms loss 1%
-+ nsenter -t 623562 -n tc qdisc del dev eth0 root
-+ nsenter -t 623562 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
-dibtnsm-site-1-1 (pid 623796): delay 80ms loss 1%
-+ nsenter -t 623796 -n tc qdisc del dev eth0 root
-+ nsenter -t 623796 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
-dibtnsm-site-2-1 (pid 624744): delay 80ms loss 1%
-+ nsenter -t 624744 -n tc qdisc del dev eth0 root
-+ nsenter -t 624744 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
-dibtnsm-site-3-1 (pid 626626): delay 80ms loss 1%
-+ nsenter -t 626626 -n tc qdisc del dev eth0 root
-+ nsenter -t 626626 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
-dibtnsm-site-4-1 (pid 625449): delay 80ms loss 1%
-+ nsenter -t 625449 -n tc qdisc del dev eth0 root
-+ nsenter -t 625449 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
-dibtnsm-site-5-1 (pid 624509): delay 80ms loss 1%
-+ nsenter -t 624509 -n tc qdisc del dev eth0 root
-+ nsenter -t 624509 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
-dibtnsm-site-6-1 (pid 624980): delay 80ms loss 1%
-+ nsenter -t 624980 -n tc qdisc del dev eth0 root
-+ nsenter -t 624980 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
-dibtnsm-site-7-1 (pid 624035): delay 80ms loss 1%
-+ nsenter -t 624035 -n tc qdisc del dev eth0 root
-+ nsenter -t 624035 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
-dibtnsm-site-8-1 (pid 625214): delay 80ms loss 1%
-+ nsenter -t 625214 -n tc qdisc del dev eth0 root
-+ nsenter -t 625214 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
-dibtnsm-site-9-1 (pid 625683): delay 80ms loss 1%
-+ nsenter -t 625683 -n tc qdisc del dev eth0 root
-+ nsenter -t 625683 -n tc qdisc add dev eth0 root netem delay 80ms loss 1%
+netem_watch (dry run): profile=wan; containers of project dibtnsm right now (by name):
+  dibtnsm-evidence-1
+  dibtnsm-site-0-1
+  dibtnsm-site-1-1
+  dibtnsm-site-2-1
+  dibtnsm-site-3-1
+  dibtnsm-site-4-1
+  dibtnsm-site-5-1
+  dibtnsm-site-6-1
+  dibtnsm-site-7-1
+  dibtnsm-site-8-1
+  dibtnsm-site-9-1
+netem_apply: profile=wan, 11 of 11 expected containers of project dibtnsm
+dibtnsm-evidence-1 (pid 690552): delay 80ms loss 1%
++ nsenter -t 690552 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-0-1 (pid 691994): delay 80ms loss 1%
++ nsenter -t 691994 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-1-1 (pid 691757): delay 80ms loss 1%
++ nsenter -t 691757 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-2-1 (pid 692939): delay 80ms loss 1%
++ nsenter -t 692939 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-3-1 (pid 690815): delay 80ms loss 1%
++ nsenter -t 690815 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-4-1 (pid 692469): delay 80ms loss 1%
++ nsenter -t 692469 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-5-1 (pid 691050): delay 80ms loss 1%
++ nsenter -t 691050 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-6-1 (pid 691521): delay 80ms loss 1%
++ nsenter -t 691521 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-7-1 (pid 692232): delay 80ms loss 1%
++ nsenter -t 692232 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-8-1 (pid 691285): delay 80ms loss 1%
++ nsenter -t 691285 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-9-1 (pid 692705): delay 80ms loss 1%
++ nsenter -t 692705 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
 ```
 
-`degraded`:
+`netem_watch.sh --dry-run degraded`:
 ```
-dibtnsm-evidence-1 (pid 623297): delay 200ms loss 5%
-+ nsenter -t 623297 -n tc qdisc del dev eth0 root
-+ nsenter -t 623297 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
-dibtnsm-site-0-1 (pid 623562): delay 200ms loss 5%
-+ nsenter -t 623562 -n tc qdisc del dev eth0 root
-+ nsenter -t 623562 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
-dibtnsm-site-1-1 (pid 623796): delay 200ms loss 5%
-+ nsenter -t 623796 -n tc qdisc del dev eth0 root
-+ nsenter -t 623796 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
-dibtnsm-site-2-1 (pid 624744): delay 200ms loss 5%
-+ nsenter -t 624744 -n tc qdisc del dev eth0 root
-+ nsenter -t 624744 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
-dibtnsm-site-3-1 (pid 626626): delay 200ms loss 5%
-+ nsenter -t 626626 -n tc qdisc del dev eth0 root
-+ nsenter -t 626626 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
-dibtnsm-site-4-1 (pid 625449): delay 200ms loss 5%
-+ nsenter -t 625449 -n tc qdisc del dev eth0 root
-+ nsenter -t 625449 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
-dibtnsm-site-5-1 (pid 624509): delay 200ms loss 5%
-+ nsenter -t 624509 -n tc qdisc del dev eth0 root
-+ nsenter -t 624509 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
-dibtnsm-site-6-1 (pid 624980): delay 200ms loss 5%
-+ nsenter -t 624980 -n tc qdisc del dev eth0 root
-+ nsenter -t 624980 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
-dibtnsm-site-7-1 (pid 624035): delay 200ms loss 5%
-+ nsenter -t 624035 -n tc qdisc del dev eth0 root
-+ nsenter -t 624035 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
-dibtnsm-site-8-1 (pid 625214): delay 200ms loss 5%
-+ nsenter -t 625214 -n tc qdisc del dev eth0 root
-+ nsenter -t 625214 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
-dibtnsm-site-9-1 (pid 625683): delay 200ms loss 5%
-+ nsenter -t 625683 -n tc qdisc del dev eth0 root
-+ nsenter -t 625683 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+netem_watch (dry run): profile=degraded; containers of project dibtnsm right now (by name):
+  dibtnsm-evidence-1
+  dibtnsm-site-0-1
+  dibtnsm-site-1-1
+  dibtnsm-site-2-1
+  dibtnsm-site-3-1
+  dibtnsm-site-4-1
+  dibtnsm-site-5-1
+  dibtnsm-site-6-1
+  dibtnsm-site-7-1
+  dibtnsm-site-8-1
+  dibtnsm-site-9-1
+netem_apply: profile=degraded, 11 of 11 expected containers of project dibtnsm
+dibtnsm-evidence-1 (pid 690552): delay 200ms loss 5%
++ nsenter -t 690552 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-0-1 (pid 691994): delay 200ms loss 5%
++ nsenter -t 691994 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-1-1 (pid 691757): delay 200ms loss 5%
++ nsenter -t 691757 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-2-1 (pid 692939): delay 200ms loss 5%
++ nsenter -t 692939 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-3-1 (pid 690815): delay 200ms loss 5%
++ nsenter -t 690815 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-4-1 (pid 692469): delay 200ms loss 5%
++ nsenter -t 692469 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-5-1 (pid 691050): delay 200ms loss 5%
++ nsenter -t 691050 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-6-1 (pid 691521): delay 200ms loss 5%
++ nsenter -t 691521 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-7-1 (pid 692232): delay 200ms loss 5%
++ nsenter -t 692232 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-8-1 (pid 691285): delay 200ms loss 5%
++ nsenter -t 691285 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-9-1 (pid 692705): delay 200ms loss 5%
++ nsenter -t 692705 -n tc qdisc replace dev eth0 root netem delay 200ms loss 5%
 ```
 
-**Calibrazioni che lancio io, senza sudo, dopo che avrai applicato `wan` e `degraded` con il watcher** (un blocco di calibrazione per profilo, a cluster D acceso): L_dns (`calib_ldns.sh <gen.yml> <dist> <profilo> <override>`) e `calib_logs.py --n 100`; da qui le soglie P-log per profilo e la variante di B2 (≤ 50 ms: entrambe; ≥ 0,5 s: solo B2-partition più `kill-min`; nel mezzo decidi tu), committate prima del lancio.
+`netem_apply.sh --dry-run lan` (la rimozione che fa la pulizia):
+```
+netem_apply: profile=lan, 11 of 11 expected containers of project dibtnsm
+dibtnsm-evidence-1 (pid 690552): no qdisc
++ nsenter -t 690552 -n tc qdisc del dev eth0 root
+dibtnsm-site-0-1 (pid 691994): no qdisc
++ nsenter -t 691994 -n tc qdisc del dev eth0 root
+dibtnsm-site-1-1 (pid 691757): no qdisc
++ nsenter -t 691757 -n tc qdisc del dev eth0 root
+dibtnsm-site-2-1 (pid 692939): no qdisc
++ nsenter -t 692939 -n tc qdisc del dev eth0 root
+dibtnsm-site-3-1 (pid 690815): no qdisc
++ nsenter -t 690815 -n tc qdisc del dev eth0 root
+dibtnsm-site-4-1 (pid 692469): no qdisc
++ nsenter -t 692469 -n tc qdisc del dev eth0 root
+dibtnsm-site-5-1 (pid 691050): no qdisc
++ nsenter -t 691050 -n tc qdisc del dev eth0 root
+dibtnsm-site-6-1 (pid 691521): no qdisc
++ nsenter -t 691521 -n tc qdisc del dev eth0 root
+dibtnsm-site-7-1 (pid 692232): no qdisc
++ nsenter -t 692232 -n tc qdisc del dev eth0 root
+dibtnsm-site-8-1 (pid 691285): no qdisc
++ nsenter -t 691285 -n tc qdisc del dev eth0 root
+dibtnsm-site-9-1 (pid 692705): no qdisc
++ nsenter -t 692705 -n tc qdisc del dev eth0 root
+```
 
-**Stato di B1 e B2-kill.** `run.py` pronto ma **non integrato sul nodo**: provati offline le funzioni pure (7 test) e `--dry-run`; dal vivo solo `Env.up`, `healthy`, sonda RTT e calibrazioni. Prima del lancio reale propongo una cella `lan` di fumo (B1 con 3 episodi a `lan`, nessun sudo) per verificare episodio, P-log e campionamento; ti chiedo l'OK.
+**Calibrazioni che lancio io, senza sudo** (dopo il tuo "profilo attivo"): L_dns con netem sul container che risolve confrontato con la baseline a `lan` (2,63 ms, `gaierror(-3)`) e la distribuzione della latenza dei log con due container; nessuna soglia né variante di B2 prima della tua decisione su L_dns (regola: ≤ 50 ms per tentativo, entrambe le varianti; ≥ 0,5 s, solo B2-partition più `kill-min`; nel mezzo ricalcolo la tabella dei costi e decidi tu).
 
-**Decisioni che ti chiedo:** D1 (watcher o altro), l'OK alla cella di fumo a `lan`, l'ordine dei blocchi `wan`, `lan`, `degraded`.
+**Stato di B1 e B2-kill.** Pronti; B1 provato dal vivo a `lan` (§1.10). B2-kill non è stato provato dal vivo e non parte senza la tua decisione su L_dns; B2-partition non è nel primo giro.
