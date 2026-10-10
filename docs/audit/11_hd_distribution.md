@@ -117,7 +117,7 @@ I 4 tipi con h_indep ≥ 3 nel mapping canonico sono `smartthings`, `ring-doorbe
 ### 2.4 Cosa servirebbe (nessun download fatto)
 
 - **Raccolta Ahmed et al. (PETS 2022).** Rispetto a quanto già c'è, aggiunge NCSU 2020/2021 (un laboratorio, due anni: per la regola di sopra conta come **un** sito indipendente), PingPong (UCI, form e licenza non commerciale) e HomeSnitch (su richiesta). In tutto si arriva al più a 7 siti indipendenti. h ≥ 7 (K = 3 a f_s) richiederebbe un tipo presente in tutti e 7: [D] improbabile. Primo passo proposto: il campione NCSU da 476 MB (survey §3.A), fuori dalla repo, per misurare la sovrapposizione dei make-and-model con i 119 tipi. Licenza non dichiarata.
-- **IoT Inspector.** È l'unica fonte con N reale grande (case come siti) e quindi l'unica che può dire se h ≥ 5–7 è realistico. Richiede una richiesta di accesso; formato atteso da `prepare_iot_inspector_conditional.py` (campi `home_id`, `device_id`, `timestamp`, `hostname`, `port`, `protocol`, `vendor`, `product`).
+- **IoT Inspector** (aggiornamento: fuori dal percorso critico, nessuna risposta da due mesi; il repo GitHub citato da Mon(IoT)r IMC23 non espone i dati, vedi `12_test_realistici.md` sez. 1). È l'unica fonte con N reale grande (case come siti) e quindi l'unica che può dire se h ≥ 5–7 è realistico. Richiede una richiesta di accesso; formato atteso da `prepare_iot_inspector_conditional.py` (campi `home_id`, `device_id`, `timestamp`, `hostname`, `port`, `protocol`, `vendor`, `product`).
 - **PCAP grezzi.** Non servono per h_d. Servono solo per rieseguire gli adapter (`prepare_*.py`).
 
 ### 2.4 bis Budget con N ≤ 7 laboratori (decisione utente)
