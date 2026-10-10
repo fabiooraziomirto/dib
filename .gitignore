@@ -36,3 +36,7 @@ states/
 # Local tooling
 *.jar
 .claude/
+
+# mTLS deployment PKI with private keys (code/scripts/make_dist_pki.py, audit 13)
+code/src/dib/registry/distributed/pki/
+code/src/dib/registry/distributed/pki.ca/
