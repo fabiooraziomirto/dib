@@ -1,0 +1,9 @@
+[1/4] C: 457.9 ops/s  node busy 22.2% evidence 1.02 max-site 0.22 cores | generator proc 1.05 cores host 16.4% | node_sat=True gen_sat=True bg_other=0.1041 steal=0.005 errs=0
+[2/4] D: 855.1 ops/s  node busy 20.5% evidence 0.86 max-site 0.19 cores | generator proc 1.12 cores host 16.8% | node_sat=True gen_sat=True bg_other=0.1083 steal=0.01 errs=1
+[3/4] D: 823.2 ops/s  node busy 20.3% evidence 0.84 max-site 0.19 cores | generator proc 1.12 cores host 17.1% | node_sat=False gen_sat=True bg_other=0.249 steal=0.01 errs=0
+[4/4] D: 821.9 ops/s  node busy 20.1% evidence 0.84 max-site 0.18 cores | generator proc 1.13 cores host 16.9% | node_sat=False gen_sat=True bg_other=0.0958 steal=0.005 errs=0
+{
+ "cells": 4,
+ "verdict_D": "mixed picture across cells (saturation not consistent between repetitions)",
+ "verdict_C": "mixed picture: BOTH the node/containers and the generator are near saturation"
+}

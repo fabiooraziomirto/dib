@@ -292,6 +292,34 @@ A 1 writer la differenza sulle operazioni sul sito (+2,4-2,5 ms) coincide con qu
 5. **Errori (7 su 644 000).** Un errore anche nel braccio D (4 a 100 writer) indica che la causa non è mTLS. Sostiene l'ipotesi del keep-alive per `ReadError` e `RemoteProtocolError`, ma non la prova, e non spiega `ConnectError` e `ReadTimeout`, che sono segni tipici di sovraccarico. L'assenza di errori nel braccio senza mTLS di FANOUT 10 in M3 (0 su 322 000) era un caso, non una proprietà.
 6. **Igiene.** Nodo a fine run: nessun container `dibtnsm`, 3,6 GB liberi, nessuna directory residua in `/home/ubuntu/snap/docker/3613`.
 
+### 1.8 Diagnostica CPU a 100 writer, a `lan` (`diag_cpu100_20261010/`, 23:05-23:10; albero `~/dib_tnsm/tree-c1cb846`)
+
+**Fissato prima del lancio** (docstring di `diag_cpu100.py`, commit `c1cb846`): saturazione vicina se un processo singolo (servizio o generatore) usa in media ≥ 0,85 core durante la fase cronometrata, o se un host ha una quota occupata ≥ 80% delle sue vCPU. Nodo saturo = host ≥ 80% oppure un container (evidence o sito) ≥ 0,85 core. Generatore saturo = processo ≥ 0,85 core oppure host ≥ 80%. Tabella: nodo saturo e generatore no → limite CPU; generatore saturo → rapporto C/D distorto dal generatore (direzione ignota), con indicazione del nodo; nessuno dei due → database o serializzazione; entrambi → quadro misto.
+
+**Cosa è stato eseguito.** 4 celle a 100 writer (3 D e 1 C, ordine C D D D), 200 operazioni per worker dopo il warm-up; campionamento ogni secondo sul nodo (`/proc/stat` e `cpu.stat` cgroup v2 di ogni container `dibtnsm`) e sull'host del generatore (`/proc/stat` e il processo del generatore stesso), allineati alla finestra cronometrata con l'offset di orologio misurato (85-88 ms); un `docker stats --no-stream` per cella come controllo. Albero pinnato (`service.py` `3186304363ed…`, `launcher_d.py` `1fe42185…`, `cpu_sampler.py` `c154bd78…` nel manifest). Nessun container residuo; nodo a 3,6 GB liberi.
+
+| Cella | Arm | ops/s | p50 / p99 (ms) | Host nodo (core occupati di 16) | Evidence (core) | Sito max (core) | **Processo del generatore (core)** | Host generatore | Errori |
+|---|---|---|---|---|---|---|---|---|---|
+| 0 | C | 457,9 | 241 / 436 | 22,2% (3,56) | **1,02** | 0,22 | **1,05** | 16,4% | 0 |
+| 1 | D | 855,1 | 125 / 265 | 20,5% (3,29) | 0,865 | 0,19 | **1,12** | 16,8% | 1 (`ReadError`) |
+| 2 | D | 823,2 | 126 / 292 | 20,3% (3,25) | 0,840 | 0,19 | **1,12** | 17,1% | 0 |
+| 3 | D | 821,9 | 127 / 284 | 20,1% (3,22) | 0,839 | 0,18 | **1,13** | 16,9% | 0 |
+
+- Fondo prima della cella: `other_cores` 0,096-0,249, `steal_pct` 0,005-0,010: **nessuna cella segnalata dalla regola di scarto**. Steal durante la cella: nodo 0,07-0,12%, generatore 0,000%.
+- Per operazione: CPU del generatore **1,30-1,38 ms** in D e **2,29 ms** in C; CPU del container evidence 1,01-1,02 ms in D e 2,23 ms in C (core / throughput).
+- `docker stats --no-stream` (un solo campione per cella) non è coerente con i contatori cgroup (mostra, per esempio, 96% su `site-1` e 79% su `site-2` contro ~0,2 core di media): non lo uso; fa fede il cgroup.
+
+**Verdetto secondo la tabella fissata: QUADRO MISTO.**
+- **Generatore:** processo a 1,05-1,13 core in **tutte e 4** le celle (sopra 0,85, al tetto di un singolo core: è un processo Python, GIL), mentre l'**host del generatore è occupato solo al 16-17%** (≈ 2,7 core di 16). Il generatore è quindi vicino alla saturazione a 100 writer in entrambi i bracci.
+- **Nodo:** host al 20-22% (3,2-3,6 core di 16), siti a ~0,2 core ciascuno: **non saturi**. Il container **evidence** è a 0,84-0,87 core in D (a cavallo della soglia di 0,85: due celle sotto, una sopra) e a **1,02 core in C** (saturo, un servizio con un solo processo). Il flag "nodo saturo" del codice non è quindi consistente fra le celle D (vero, falso, falso) solo perché i valori stanno sulla soglia: il verdetto dello script per D è "mixed picture across cells", per C "both".
+- **Non** è il database a dare il limite con questi dati: né il nodo né i siti sono vicini alla saturazione; i limiti osservati sono processi singoli (il generatore in entrambi i bracci, evidence in C e quasi in D).
+
+**Che cosa significa per il rapporto C/D a 100 writer (0,54).** Con il generatore al tetto di un core in entrambi i bracci, il throughput osservato coincide con (core del generatore) / (CPU del generatore per operazione): ≈ 1,12 / 1,33 ms ≈ 840 ops/s in D e ≈ 1,05 / 2,29 ms ≈ 458 ops/s in C. Quindi il rapporto C/D a 100 writer **include il costo di CPU del lato client** (cifratura TLS e gestione dei contesti nel generatore) oltre a quello dei servizi: **non misura soltanto il costo di mTLS dei servizi**. La direzione della distorsione non è determinata da questi dati: in D il container evidence (0,84-0,87 core) è anch'esso vicino alla soglia, quindi D è limitato da due processi contemporaneamente. Il rapporto a 1 e a 10 writer (0,60 e 0,79) è meno esposto, perché lì il generatore non è al tetto (non campionato in M4: non lo escludo).
+
+**Plateau del paper vecchio.** Questi dati **non** supportano "il database limita il guadagno": a 100 writer il tetto osservato è il processo del generatore (sempre) e il processo evidence (in C; quasi in D). Il test non è stato fatto sul braccio di default A. Non si cambia il testo del paper.
+
+**Limiti.** Una sola cella C; soglie euristiche (0,85 core) con evidence esattamente sulla soglia in D; un solo host di generatore; il generatore in M4 era lo stesso processo Python a thread. Causa **del plateau**: determinata solo in parte (tetti di processo singolo del generatore e di evidence; il database non è risultato saturo).
+
 ## 2. Richiesta unica per i Passi 4-5 (nulla lanciato)
 
 ### 2.0 Nuovo vincolo: B2-partition con netem a mano

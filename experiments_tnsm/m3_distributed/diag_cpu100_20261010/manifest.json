@@ -1,0 +1,45 @@
+{
+ "started_utc": "2026-10-10T21:05:35.403484+00:00",
+ "argv": [
+  "experiments_tnsm/m3_distributed/diag_cpu100.py",
+  "--out",
+  "experiments_tnsm/m3_distributed/diag_cpu100_20261010",
+  "--pki-local",
+  "/root/Desktop/DIB/outputs/tnsm_pki/pki",
+  "--tree",
+  "~/dib_tnsm/tree-c1cb846"
+ ],
+ "seed": 20261014,
+ "cell_order": [
+  "C",
+  "D",
+  "D",
+  "D"
+ ],
+ "thresholds": {
+  "proc_cores": 0.85,
+  "host_busy_pct": 80.0
+ },
+ "node_tree": "/home/ubuntu/dib_tnsm/tree-c1cb846",
+ "node_service_sha256": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+ "node_launcher_d_sha256": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+ "node_cpu_sampler_sha256": "c154bd78c09ed77603301fe95ba0ab14cd0763566dd1070cea60d4c0a811bc9b",
+ "local_sha256": {
+  "diag_cpu100.py": "b5fc233eff07c6080840d23af65678a6cf185d29e6dd2a5bd4b49167857647f6",
+  "cpu_sampler.py": "c154bd78c09ed77603301fe95ba0ab14cd0763566dd1070cea60d4c0a811bc9b",
+  "benchmark": "035ab45ea5972fb2bad6a294a5705701e48983f6fcdb45e582e19693b61e9eb5"
+ },
+ "generator_host": "Mirto-LLM-vnet170",
+ "generator_ncpu": 16,
+ "node_ncpu": "16",
+ "disk_node_start": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.6G  97% /",
+ "limit_minutes": 20.0,
+ "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
+ "finished_utc": "2026-10-10T21:10:06.992042+00:00",
+ "disk_node_end": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.6G  97% /",
+ "summary": {
+  "cells": 4,
+  "verdict_D": "mixed picture across cells (saturation not consistent between repetitions)",
+  "verdict_C": "mixed picture: BOTH the node/containers and the generator are near saturation"
+ }
+}
