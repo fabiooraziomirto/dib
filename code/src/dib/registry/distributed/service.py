@@ -102,7 +102,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 
 STATUS_ACTIVE = "active"
@@ -146,6 +146,41 @@ RECONCILE_LOCK_TIMEOUT = _env_float("DIB_DIST_RECONCILE_LOCK_TIMEOUT", 60.0)
 FANOUT_CONCURRENCY = int(os.environ.get("DIB_DIST_FANOUT_CONCURRENCY", "1"))
 if FANOUT_CONCURRENCY < 1:
     raise ValueError("DIB_DIST_FANOUT_CONCURRENCY must be >= 1")
+
+# Mutual TLS and certificate-based authorization (docs/audit/13_mtls_design.md). Off by
+# default: with DIB_DIST_MTLS unset or 0 no request is checked and no outgoing call changes,
+# so the existing tests and results keep their meaning. With DIB_DIST_MTLS=1 the service is
+# served by ``python -m dib.registry.distributed.mtls`` (client certificate required), the
+# caller is the SAN URI of its certificate mapped by DIB_DIST_IDENTITIES, and outgoing calls
+# present DIB_DIST_TLS_CERT. DIB_DIST_TYPE_LIST=1 (requires mTLS) also limits /attest and
+# /dispute to the device types listed for the caller's site (audit 13 sez. 3.2, Q5).
+MTLS = os.environ.get("DIB_DIST_MTLS", "0") == "1"
+TYPE_LIST = os.environ.get("DIB_DIST_TYPE_LIST", "0") == "1"
+if TYPE_LIST and not MTLS:
+    raise ValueError("DIB_DIST_TYPE_LIST=1 requires DIB_DIST_MTLS=1")
+_HTTP_TLS: dict = {}  # extra keyword arguments of every outgoing httpx call
+_identities = None
+if MTLS:
+    from dib.registry.distributed import mtls as _mtls
+
+    _identities = _mtls.Identities(os.environ["DIB_DIST_IDENTITIES"])
+    _HTTP_TLS = {"verify": _mtls.client_context(
+        os.environ["DIB_DIST_TLS_CERT"], os.environ["DIB_DIST_TLS_KEY"], os.environ["DIB_DIST_TLS_CA"])}
+
+
+def _authorize(request: Request, *, roles: tuple[str, ...] = (), site_roles: tuple[str, ...] = (),
+               site: str | None = None) -> dict | None:
+    """None when mTLS is off. Otherwise the caller's mapping entry if its role is in
+    ``roles``, or in ``site_roles`` with the entry's site equal to ``site``; else 403."""
+    if not MTLS:
+        return None
+    entry = _identities.resolve(_mtls.peer_sans(request.scope))
+    if entry is not None and (entry["role"] in roles or (entry["role"] in site_roles and entry.get("site") == site)):
+        return entry
+    raise HTTPException(403, "caller not authorized")
+
+
+_ANY_ROLE = ("member", "operator", "evidence", "consortium_admin")
 
 _BACKOFF_BASE_S = 1.0
 _BACKOFF_CAP_S = 30.0
@@ -346,7 +381,7 @@ if ROLE == "site":
         resp = httpx.get(
             f"{EVIDENCE_URL}/scores",
             params={"device_type": device_type, "endpoint": endpoint, "protocol": protocol, "port": port},
-            timeout=5.0,
+            timeout=5.0, **_HTTP_TLS,
         )
         if resp.status_code == 404:
             return None
@@ -379,7 +414,8 @@ if ROLE == "site":
         )
 
     @app.post("/query")
-    def query_score(req: QueryReq):
+    def query_score(req: QueryReq, request: Request):
+        _authorize(request, site_roles=("operator",), site=_site_id())
         score = _evidence_get_score(req.device_type, req.endpoint, req.protocol, req.port)
         if score is None or not score["accepted"] or score["status"] != STATUS_ACTIVE:
             return {"applied": False}
@@ -400,7 +436,8 @@ if ROLE == "site":
         return {"applied": True, "score_id": score["id"]}
 
     @app.post("/commit")
-    def operator_commit(req: QueryReq):
+    def operator_commit(req: QueryReq, request: Request):
+        _authorize(request, site_roles=("operator",), site=_site_id())
         score = _evidence_get_score(req.device_type, req.endpoint, req.protocol, req.port)
         if score is None or not score["accepted"] or score["status"] != STATUS_ACTIVE:
             raise HTTPException(409, "global evidence is not admissible")
@@ -415,7 +452,8 @@ if ROLE == "site":
         return {"applied": True}
 
     @app.post("/local_revoke")
-    def local_revoke(req: QueryReq):
+    def local_revoke(req: QueryReq, request: Request):
+        _authorize(request, site_roles=("operator",), site=_site_id())
         score = _evidence_get_score(req.device_type, req.endpoint, req.protocol, req.port)
         if score is None:
             raise HTTPException(404, "unknown fact")
@@ -436,7 +474,8 @@ if ROLE == "site":
         return {"applied": True}
 
     @app.post("/local_restore")
-    def local_restore(req: QueryReq):
+    def local_restore(req: QueryReq, request: Request):
+        _authorize(request, site_roles=("operator",), site=_site_id())
         score = _evidence_get_score(req.device_type, req.endpoint, req.protocol, req.port)
         if score is None:
             raise HTTPException(404, "unknown fact")
@@ -456,7 +495,8 @@ if ROLE == "site":
         return {"applied": True}
 
     @app.post("/apply_fanout")
-    def apply_fanout(req: ApplyFanout):
+    def apply_fanout(req: ApplyFanout, request: Request):
+        _authorize(request, roles=("evidence",))
         _site_db.run(lambda con: _apply_fanout_row(con, req.score_id, req.seq, req.event_type, req.target_state))
         return {"applied": True}
 
@@ -499,7 +539,7 @@ if ROLE == "site":
         rounds = 0
         current: list[dict] = []
         for _round in range(_RECONCILE_MAX_ROUNDS):
-            resp = httpx.get(f"{EVIDENCE_URL}/pending/{_site_id()}", timeout=RECONCILE_TIMEOUT)
+            resp = httpx.get(f"{EVIDENCE_URL}/pending/{_site_id()}", timeout=RECONCILE_TIMEOUT, **_HTTP_TLS)
             resp.raise_for_status()
             body = resp.json()
             pending = body["pending"]
@@ -522,7 +562,7 @@ if ROLE == "site":
                 if applied:
                     httpx.post(
                         f"{EVIDENCE_URL}/pending/{_site_id()}/ack", json={"applied": applied},
-                        timeout=RECONCILE_TIMEOUT,
+                        timeout=RECONCILE_TIMEOUT, **_HTTP_TLS,
                     )
         applied_seqs = {}
         if current:
@@ -535,7 +575,7 @@ if ROLE == "site":
     _reconcile_lock = threading.Lock()
 
     @app.post("/reconcile")
-    def reconcile(response: Response):
+    def reconcile(response: Response, request: Request):
         """Pull and apply the queued events now (the automatic trigger runs the same
         _reconcile_once). The JSON body keeps its original single field, ``reconciled`` =
         items of the first pull; the number of rounds that applied items is in the
@@ -543,6 +583,7 @@ if ROLE == "site":
         evidence's current state in X-Dib-Reconcile-Repaired. Serialized with the trigger: a manual call
         may wait up to d_run for a run in progress; after DIB_DIST_RECONCILE_LOCK_TIMEOUT
         it answers 503 (never in normal operation)."""
+        _authorize(request, site_roles=("operator",), site=_site_id())
         if not _reconcile_lock.acquire(timeout=RECONCILE_LOCK_TIMEOUT):
             raise HTTPException(503, "a reconcile is already in progress")
         try:
@@ -557,13 +598,14 @@ if ROLE == "site":
         _trigger = _ReconcileTrigger(RECONCILE_INTERVAL, RECONCILE_JITTER, _reconcile_once, _reconcile_lock)
 
     @app.get("/export_mud")
-    def export_mud(device_type: str, mud_url: str | None = None):
+    def export_mud(request: Request, device_type: str, mud_url: str | None = None):
         """RFC 8520 MUD export for this site alone -- point 5 of the
         reviewer-style critique: reuses the same export_mud_file() the
         centralized registry uses (dib.evaluation.mud_export), fed from THIS
         site's own local_decisions instead of a direct SQLAlchemy session, so
         the OpenWrt/osMUD testbed can be driven from a real site container
         rather than only from the monolithic in-process path."""
+        _authorize(request, site_roles=("operator",), site=_site_id())
         from dib.core.models import EndpointScore
         from dib.evaluation.mud_export import export_mud_file
 
@@ -586,7 +628,8 @@ if ROLE == "site":
         return result.document
 
     @app.get("/state/{score_id}")
-    def get_state(score_id: int):
+    def get_state(score_id: int, request: Request):
+        _authorize(request, roles=("consortium_admin",), site_roles=("operator",), site=_site_id())
         row = _site_db.run(
             lambda con: con.execute(
                 "SELECT state, origin, last_applied_seq FROM local_decisions WHERE score_id=?", (score_id,)
@@ -597,7 +640,8 @@ if ROLE == "site":
         return {"state": row[0], "origin": row[1], "last_applied_seq": row[2]}
 
     @app.get("/health")
-    def health():
+    def health(request: Request):
+        _authorize(request, roles=_ANY_ROLE)
         # In-memory state only: no database, no network (the evidence lock is contended by
         # disputes and GET /pending). last_error is unauthenticated: see PRE_PUBLICATION_CHECKLIST.
         reconcile = _trigger.snapshot() if _trigger is not None else {
@@ -663,7 +707,7 @@ if ROLE == "evidence":
                 resp = httpx.post(
                     f"{_site_url(i)}/apply_fanout",
                     json={"score_id": score_id, "seq": seq, "event_type": event_type, "target_state": target_state},
-                    timeout=_FANOUT_TIMEOUT_S,
+                    timeout=_FANOUT_TIMEOUT_S, **_HTTP_TLS,
                 )
                 if resp.status_code == 200:
                     delivered = True
@@ -702,7 +746,8 @@ if ROLE == "evidence":
             raise first_error
 
     @app.post("/seed")
-    def seed(req: SeedReq):
+    def seed(req: SeedReq, request: Request):
+        _authorize(request, roles=("consortium_admin",))
         def txn(con):
             cur = con.execute(
                 "INSERT INTO scores (device_type, endpoint, protocol, port, status, accepted) VALUES (?, ?, ?, ?, ?, 1)",
@@ -714,14 +759,16 @@ if ROLE == "evidence":
         return {"id": score_id}
 
     @app.get("/scores")
-    def get_score(device_type: str, endpoint: str, protocol: str = "https", port: int = 443):
+    def get_score(request: Request, device_type: str, endpoint: str, protocol: str = "https", port: int = 443):
+        _authorize(request, roles=("member", "operator", "consortium_admin"))
         row = _evidence_db.run(lambda con: _get_score_row(con, device_type, endpoint, protocol, port))
         if row is None:
             raise HTTPException(404, "unknown fact")
         return {"id": row[0], "status": row[1], "disputed_by": row[2], "fanout_seq": row[3], "accepted": bool(row[4])}
 
     @app.get("/scores/by_id/{score_id}")
-    def get_score_by_id(score_id: int):
+    def get_score_by_id(score_id: int, request: Request):
+        _authorize(request, roles=("member", "operator", "consortium_admin"))
         row = _evidence_db.run(
             lambda con: con.execute(
                 "SELECT device_type, endpoint, protocol, port FROM scores WHERE id=?", (score_id,)
@@ -731,8 +778,22 @@ if ROLE == "evidence":
             raise HTTPException(404, "unknown fact")
         return {"device_type": row[0], "endpoint": row[1], "protocol": row[2], "port": row[3]}
 
+    def _reporter(request: Request, req: ActionReq) -> None:
+        """With mTLS the reporting site is the caller's certificate site: a payload site_id
+        naming another site is refused, and with DIB_DIST_TYPE_LIST=1 so is a fact whose
+        device type is not listed for that site. Without mTLS: no-op (trusted harness)."""
+        entry = _authorize(request, roles=("member", "operator"))
+        if entry is None:
+            return
+        if req.site_id is not None and req.site_id != entry.get("site"):
+            raise HTTPException(403, "site_id does not match the caller's certificate")
+        req.site_id = entry.get("site")
+        if TYPE_LIST and req.device_type not in entry.get("device_types", ()):
+            raise HTTPException(403, "device type not declared for the caller's site")
+
     @app.post("/attest")
-    def attest(req: ActionReq):
+    def attest(req: ActionReq, request: Request):
+        _reporter(request, req)
         def txn(con):
             row = _get_score_row(con, req.device_type, req.endpoint, req.protocol, req.port)
             if row is None:
@@ -745,9 +806,10 @@ if ROLE == "evidence":
         return {"applied": True}
 
     @app.post("/dispute")
-    def dispute(req: ActionReq):
-        # Identity is supplied by the trusted harness; deployment authentication
-        # remains outside this prototype. Duplicate reports never add a vote.
+    def dispute(req: ActionReq, request: Request):
+        # Without mTLS the identity is supplied by the trusted harness; with mTLS it is the
+        # caller's certificate (_reporter). Duplicate reports never add a vote.
+        _reporter(request, req)
         if not req.site_id:
             raise HTTPException(422, "a reporting site is required")
         def txn(con):
@@ -779,7 +841,8 @@ if ROLE == "evidence":
         return {"applied": result is not None}
 
     @app.post("/restore")
-    def restore(req: ActionReq):
+    def restore(req: ActionReq, request: Request):
+        _authorize(request, roles=("consortium_admin",))
         def txn(con):
             row = _get_score_row(con, req.device_type, req.endpoint, req.protocol, req.port)
             if row is None:
@@ -808,7 +871,8 @@ if ROLE == "evidence":
     }
 
     @app.get("/pending/{site_id}")
-    def get_pending(site_id: str):
+    def get_pending(site_id: str, request: Request):
+        _authorize(request, site_roles=("member",), site=site_id)
         def txn(con):  # one transaction: the outbox rows and the current state are one snapshot
             rows = con.execute(
                 "SELECT score_id, seq, event_type, target_state FROM pending_fanout WHERE site_id=?", (site_id,)
@@ -829,7 +893,8 @@ if ROLE == "evidence":
         }
 
     @app.post("/pending/{site_id}/ack")
-    def ack_pending(site_id: str, req: AckReq | None = None):
+    def ack_pending(site_id: str, request: Request, req: AckReq | None = None):
+        _authorize(request, site_roles=("member",), site=site_id)
         def txn(con):
             if req is None:  # legacy caller (no body): acknowledge everything queued for the site
                 con.execute("DELETE FROM pending_fanout WHERE site_id=?", (site_id,))
@@ -846,5 +911,6 @@ if ROLE == "evidence":
         return {"acked": True}
 
     @app.get("/health")
-    def health():
+    def health(request: Request):
+        _authorize(request, roles=_ANY_ROLE)
         return {"status": "ok"}
