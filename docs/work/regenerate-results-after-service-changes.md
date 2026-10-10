@@ -15,3 +15,6 @@ Da fare a fine modifiche (ognuno richiede l'ok dell'utente; nessuno è stato lan
 4. `python3 scripts/verify_artifact.py` deve tornare a 262 passed prima di ogni merge.
 
 Regola: **prima di ogni merge controllare `verify_artifact.py`**; non fare merge in `main` con controlli rossi. Integrazione su un branch dedicato (es. `revision-tnsm`); `main` resta la baseline v43.
+
+## Aggiornamento 2026-10-10 (branch `fix-reconcile-trigger-fanout`)
+`service.py` e' cambiato di nuovo (trigger di `/reconcile` e fan-out D11, audit 05): sha256 attuale `f6860bea35baf1ac…` (dopo il fix D12 `ecb06dd3…`; nei risultati `d09f8db5…`). `verify_artifact.py` resta a **260 passed, 2 failed** (gli stessi due). Restano da fare, una volta sola e a fine di tutte le modifiche a `service.py` (mTLS ancora da venire), le stesse rigenerazioni delle voci 1-4 sopra. Per il confronto con il claim 26 generare il compose con `DIB_DIST_RECONCILE_INTERVAL=0` (con il default del compose, T=5, la chiamata esplicita trova `reconciled: 0`).
