@@ -1,0 +1,82 @@
+TLC2 Version 2026.05.26.235334 (rev: 4ba7d88)
+Running breadth-first search Model-Checking with fp 27 and seed 3291183940214627285 with 2 workers on 16 cores with 491MB heap and 64MB offheap memory [pid: 5] (Linux 6.8.12-18-pve amd64, Ubuntu 17.0.19 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /root/Desktop/DIB_reframe/reproducibility/experiments/43_v35_lifecycle/formal/m1/DIB.tla
+Parsing file /tmp/tlc-2906124436043704643/Naturals.tla (jar:file:/root/Desktop/BioDevOps/formal_artifacts/tools/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-2906124436043704643/FiniteSets.tla (jar:file:/root/Desktop/BioDevOps/formal_artifacts/tools/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-2906124436043704643/_TLCTrace.tla (jar:file:/root/Desktop/BioDevOps/formal_artifacts/tools/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-2906124436043704643/Sequences.tla (jar:file:/root/Desktop/BioDevOps/formal_artifacts/tools/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-2906124436043704643/TLC.tla (jar:file:/root/Desktop/BioDevOps/formal_artifacts/tools/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-2906124436043704643/TLCExt.tla (jar:file:/root/Desktop/BioDevOps/formal_artifacts/tools/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-2906124436043704643/Integers.tla (jar:file:/root/Desktop/BioDevOps/formal_artifacts/tools/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Integers
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module DIB
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module DIB
+Starting... (2026-09-05 23:37:42)
+Computing initial states...
+Computed 2 initial states...
+Finished computing initial states: 4 distinct states generated at 2026-09-05 23:37:42.
+Error: Invariant AuthorizationStateCoherence is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ grantValid = ( s1 :> (f1 :> FALSE @@ f2 :> FALSE) @@
+  s2 :> (f1 :> FALSE @@ f2 :> FALSE) @@
+  s3 :> (f1 :> FALSE @@ f2 :> FALSE) )
+/\ state = ( s1 :> (f1 :> "Absent" @@ f2 :> "Absent") @@
+  s2 :> (f1 :> "Absent" @@ f2 :> "Absent") @@
+  s3 :> (f1 :> "Absent" @@ f2 :> "Absent") )
+/\ exported = ( s1 :> (f1 :> FALSE @@ f2 :> FALSE) @@
+  s2 :> (f1 :> FALSE @@ f2 :> FALSE) @@
+  s3 :> (f1 :> FALSE @@ f2 :> FALSE) )
+/\ revokeReason = ( s1 :> (f1 :> "None" @@ f2 :> "None") @@
+  s2 :> (f1 :> "None" @@ f2 :> "None") @@
+  s3 :> (f1 :> "None" @@ f2 :> "None") )
+/\ lastOp = [op |-> "Init", site |-> none, fact |-> nofact]
+/\ disputers = (f1 :> {} @@ f2 :> {})
+/\ admissible = (f1 :> FALSE @@ f2 :> FALSE)
+
+State 2: <Dispute(s1,f1) line 123, col 5 to line 139, col 28 of module DIB>
+/\ grantValid = ( s1 :> (f1 :> FALSE @@ f2 :> FALSE) @@
+  s2 :> (f1 :> FALSE @@ f2 :> FALSE) @@
+  s3 :> (f1 :> FALSE @@ f2 :> FALSE) )
+/\ state = ( s1 :> (f1 :> "Absent" @@ f2 :> "Absent") @@
+  s2 :> (f1 :> "Absent" @@ f2 :> "Absent") @@
+  s3 :> (f1 :> "Absent" @@ f2 :> "Absent") )
+/\ exported = ( s1 :> (f1 :> FALSE @@ f2 :> FALSE) @@
+  s2 :> (f1 :> FALSE @@ f2 :> FALSE) @@
+  s3 :> (f1 :> FALSE @@ f2 :> FALSE) )
+/\ revokeReason = ( s1 :> (f1 :> "None" @@ f2 :> "None") @@
+  s2 :> (f1 :> "None" @@ f2 :> "None") @@
+  s3 :> (f1 :> "None" @@ f2 :> "None") )
+/\ lastOp = [op |-> "Dispute", site |-> s1, fact |-> f1]
+/\ disputers = (f1 :> {s1} @@ f2 :> {})
+/\ admissible = (f1 :> FALSE @@ f2 :> FALSE)
+
+State 3: <Restore(s1,f1) line 146, col 5 to line 160, col 28 of module DIB>
+/\ grantValid = ( s1 :> (f1 :> TRUE @@ f2 :> FALSE) @@
+  s2 :> (f1 :> TRUE @@ f2 :> FALSE) @@
+  s3 :> (f1 :> TRUE @@ f2 :> FALSE) )
+/\ state = ( s1 :> (f1 :> "Absent" @@ f2 :> "Absent") @@
+  s2 :> (f1 :> "Absent" @@ f2 :> "Absent") @@
+  s3 :> (f1 :> "Absent" @@ f2 :> "Absent") )
+/\ exported = ( s1 :> (f1 :> FALSE @@ f2 :> FALSE) @@
+  s2 :> (f1 :> FALSE @@ f2 :> FALSE) @@
+  s3 :> (f1 :> FALSE @@ f2 :> FALSE) )
+/\ revokeReason = ( s1 :> (f1 :> "None" @@ f2 :> "None") @@
+  s2 :> (f1 :> "None" @@ f2 :> "None") @@
+  s3 :> (f1 :> "None" @@ f2 :> "None") )
+/\ lastOp = [op |-> "Restore", site |-> s1, fact |-> f1]
+/\ disputers = (f1 :> {} @@ f2 :> {})
+/\ admissible = (f1 :> FALSE @@ f2 :> FALSE)
+
+285 states generated, 68 distinct states found, 54 states left on queue.
+The depth of the complete state graph search is 3.
+Finished in 00s at (2026-09-05 23:37:42)
+Trace exploration spec path: m1/DIB_TTrace_1788644261.tla
