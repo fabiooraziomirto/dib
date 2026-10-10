@@ -1,6 +1,6 @@
 {
   "scope": "deterministic sequential API/SQLite/MUD ablation; synthetic facts; no timing or gateway claims",
-  "service_sha256": "d09f8db508306344b374b80513e0bb36d35047c062917dc1d984ebf9d58429a3",
+  "service_sha256": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
   "script_sha256": "8387487e799871a4a5ba1bdc1dfbfbe494d4922cba428afeeff83f8ddff51266",
   "cases": [
     {
