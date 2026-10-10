@@ -79,3 +79,17 @@ def test_r6_plan_sizes():
     assert len(r.plan("degraded", ["b2kill"], ["D"])) == 1 * 2 * 2           # k in {1,10}
     assert [c["episodes"] for c in r.plan("degraded", ["b1"], ["D"])] == [50, 50]
     assert len(r.plan("degraded", ["tcpdump"], ["D", "C"])) == 2
+
+
+def test_r7_group_cells_reuse_cluster():
+    import random
+    cells = r.plan("lan", ["b1", "b2kill"], ["D", "C"])
+    groups = r.group_cells(cells, random.Random(1))
+    assert sum(len(g) for _, g in groups) == len(cells)
+    keys = [k for k, _ in groups]
+    # B1: 2 arms x FANOUT {1, 10} at T = 5; B2-kill: 2 arms x T {5, 15} at FANOUT 10 (k loops inside the same cluster);
+    # B1 (FANOUT 10, T = 5) and B2-kill (T = 5) share a key -> 6 cluster creations, not 8
+    assert len(keys) == len(set(keys)) == 6
+    for key, g in groups:
+        assert all((c["arm"], c["fanout"], c["T"]) == key for c in g)
+    assert sorted(len(g) for _, g in groups) == [1, 1, 3, 3, 4, 4]

@@ -13,6 +13,12 @@ difference from M3/M4/M4-rerun (generator on another host); absolute latencies a
 Blocks (the user applies the netem profile by hand, with sudo, one block per profile; this script
 never touches netem; it checks the profile through the TCP connect RTT evidence->site measured
 from inside the evidence container, expected 2d, and aborts the block on a mismatch).
+  NOTE (netem and cluster recreation): the qdisc lives in each container's network namespace and is lost
+  when the cluster is recreated. Cells with the same (arm, FANOUT, T) therefore share one cluster, and
+  the cluster is recreated only when that key changes; after each (re)creation the driver waits
+  (--profile-wait) for the claimed profile to appear in the measured RTT, so that the user's watcher
+  (netem_watch.sh, run by the user with sudo for the duration of a block) or a manual application can
+  catch the new containers. If the profile does not appear in time, the block aborts.
   b1      B1, all sites online (k = 0): per cell (arm, FANOUT in {1,10}), T = 5 s; episodes: 10
           (50 at `degraded`). An episode = fresh fact, setup (seed, query+commit at every site, not
           measured), t0 = time.time() just before POST /dispute (site-1), response time, P-log
@@ -189,6 +195,22 @@ def cell_budget(cell: dict, profile: str) -> dict:
             "B_online_s": round(b_online(profile, arm, cell["T"]), 2),
             "bound_kill_s": round(bound_kill(profile, arm, cell["T"]), 2),
             "D_run_max_s": round(d_run_max(profile, arm), 2)}
+
+
+def group_cells(cells: list[dict], rng: random.Random) -> list[tuple[tuple, list[dict]]]:
+    """Cells that share (arm, FANOUT, T) run on the SAME cluster: netem lives in each container's
+    network namespace and is lost when the cluster is recreated, so the cluster is recreated only when
+    this key changes. Group order and cell order inside a group are shuffled (seed) and recorded."""
+    groups: dict[tuple, list[dict]] = {}
+    for c in cells:
+        groups.setdefault((c["arm"], c["fanout"], c["T"]), []).append(c)
+    keys = list(groups)
+    rng.shuffle(keys)
+    out = []
+    for k in keys:
+        rng.shuffle(groups[k])
+        out.append((k, groups[k]))
+    return out
 
 
 class ClientTimeout(Exception):
@@ -403,6 +425,19 @@ def sha(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
+def wait_profile(env: "Env", profile: str, wait_s: float) -> tuple[bool, dict, list]:
+    """Profile check with a wait: a watcher run by the user (netem_watch.sh) applies the profile to a
+    freshly created container within ~1-2 s; the cluster is measured only once the TCP connect RTT
+    evidence->site matches the claimed profile. No sudo here: it only reads timings."""
+    t0 = time.time()
+    while True:
+        rtt = env.measure_rtt_ms()
+        ok, bad = rtt_matches(profile, rtt)
+        if ok or time.time() - t0 > wait_s:
+            return ok, rtt, bad
+        time.sleep(2.0)
+
+
 def live(a, cells, rng) -> int:
     import node_monitor as nm
     from cpu_sampler import Sampler
@@ -420,62 +455,84 @@ def live(a, cells, rng) -> int:
         for s in ["evidence"] + [f"site-{i}" for i in range(N_SITES)])
     assert Path(f"{tree}/experiments_tnsm/m3_distributed/launcher_d.py").is_file()   # a missing bind source would become a directory
     Path(f"{home}/dib_tnsm/m67/override_d.yml").write_text(override)
+    groups = group_cells(cells, rng)
     manifest = {"started_utc": datetime.now(timezone.utc).isoformat(), "argv": sys.argv, "profile": a.profile, "blocks": a.block,
-                "seed": a.seed, "cell_order": cells, "node_tree": tree, "generator_host": platform.node(),
+                "seed": a.seed, "group_order": [[list(k), len(v)] for k, v in groups],
+                "cell_order": [c for _, g in groups for c in g], "node_tree": tree, "generator_host": platform.node(),
                 "generator_is_node": True, "clock": "time.time() = CLOCK_REALTIME of the node (same clock as docker logs -t)",
-                "plog_thresholds": thresholds, "measure_rule": "per profile from the thresholds file" if thresholds else "dispute-rtt (no P-log calibration applied)",
+                "cluster_recreations": len(groups), "plog_thresholds": thresholds,
+                "measure_rule": "per profile from the thresholds file" if thresholds else "dispute-rtt (no P-log calibration applied)",
                 "node_service_sha256": sha(Path(f"{tree}/code/src/dib/registry/distributed/service.py")),
                 "launcher_d_sha256": sha(Path(f"{tree}/experiments_tnsm/m3_distributed/launcher_d.py")),
                 "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
                 "run_py_sha256": sha(Path(__file__)), "discard_rule": rule,
                 "disk_start": subprocess.run(["df", "-h", "/"], capture_output=True, text=True).stdout.splitlines()[-1]}
     log = (out / "cells.jsonl").open("a")
-    for k, cell in enumerate(cells):
-        arm, T, fo = cell["arm"], cell["T"], cell["fanout"]
+    n_cell = 0
+    total = len(cells)
+    aborted = False
+    for (arm, fo, T), group in groups:
         env = Env(tree, arm, fo, T, pki)
         env.up()
         try:
             ready = env.healthy()
-            bg = nm.idle_window(12.0, project="dibtnsm")
-            flagged = bg["other_cores"] > rule["max_other_cores"] or bg["steal_pct"] > rule["max_steal_pct"]
-            rtt = env.measure_rtt_ms()
-            ok, bad = rtt_matches(a.profile, rtt)
-            rec = {"cell": k, "cell_spec": cell, "profile": a.profile, "ready_s": ready, "background_idle": bg, "flagged_pre": flagged,
-                   "rtt_ms_evidence_to_site": rtt, "profile_check_ok": ok, "profile_check_bad": bad, "budget": cell_budget(cell, a.profile)}
+            ok, rtt, bad = wait_profile(env, a.profile, a.profile_wait)
             if not ok:
-                rec["aborted"] = "profile check failed: the claimed netem profile does not match the measured RTT"
-                log.write(json.dumps(rec) + "\n"); log.flush()
-                print(f"[{k + 1}/{len(cells)}] ABORT profile check: {bad}", flush=True)
+                log.write(json.dumps({"group": [arm, fo, T], "aborted": "profile check failed: the claimed netem profile does not match the measured RTT",
+                                      "rtt_ms_evidence_to_site": rtt, "profile_check_bad": bad}) + "\n")
+                log.flush()
+                print(f"ABORT group {arm} f={fo} T={T}: profile check failed after {a.profile_wait}s: {bad}", flush=True)
+                aborted = True
                 break
-            sampler = Sampler(interval=1.0, project="dibtnsm", pid=os.getpid())
-            sampler.start()
-            t_cell0 = time.time()
-            rows = []
-            tag = f"{a.profile}-{arm}-f{fo}-T{int(T)}"
-            if cell["block"] in ("b1", "tcpdump"):
+            for cell in group:
+                n_cell += 1
+                bg = nm.idle_window(12.0, project="dibtnsm")
+                flagged = bg["other_cores"] > rule["max_other_cores"] or bg["steal_pct"] > rule["max_steal_pct"]
+                rec = {"cell": n_cell, "cell_spec": cell, "profile": a.profile, "ready_s": ready, "background_idle": bg, "flagged_pre": flagged,
+                       "rtt_ms_evidence_to_site": rtt, "profile_check_ok": ok, "budget": cell_budget(cell, a.profile)}
+                tag = f"{a.profile}-{arm}-f{fo}-T{int(T)}"
                 if cell["block"] == "tcpdump":
-                    print(f"CAPTURE_WINDOW_START {time.time():.3f} arm={arm}", flush=True)
-                order = list(range(cell["episodes"]))
-                for e in order:
-                    rows.append(episode_b1(env, a.profile, tag, e, setup=(cell["block"] == "b1")))
-                if cell["block"] == "tcpdump":
-                    print(f"CAPTURE_WINDOW_END {time.time():.3f} arm={arm}", flush=True)
-            else:
-                for t in range(cell["trials"]):
-                    rows.append(trial_b2kill(env, a.profile, cell["k"], t, a.l_dns))
-            t_cell1 = time.time()
-            samples = sampler.stop()
-            rec.update(rows=rows, t_cell=[t_cell0, t_cell1], excluded=sum(1 for r in rows if r.get("excluded")),
-                       generator_samples=samples)
-            log.write(json.dumps(rec) + "\n"); log.flush()
-            print(f"[{k + 1}/{len(cells)}] {cell['block']} {arm} f={fo} T={T} rows={len(rows)} excluded={rec['excluded']} flagged={flagged} "
-                  f"bg_other={bg['other_cores']} steal={bg['steal_pct']}", flush=True)
+                    flag = Path(f"{home}/dib_tnsm/m67/tcpdump_ready_{arm}")
+                    flag.unlink(missing_ok=True)
+                    pid = env.sh("/snap/bin/docker inspect -f '{{.State.Pid}}' dibtnsm-evidence-1").strip()
+                    print(f"TCPDUMP_WAIT arm={arm} evidence_pid={pid}: start the capture, then `touch {flag}` (waiting up to 600 s)", flush=True)
+                    t_w = time.time()
+                    while not flag.exists() and time.time() - t_w < 600:
+                        time.sleep(1.0)
+                    if not flag.exists():
+                        rec["aborted"] = "tcpdump flag not created within 600 s"
+                        log.write(json.dumps(rec) + "\n")
+                        log.flush()
+                        continue
+                    rec["capture_pid"] = pid
+                sampler = Sampler(interval=1.0, project="dibtnsm", pid=os.getpid())
+                sampler.start()
+                t_cell0 = time.time()
+                rows = []
+                if cell["block"] in ("b1", "tcpdump"):
+                    if cell["block"] == "tcpdump":
+                        print(f"CAPTURE_WINDOW_START {time.time():.3f} arm={arm}", flush=True)
+                    for e in range(cell["episodes"]):
+                        rows.append(episode_b1(env, a.profile, tag, e, setup=(cell["block"] == "b1")))
+                    if cell["block"] == "tcpdump":
+                        print(f"CAPTURE_WINDOW_END {time.time():.3f} arm={arm}", flush=True)
+                else:
+                    for t in range(cell["trials"]):
+                        rows.append(trial_b2kill(env, a.profile, cell["k"], t, a.l_dns))
+                t_cell1 = time.time()
+                samples = sampler.stop()
+                rec.update(rows=rows, t_cell=[t_cell0, t_cell1], excluded=sum(1 for r in rows if r.get("excluded")), generator_samples=samples)
+                log.write(json.dumps(rec) + "\n")
+                log.flush()
+                print(f"[{n_cell}/{total}] {cell['block']} {arm} f={fo} T={T} rows={len(rows)} excluded={rec['excluded']} flagged={flagged} "
+                      f"bg_other={bg['other_cores']} steal={bg['steal_pct']}", flush=True)
         finally:
             env.down()
+    manifest["aborted"] = aborted
     manifest["finished_utc"] = datetime.now(timezone.utc).isoformat()
     manifest["disk_end"] = subprocess.run(["df", "-h", "/"], capture_output=True, text=True).stdout.splitlines()[-1]
     (out / "manifest.json").write_text(json.dumps(manifest, indent=1))
-    return 0
+    return 1 if aborted else 0
 
 
 def main() -> int:
@@ -489,6 +546,7 @@ def main() -> int:
     ap.add_argument("--pki", default=str(Path.home() / "dib_tnsm/pki"))
     ap.add_argument("--plog-thresholds", default=None)
     ap.add_argument("--l-dns", type=float, default=None, help="calibrated L_dns (s), for the B2-kill client timeout")
+    ap.add_argument("--profile-wait", type=float, default=90.0, help="seconds to wait for the claimed netem profile to show up in the measured RTT")
     ap.add_argument("--dry-run", action="store_true", help="print the plan and exit; nothing is touched")
     a = ap.parse_args()
     blocks = a.block.split(",")

@@ -1,0 +1,33 @@
+dibtnsm-evidence-1 (pid 623297): delay 200ms loss 5%
++ nsenter -t 623297 -n tc qdisc del dev eth0 root
++ nsenter -t 623297 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-0-1 (pid 623562): delay 200ms loss 5%
++ nsenter -t 623562 -n tc qdisc del dev eth0 root
++ nsenter -t 623562 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-1-1 (pid 623796): delay 200ms loss 5%
++ nsenter -t 623796 -n tc qdisc del dev eth0 root
++ nsenter -t 623796 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-2-1 (pid 624744): delay 200ms loss 5%
++ nsenter -t 624744 -n tc qdisc del dev eth0 root
++ nsenter -t 624744 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-3-1 (pid 626626): delay 200ms loss 5%
++ nsenter -t 626626 -n tc qdisc del dev eth0 root
++ nsenter -t 626626 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-4-1 (pid 625449): delay 200ms loss 5%
++ nsenter -t 625449 -n tc qdisc del dev eth0 root
++ nsenter -t 625449 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-5-1 (pid 624509): delay 200ms loss 5%
++ nsenter -t 624509 -n tc qdisc del dev eth0 root
++ nsenter -t 624509 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-6-1 (pid 624980): delay 200ms loss 5%
++ nsenter -t 624980 -n tc qdisc del dev eth0 root
++ nsenter -t 624980 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-7-1 (pid 624035): delay 200ms loss 5%
++ nsenter -t 624035 -n tc qdisc del dev eth0 root
++ nsenter -t 624035 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-8-1 (pid 625214): delay 200ms loss 5%
++ nsenter -t 625214 -n tc qdisc del dev eth0 root
++ nsenter -t 625214 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%
+dibtnsm-site-9-1 (pid 625683): delay 200ms loss 5%
++ nsenter -t 625683 -n tc qdisc del dev eth0 root
++ nsenter -t 625683 -n tc qdisc add dev eth0 root netem delay 200ms loss 5%

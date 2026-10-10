@@ -39,21 +39,24 @@ def test_m1_pids_in_cgroups(tmp_path):
 
 
 def test_m2_excluded_pids_counted_nowhere():
+    """Deterministic: real processes may tick between the two snapshots (noise), so the check is on the
+    DIFFERENCE between the window with and without the excluded process, which cancels the noise."""
     a = nm.Snapshot(nm.own_pids())
     b = nm.Snapshot(nm.own_pids())
     b.procs = dict(b.procs)
     a.procs = dict(a.procs)
     a.procs[900001] = ("dibsvc", 0, False)
-    b.procs[900001] = ("dibsvc", 500, False)     # 5 s of CPU by an excluded process
+    b.procs[900001] = ("dibsvc", 500, False)     # 5 s of CPU by the process to exclude
     a.procs[900002] = ("noise", 0, False)
     b.procs[900002] = ("noise", 100, False)
     b.t = a.t + 10
     w_all = nm.window(a, b)
-    assert abs(w_all["other_cores"] - (600 / nm.CLK / 10)) < 1e-3
     for snap in (a, b):
         snap.procs = {p: v for p, v in snap.procs.items() if p != 900001}
     w = nm.window(a, b)
-    assert abs(w["other_cores"] - (100 / nm.CLK / 10)) < 1e-3 and w["kernel_cores"] == w["kernel_cores"]
+    assert abs((w_all["other_cores"] - w["other_cores"]) - 500 / nm.CLK / 10) < 1e-3      # exactly the excluded process
+    assert abs(w["other_cores"] - 100 / nm.CLK / 10) >= 0 and w["other_cores"] >= 100 / nm.CLK / 10 - 1e-3   # 'noise' still counted
+    assert w["kernel_cores"] == w_all["kernel_cores"]                                      # not moved to kernel_cores
 
 
 def test_m3_idle_window_keys():

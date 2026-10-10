@@ -1,0 +1,22 @@
+dibtnsm-evidence-1 (pid 623297): no qdisc
++ nsenter -t 623297 -n tc qdisc del dev eth0 root
+dibtnsm-site-0-1 (pid 623562): no qdisc
++ nsenter -t 623562 -n tc qdisc del dev eth0 root
+dibtnsm-site-1-1 (pid 623796): no qdisc
++ nsenter -t 623796 -n tc qdisc del dev eth0 root
+dibtnsm-site-2-1 (pid 624744): no qdisc
++ nsenter -t 624744 -n tc qdisc del dev eth0 root
+dibtnsm-site-3-1 (pid 626626): no qdisc
++ nsenter -t 626626 -n tc qdisc del dev eth0 root
+dibtnsm-site-4-1 (pid 625449): no qdisc
++ nsenter -t 625449 -n tc qdisc del dev eth0 root
+dibtnsm-site-5-1 (pid 624509): no qdisc
++ nsenter -t 624509 -n tc qdisc del dev eth0 root
+dibtnsm-site-6-1 (pid 624980): no qdisc
++ nsenter -t 624980 -n tc qdisc del dev eth0 root
+dibtnsm-site-7-1 (pid 624035): no qdisc
++ nsenter -t 624035 -n tc qdisc del dev eth0 root
+dibtnsm-site-8-1 (pid 625214): no qdisc
++ nsenter -t 625214 -n tc qdisc del dev eth0 root
+dibtnsm-site-9-1 (pid 625683): no qdisc
++ nsenter -t 625683 -n tc qdisc del dev eth0 root
