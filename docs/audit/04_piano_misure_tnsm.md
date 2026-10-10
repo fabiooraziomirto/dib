@@ -140,4 +140,33 @@ Le dipendenze transitive sono state risolte da pip. Fra i 50 pacchetti in comune
 
 - Raggiungibile: `ping -c 5` RTT min/avg/max/mdev = 0,135/0,251/0,448/0,113 ms, 0% perdita; porta 22 aperta.
 - **Accesso SSH non disponibile da questo host.** Con chiave (`id_ed25519_lab`, `BatchMode`): `Permission denied (publickey,password)`. Il nodo accetta password, ma qui mancano `sshpass`, `expect` e `paramiko` per usarla in modo non interattivo.
-- **La caratterizzazione (OS, kernel, `sch_netem`, CPU, RAM, disco, Docker) non è stata fatta.**
+- ~~La caratterizzazione non è stata fatta.~~ **Aggiornamento:** l'utente ha installato la chiave `id_ed25519_lab` con `ssh-copy-id`; `ssh -i ~/.ssh/id_ed25519_lab ubuntu@192.168.100.57 hostname` → `ubuntu`. Caratterizzazione in sola lettura (2026-10-10, ~15:41 ora del nodo):
+
+| Voce | Nodo 192.168.100.57 | Questo host (generatore) |
+|---|---|---|
+| Virtualizzazione | **KVM** (`systemd-detect-virt`) | LXC |
+| OS e kernel | Ubuntu 24.04.3 LTS, 6.8.0-146-generic | Ubuntu 22.04.3, 6.8.12-18-pve |
+| CPU | 16 vCPU "QEMU Virtual CPU version 2.5+" (2 socket × 8 core, 1 thread per core); flag: `aes`, `sse4_2`, **niente AVX2** (modello di CPU generico) | 16 vCPU AMD EPYC 7313 |
+| RAM | **15 GiB** (+3 GiB swap); all'ispezione 3 usati, 12 disponibili | 64 GiB |
+| Disco | ext4 su LVM, 98 GB, **96% occupato, 4,4 GB liberi** | ZFS, 94%, 35 GB liberi |
+| Python | 3.12.3 di sistema (`python3`, `python3.12`) | 3.12.15 in `/opt/conda/envs/dib312` |
+| Docker | 29.8.0 (snap), overlay2, cgroup v2 (systemd); l'utente `ubuntu` è nel gruppo `docker` | 28.2.2 |
+| netem | `sch_netem.ko.zst` presente per il kernel in uso; `tc` presente; **`sudo` richiede la password** (`sudo -n true` fallisce) | — |
+| iperf3 | assente | — |
+| Carico | load average 0,09 / 0,18 / 0,23 | 3,3 / 4,6 / 4,7 |
+| Rete | `ping -c 50 -i 0.2` da questo host: RTT min/avg/max/mdev = 0,077/0,173/0,338/0,057 ms, 0% perdita | — |
+
+**Il nodo non è a riposo.** Ci girano:
+- `k3s server` (~11% CPU) con coredns e metrics-server (interfacce `flannel.1` e `cni0`);
+- il container `wasmbed-registry` (Up), più `wasmbed-renode-device-gateway-1`, `nervous_poincare` e `keep-renode` fermi;
+- sessioni utente attive (VS Code server, `claude`, `codex`, processi `MainThread`), `tailscale0`, un VPN `tun0`, snap di lxd e mosquitto.
+
+Nessuno di questi è stato toccato.
+
+**Conseguenze per le misure [D].**
+1. **Spazio:** 4,4 GB bastano per un'immagine Python dei servizi (stima ~1 GB) e un venv con le dipendenze (~0,5–1 GB), non per dataset. Niente IoT-23 o GothX sul nodo.
+2. **RAM:** 15 GiB. M5 con N = 50 (51 container) è da verificare. GothX (~20 GB) **non ci sta**.
+3. **Rumore:** k3s e le altre sessioni sono un carico di fondo. Il manifest di ogni ripetizione registra `uptime` e i primi processi per CPU del nodo, e servono una regola di scarto concordata e possibilmente una finestra in cui le altre sessioni sono ferme.
+4. **CPU:** il modello QEMU generico (senza AVX2) rende i tempi **non confrontabili** con quelli di questo host o di macchine con passthrough della CPU. Va dichiarato.
+5. **netem (G3):** il modulo c'è, ma la prova richiede `sudo` con password, quindi o la lanci tu o mi dai un modo non interattivo. Resta aperta.
+6. **Python sul nodo:** 3.12.3 contro 3.12.15 qui (stessa minor, patch diversa). Per M1/M2 sul nodo serve un venv con le stesse versioni dei pacchetti (`pip install`): richiede il tuo OK al momento di M1/M2.
