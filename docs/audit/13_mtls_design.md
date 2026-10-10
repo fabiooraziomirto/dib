@@ -210,3 +210,7 @@ Tutti con il servizio in-process o su porte locali, con la CA di test. Ipotesi e
 | `2afdb04` | immagine `python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1` (Python 3.12.15). Cambia anche il braccio senza mTLS | `test_mtls_compose.py::test_c4` |
 
 Suite 448 passed su 3.10 e 3.12. `verify_artifact` sempre 260/2, con gli stessi due controlli della Fase 0 (`scripts/verify_artifact.py:250`, `:323`): stesso valore registrato in `results/` (`d09f8db5…`, v43); cambia solo l'atteso, che è l'hash corrente di `service.py` (`31863043…`).
+
+### 9.2 Freeze (2026-10-10)
+
+Decisione dell'utente: con mTLS completato, `service.py` è **congelato** a sha256 `3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd` (G0 chiusa). Una modifica successiva passa per la regola E di `14_priorita_esperimenti_tnsm.md`, cioè correzione, nuova G0b e nuovo freeze, solo con l'OK dell'utente.

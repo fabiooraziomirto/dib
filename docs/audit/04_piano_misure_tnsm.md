@@ -17,6 +17,11 @@ Fonti lette: `results/concurrency/`, `results/distributed/`, `results/architectu
 
 **Raccomandazione per G1.** (A): il paper dichiara l'ambiente del `pyproject`, e le prestazioni di CPython cambiano fra 3.10 e 3.12. Costo: installare 3.12 in un ambiente separato (conda o venv, fuori dalla repo; **richiede il tuo OK**, regola "non installare dipendenze senza chiedere"), poi rieseguire su 3.12 la suite (412 test) e `verify_artifact.py` prima di qualsiasi misura. Se scegli (B), la modifica a `pyproject.toml` è tua (fuori da `src/`, ma sempre codice).
 
+**Aggiornamento 2026-10-10 (audit 14).**
+- G0 chiusa: `service.py` congelato a sha256 `3186304363ed…`.
+- M1 (configurazione di default) fermato a 40 celle su 50, che si conservano senza analizzarle (`experiments_tnsm/m1_single_node/aborted_20261010/`).
+- Nuovo ordine: G0b, M3/M4, M6/M7 (disegno fattoriale con netem per container), federazione sintetica, M5, M1/M2 ridotti a due bracci. Piano completo e GATE in `14_priorita_esperimenti_tnsm.md`.
+
 ## 1. Cosa è stato misurato e con quali limiti (a)
 
 | Misura | Cosa | Ripetizioni | Codice misurato vs codice attuale | Limiti |
