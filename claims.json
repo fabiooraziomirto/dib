@@ -216,7 +216,7 @@
     {
       "id": "fault_injection_reconciliation",
       "section": "Scalability",
-      "value": "40 trials across four outage scenarios all converge; 0.51 +/- 0.03 s over the three single-event scenarios and 0.50 +/- 0.04 s for the compound outage",
+      "value": "40 trials across four outage scenarios all converge; 0.48 +/- 0.02 s over the three single-event scenarios (30 trials) and 0.51 +/- 0.03 s for the compound outage (10 trials); process restart 0.416 s mean, reconciliation call 0.071 s mean and 0.105 s maximum. Data regenerated on the frozen service.py (Python 3.12, new image, different host) in results/fault_injection/README.md; the comparison with the earlier values (0.51 and 0.50 s, 2026-09-05, Python 3.10, previous service.py) is descriptive only, because machine, image and service.py changed together",
       "result": "results/fault_injection/results.csv, results/fault_injection/trials.csv",
       "generator": "code/scripts/fault_injection_experiment.py",
       "input": "none"
