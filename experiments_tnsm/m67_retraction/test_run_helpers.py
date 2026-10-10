@@ -229,3 +229,20 @@ def test_r15_generator_path_flag_and_concurrent_read_helpers():
     assert r.generator_path_flag({"reused_ok": False, "fresh_ok": True}) is True
     assert r.generator_path_flag({"reused_ok": True, "fresh_ok": None}) is False     # no expectation with TLS fresh
     assert r.generator_path_flag({"reused_ok": True, "fresh_ok": False}) is True
+
+
+def test_r16_queues_must_be_empty_before_t0_and_ack_lines_counted():
+    """Attribution of ack lines to an episode (user point 1, 2026-10-10): an ack line after t0 may belong to an earlier fan-out
+    if that delivery was still queued. Guarantee: before each episode ALL queues (any score) are read; the episode starts
+    only when every queue is empty, otherwise it is excluded as `queues_not_empty_at_start` (never a service failure)."""
+    reads = iter([{0: [1], 1: []}, {0: [1], 1: []}, {0: [], 1: []}])
+    clock = {"t": 0.0}
+    ok, waited = r.wait_queues_empty(lambda: next(reads), timeout=10.0, sleep=lambda s: clock.update(t=clock["t"] + s), now=lambda: clock["t"], poll=0.5)
+    assert ok is True and waited == 1.0
+    clock["t"] = 0.0
+    ok, waited = r.wait_queues_empty(lambda: {0: [1]}, timeout=2.0, sleep=lambda s: clock.update(t=clock["t"] + s), now=lambda: clock["t"], poll=0.5)
+    assert ok is False and waited >= 2.0
+    rows = [_row({3: 1}, {3: 7.0}, {}), {"excluded": True, "excluded_reason": "queues_not_empty_at_start"}]
+    rows[0]["plog_ack_count"] = {3: 2}                                   # two ack lines for the same site: collapsed events visible
+    s = r.summarize_rows(rows, "wan", 2.5)
+    assert s["n_queue_not_clean"] == 1 and s["ack_lines_total"] == 2 and s["ack_lines_max_per_site_episode"] == 2

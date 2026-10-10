@@ -67,7 +67,9 @@ NOT modified here; (c) and (d) unchanged until the tcpdump capture says otherwis
        mixed ~1e-6 (0 observed; >= 2 in the block falsifies), degraded D 0.0063-0.0115 (CP 95% CI
        outside [0.004, 0.015] falsifies), degraded C 0.028-0.064 (outside [0.025, 0.08] falsifies),
        extreme 1 (any direct delivery that succeeds falsifies). CONDITIONAL on the tcpdump
-       calibration; frozen only after it.
+       calibration; frozen only after it. SUPERSEDED AS TO THE OBSERVABLE by prediction_c_observable.md (written before any
+       B1 data): the count is per site and episode (pending collapses per (site, fact)); with k = 1 fan-out per fact in B1 the
+       intervals above are unchanged; ack lines per site-episode are recorded to check that no collapse happens.
   (d)  B2-kill convergence after start <= 1.5 + 0.1T + max(5, D_run_max); T=15 minus T=5 median
        difference in [0, 1.5] s; test on the two arms POOLED only if a preliminary same-T
        comparison of the arms shows no difference, otherwise stop and ask (user decision C3).
@@ -190,6 +192,17 @@ def generator_path_matches(profile: str, gp: dict, mtls: bool) -> dict:
     return {"reused_ok": inside(gp["reused_ms"], d), "fresh_ok": None if mtls else inside(gp["fresh_ms"], 2 * d if d else 0)}
 
 
+def wait_queues_empty(read_fn, timeout: float, sleep=time.sleep, now=time.time, poll: float = 0.5) -> tuple[bool, float]:
+    """Poll read_fn() -> {site: items} (ALL scores) until every queue is empty or `timeout` passes. Returns (clean, waited_s)."""
+    t0 = now()
+    while True:
+        if not any(read_fn().values()):
+            return True, now() - t0
+        if now() - t0 >= timeout:
+            return False, now() - t0
+        sleep(poll)
+
+
 def generator_path_flag(gp: dict) -> bool:
     """True if a measured generator-path value is outside its +-20% expectation (informational, never aborts)."""
     return gp.get("reused_ok") is False or gp.get("fresh_ok") is False
@@ -304,8 +317,12 @@ def summarize_rows(rows: list[dict], profile: str, plog_p95_ms: float = PLOG_P95
     ok = [r for r in rows if not r.get("excluded") and "dispute_rtt_s" in r]
     direct, rtt, diffs, pend = [], [], [], []
     n_read = n_log = undercount = unmeasured = undrained = 0
+    ack_total, ack_max = 0, 0
     for r in ok:
         rtt.append(r["dispute_rtt_s"])
+        for n_ack in (r.get("plog_ack_count") or {}).values():
+            ack_total += n_ack
+            ack_max = max(ack_max, n_ack)
         # Pending count from the evidence LOG (an ack line after t0, or still pending at the deadline); the generator's GET reads are
         # late by up to ~d..2d per read and can miss a drain, so they are only a cross-check (read_undercount_sites).
         read_sites = {i for i, n in (r.get("pending_after_response") or {}).items() if n}
@@ -338,6 +355,8 @@ def summarize_rows(rows: list[dict], profile: str, plog_p95_ms: float = PLOG_P95
            "plog_acceptable_rule_10pct": bool(med_direct and plog_p95_ms / 1000.0 / med_direct < 0.10),
            "dispute_rtt_bias_ratio": (d_gen / med_rtt) if (med_rtt and d_gen) else (0.0 if med_rtt is not None else None),
            "median_pending_withdrawal_s": med_pend, "n_pending_episodes": len(pend),
+           "n_queue_not_clean": sum(1 for r in rows if r.get("excluded_reason") == "queues_not_empty_at_start"),
+           "ack_lines_total": ack_total, "ack_lines_max_per_site_episode": ack_max,
            "n_pending_sites_read": n_read, "n_pending_sites_log": n_log, "read_undercount_sites": undercount,
            "n_pending_unmeasured_episodes": unmeasured, "n_pending_undrained_episodes": undrained,
            "pending_bias_ratio": ((d + 0.05) / med_pend) if med_pend else None}
@@ -453,6 +472,9 @@ class Env:
         with ThreadPoolExecutor(max_workers=len(sites)) as ex:
             return dict(ex.map(one, sites))
 
+    def queues_clean(self, timeout: float) -> tuple[bool, float]:
+        return wait_queues_empty(lambda: self.read_pending(list(range(N_SITES))), timeout)
+
     def measure_generator_path_ms(self, n: int = 5) -> dict:
         """Median GET /health time from the generator (root namespace) to evidence on a reused and on a fresh connection."""
         import statistics
@@ -543,6 +565,11 @@ def episode_b1(env: Env, profile: str, tag: str, e: int, setup: bool = True) -> 
     ep = f"m67-{tag}-{e}.example"
     tmo = client_timeout_s(profile, env.arm, env.fanout)
     try:
+        clean, waited = env.queues_clean(b_online(profile, env.arm, env.T) + 3.0)
+        row["queue_wait_before_s"] = waited
+        if not clean:
+            row.update(excluded=True, excluded_reason="queues_not_empty_at_start")
+            return row
         if setup:
             sid = setup_fact(env, ep, list(range(N_SITES)), 30.0 if profile != "extreme" else 90.0)
         else:
@@ -569,6 +596,7 @@ def episode_b1(env: Env, profile: str, tag: str, e: int, setup: bool = True) -> 
             applied[i] = first_after(parse_post_lines(env.logs(f"dibtnsm-site-{i}-1", t0), "/apply_fanout"), t0)
             acked[i] = first_after([x for x in evlog if x[1] == f"/pending/site-{i}/ack"], t0)
         row["plog_apply_ts"], row["plog_ack_ts"] = applied, acked
+        row["plog_ack_count"] = {i: sum(1 for x in evlog if x[1] == f"/pending/site-{i}/ack" and x[0] >= t0 and x[2] == 200) for i in range(N_SITES)}
         row["withdrawn_plog_s"] = {i: (None if t is None else t - t0) for i, t in applied.items()}
     except ClientTimeout as exc:
         row.update(excluded=True, client_timeout=str(exc)[:200])
@@ -580,6 +608,11 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
     row = {"trial": trial, "k": k, "excluded": False}
     tmo = client_timeout_s(profile, env.arm, env.fanout, l_dns)
     try:
+        clean, waited = env.queues_clean(bound_kill(profile, env.arm, env.T) + 3.0)
+        row["queue_wait_before_s"] = waited
+        if not clean:
+            row.update(excluded=True, excluded_reason="queues_not_empty_at_start")
+            return row
         eps, ids = [f"m67-b2-{env.arm}-T{int(env.T)}-k{k}-t{trial}-{j}.example" for j in range(k)], []
         for ep in eps:
             sid = env.req("POST", f"{env.ev}/seed", "admin", 30.0, json={"device_type": "cam-a", "endpoint": ep}).json()["id"]
