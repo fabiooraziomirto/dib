@@ -16,3 +16,80 @@ Nessun dato nuovo: si riusano i risultati di audit 11 (§2.3 e §2.6). File di a
 - Come ancora si usa la variante "per famiglia", la più favorevole alla guardia fra quelle misurate. [D] Con h ≤ 5, K = 2 a f_s = 0,30 è coperto al più su 2 tipi e K = 3 su nessuno (audit 11 §2.6).
 - **Dichiarazione (piano, Passo 6a):** il Passo 6 con N ≥ 10 esplora una popolazione **più favorevole alla guardia** di quella reale.
 - Estensioni opzionali (PingPong, HomeSnitch): non avviate. Ognuna richiede un OK separato e aggiunge al più un sito.
+
+## 2. GATE 1: definizione di ammissione e regole secondarie (lettura del codice)
+
+**Ammissione [C].** Un fatto e di tipo d è ammesso se e solo se `admit_auto` restituisce vero (`code/src/dib/evaluation/dib.py:22-47`, chiamata a `:286-298`). Servono tutte e quattro le condizioni:
+- |S_e| ≥ m (`:44-45`);
+- classe ∈ {dns, ntp, update, vendor-cloud} (`:19,47`);
+- score ≥ θ;
+- nessuna dispute aperta, sempre falso nello scorer (`:25,47`).
+
+Lo score è α·C_s + β·C_t + γ·C_g (`:272-276`), dove:
+- C_s = |S_e|/|ES_d| in modalità breadth grezza (`:268`);
+- ES_d = tutti i siti con almeno un'osservazione del tipo, avversari compresi (`:195,249`);
+- C_t = min(1, 0,7·giorni + 0,3·volume) (`:269-271`).
+
+**Criterion 1** (audit 09 e 11): con γ = 0 e β = 1 − α, l'evidenza solo avversaria è respinta se K < ⌈5N/12⌉ a (0,6; 0,65); il quorum m = 2 respinge anche K = 1.
+
+**Regole secondarie che possono ammettere un fatto A2 con n_avv < ⌈5N/12⌉:**
+
+| Regola | Dove | Effetto su D0 | Trattamento |
+|---|---|---|---|
+| R1 termine di grafo (γ > 0) | `configs/graph_augmented.yaml` (γ = 0,2, grafo attivo) | il bound non vale più | esclusa: γ = 0 e grafo spento |
+| **R2 trust weighting** | **la configurazione selezionata del paper**, `configs/graph_free_selected.yaml` (`trust_weighted: true`, `LOCKED_CONFIGS.md:12`); C_s pesato (`dib.py:256-259`), con w = min(1, breadth/riferimento) (`trust.py:86-104`) | **sì**: avversari con peso pieno e siti onesti con peso ridotto superano 5/12 con K/N < 5/12 | **D0 ridefinito** (sotto) |
+| R3 denominatore | ES_d conta solo i siti con osservazioni del tipo (`dib.py:195`) | un sito onesto senza osservazioni riduce N | ogni sito onesto ha un'osservazione; N si prende da `eligible_sites` di DIB e si verifica con `assert` |
+| R4 supporto onesto del fatto | |S_e| include i siti onesti | K/N sottostimato | esclusa: endpoint A2 nuovi, `assert supporting_sites == K` |
+| R5 gate di classe | `classify_core` | protegge solo se A2 non è eleggibile | caso peggiore: A2 = vendor-cloud (verificato) |
+
+**Esito del GATE 1: D0 così come scritto nel piano non vale per la configurazione selezionata del paper (R2).** Come richiesto dal GATE:
+- **D0** (piano) si applica alla configurazione a breadth grezza (`configs/graph_free_unweighted_federation.yaml`), cioè quella per cui il paper enuncia Criterion 1 ("raw-breadth shares below 5/12").
+- **D0'** (ridefinito) si applica alla configurazione con trust weighting: nessuna ammissione quando la quota **pesata** degli avversari, Σ_avv w / Σ_ES_d w, è < 5/12.
+- **D0' attende la tua conferma prima di qualsiasi lancio.** [D] Nella costruzione di `bound_grid.population` tutti i siti hanno breadth 1, quindi i pesi sono tutti 1 e D0' coincide con D0: per esercitare R2 serve una costruzione con breadth eterogenee, che non è ancora scritta.
+
+Il docstring di `experiments_tnsm/synthetic_federation/h61a.py` riporta tutto questo con file:riga.
+
+## 3. GATE 4: eccesso atteso con ρ_corr = 0,3 (H6-2), calcolo analitico
+
+- Modello: beta-binomiale con media q e correlazione intra-classe 0,3, cioè a = q(1/ρ − 1) e b = (1 − q)(1/ρ − 1).
+- p_BB = P(K ≥ ⌈5N/12⌉), contro p* binomiale. Potenza = P(il limite CP inferiore supera p*) con n = 20 000 e α = 0,05/59 (scipy, calcolo esatto sulla binomiale del conteggio).
+
+| N | q | p* | p_BB | p_BB/p* | Conteggio minimo per rifiutare | Potenza |
+|---|---|---|---|---|---|---|
+| 5 | 0,3 | 0,163 | 0,256 | 1,6 | 3428 | ≈ 1 |
+| 10 | 0,3 | 0,150 | 0,283 | 1,9 | 3166 | ≈ 1 |
+| 20 | 0,3 | 0,113 | 0,298 | 2,6 | 2409 | ≈ 1 |
+| 5 | 0,2 | 0,0579 | 0,150 | 2,6 | 1264 | ≈ 1 |
+| 50 | 0,3 | 0,0478 | 0,309 | 6,5 | 1052 | ≈ 1 |
+| 10 | 0,2 | 0,0328 | 0,165 | 5,0 | 737 | ≈ 1 |
+| 20 | 0,2 | 0,00998 | 0,173 | 17,3 | 246 | ≈ 1 |
+| 5 | 0,1 | 0,00856 | 0,0636 | 7,4 | 215 | ≈ 1 |
+| 100 | 0,3 | 0,00717 | 0,303 | 42,2 | 183 | ≈ 1 |
+
+**Esito: tutti e 9 i punti sono rilevabili; nessun punto è escluso dalla famiglia H6-2.** [D] La potenza dipende dal modello di correlazione (latente condivisa per tipo); con correlazioni minori l'eccesso si riduce.
+
+## 4. Pre-lancio: pilote (nessun lancio completo)
+
+**H6-1a** (`h61a.py`): pilota con 1000 prove su 3 punti (5:0,3; 20:0,2; 100:0,3), configurazione grezza, 0,8 s.
+- D0: 0 violazioni.
+- Tasso di ammissione condizionato a n_avv ≥ ⌈5N/12⌉ = 1,0, quindi **X_dib = X_gen**: con la collusione totale e ρ = 100, D1 coincide con G-eccesso. [D] D1 non aggiunge informazione oltre a G; il contenuto della prova è D0.
+- Stima del lancio completo (25 punti × 20 000 prove): secondi (lo scorer è memoizzato per (N, K), ed è esatto perché la popolazione è deterministica).
+
+**H6-1b** (`h61b.py`): profili per tipo da UNSW (27 tipi, i 30 endpoint più osservati; cache fuori dalla repo in `/root/Desktop/DIB/outputs/tnsm_synth/`, sha256 del CSV nella cache).
+- Pilota 1: N = 100, presenza 0,8, q = 0,3, 12 repliche con 12 processi in 10,3 s (~10 s a replica, ~7·10⁵ osservazioni, soprattutto il flood).
+- Stima del lancio completo: il costo scala con N × presenza, in media ≈ 0,28 del punto pilota, quindi ≈ 2,8 s a replica × 34 000 / 12 ≈ **2,2 h**.
+
+**Problema di disegno trovato in pilota (blocca il lancio di H6-1b, serve una tua decisione).** Con budget = |coda DIB| e baseline ordinate per **lo stesso score DIB**, il confronto non isola "ammissione contro ranking". Evidenza (replica diagnostica, N = 20, presenza 0,8, q = 0,3, seed 7):
+- coda DIB di 13 fatti, di cui 3 A2: è un tipo con K/N > 5/12, ammesso correttamente secondo Criterion 1;
+- score accettati fra 0,672 e 0,909; score massimo degli A2 = 0,672;
+- i primi 14 fatti per score contengono 9 fatti di classe `other` (score ≈ 0,88), respinti da DIB per il gate di classe;
+- **il prefisso di 13 della ranked union contiene 0 A2**, quindi la differenza (baseline − DIB) è **negativa**.
+
+[D] Ordinando per lo stesso score, un fatto A2 entra nel prefisso solo se il suo score è fra i primi B. Ma con la stessa formula un A2 ha uno score alto solo quando K/N > f*, cioè quando anche DIB lo ammette. Le differenze vengono quindi dal gate di classe e dal riempimento del budget, non dall'ammissione. H6-1b come specificato sarà per lo più non testabile o di segno opposto, per costruzione.
+
+Opzioni (nessuna applicata):
+- **(a)** stesso gate di classe per tutte le baseline: ranked-score coincide quasi con DIB, la differenza va a ≈ 0 e il risultato mostra la tautologia;
+- **(b)** baseline che **non** usano lo score DIB: ranking per volume (osservazioni) o per supporto puro |S_e|, cioè le alternative realistiche che un flood sfrutta; ranked-score resta come controllo. [D] È il confronto che risponde a `main_old.tex:617`;
+- **(c)** budget più grandi della coda DIB (c·B, con c ∈ {2, 5}), cioè un operatore che rivede più fatti.
+
+Raccomandazione: (b) + (c) con il gate di classe applicato a tutti; l'ipotesi H6-1b va riscritta nel docstring prima del lancio.
