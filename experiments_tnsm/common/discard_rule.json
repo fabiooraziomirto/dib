@@ -1,0 +1,9 @@
+{
+ "fixed_before_measuring": "2026-10-10, after the 5-minute no-DIB baseline (experiments_tnsm/node_baseline/baseline_noDIB.json), before any M1/M2 cell",
+ "rule": "a cell is flagged as disturbed if, over the cell window, other_cores > max_other_cores OR steal_pct > max_steal_pct; flagged cells are never dropped: results are reported on all cells and on unflagged cells, with the flagged count",
+ "max_other_cores": 1.0,
+ "max_steal_pct": 2.0,
+ "other_cores_definition": "CPU of user-space processes other than the measuring process (kernel threads excluded, reported as kernel_cores)",
+ "baseline": {"samples": 60, "interval_s": 5, "other_cores": {"median": 0.123, "p95": 0.230, "max": 0.280}, "steal_pct": {"median": 0.013, "p95": 0.013, "max": 0.038}, "load1": {"median": 0.145, "max": 0.26}, "main_process": "k3s-server ~0.10 cores"},
+ "rationale": "1.0 core = 3.6x the baseline maximum and 8x its median: another tenant taking a whole vCPU; 2% steal = 50x the baseline maximum: hypervisor contention"
+}

@@ -1,0 +1,1808 @@
+{
+ "host": {
+  "hostname": "ubuntu",
+  "kernel": "6.8.0-146-generic",
+  "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+  "cpu_model": "QEMU Virtual CPU version 2.5+",
+  "nproc": 16,
+  "mem_total_gib": 15.57,
+  "avx2": false
+ },
+ "seconds": 300,
+ "interval": 5.0,
+ "disk_free_mb": 4461,
+ "samples": [
+  {
+   "t_end_unix": 1791648532.0,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.601,
+   "other_cores": 0.1099,
+   "load1": 0.24,
+   "top": [
+    [
+     "k3s-server",
+     0.0879
+    ],
+    [
+     "containerd",
+     0.01
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "jbd2/dm-0-8",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648537.0,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.751,
+   "other_cores": 0.1379,
+   "load1": 0.22,
+   "top": [
+    [
+     "k3s-server",
+     0.1039
+    ],
+    [
+     "containerd",
+     0.014
+    ],
+    [
+     "containerd-shim",
+     0.006
+    ],
+    [
+     "coredns",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.006
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648542.0,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 1.527,
+   "other_cores": 0.2537,
+   "load1": 0.2,
+   "top": [
+    [
+     "k3s-server",
+     0.2358
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.002
+    ],
+    [
+     "traefik",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648547.0,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.538,
+   "other_cores": 0.1059,
+   "load1": 0.26,
+   "top": [
+    [
+     "k3s-server",
+     0.0819
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "tailscaled",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648552.0,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.651,
+   "other_cores": 0.1239,
+   "load1": 0.24,
+   "top": [
+    [
+     "k3s-server",
+     0.1039
+    ],
+    [
+     "containerd-shim",
+     0.006
+    ],
+    [
+     "containerd",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648557.0,
+   "seconds": 5.006,
+   "steal_pct": 0.0,
+   "busy_pct": 0.663,
+   "other_cores": 0.1139,
+   "load1": 0.22,
+   "top": [
+    [
+     "k3s-server",
+     0.0859
+    ],
+    [
+     "containerd",
+     0.014
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "rcu_preempt",
+     0.002
+    ],
+    [
+     "containerd-shim",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648562.0,
+   "seconds": 5.006,
+   "steal_pct": 0.013,
+   "busy_pct": 0.551,
+   "other_cores": 0.1079,
+   "load1": 0.2,
+   "top": [
+    [
+     "k3s-server",
+     0.0879
+    ],
+    [
+     "metrics-server",
+     0.008
+    ],
+    [
+     "containerd",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "kworker/0:1-events",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648567.0,
+   "seconds": 5.006,
+   "steal_pct": 0.013,
+   "busy_pct": 0.826,
+   "other_cores": 0.1398,
+   "load1": 0.19,
+   "top": [
+    [
+     "k3s-server",
+     0.1079
+    ],
+    [
+     "containerd",
+     0.02
+    ],
+    [
+     "containerd-shim",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "coredns",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648572.0,
+   "seconds": 5.007,
+   "steal_pct": 0.013,
+   "busy_pct": 0.688,
+   "other_cores": 0.1258,
+   "load1": 0.17,
+   "top": [
+    [
+     "k3s-server",
+     0.0979
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "dockerd",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648577.0,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.626,
+   "other_cores": 0.1039,
+   "load1": 0.16,
+   "top": [
+    [
+     "k3s-server",
+     0.0839
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "dockerd",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648582.0,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.738,
+   "other_cores": 0.1179,
+   "load1": 0.15,
+   "top": [
+    [
+     "k3s-server",
+     0.0999
+    ],
+    [
+     "containerd",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "dockerd",
+     0.002
+    ],
+    [
+     "containerd-shim",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648587.0,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.601,
+   "other_cores": 0.1139,
+   "load1": 0.21,
+   "top": [
+    [
+     "k3s-server",
+     0.0919
+    ],
+    [
+     "containerd",
+     0.012
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "systemd-journal",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648592.0,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.563,
+   "other_cores": 0.1059,
+   "load1": 0.2,
+   "top": [
+    [
+     "k3s-server",
+     0.0819
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "rcu_preempt",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648597.0,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.739,
+   "other_cores": 0.1418,
+   "load1": 0.26,
+   "top": [
+    [
+     "k3s-server",
+     0.1119
+    ],
+    [
+     "containerd",
+     0.01
+    ],
+    [
+     "containerd-shim",
+     0.008
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "kcompactd0",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648602.0,
+   "seconds": 5.007,
+   "steal_pct": 0.0,
+   "busy_pct": 0.551,
+   "other_cores": 0.0979,
+   "load1": 0.24,
+   "top": [
+    [
+     "k3s-server",
+     0.0839
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "containerd",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648607.0,
+   "seconds": 5.005,
+   "steal_pct": 0.025,
+   "busy_pct": 0.688,
+   "other_cores": 0.1179,
+   "load1": 0.22,
+   "top": [
+    [
+     "k3s-server",
+     0.0879
+    ],
+    [
+     "containerd",
+     0.014
+    ],
+    [
+     "containerd-shim",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648612.1,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.726,
+   "other_cores": 0.1319,
+   "load1": 0.2,
+   "top": [
+    [
+     "k3s-server",
+     0.1059
+    ],
+    [
+     "containerd",
+     0.01
+    ],
+    [
+     "containerd-shim",
+     0.008
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648617.1,
+   "seconds": 5.006,
+   "steal_pct": 0.013,
+   "busy_pct": 0.751,
+   "other_cores": 0.1318,
+   "load1": 0.19,
+   "top": [
+    [
+     "k3s-server",
+     0.1059
+    ],
+    [
+     "containerd",
+     0.014
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "multipathd",
+     0.002
+    ],
+    [
+     "containerd-shim",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648622.1,
+   "seconds": 5.006,
+   "steal_pct": 0.0,
+   "busy_pct": 0.538,
+   "other_cores": 0.1039,
+   "load1": 0.25,
+   "top": [
+    [
+     "k3s-server",
+     0.0839
+    ],
+    [
+     "containerd",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "local-path-prov",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648627.1,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.751,
+   "other_cores": 0.1299,
+   "load1": 0.23,
+   "top": [
+    [
+     "k3s-server",
+     0.1039
+    ],
+    [
+     "containerd",
+     0.01
+    ],
+    [
+     "containerd-shim",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648632.1,
+   "seconds": 5.006,
+   "steal_pct": 0.013,
+   "busy_pct": 0.663,
+   "other_cores": 0.1218,
+   "load1": 0.21,
+   "top": [
+    [
+     "k3s-server",
+     0.0959
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "metrics-server",
+     0.008
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "dockerd",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648637.1,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 1.791,
+   "other_cores": 0.2298,
+   "load1": 0.2,
+   "top": [
+    [
+     "k3s-server",
+     0.1998
+    ],
+    [
+     "containerd",
+     0.012
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "systemd",
+     0.002
+    ],
+    [
+     "kworker/9:2-events",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648642.1,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.701,
+   "other_cores": 0.1139,
+   "load1": 0.18,
+   "top": [
+    [
+     "k3s-server",
+     0.0919
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "containerd-shim",
+     0.008
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "coredns",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648647.1,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.639,
+   "other_cores": 0.1179,
+   "load1": 0.16,
+   "top": [
+    [
+     "k3s-server",
+     0.0919
+    ],
+    [
+     "containerd",
+     0.012
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "containerd-shim",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648652.1,
+   "seconds": 5.007,
+   "steal_pct": 0.013,
+   "busy_pct": 0.663,
+   "other_cores": 0.1099,
+   "load1": 0.15,
+   "top": [
+    [
+     "k3s-server",
+     0.0899
+    ],
+    [
+     "coredns",
+     0.006
+    ],
+    [
+     "containerd",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "rcu_preempt",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648657.1,
+   "seconds": 5.01,
+   "steal_pct": 0.0,
+   "busy_pct": 0.738,
+   "other_cores": 0.1297,
+   "load1": 0.14,
+   "top": [
+    [
+     "k3s-server",
+     0.0998
+    ],
+    [
+     "containerd",
+     0.014
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "khugepaged",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648662.1,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.839,
+   "other_cores": 0.1419,
+   "load1": 0.13,
+   "top": [
+    [
+     "k3s-server",
+     0.0999
+    ],
+    [
+     "metrics-server",
+     0.012
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "traefik",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648667.1,
+   "seconds": 5.006,
+   "steal_pct": 0.0,
+   "busy_pct": 0.726,
+   "other_cores": 0.1298,
+   "load1": 0.12,
+   "top": [
+    [
+     "k3s-server",
+     0.1039
+    ],
+    [
+     "containerd",
+     0.012
+    ],
+    [
+     "containerd-shim",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "rsyslogd",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648672.1,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.826,
+   "other_cores": 0.1279,
+   "load1": 0.11,
+   "top": [
+    [
+     "k3s-server",
+     0.0999
+    ],
+    [
+     "containerd-shim",
+     0.008
+    ],
+    [
+     "containerd",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648677.1,
+   "seconds": 5.007,
+   "steal_pct": 0.0,
+   "busy_pct": 0.839,
+   "other_cores": 0.1258,
+   "load1": 0.1,
+   "top": [
+    [
+     "k3s-server",
+     0.1019
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "systemd",
+     0.002
+    ],
+    [
+     "kworker/10:2-events",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648682.1,
+   "seconds": 5.006,
+   "steal_pct": 0.013,
+   "busy_pct": 0.713,
+   "other_cores": 0.1099,
+   "load1": 0.09,
+   "top": [
+    [
+     "k3s-server",
+     0.0879
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "systemd",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648687.1,
+   "seconds": 5.007,
+   "steal_pct": 0.0,
+   "busy_pct": 0.839,
+   "other_cores": 0.1558,
+   "load1": 0.08,
+   "top": [
+    [
+     "k3s-server",
+     0.1138
+    ],
+    [
+     "containerd",
+     0.022
+    ],
+    [
+     "containerd-shim",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "rcu_preempt",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648692.2,
+   "seconds": 5.007,
+   "steal_pct": 0.013,
+   "busy_pct": 0.751,
+   "other_cores": 0.1198,
+   "load1": 0.08,
+   "top": [
+    [
+     "k3s-server",
+     0.0899
+    ],
+    [
+     "containerd",
+     0.01
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "tailscaled",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648697.2,
+   "seconds": 5.007,
+   "steal_pct": 0.0,
+   "busy_pct": 0.764,
+   "other_cores": 0.1398,
+   "load1": 0.07,
+   "top": [
+    [
+     "k3s-server",
+     0.1099
+    ],
+    [
+     "containerd",
+     0.012
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "kworker/0:1-ata_sff",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648702.2,
+   "seconds": 5.006,
+   "steal_pct": 0.013,
+   "busy_pct": 0.676,
+   "other_cores": 0.1059,
+   "load1": 0.06,
+   "top": [
+    [
+     "k3s-server",
+     0.0859
+    ],
+    [
+     "containerd",
+     0.006
+    ],
+    [
+     "containerd-shim",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "dockerd",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648707.2,
+   "seconds": 5.006,
+   "steal_pct": 0.013,
+   "busy_pct": 1.251,
+   "other_cores": 0.1418,
+   "load1": 0.06,
+   "top": [
+    [
+     "k3s-server",
+     0.1079
+    ],
+    [
+     "containerd",
+     0.012
+    ],
+    [
+     "containerd-shim",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648712.2,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.576,
+   "other_cores": 0.0979,
+   "load1": 0.05,
+   "top": [
+    [
+     "k3s-server",
+     0.0819
+    ],
+    [
+     "containerd",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "rcu_preempt",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648717.2,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.802,
+   "other_cores": 0.1359,
+   "load1": 0.05,
+   "top": [
+    [
+     "k3s-server",
+     0.0979
+    ],
+    [
+     "containerd",
+     0.014
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "systemd",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648722.2,
+   "seconds": 5.006,
+   "steal_pct": 0.013,
+   "busy_pct": 0.613,
+   "other_cores": 0.1039,
+   "load1": 0.13,
+   "top": [
+    [
+     "k3s-server",
+     0.0879
+    ],
+    [
+     "containerd",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.002
+    ],
+    [
+     "traefik",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648727.2,
+   "seconds": 5.008,
+   "steal_pct": 0.0,
+   "busy_pct": 0.864,
+   "other_cores": 0.1438,
+   "load1": 0.12,
+   "top": [
+    [
+     "k3s-server",
+     0.1018
+    ],
+    [
+     "containerd",
+     0.022
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "containerd-shim",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648732.2,
+   "seconds": 5.005,
+   "steal_pct": 0.038,
+   "busy_pct": 1.477,
+   "other_cores": 0.2577,
+   "load1": 0.11,
+   "top": [
+    [
+     "k3s-server",
+     0.2258
+    ],
+    [
+     "containerd",
+     0.01
+    ],
+    [
+     "containerd-shim",
+     0.008
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648737.2,
+   "seconds": 5.006,
+   "steal_pct": 0.013,
+   "busy_pct": 0.801,
+   "other_cores": 0.1238,
+   "load1": 0.1,
+   "top": [
+    [
+     "k3s-server",
+     0.1019
+    ],
+    [
+     "containerd",
+     0.01
+    ],
+    [
+     "systemd",
+     0.002
+    ],
+    [
+     "dbus-daemon",
+     0.002
+    ],
+    [
+     "coredns",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648742.2,
+   "seconds": 5.007,
+   "steal_pct": 0.0,
+   "busy_pct": 0.538,
+   "other_cores": 0.1099,
+   "load1": 0.09,
+   "top": [
+    [
+     "k3s-server",
+     0.0879
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "rcu_preempt",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648747.2,
+   "seconds": 5.007,
+   "steal_pct": 0.013,
+   "busy_pct": 0.851,
+   "other_cores": 0.1278,
+   "load1": 0.08,
+   "top": [
+    [
+     "k3s-server",
+     0.1039
+    ],
+    [
+     "containerd",
+     0.012
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "tailscaled",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648752.2,
+   "seconds": 5.007,
+   "steal_pct": 0.0,
+   "busy_pct": 0.563,
+   "other_cores": 0.0939,
+   "load1": 0.08,
+   "top": [
+    [
+     "k3s-server",
+     0.0799
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "containerd",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648757.2,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.789,
+   "other_cores": 0.1279,
+   "load1": 0.07,
+   "top": [
+    [
+     "k3s-server",
+     0.0979
+    ],
+    [
+     "containerd",
+     0.014
+    ],
+    [
+     "containerd-shim",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "ModemManager",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648762.2,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.776,
+   "other_cores": 0.1339,
+   "load1": 0.06,
+   "top": [
+    [
+     "k3s-server",
+     0.1059
+    ],
+    [
+     "containerd",
+     0.012
+    ],
+    [
+     "containerd-shim",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648767.2,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.901,
+   "other_cores": 0.0979,
+   "load1": 0.06,
+   "top": [
+    [
+     "k3s-server",
+     0.0719
+    ],
+    [
+     "containerd",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "systemd",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648772.3,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.425,
+   "other_cores": 0.0859,
+   "load1": 0.05,
+   "top": [
+    [
+     "k3s-server",
+     0.0659
+    ],
+    [
+     "containerd",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "rcu_preempt",
+     0.002
+    ],
+    [
+     "tailscaled",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648777.3,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.802,
+   "other_cores": 0.1299,
+   "load1": 0.05,
+   "top": [
+    [
+     "k3s-server",
+     0.0999
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "containerd-shim",
+     0.006
+    ],
+    [
+     "coredns",
+     0.006
+    ],
+    [
+     "metrics-server",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648782.3,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.688,
+   "other_cores": 0.1239,
+   "load1": 0.2,
+   "top": [
+    [
+     "k3s-server",
+     0.1019
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "traefik",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648787.3,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.839,
+   "other_cores": 0.1299,
+   "load1": 0.19,
+   "top": [
+    [
+     "k3s-server",
+     0.0999
+    ],
+    [
+     "containerd",
+     0.01
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "systemd",
+     0.002
+    ],
+    [
+     "dbus-daemon",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648792.3,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.55,
+   "other_cores": 0.0919,
+   "load1": 0.17,
+   "top": [
+    [
+     "k3s-server",
+     0.0699
+    ],
+    [
+     "containerd",
+     0.006
+    ],
+    [
+     "containerd-shim",
+     0.006
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648797.3,
+   "seconds": 5.006,
+   "steal_pct": 0.0,
+   "busy_pct": 0.701,
+   "other_cores": 0.1139,
+   "load1": 0.16,
+   "top": [
+    [
+     "k3s-server",
+     0.0839
+    ],
+    [
+     "containerd",
+     0.012
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "systemd",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648802.3,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.475,
+   "other_cores": 0.0739,
+   "load1": 0.15,
+   "top": [
+    [
+     "k3s-server",
+     0.0619
+    ],
+    [
+     "containerd",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "snapd",
+     0.002
+    ],
+    [
+     "metrics-server",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648807.3,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 0.613,
+   "other_cores": 0.1019,
+   "load1": 0.13,
+   "top": [
+    [
+     "k3s-server",
+     0.0699
+    ],
+    [
+     "containerd",
+     0.012
+    ],
+    [
+     "containerd-shim",
+     0.004
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "migration/11",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648812.3,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 1.665,
+   "other_cores": 0.2797,
+   "load1": 0.12,
+   "top": [
+    [
+     "k3s-server",
+     0.2537
+    ],
+    [
+     "metrics-server",
+     0.006
+    ],
+    [
+     "dockerd",
+     0.004
+    ],
+    [
+     "containerd",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648817.3,
+   "seconds": 5.005,
+   "steal_pct": 0.0,
+   "busy_pct": 1.002,
+   "other_cores": 0.1458,
+   "load1": 0.11,
+   "top": [
+    [
+     "k3s-server",
+     0.1139
+    ],
+    [
+     "containerd",
+     0.016
+    ],
+    [
+     "metrics-server",
+     0.004
+    ],
+    [
+     "kworker/0:1-events",
+     0.002
+    ],
+    [
+     "ksoftirqd/0",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648822.3,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 0.576,
+   "other_cores": 0.0919,
+   "load1": 0.1,
+   "top": [
+    [
+     "k3s-server",
+     0.0739
+    ],
+    [
+     "metrics-server",
+     0.008
+    ],
+    [
+     "containerd",
+     0.006
+    ],
+    [
+     "containerd-shim",
+     0.002
+    ],
+    [
+     "coredns",
+     0.002
+    ]
+   ]
+  },
+  {
+   "t_end_unix": 1791648827.3,
+   "seconds": 5.005,
+   "steal_pct": 0.013,
+   "busy_pct": 1.064,
+   "other_cores": 0.1019,
+   "load1": 0.1,
+   "top": [
+    [
+     "k3s-server",
+     0.0759
+    ],
+    [
+     "containerd",
+     0.008
+    ],
+    [
+     "containerd-shim",
+     0.004
+    ],
+    [
+     "coredns",
+     0.004
+    ],
+    [
+     "systemd",
+     0.002
+    ]
+   ]
+  }
+ ]
+}

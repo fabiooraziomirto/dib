@@ -170,3 +170,26 @@ Nessuno di questi è stato toccato.
 4. **CPU:** il modello QEMU generico (senza AVX2) rende i tempi **non confrontabili** con quelli di questo host o di macchine con passthrough della CPU. Va dichiarato.
 5. **netem (G3):** il modulo c'è, ma la prova richiede `sudo` con password, quindi o la lanci tu o mi dai un modo non interattivo. Resta aperta.
 6. **Python sul nodo:** 3.12.3 contro 3.12.15 qui (stessa minor, patch diversa). Per M1/M2 sul nodo serve un venv con le stesse versioni dei pacchetti (`pip install`): richiede il tuo OK al momento di M1/M2.
+
+### 7.3 G4 non soddisfatta: baseline del nodo e regola di scarto (fissata prima di M1/M2)
+
+**G4 (host a riposo) non è soddisfatta** sul nodo 192.168.100.57: ci girano k3s, un container registry e altre sessioni utente, che per decisione dell'utente non si toccano. È dichiarato anche nel manifest di ogni misura (`g4_host_quiet`).
+
+**Baseline senza DIB.** 2026-10-10 dalle 16:08:46 UTC, 300 s, un campione ogni 5 s (60 campioni). Script `experiments_tnsm/common/node_monitor.py baseline`, dati in `experiments_tnsm/node_baseline/baseline_noDIB.json`.
+
+| Grandezza | mediana | p95 | max |
+|---|---|---|---|
+| `other_cores` (CPU dei processi utente, in core) | 0,123 | 0,230 | 0,280 |
+| `steal_pct` | 0,013 | 0,013 | 0,038 |
+| `busy_pct` (tutte le vCPU) | 0,73 | 1,48 | 1,79 |
+| `load1` | 0,145 | 0,24 | 0,26 |
+
+Processo principale: `k3s-server`, ~0,10 core in media, poi containerd e metrics-server.
+
+**Regola (`experiments_tnsm/common/discard_rule.json`, committata prima della prima cella).** Una cella è *disturbata* se nella sua finestra (dall'inizio del warm-up alla fine) `other_cores` > **1,0 core** oppure `steal_pct` > **2%**:
+- 1,0 core vale 3,6 volte il massimo della baseline e 8 volte la mediana, cioè un altro tenant che occupa un'intera vCPU;
+- 2% di steal vale 50 volte il massimo della baseline.
+
+`other_cores` esclude i thread del kernel, che durante una cella fanno soprattutto I/O causato da DIB; sono registrati a parte come `kernel_cores`.
+
+Per ogni cella si registrano prima (2 s), durante e dopo (2 s): load, steal, `busy_pct`, `other_cores`, `kernel_cores` e i 5 processi non DIB con più CPU, oltre allo spazio libero su disco. **Nessuna cella viene scartata in silenzio:** i risultati si riportano su tutte le celle e su quelle non segnalate, con il numero delle segnalate.
