@@ -1,0 +1,205 @@
+{
+ "cells": 15,
+ "stopped_reason": null,
+ "throughput": {
+  "1": {
+   "A": [
+    115.14661787974018,
+    112.58180579438236,
+    117.51144628315599
+   ],
+   "C": [
+    214.6420370578199,
+    206.49884705525608,
+    222.70122313175875
+   ],
+   "D": [
+    351.5656721924797,
+    345.43271869855965,
+    358.31806271255715
+   ]
+  },
+  "10": {
+   "A": [
+    297.1684143608336,
+    286.2578832929695,
+    306.34306130276667
+   ],
+   "C": [
+    443.9742202380403,
+    440.84341556930235,
+    446.1260944962443
+   ],
+   "D": [
+    579.1931617919997,
+    566.8739957774984,
+    588.7338423683242
+   ]
+  }
+ },
+ "per_op_p50_ms": {
+  "A_w1": {
+   "attest": 3.8,
+   "commit": 9.39,
+   "contribute": 0.0,
+   "dispute": 1.41,
+   "query": 9.67,
+   "restore": 1.36
+  },
+  "A_w10": {
+   "attest": 4.52,
+   "commit": 43.44,
+   "contribute": 0.0,
+   "dispute": 2.41,
+   "query": 43.73,
+   "restore": 2.49
+  },
+  "C_w1": {
+   "attest": 3.64,
+   "commit": 5.51,
+   "contribute": 0.0,
+   "dispute": 1.31,
+   "query": 5.6,
+   "restore": 1.31
+  },
+  "C_w10": {
+   "attest": 8.71,
+   "commit": 27.29,
+   "contribute": 0.0,
+   "dispute": 6.78,
+   "query": 27.63,
+   "restore": 6.63
+  },
+  "D_w1": {
+   "attest": 3.36,
+   "commit": 3.15,
+   "contribute": 0.0,
+   "dispute": 1.33,
+   "query": 3.25,
+   "restore": 1.31
+  },
+  "D_w10": {
+   "attest": 4.79,
+   "commit": 21.44,
+   "contribute": 0.0,
+   "dispute": 2.79,
+   "query": 22.41,
+   "restore": 2.72
+  }
+ },
+ "classification_1writer": "D>=C: mechanism confirmed",
+ "saving_ms_w1": {
+  "expected_from_microbench": 6.15,
+  "observed_A_minus_D": 6.330000000000001,
+  "observed_A_minus_C": 3.9750000000000014
+ },
+ "apply_fanout_site0_by_cell": [
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  },
+  {
+   "after_seed": 0,
+   "w1_after_warmup": 1,
+   "w1_after_timed": 1,
+   "w10_after_warmup": 6,
+   "w10_after_timed": 6
+  }
+ ],
+ "background_idle_other_cores_max": 0.2107,
+ "background_idle_steal_max": 0.042
+}

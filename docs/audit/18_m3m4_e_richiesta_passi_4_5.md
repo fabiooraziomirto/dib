@@ -116,6 +116,89 @@ Servizi dalla copia `~/dib_tnsm/tree-b18fd1e` del nodo; hash degli input in `man
 - Fra i servizi non c'è un pool (audit 13 §9.1): il costo di mTLS fra servizi è l'handshake completo a ogni chiamata. **Non si usa la formula "limite superiore"** per M4 (vedi sopra).
 - Il confronto con i risultati del paper vecchio è solo descrittivo (codice, host e Python diversi): lì il throughput a 100 writer era 530 ops/s (10 siti, FANOUT 1, senza mTLS, in locale), qui 527 senza mTLS; è un'analogia, non un confronto.
 
+### 1.2 Controllo dei fan-out nel mix di M3 (decisione utente A, 2026-10-10)
+
+**Dati disponibili.** I log di accesso dei container di M3 **non esistono**: il cluster è ricreato con `down -v` a ogni cella e il driver non li salvava (`cell_NNN.log` contiene l'output del benchmark, non i log dei container). I conteggi di `POST /apply_fanout` e di `pending_fanout` per cella e per braccio di M3 non sono quindi ricostruibili. Si usano il codice e i conteggi diretti raccolti da D (e dai conteggi totali della prima diagnostica).
+
+**Mix e transizioni [C].**
+- Il mix ha 20 posizioni (`_MIX_REALISTIC`, `distributed_concurrency_benchmark.py:106-109`): `dispute` alla posizione 14, `restore` alla 17, `attest` alla 9. L'endpoint è `ep-{op_index % 5}` (`:131`), il tipo di dispositivo è `worker_id % 3` (`:130`), il sito è `worker_id % N_SITES` (`:129`).
+- Quindi **`dispute` cade sempre su `ep-4` e `restore` sempre su `ep-2`**.
+- `/restore` su `ep-2`, mai disputato (stato attivo), risponde **409 senza fan-out** (`service.py:850-852`).
+- `/dispute` su `ep-4` fa fan-out solo nelle transizioni attiva → disputata (`:826-830`) e disputata → revocata da un secondo sito (`:831-834`). Dopo la revoca non fa più nulla.
+- In tutto: al più 2 transizioni per tipo di dispositivo, cioè **6 fan-out per cluster**, e ognuno raggiunge ogni sito una volta.
+
+**Conteggio diretto (D, 15 celle: 5 × A, C, D; `apply_fanout_site0` in `cells.jsonl`).** `POST /apply_fanout` ricevuti da site-0, cumulativi:
+
+| Punto | dopo il seed | dopo warm-up 1 writer | dopo fase cronometrata 1 writer | dopo warm-up 10 writer | dopo fase cronometrata 10 writer |
+|---|---|---|---|---|---|
+| tutte le 15 celle (A, C e D) | 0 | 1 | 1 | 6 | 6 |
+
+- **Tutti i 6 fan-out avvengono nei batch di warm-up, che sono scartati. Nelle fasi cronometrate i fan-out sono zero**, identici in tutte le celle e i bracci.
+- Coerente con la prima diagnostica: 351 righe `POST` su site-0 contro le 345 attese da query, commit e seed (eccesso 6), e 378 su evidence, uguale a seed + attest + dispute + restore.
+- `pending_fanout`: **non misurato** (non è nelle metriche del driver). Per costruzione è 0 (tutti i siti sono raggiungibili e il fan-out riesce al primo tentativo); non verificato direttamente.
+- Per M3 con altri ordini di writer vale la stessa logica (ogni coppia tipo-sito è incontrata per la prima volta in un warm-up, che precede la fase cronometrata corrispondente); non è stato contato direttamente.
+
+**Dispute e restore a ~1,4 ms (a 1 writer)** sono spiegati: sono una no-op o un 409, non un fan-out sincrono verso 10 siti.
+
+**Riclassificazione di H-M3a** (il testo dell'ipotesi in `run.py` non è cambiato): **non falsificata ma non informativa.** Il rapporto FANOUT 10 / FANOUT 1 = 1,003 [0,981; 1,029] non dice nulla sul fan-out, perché nelle fasi cronometrate non ce n'è.
+
+**Contraddizione con il paper vecchio (inferenza, non misura).** `main_old.tex:503` attribuisce al fan-out il calo da 125,7 a 99,8 ops/s a 1 writer con 10 siti rispetto a 1 sito (20,6%). Con questo benchmark e questo mix (lo sweep usa lo stesso script e gli stessi warm-up, `results/site_count/README.md`), il fan-out non può avvenire nella fase cronometrata. Il calo a 1 writer ha quindi un'altra causa, non determinata. L'esecuzione vecchia usava un `service.py` diverso e non è stata rimisurata. La frase va rivista nel paper (`docs/main_tnsm.tex`).
+
+### 1.3 Configurazione D: esito (`diag_d_20261010/`, 15 celle, 21:54-22:04; albero `~/dib_tnsm/tree-3b61bd8`)
+
+**Provenienza.** `service.py` sul nodo `3186304363ed…`; `launcher_d.py` sul nodo e in locale `1fe42185…` (stesso hash), montato in sola lettura; nota nel manifest: `_HTTP_TLS` è valorizzato dall'esterno (`service._HTTP_TLS = {"verify": <contesto precostruito>}`) prima di servire; `service.py` non modificato. Il log di ogni container D riporta la riga del lanciatore (5 su 5 celle D). Ordine di esecuzione: A D C A D C D A C D C A D A C. Un primo tentativo era fallito alla cella 2 per un errore di percorso (vedi commit `3b61bd8`); il run abortito è conservato.
+
+**Throughput (ops/s), media con IC al 95% sulle 5 ripetizioni.**
+
+| Writer | A: plain di default | C: mTLS | D: plain con contesto precostruito |
+|---|---|---|---|
+| 1 | 115,1 [112,6; 117,5] | 214,6 [206,5; 222,7] | **351,6** [345,4; 358,3] |
+| 10 | 297,2 [286,3; 306,3] | 444,0 [440,8; 446,1] | **579,2** [566,9; 588,7] |
+
+**p50 per tipo di operazione (ms), media con IC al 95% (`per_op_p50_ci.json`).**
+
+| Operazione | A, 1 w | C, 1 w | D, 1 w | A, 10 w | C, 10 w | D, 10 w |
+|---|---|---|---|---|---|---|
+| query (sito) | 9,67 [9,45; 9,90] | 5,60 [5,47; 5,74] | 3,25 [3,17; 3,32] | 43,7 [42,2; 45,6] | 27,6 [27,3; 27,9] | 22,4 [22,0; 23,0] |
+| commit (sito) | 9,39 [9,26; 9,57] | 5,51 [5,40; 5,61] | 3,15 [3,07; 3,20] | 43,4 [41,9; 45,2] | 27,3 [27,1; 27,6] | 21,4 [21,2; 21,8] |
+| attest (evidence) | 3,80 [3,68; 3,90] | 3,64 [3,30; 3,88] | 3,36 [3,24; 3,44] | 4,52 [4,41; 4,66] | **8,71** [8,13; 9,41] | 4,79 [4,52; 5,14] |
+| dispute (evidence) | 1,41 [1,37; 1,46] | 1,31 [1,27; 1,33] | 1,33 [1,30; 1,36] | 2,41 [2,33; 2,48] | **6,78** [6,31; 7,25] | 2,79 [2,64; 2,92] |
+| restore (evidence) | 1,36 [1,32; 1,40] | 1,31 [1,25; 1,36] | 1,31 [1,28; 1,33] | 2,49 [2,38; 2,60] | **6,63** [6,28; 7,01] | 2,72 [2,55; 2,90] |
+
+**Esito dell'interpretazione fissata prima del lancio:** D ha CI interamente sopra quello di C e di A a 1 writer → **"D ≥ C: meccanismo confermato"**.
+
+**Risparmio atteso contro osservato (a 1 writer, media di query e commit):**
+
+| | Valore |
+|---|---|
+| atteso (micro-misura, costruzione del `Client` con verifica di default, nell'immagine) | 6,15 ms |
+| **osservato A − D** | **6,33 ms** [6,12; 6,53] |
+| osservato A − C | 3,98 ms |
+| C − D (resta a mTLS) | 2,35 ms [2,22; 2,44] |
+
+L'osservato A − D coincide con l'atteso (entro il 3%, con 6,15 dentro l'IC): il meccanismo non è solo plausibile, è quantitativamente allineato. A 10 writer il risparmio è maggiore (A − D = 21,7 ms [20,1; 23,1]) perché i siti sono processi Python singoli e la costruzione del contesto è tempo CPU che si accumula.
+
+**Costo di mTLS, misurato fra C e D (solo diagnostico, 5 ripetizioni).** Per questo prototipo (nessun pool fra servizi, handshake completo a ogni chiamata, `service.py` congelato):
+- operazioni su evidence, a 10 writer: +3,9 ms (attest), +4,0 (dispute), +3,8 (restore), cioè 2-3 volte la latenza di D;
+- operazioni sul sito: +2,35 ms a 1 writer e +5,5 ms a 10;
+- throughput C/D: 0,61 a 1 writer, 0,77 a 10 (rapporti sulle medie).
+
+**Non sono numeri da paper:** servono il rilancio di C con 10 ripetizioni a 1, 10, 50 e 100 writer (decisione utente C.1) e la verifica che D non introduca altre differenze.
+
+**Altri dati.**
+- Errori inattesi: 0 in tutte le 15 celle (non confrontabile con M3: qui ≤ 10 writer).
+- **Regola di scarto** (soglie invariate: `other_cores` > 1,0 o `steal_pct` > 2%): `other_cores` 0,098-0,211 (massimo in cella 6, D rep 2), `steal_pct` 0,005-0,042. **Nessuna cella segnalata su 15.** Il campione è quello prima della cella (12 s a sistema idle, container `dibtnsm` esclusi).
+- Pulizia: nessun container `dibtnsm` residuo; le directory create da Docker nel primo tentativo sono state rimosse (0 file).
+
+### 1.4 Proposte per il punto C (NON applicate: attendono le decisioni dell'utente)
+
+1. **M4:** rilanciare solo le celle senza mTLS con D, a 1, 10, 50 e 100 writer, 10 ripetizioni (~20 celle, 30-40 minuti), ordine mescolato con i bracci mTLS già misurati se possibile; i dati originali restano come "configurazione di default" con una nota. Costo di mTLS = C contro D. A 50 e 100 writer la presenza di un collo di bottiglia al database può nascondere parte dell'effetto: i rapporti vanno letti con quella cautela.
+2. **M6/M7 [C, verificato nel codice]:** il fan-out (`service.py:710`), la lettura dei pending (`:542`) e l'ack (`:565`) passano tutti da `**_HTTP_TLS`, quindi nei bracci senza mTLS **ogni tentativo e ogni chiamata di riconciliazione paga ~6,15 ms** di contesto SSL; in mTLS non li paga ma paga l'handshake (2,35 ms per chiamata a 1 writer).
+   - Proposta: usare D come braccio senza mTLS in tutto M6/M7.
+   - Predizione (a) corretta: ritiro diretto ≈ n_RTT·R + servizio, dove in default il servizio include +6,15 ms per tentativo (con FANOUT 1: ≈ +61,5 ms per fan-out a 10 siti, a `lan`) e in D no; a `wan` e oltre il termine è < 4% di R.
+   - Da riportare nell'audit **prima del lancio**.
+3. **Regola E:** caso (ii), prestazione con invarianti intatte, nessuna modifica al servizio.
+
 ## 2. Richiesta unica per i Passi 4-5 (nulla lanciato)
 
 ### 2.0 Nuovo vincolo: B2-partition con netem a mano

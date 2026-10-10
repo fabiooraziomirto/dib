@@ -1,0 +1,42 @@
+{
+ "started_utc": "2026-10-10T19:54:14.842498+00:00",
+ "argv": [
+  "experiments_tnsm/m3_distributed/diag_d.py",
+  "--out",
+  "experiments_tnsm/m3_distributed/diag_d_20261010",
+  "--pki-local",
+  "/root/Desktop/DIB/outputs/tnsm_pki/pki",
+  "--tree",
+  "~/dib_tnsm/tree-3b61bd8",
+  "--deadline",
+  "22:25"
+ ],
+ "node_tree": "/home/ubuntu/dib_tnsm/tree-3b61bd8",
+ "node_service_sha256": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+ "node_launcher_d_sha256": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+ "local_launcher_d_sha256": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+ "diag_d_sha256": "88944b0e847eb328f7d4e79712b900e66dee5fe9c8ce9f2d534798267664d8c5",
+ "benchmark_sha256": "035ab45ea5972fb2bad6a294a5705701e48983f6fcdb45e582e19693b61e9eb5",
+ "note_launcher_d": "_HTTP_TLS is set from outside (service._HTTP_TLS = {'verify': prebuilt context}) by launcher_d.py before serving; service.py is unmodified",
+ "expected_saving_ms": 6.15,
+ "deadline": "22:25",
+ "cell_order": [
+  "A",
+  "D",
+  "C",
+  "A",
+  "D",
+  "C",
+  "D",
+  "A",
+  "C",
+  "D",
+  "C",
+  "A",
+  "D",
+  "A",
+  "C"
+ ],
+ "finished_utc": "2026-10-10T20:04:19.331589+00:00",
+ "stopped_reason": null
+}
