@@ -6,11 +6,12 @@
 # `docker compose kill site-3` (B2-kill), then restarts site-3.
 # Declared before running: no hypothesis test; the result picks the B2 variant
 # (<= 50 ms: both variants; >= 0.5 s: only B2-partition + kill-min; in between: user decides).
-# Usage: calib_ldns.sh <compose-file> <project-dir> <label>   (label = profile name, e.g. lan)
+# Usage: calib_ldns.sh <compose-file> <project-dir> <label> [<override-compose-file>]
+#   label = profile name, e.g. lan; the optional 4th argument is the arm-D override (launcher_d.py)
 set -euo pipefail
 export PATH=/snap/bin:$PATH
-CF=$1; PD=$2; LABEL=$3
-DC="docker compose -p dibtnsm -f $CF --project-directory $PD"
+CF=$1; PD=$2; LABEL=$3; OV=${4:-}
+DC="docker compose -p dibtnsm -f $CF ${OV:+-f $OV} --project-directory $PD"
 probe() {
   docker exec dibtnsm-evidence-1 python -c '
 import socket, time, json
