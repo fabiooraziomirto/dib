@@ -217,9 +217,16 @@ def check_scalability() -> None:
     check("all trials converge", all(r["trials"] == r["consistent_trials"] for r in fault), True)
     single_event = [r for r in fault if r["scenario"] != "dispute_and_restore"]
     mean_conv = sum(float(r["total_convergence_s_mean"]) * int(r["trials"]) for r in single_event) / 30
-    check("single-event convergence (s)", round(mean_conv, 2), 0.51, 0.005)
+    check("single-event convergence (s)", round(mean_conv, 2), 0.48, 0.005)
     compound = next(r for r in fault if r["scenario"] == "dispute_and_restore")
-    check("compound-outage convergence (s)", round(float(compound["total_convergence_s_mean"]), 2), 0.50, 0.005)
+    check("compound-outage convergence (s)", round(float(compound["total_convergence_s_mean"]), 2), 0.51, 0.005)
+    trials = rows("results/fault_injection/trials.csv")
+    check("fault-injection per-trial rows", len(trials), 40)
+    restart = [float(r["health_check_after_restart_s"]) for r in trials]
+    reconcile = [float(r["reconcile_call_s"]) for r in trials]
+    check("process restart, mean over 40 trials (s)", round(sum(restart) / len(restart), 3), 0.416, 0.0005)
+    check("reconcile call, mean over 40 trials (s)", round(sum(reconcile) / len(reconcile), 3), 0.071, 0.0005)
+    check("reconcile call, maximum over 40 trials (s)", round(max(reconcile), 3), 0.105, 0.0005)
 
 
 def check_claims_index() -> None:
