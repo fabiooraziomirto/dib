@@ -11,6 +11,11 @@ Standard library only (/proc). Measures, over a window:
   * load1       1-minute load average at the end of the window;
   * top         the five non-DIB commands with the most CPU in the window.
 
+Extensions (audit 18, 2026-10-10): idle_window() = background sample before a cell with
+the system under test idle, excluding the containers of a compose project
+(project_pids / pids_in_cgroups); `sample` subcommand for ssh. discard_rule.json is NOT
+changed: its thresholds were fixed before the first M1/M2 cell.
+
 Baseline mode (no DIB running), from the node:
     python3 node_monitor.py baseline --seconds 300 --interval 5 --out baseline.json
 """
@@ -97,11 +102,49 @@ def own_pids() -> set[int]:
     return {pid} | {int(t) for t in os.listdir(f"/proc/{pid}/task")}
 
 
-def short_window(seconds: float = 2.0) -> dict:
-    a = Snapshot(own_pids())
+def short_window(seconds: float = 2.0, exclude: set[int] | None = None) -> dict:
+    ex = own_pids() | (exclude or set())
+    a = Snapshot(ex)
     time.sleep(seconds)
-    b = Snapshot(own_pids())
+    b = Snapshot(ex)
     return window(a, b)
+
+
+def pids_in_cgroups(container_ids: list[str], proc_root: str = "/proc") -> set[int]:
+    """Pids whose /proc/<pid>/cgroup mentions one of the (full) container ids: the processes
+    of the system under test, which must not count as background load (audit 18)."""
+    found = set()
+    if not container_ids:
+        return found
+    for name in os.listdir(proc_root):
+        if not name.isdigit():
+            continue
+        try:
+            with open(f"{proc_root}/{name}/cgroup") as fh:
+                text = fh.read()
+        except OSError:
+            continue
+        if any(cid in text for cid in container_ids):
+            found.add(int(name))
+    return found
+
+
+def project_pids(project: str = "dibtnsm", docker: str = "/snap/bin/docker") -> set[int]:
+    """Pids of every container of the compose project (label com.docker.compose.project)."""
+    import subprocess
+
+    exe = docker if os.path.exists(docker) else "docker"
+    out = subprocess.run([exe, "ps", "--no-trunc", "-q", "--filter", f"label=com.docker.compose.project={project}"],
+                         capture_output=True, text=True, check=True).stdout.split()
+    return pids_in_cgroups(out)
+
+
+def idle_window(seconds: float = 12.0, project: str | None = None) -> dict:
+    """Background sample taken BEFORE a cell, with the system under test idle (audit 18):
+    other_cores and steal_pct over ``seconds`` (10-15 s recommended), excluding the measuring
+    process and, if ``project`` is given, every container of that compose project. Unlike
+    load1, it does not include the previous cell."""
+    return short_window(seconds, exclude=project_pids(project) if project else None)
 
 
 def disk_free_mb(path: str = "/") -> int:
@@ -178,11 +221,17 @@ def baseline(seconds: int, interval: float) -> dict:
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
+    sm = sub.add_parser("sample", help="one window, printed as JSON (e.g. over ssh)")
+    sm.add_argument("--seconds", type=float, default=12.0)
+    sm.add_argument("--exclude-project", default=None, help="compose project whose containers are excluded")
     b = sub.add_parser("baseline")
     b.add_argument("--seconds", type=int, default=300)
     b.add_argument("--interval", type=float, default=5.0)
     b.add_argument("--out", required=True)
     a = p.parse_args()
+    if a.cmd == "sample":
+        print(json.dumps(idle_window(a.seconds, a.exclude_project)))
+        raise SystemExit(0)
     result = baseline(a.seconds, a.interval)
     with open(a.out, "w") as fh:
         json.dump(result, fh, indent=1)
