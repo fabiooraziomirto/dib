@@ -199,6 +199,40 @@ L'osservato A − D coincide con l'atteso (entro il 3%, con 6,15 dentro l'IC): i
    - Da riportare nell'audit **prima del lancio**.
 3. **Regola E:** caso (ii), prestazione con invarianti intatte, nessuna modifica al servizio.
 
+### 1.5 Decisione sul punto C (utente, 2026-10-10) e verifiche collegate
+
+**Decisione.** Rilancio di M4 approvato: bracci C (mTLS) e D (senza mTLS, contesto SSL precostruito, lanciatore di B) nello stesso blocco, ordine mescolato, 1/10/50/100 writer, 10 ripetizioni (20 celle in tutto, 10 per braccio), FANOUT fisso a 10 (il mix non lo esercita). Predizioni scritte prima del lancio nel docstring di `run_m4.py` (commit `62aaca8`): C/D ≈ 0,61 a 1 writer (falsificata se l'IC del rapporto appaiato è interamente fuori da [0,50; 0,72]) e ≈ 0,77 a 10 writer (fuori da [0,68; 0,86]); 50 e 100 writer esplorativi. I dati originali di M4 restano come "configurazione di default". Il costo di mTLS riportabile è il solo rapporto C/D, per questo prototipo (nessun pool fra servizi), a 100 writer esplorativo. M5 esce dalla sequenza (stesso mix: non misurerebbe il fan-out).
+Il lancio parte da `~/dib_tnsm/tree-62aaca8` (hash di `service.py` `3186304363ed…`); PKI valida fino al 2026-10-11 18:00 UTC contro una durata stimata di circa 45 minuti.
+
+**B1. Tutte le chiamate httpx di `service.py` (grep).** Non ci sono `httpx.Client(` né altre chiamate `httpx.*` oltre queste quattro, e **tutte e quattro passano da `**_HTTP_TLS`**; nessuna ne è esclusa:
+
+| Riga | Chiamata | Chi la usa |
+|---|---|---|
+| `service.py:381-384` | `httpx.get(.../scores)` in `_evidence_get_score` | `/query` e `/commit` del sito (1 chiamata per operazione) |
+| `:542` | `httpx.get(.../pending/<sito>)` | `_reconcile_once` (route `/reconcile` e trigger, `:255,590`) |
+| `:563-565` | `httpx.post(.../pending/<sito>/ack)` | `_reconcile_once` |
+| `:707-710` | `httpx.post(.../apply_fanout)` | `_deliver_to_site`, una per tentativo (fino a 3 per sito) |
+
+`:715` è solo un `except httpx.HTTPError`. Il trigger (`_ReconcileTrigger`) non chiama httpx da sé: esegue `_reconcile_once`. Nessun altro file del servizio (`mtls.py`) usa httpx. Ne segue che in un braccio senza D ogni chiamata fra servizi costruisce un `Client` con il contesto SSL di default (6,15 ms nell'immagine).
+
+**B2.** D è il braccio senza mTLS in tutto M6/M7 (manifest: hash di `launcher_d.py`, nota che `_HTTP_TLS` è valorizzato dall'esterno, hash di `service.py`, host del generatore, come in `run_m4.py`).
+
+**B3. Predizione (a) per `lan`, ricongelata con D (scritta prima di qualsiasi lancio di M6/M7).** Predizioni (c) e (d) invariate finché la cattura `tcpdump` non dice altro.
+- Grandezza: ritiro diretto per sito = timestamp `POST /apply_fanout 200` del sito (sonda P-log) meno t0; ripiego `dispute-rtt`. Il valore assoluto a `lan` in D (τ_D per tentativo: connessione, richiesta, scrittura SQLite del sito) non si predice: si calibra nella prova pilota.
+- **P-a1 (FANOUT 1, 10 siti in sequenza).** Differenza fra braccio di default e braccio D per l'**ultimo** sito: **+61,5 ms** (10 tentativi × 6,15 ms). Falsificata se l'IC al 95% della differenza delle mediane cade interamente fuori da [46; 77] ms (±25%). Per la media sui 10 siti il valore previsto è +33,8 ms (6,15 × 5,5).
+- **P-a2 (FANOUT 10).** Differenza default − D per il sito che completa per ultimo: fra +6 ms (costruzioni dei contesti in parallelo) e +62 ms (costruzioni serializzate dal GIL, perché sono tempo CPU di un solo processo). Falsificata se l'IC cade interamente fuori da [3; 75] ms. L'estremo effettivo è un risultato, non un'assunzione.
+- **P-a3 (profili con ritardo).** Ritiro diretto in D ≈ n_RTT·R + τ_D, con il criterio invariato: falsificata se la mediana a `regional`, `wan` o `mixed` supera n_RTT·R + 3 × (mediana `lan`) **dello stesso braccio** oltre l'IC (il bias per chiamata si cancella nel confronto con `lan` dello stesso braccio). A `wan` e oltre i 6,15 ms sono meno del 4% di R.
+- **P-a4 (mTLS contro D a `lan`).** Per l'ultimo sito con FANOUT 1: +23,5 ms (10 × 2,35 ms, C − D misurato a 1 writer per chiamata sul sito). Falsificata se l'IC cade fuori da [15; 32] ms.
+- **Celle di riferimento B1 a `lan` (k = 0), configurazione di default "come spedito"** (nessuna modifica): poche celle (10 episodi, FANOUT 1 e 10, senza mTLS) etichettate come riferimento e non come braccio del disegno; servono a verificare P-a1 e P-a2.
+- Il D_run di `lan` (0,06-0,07 s, misurato in G0b con il default) è nel bound `max(5 s, D_run_max)`: sotto D la stima è ~18 ms in meno (vedi audit 15 §6), irrilevante per il bound.
+
+**D. Verifiche sul vecchio run (senza il nodo).**
+- Storia del benchmark nel repo: due sole versioni (`bd3080b` import v43, hash `95970767`; `0ac6a51` mTLS, hash `035ab45e`). Fra le due, **mix, warm-up, instradamento dei worker e scelta dell'endpoint sono invariati** (il diff riguarda solo le identità mTLS).
+- **I vecchi run non usavano nessuna delle due:** `results/site_count/manifest.json` registra il benchmark `074455a0…` e `results/distributed/manifest.json` `80111012…`, assenti dalla storia; anche il vecchio `service.py` (`54f635cb…`) è assente. Non si può diffare il benchmark e il servizio realmente usati.
+- Quello che i manifest dicono: stesso mix (`_MIX_REALISTIC`, query ×8, commit ×7, contribute ×2, attest ×1, dispute ×1, restore ×1), `ops_per_worker` 20, 5 ripetizioni. **Nessun manifest né CSV registra contatori di fan-out** (grep su `results/site_count`, `results/distributed`, `results/concurrency`).
+- **Proposta per il paper vecchio, NON applicata:** togliere l'attribuzione del calo da 125,7 a 99,8 ops/s al fan-out (`main_old.tex:503`): "ten sites are 20.6% slower than one" resta come osservazione, la causa non è isolata. Frase suggerita: *With one writer, ten sites are 20.6% slower than one (125.7 vs 99.8 operations/s); the cause was not isolated.*
+- **Proposta di frase per il paper (caso (ii) della regola E):** *In the prototype, every inter-service call creates an HTTP client and, without a shared context, builds a default SSL context (about 6 ms); reusing a context or a client removes it.*
+
 ## 2. Richiesta unica per i Passi 4-5 (nulla lanciato)
 
 ### 2.0 Nuovo vincolo: B2-partition con netem a mano
