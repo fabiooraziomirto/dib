@@ -34,6 +34,11 @@ H-NC. Controllo negativo: su una COPIA in cui l'ack cancella solo `seq <= <max s
    reconcile successivo lo applica). Se H1 e' falsificata il controllo e' "n/a" e lo si
    riporta.
 
+[fix-d12-ack, 2026-10-10] Il controllo negativo H-NC (ack `seq <= max letto` su una copia del
+codice VECCHIO) e' stato rimosso da questo file: le sue ancore di testo non esistono piu' dopo la
+correzione e fallirebbe per "anchor not found". Lo sostituiscono i controlli con bug reintrodotto
+in test_distributed_ack_fix.py. Le asserzioni degli altri test di questo file sono invariate.
+
 Due test per scenario: `*_observe_*` e' sempre verde (verifica solo che l'interleaving
 sia avvenuto e registra lo stato finale), `*_converges` / `*_no_exposure` asserisce la
 proprieta': se fallisce, e' il risultato (D12 confermato) e non va indebolito.
@@ -42,7 +47,7 @@ from __future__ import annotations
 
 import json
 
-from _dist_harness import make_cluster, make_source_copy  # noqa: F401
+from _dist_harness import make_cluster  # noqa: F401
 
 X = "api.vendor.com"
 Y = "cdn.vendor.com"
@@ -262,28 +267,3 @@ def test_d12_recovers_on_next_global_event(make_cluster) -> None:
     assert c.dispute("rep-c").json() == {"applied": True}  # evidence era Active: nuovo evento seq4
     assert c.state(1, sid)["last_applied_seq"] == c.evidence_score()["fanout_seq"] == 4
     assert c.state(1, sid)["state"] == "disputed"
-
-
-def test_negative_control_ack_with_seq_bound_converges(make_cluster, tmp_path) -> None:
-    """H-NC: copia con ack `seq <= max seq letto`. Lo scenario di perdita deve convergere
-    e, dopo un secondo reconcile, il sito deve applicare l'evento sopravvissuto."""
-    source = make_source_copy(
-        tmp_path,
-        [
-            ('httpx.post(f"{EVIDENCE_URL}/pending/{_site_id()}/ack", timeout=5.0)',
-             'httpx.post(f"{EVIDENCE_URL}/pending/{_site_id()}/ack",'
-             ' params={"upto": max(item["seq"] for item in pending)}, timeout=5.0)'),
-            ("def ack_pending(site_id: str):", "def ack_pending(site_id: str, upto: int | None = None):"),
-            ('_evidence_db.run(lambda con: con.execute("DELETE FROM pending_fanout WHERE site_id=?", (site_id,)))',
-             '_evidence_db.run(lambda con: con.execute('
-             '"DELETE FROM pending_fanout WHERE site_id=? AND seq<=?",'
-             ' (site_id, 2**62 if upto is None else upto)))'),
-        ],
-    )
-    c = make_cluster(n_sites=2, source=source)
-    sid = _lost_restore(c)
-    assert _converged(c, sid), _observation(c, sid)
-    assert [p["seq"] for p in c.pending(1)] == [3]  # l'evento nella finestra sopravvive all'ack
-    assert c.reconcile(1).json() == {"reconciled": 1}
-    assert c.state(1, sid) == {"state": "monitor-only", "origin": None, "last_applied_seq": 3}
-    assert c.pending(1) == []
