@@ -120,7 +120,7 @@ Osservazioni [C]: la numerazione G3 compare tre volte con tre significati; il G4
 ### 3.2 Dove i goal sono citati
 
 Nel paper (`grep -nE "\bG[1-4]\b|design goal" docs/main_old.tex`): `:95`, `:143`, `:150-151`, `:153-163` (definizione), **`:491` "(G4)"** (test del rescoring: "Evidence updates are tested separately from lifecycle events (G4)"), **`:528` "(G2)"** (cold-start pooled vs local-only: "…against $0.022\pm0.005$ for local-only monitoring of one pseudo-site (G2)"). **G1 e G3 non sono citati in nessuna tabella, figura o frase della valutazione.** `main.tex` ha le stesse occorrenze.
-Incoerenze [D]: l'etichetta (G4) a `:491` corrisponde al G4 commentato (rescoring non distruttivo), non al G4 attivo "Revoking criteria"; l'etichetta (G2) a `:528` riguarda il cold start, che mappa G1 (candidate discovery) secondo `docs/work/DIB_piano_completo.md:58` ("il cold-start riguarda G1, non G2"). G2 ("conditional admission") è l'unico che mappa su un esperimento (`old:539-631`) senza essere etichettato.
+Incoerenze [D]: **(correzione 2026-10-10, ricontrollato `old:491` contro `old:160-161`)** l'etichetta (G4) a `:491` (aggiornamenti di evidenza separati dagli eventi del lifecycle) è coerente con G4 se si legge il commento di `:160` ("Evidence and score changes must not grant or revoke permissions; disputes and operator actions follow the lifecycle rules"); il testo **attivo** di G4 (`:161`, lifecycle delle dispute e revoca automatica) la copre solo in parte, quindi G4 va riformulato, non l'etichetta rimossa. È invece non coerente l'etichetta (G2) a `:528` riguarda il cold start, che mappa G1 (candidate discovery) secondo `docs/work/DIB_piano_completo.md:58` ("il cold-start riguarda G1, non G2"). G2 ("conditional admission") è l'unico che mappa su un esperimento (`old:539-631`) senza essere etichettato.
 
 Nella repo: `grep -rnE "\bG[1-4]\b|design goal"` (escluso il paper):
 - `code/tests/tests/test_rescoring_non_destructive.py:1-5` ("G4 (non-destructive rescoring)… The paper's G4 is the stronger, general statement") — usa il G4 vecchio.
@@ -357,12 +357,16 @@ Legenda: **conferma** / **limita** / **contraddice** / **non testata**. Dati di 
 
 ---
 
+**Nota per chi rilegge gli audit.** Gli audit 01, 08, 09 scrivono `docs/main.tex:N` o `paper:N` ma i numeri di riga sono quelli di `main_old.tex`; in `docs/main.tex` (865 righe) le righe > 389 slittano di +5.
+
+---
+
 ## Tabella finale: domanda aperta / risolta / da chiedere a te
 
 | # | Domanda | Stato | Note |
 |---|---|---|---|
 | 1a | Elenco .tex, date, hash, righe | **Risolta** | §1.1 |
-| 1b | `main__6_.tex` coincide con `main_old.tex`? | **Da chiedere a te** | file non trovato; servono percorso o copia. Indizio: `:619` coincide solo con `main_old.tex` |
+| 1b | `main__6_.tex` coincide con `main_old.tex`? | **Risolta (su tua indicazione)** | file non sul disco; l'utente indica sha256 `bf61868d…977c51` della copia caricata; `sha256sum docs/main_old.tex` = identico (verificato). `main.tex` = `3fdd7489…` |
 | 1c | I riferimenti `old:505/507/617/619/650` | **Risolta** | stessi testi; in `main.tex` slittano di +5 |
 | 1d | Quale file è la base del lavoro: `main_old.tex` o `main.tex` (865 righe)? | **Da chiedere a te** | gli audit puntano a `main_old` con il nome `main.tex` |
 | 2a | Config per ogni tabella/figura | **Risolta** | §2.1 |
