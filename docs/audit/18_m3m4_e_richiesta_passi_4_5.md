@@ -605,3 +605,26 @@ dibtnsm-site-9-1 (pid 692705): no qdisc
 **Anteprime (`--dry-run`) con gli script definitivi, cluster D acceso a `lan`, tutti e soli gli 11 container per nome, ciascuno una volta:** `dryrun_corrected_20261010/` (`watch_wan_poll0.5.txt`, `watch_degraded_poll0.5.txt`, `watch_degraded_poll0.1.txt`, `apply_<profilo>.txt`).
 
 **Procedura del blocco `wan`:** invariata rispetto a §2.4 con questo albero, `--poll 0.5` per B1 (e `tee -i` verso `watch_wan.log`), `--poll 0.1` per B2-kill dopo la decisione su L_dns. Fino al tuo "via" non parte nulla; B2-kill non parte prima della tua decisione su L_dns (regola invariata: ≤ 50 ms entrambe le varianti; ≥ 0,5 s solo B2-partition più `kill-min`; nel mezzo ricalcolo e decidi tu).
+
+**Verifica A del 2026-10-10 (RTT dei due percorsi) — esito: serviva una correzione, in parte.**
+- **Sonda del profilo (`VERIFY_NOW`, `calib_profile.py`, `wait_profile`): era già corretta.** Gira da dentro il container evidence (`Env.measure_rtt_ms`, `run.py`) e misura la connessione TCP evidence → sito, con netem sull'uscita di entrambi: RTT = 2d. Le bande ±20% (`RTT_EXPECT_MS`) sono su 2d per **questo** percorso e solo per questo; la sonda non misura il percorso del generatore, quindi il blocco non può abortire né accettare un profilo sbagliato per quel motivo. Ho aggiunto un commento che lo dichiara accanto alle bande.
+- **Percorso generatore → container: non era misurato né modellato.** Il generatore è nel namespace radice senza qdisc in uscita: solo la risposta attraversa il netem del container, quindi RTT = d su una connessione riusata. **Ipotesi, da misurare e non ancora verificata sotto netem:** su una connessione nuova il docker-proxy (userland-proxy attivo sul nodo: `docker info` → `EnableUserlandProxy: true`; `docker-proxy` in esecuzione) apre la connessione verso il container all'accept, e il SYN-ACK è ritardato di d, quindi la prima richiesta costa ~2d e la richiesta arriva al servizio con d di ritardo.
+- **Conseguenze trovate e corrette (test R-13 scritto prima):**
+  1. *Bias di t0.* Il client del generatore è per identità nel braccio C (e il keep-alive scade a ~5 s): un `/dispute` su connessione nuova avrebbe avuto d in più prima di arrivare al servizio, e i timestamp P-log (applicazione − t0) lo avrebbero ereditato, in modo variabile. Ora `Env.warm` fa una `GET /health` non misurata sulla stessa connessione subito prima di t0 (B1) e prima di ogni `/dispute` e `/restore` (B2-kill): le chiamate misurate girano su connessione riusata, bias del generatore ~d, uguale in ogni episodio.
+  2. *Calibrazione dei log.* `calib_logs.py` apriva una connessione nuova per ogni richiesta (`urllib`): sotto netem la latenza dei log sarebbe risultata gonfiata di ~d (80 ms a `wan`). Ora usa connessioni persistenti con warm-up e riporta a parte, come diagnostica, la latenza con connessioni nuove (`fresh_connection_diagnostic`, 30 richieste), che mostra l'effetto.
+  3. *Bias di `dispute-rtt`.* `dispute_rtt_bias_ratio` usa ora d del percorso del generatore (`gen_path_d`: d del profilo, 0 a `mixed` perché evidence non ha netem), non il d evidence↔sito.
+  4. *Misura del percorso.* Per ogni cluster il manifest registra `generator_path_ms` (mediana di 5 `GET /health` su connessione riusata e di 5 su connessione nuova, con `reused_ok`/`fresh_ok` a ±20% di d e 2d; nessun controllo per mTLS con connessione nuova, dove l'handshake aggiunge round trip). **Informativo, non abortisce**: se `reused_ms` non è ≈ d, o `fresh_ms` non è ≈ 2d, lo riporto senza correggere.
+- **Residuo dichiarato (B2-kill):** la convergenza dopo `start` si legge dal polling di `/export_mud` sul sito: connessioni nuove verso un sito appena riavviato, bias ≤ 2d sul tempo di rilevazione (d per il dial del proxy, d per la risposta). Va nel bias dichiarato di B2-kill.
+- **Hash:** i quattro script netem sono **invariati** (tabella di §2.5 valida). Cambiano `run.py`, `calib_logs.py` e `calib_profile.py`; i loro sha256 e il nuovo albero pinnato sono riportati qui sotto e nel manifest di ogni lancio.
+
+**Albero pinnato aggiornato: `T=~/dib_tnsm/tree-54f7741`** (`git archive` del commit `54f7741`; `tree-9e8f2ac` rimosso dal nodo, era una copia mia). `service.py` `3186304363ed…`. Script netem **invariati**, stessi sha256 della tabella di §2.5 (verificati sul nodo). Altri file:
+
+| File | sha256 |
+|---|---|
+| `run.py` | `fceee42680b77945e74b89ef32c239af4f297109cb6897fd2dee8be907e3cda4` |
+| `calib_logs.py` | `c221ca812c6c8d6065d07641cdac38364a8f4dd3f2aa168022e105f1c7b76a93` |
+| `calib_profile.py` | `f045d0fdcfd543f8d3a98a6de739ec488290cf430d269eda5e595bb6676c1c38` |
+| `calib_ldns.sh` | `0191b1fafc52dc05a69f198390d1029467b4273b04fed9b3ddc771d989a28ba7` |
+
+Nel blocco, sostituire `tree-9e8f2ac` con `tree-54f7741` in tutti i comandi di §2.4-§2.5.
+
