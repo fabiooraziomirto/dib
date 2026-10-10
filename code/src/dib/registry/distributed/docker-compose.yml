@@ -7,6 +7,7 @@ services:
       - DIB_DIST_ROLE=evidence
       - DIB_DIST_N_SITES=10
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_FANOUT_CONCURRENCY=8
       - DIB_DIST_SITE_URL_0=http://site-0:8000
       - DIB_DIST_SITE_URL_1=http://site-1:8000
       - DIB_DIST_SITE_URL_2=http://site-2:8000
@@ -31,6 +32,9 @@ services:
       - DIB_DIST_N_SITES=10
       - DIB_DIST_EVIDENCE_URL=http://evidence:8000
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
     volumes:
       - site_0_data:/data
     depends_on:
@@ -47,6 +51,9 @@ services:
       - DIB_DIST_N_SITES=10
       - DIB_DIST_EVIDENCE_URL=http://evidence:8000
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
     volumes:
       - site_1_data:/data
     depends_on:
@@ -63,6 +70,9 @@ services:
       - DIB_DIST_N_SITES=10
       - DIB_DIST_EVIDENCE_URL=http://evidence:8000
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
     volumes:
       - site_2_data:/data
     depends_on:
@@ -79,6 +89,9 @@ services:
       - DIB_DIST_N_SITES=10
       - DIB_DIST_EVIDENCE_URL=http://evidence:8000
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
     volumes:
       - site_3_data:/data
     depends_on:
@@ -95,6 +108,9 @@ services:
       - DIB_DIST_N_SITES=10
       - DIB_DIST_EVIDENCE_URL=http://evidence:8000
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
     volumes:
       - site_4_data:/data
     depends_on:
@@ -111,6 +127,9 @@ services:
       - DIB_DIST_N_SITES=10
       - DIB_DIST_EVIDENCE_URL=http://evidence:8000
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
     volumes:
       - site_5_data:/data
     depends_on:
@@ -127,6 +146,9 @@ services:
       - DIB_DIST_N_SITES=10
       - DIB_DIST_EVIDENCE_URL=http://evidence:8000
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
     volumes:
       - site_6_data:/data
     depends_on:
@@ -143,6 +165,9 @@ services:
       - DIB_DIST_N_SITES=10
       - DIB_DIST_EVIDENCE_URL=http://evidence:8000
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
     volumes:
       - site_7_data:/data
     depends_on:
@@ -159,6 +184,9 @@ services:
       - DIB_DIST_N_SITES=10
       - DIB_DIST_EVIDENCE_URL=http://evidence:8000
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
     volumes:
       - site_8_data:/data
     depends_on:
@@ -175,6 +203,9 @@ services:
       - DIB_DIST_N_SITES=10
       - DIB_DIST_EVIDENCE_URL=http://evidence:8000
       - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
     volumes:
       - site_9_data:/data
     depends_on:

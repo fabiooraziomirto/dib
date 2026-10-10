@@ -29,14 +29,15 @@ swap would just relocate the same bug class:
     budget is recorded in the evidence service's pending-fanout outbox
     (keyed by (site_id, score_id), overwritten with the latest target state
     -- reconciliation only needs the current truth, not full history) rather
-    than blocking forever or silently dropping the update. A site calls
-    GET /pending/{site_id} on startup/reconnect and applies whatever is
-    queued through the identical idempotent apply path. This means I3
-    ("dispute immediately clears export eligibility... across all sites") is
-    honest only as "immediately at every reachable site; a partitioned site
-    converges on reconnect" -- the fault-injection experiment
-    (fault_injection_experiment.py) measures exactly that convergence
-    window, rather than leaving it an unstated assumption.
+    than blocking forever or silently dropping the update. A site pulls
+    GET /pending/{site_id} (POST /reconcile, or the automatic trigger below)
+    and applies whatever is queued through the identical idempotent apply
+    path. This means I3 ("dispute immediately clears export eligibility...
+    across all sites") is honest only as "immediately at every reachable
+    site; a partitioned site converges once it reconciles" -- the
+    fault-injection experiment (fault_injection_experiment.py) measures
+    exactly that convergence window, rather than leaving it an unstated
+    assumption.
 
   - Acknowledgement is per (score_id, seq) actually applied, not per site
     (audit D12). A site's POST /reconcile acks only the (score_id, seq)
@@ -47,14 +48,44 @@ swap would just relocate the same bug class:
     without a body keeps the legacy "delete everything for the site"
     behaviour. After the ack /reconcile pulls again, at most
     _RECONCILE_MAX_ROUNDS rounds in total; an event arriving after the last
-    pull stays queued until the next /reconcile call. Nothing in this
-    service calls /reconcile on its own: the caller decides when.
+    pull stays queued until the next /reconcile call.
+
+  - Automatic reconcile trigger (audit 05). WITHOUT CONFIGURATION THIS SERVICE
+    HAS UNBOUNDED STALENESS: with DIB_DIST_RECONCILE_INTERVAL unset or 0 nothing
+    calls /reconcile on its own and a site converges only when an external
+    caller does. With T = DIB_DIST_RECONCILE_INTERVAL > 0 the site role runs
+    _reconcile_once from a background trigger (FastAPI lifespan): first run
+    after U(0, J) seconds (J = DIB_DIST_RECONCILE_JITTER, default 0.1*T), then
+    T + U(0, J) after the end of each successful run; an unreachable evidence
+    service is retried with exponential backoff (1 s, 2 s, ... capped at
+    min(T, 30 s)). Runs never overlap (single flight): a manual /reconcile
+    holds the same lock and may wait up to d_run (503 after
+    DIB_DIST_RECONCILE_LOCK_TIMEOUT). Declared bound, for an event already in
+    the outbox and a site that is running and reaches the evidence service:
+    staleness <= T + J + 2*d_run, d_run = duration of one _reconcile_once
+    (to be measured; theoretical worst case with the 5 s timeouts of
+    DIB_DIST_RECONCILE_TIMEOUT is ~30 s). An event that never reached the
+    outbox (evidence crash between the status commit and _fan_out) is outside
+    the bound. Run ONE worker process per site: --workers N would start N
+    triggers.
+
+  - Fan-out concurrency (audit D11). DIB_DIST_FANOUT_CONCURRENCY (default 1)
+    is the size of ONE module-wide thread pool shared by all fan-outs; with 1
+    the delivery is the historical sequential loop. With cap > 1 every
+    dispute/restore still answers only after all sites were tried, but down
+    sites no longer delay the others: worst case ceil(k_down / cap) * 3 s
+    (3 attempts x 1 s timeout) instead of k_down * 3 s.
 """
 from __future__ import annotations
 
+import logging
 import os
+import random
 import sqlite3
 import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import httpx
@@ -87,6 +118,28 @@ SITE_INDEX = int(os.environ.get("DIB_DIST_SITE_INDEX", "0"))
 EVIDENCE_URL = os.environ.get("DIB_DIST_EVIDENCE_URL", "http://evidence:8000")
 
 
+def _env_float(name: str, default: float, *, minimum: float = 0.0, exclusive: bool = False) -> float:
+    value = float(os.environ.get(name, default))
+    if value < minimum or (exclusive and value == minimum):
+        raise ValueError(f"{name} must be {'>' if exclusive else '>='} {minimum}")
+    return value
+
+
+# Automatic reconcile trigger (audit 05). 0 = disabled: unbounded staleness (see docstring).
+RECONCILE_INTERVAL = _env_float("DIB_DIST_RECONCILE_INTERVAL", 0.0)
+RECONCILE_JITTER = _env_float("DIB_DIST_RECONCILE_JITTER", 0.1 * RECONCILE_INTERVAL)
+RECONCILE_TIMEOUT = _env_float("DIB_DIST_RECONCILE_TIMEOUT", 5.0, exclusive=True)
+RECONCILE_LOCK_TIMEOUT = _env_float("DIB_DIST_RECONCILE_LOCK_TIMEOUT", 60.0)
+FANOUT_CONCURRENCY = int(os.environ.get("DIB_DIST_FANOUT_CONCURRENCY", "1"))
+if FANOUT_CONCURRENCY < 1:
+    raise ValueError("DIB_DIST_FANOUT_CONCURRENCY must be >= 1")
+
+_BACKOFF_BASE_S = 1.0
+_BACKOFF_CAP_S = 30.0
+_MIN_WAIT_S = 0.05  # floor of the trigger thread's wait: no busy loop
+_log = logging.getLogger("dib.distributed")
+
+
 def _site_url(index: int) -> str:
     override = os.environ.get(f"DIB_DIST_SITE_URL_{index}")
     return override or f"http://site-{index}:8000"
@@ -114,7 +167,112 @@ class _Db:
                 raise
 
 
-app = FastAPI(title=f"DIB distributed prototype ({ROLE})")
+class _ReconcileTrigger:
+    """Schedules _reconcile_once on a site (audit 05). The scheduler is a plain object driven
+    by tick(), with an injectable clock and rng, so tests need neither threads nor sleep;
+    start() only wraps tick() in a daemon thread."""
+
+    def __init__(self, interval: float, jitter: float, run, lock, clock=time.monotonic, rng=None):
+        self.interval = interval
+        self.jitter = jitter
+        self._run = run
+        self.lock = lock
+        self.clock = clock
+        self.rng = rng if rng is not None else random.Random()
+        self.next_due: float | None = None  # None until arm()
+        self.failures = 0
+        self.last_error: Exception | None = None
+        self.thread: threading.Thread | None = None
+        self._stop = threading.Event()
+
+    def arm(self) -> None:
+        """Initial delay U(0, J): N sites started together do not pull together."""
+        self.next_due = self.clock() + self.rng.uniform(0.0, self.jitter)
+
+    def tick(self) -> bool:
+        """One scheduler step. True iff an attempt was made (whatever its outcome)."""
+        if self.next_due is None:
+            self.arm()
+        if self.clock() < self.next_due:
+            return False
+        if not self.lock.acquire(blocking=False):  # single flight: a run is already in progress
+            self.next_due = self.clock() + min(1.0, self.interval)
+            return False
+        try:
+            try:
+                self._run()
+            except Exception as exc:  # noqa: BLE001 - a daemon must survive; the error is kept
+                self.failures += 1
+                self.last_error = exc
+                _log.warning("reconcile attempt %d failed: %r", self.failures, exc)
+                backoff = min(_BACKOFF_BASE_S * 2 ** min(self.failures - 1, 30), min(self.interval, _BACKOFF_CAP_S))
+                self.next_due = self.clock() + backoff + self.rng.uniform(0.0, self.jitter)
+            else:
+                self.failures = 0
+                self.last_error = None
+                self.next_due = self.clock() + self.interval + self.rng.uniform(0.0, self.jitter)
+        finally:
+            self.lock.release()
+        return True
+
+    def _loop(self) -> None:
+        while not self._stop.is_set():
+            if self._stop.wait(max(self.next_due - self.clock(), _MIN_WAIT_S)):
+                break
+            self.tick()
+
+    def start(self) -> None:
+        if self.thread is not None and self.thread.is_alive():
+            return
+        self._stop.clear()
+        self.arm()
+        self.thread = threading.Thread(target=self._loop, name="dib-reconcile-trigger", daemon=True)
+        self.thread.start()
+
+    def stop(self) -> None:
+        self._stop.set()
+        thread = self.thread
+        if thread is not None and thread is not threading.current_thread():
+            thread.join(timeout=5)
+
+
+_trigger: _ReconcileTrigger | None = None  # set in the site block when RECONCILE_INTERVAL > 0
+_fanout_executor: ThreadPoolExecutor | None = None
+_fanout_executor_lock = threading.Lock()
+
+
+def _get_fanout_executor() -> ThreadPoolExecutor | None:
+    """The ONE shared fan-out pool (global cap on deliveries in flight); None when the cap is 1."""
+    global _fanout_executor
+    if FANOUT_CONCURRENCY <= 1:
+        return None
+    with _fanout_executor_lock:
+        if _fanout_executor is None:
+            _fanout_executor = ThreadPoolExecutor(max_workers=FANOUT_CONCURRENCY, thread_name_prefix="dib-fanout")
+        return _fanout_executor
+
+
+def _shutdown_fanout_executor() -> None:
+    global _fanout_executor
+    with _fanout_executor_lock:
+        executor, _fanout_executor = _fanout_executor, None
+    if executor is not None:
+        executor.shutdown(wait=True)
+
+
+@asynccontextmanager
+async def _lifespan(_app):
+    if _trigger is not None:
+        _trigger.start()
+    try:
+        yield
+    finally:
+        if _trigger is not None:
+            _trigger.stop()
+        _shutdown_fanout_executor()
+
+
+app = FastAPI(title=f"DIB distributed prototype ({ROLE})", lifespan=_lifespan)
 
 
 # --------------------------------------------------------------------------
@@ -264,24 +422,21 @@ if ROLE == "site":
         _site_db.run(lambda con: _apply_fanout_row(con, req.score_id, req.seq, req.event_type, req.target_state))
         return {"applied": True}
 
-    @app.post("/reconcile")
-    def reconcile(response: Response):
-        """Called by this site on startup/reconnect: pull any events the
-        evidence service could not deliver while this site was unreachable,
-        and apply them through the same idempotent path.
+    def _reconcile_once() -> tuple[int, int]:
+        """Pull any events the evidence service could not deliver while this site was
+        unreachable and apply them through the same idempotent path. Returns
+        (items of the first pull, rounds that applied something).
 
         Each round is GET /pending, apply, ack of exactly the (score_id, seq)
         pairs applied without error (an item whose apply raised is never
         acked, so it stays queued; items applied before the error are acked).
         After a round that applied something the site pulls again, up to
         _RECONCILE_MAX_ROUNDS rounds, to pick up events queued meanwhile.
-        The JSON body keeps its original single field, ``reconciled`` = items
-        of the first pull; the number of rounds that applied items is in the
-        X-Dib-Reconcile-Rounds response header."""
+        Callers hold _reconcile_lock (the route and the trigger)."""
         first_pull = None
         rounds = 0
         for _round in range(_RECONCILE_MAX_ROUNDS):
-            resp = httpx.get(f"{EVIDENCE_URL}/pending/{_site_id()}", timeout=5.0)
+            resp = httpx.get(f"{EVIDENCE_URL}/pending/{_site_id()}", timeout=RECONCILE_TIMEOUT)
             resp.raise_for_status()
             pending = resp.json()["pending"]
             if first_pull is None:
@@ -301,10 +456,32 @@ if ROLE == "site":
             finally:
                 if applied:
                     httpx.post(
-                        f"{EVIDENCE_URL}/pending/{_site_id()}/ack", json={"applied": applied}, timeout=5.0
+                        f"{EVIDENCE_URL}/pending/{_site_id()}/ack", json={"applied": applied},
+                        timeout=RECONCILE_TIMEOUT,
                     )
+        return first_pull, rounds
+
+    _reconcile_lock = threading.Lock()
+
+    @app.post("/reconcile")
+    def reconcile(response: Response):
+        """Pull and apply the queued events now (the automatic trigger runs the same
+        _reconcile_once). The JSON body keeps its original single field, ``reconciled`` =
+        items of the first pull; the number of rounds that applied items is in the
+        X-Dib-Reconcile-Rounds response header. Serialized with the trigger: a manual call
+        may wait up to d_run for a run in progress; after DIB_DIST_RECONCILE_LOCK_TIMEOUT
+        it answers 503 (never in normal operation)."""
+        if not _reconcile_lock.acquire(timeout=RECONCILE_LOCK_TIMEOUT):
+            raise HTTPException(503, "a reconcile is already in progress")
+        try:
+            first_pull, rounds = _reconcile_once()
+        finally:
+            _reconcile_lock.release()
         response.headers["X-Dib-Reconcile-Rounds"] = str(rounds)
         return {"reconciled": first_pull}
+
+    if RECONCILE_INTERVAL > 0:
+        _trigger = _ReconcileTrigger(RECONCILE_INTERVAL, RECONCILE_JITTER, _reconcile_once, _reconcile_lock)
 
     @app.get("/export_mud")
     def export_mud(device_type: str, mud_url: str | None = None):
@@ -397,33 +574,53 @@ if ROLE == "evidence":
             (device_type, endpoint, protocol, port),
         ).fetchone()
 
-    def _fan_out(score_id: int, seq: int, event_type: str, target_state: str) -> None:
-        for i in range(N_SITES):
-            site_id = f"site-{i}"
-            delivered = False
-            for _attempt in range(_FANOUT_RETRIES):
-                try:
-                    resp = httpx.post(
-                        f"{_site_url(i)}/apply_fanout",
-                        json={"score_id": score_id, "seq": seq, "event_type": event_type, "target_state": target_state},
-                        timeout=_FANOUT_TIMEOUT_S,
-                    )
-                    if resp.status_code == 200:
-                        delivered = True
-                        break
-                except httpx.HTTPError:
-                    pass
-            if not delivered:
-                _evidence_db.run(
-                    lambda con, site_id=site_id: con.execute(
-                        "INSERT INTO pending_fanout (site_id, score_id, seq, event_type, target_state)"
-                        " VALUES (?, ?, ?, ?, ?)"
-                        " ON CONFLICT(site_id, score_id) DO UPDATE SET seq=excluded.seq,"
-                        " event_type=excluded.event_type, target_state=excluded.target_state"
-                        " WHERE excluded.seq > pending_fanout.seq",
-                        (site_id, score_id, seq, event_type, target_state),
-                    )
+    def _deliver_to_site(i: int, score_id: int, seq: int, event_type: str, target_state: str) -> None:
+        """Up to _FANOUT_RETRIES attempts (timeout _FANOUT_TIMEOUT_S, no pause) to site i; if all
+        fail, queue the event in the outbox (latest seq wins)."""
+        site_id = f"site-{i}"
+        delivered = False
+        for _attempt in range(_FANOUT_RETRIES):
+            try:
+                resp = httpx.post(
+                    f"{_site_url(i)}/apply_fanout",
+                    json={"score_id": score_id, "seq": seq, "event_type": event_type, "target_state": target_state},
+                    timeout=_FANOUT_TIMEOUT_S,
                 )
+                if resp.status_code == 200:
+                    delivered = True
+                    break
+            except httpx.HTTPError:
+                pass
+        if not delivered:
+            _evidence_db.run(
+                lambda con: con.execute(
+                    "INSERT INTO pending_fanout (site_id, score_id, seq, event_type, target_state)"
+                    " VALUES (?, ?, ?, ?, ?)"
+                    " ON CONFLICT(site_id, score_id) DO UPDATE SET seq=excluded.seq,"
+                    " event_type=excluded.event_type, target_state=excluded.target_state"
+                    " WHERE excluded.seq > pending_fanout.seq",
+                    (site_id, score_id, seq, event_type, target_state),
+                )
+            )
+
+    def _fan_out(score_id: int, seq: int, event_type: str, target_state: str) -> None:
+        executor = _get_fanout_executor()
+        if executor is None:  # FANOUT_CONCURRENCY == 1: the historical sequential loop
+            for i in range(N_SITES):
+                _deliver_to_site(i, score_id, seq, event_type, target_state)
+            return
+        futures = []
+        for i in range(N_SITES):
+            futures.append(executor.submit(_deliver_to_site, i, score_id, seq, event_type, target_state))
+        first_error = None
+        for future in futures:  # wait for ALL tasks, so none outlives the response
+            try:
+                future.result()
+            except Exception as exc:  # noqa: BLE001 - re-raised below, after every task finished
+                if first_error is None:
+                    first_error = exc
+        if first_error is not None:
+            raise first_error
 
     @app.post("/seed")
     def seed(req: SeedReq):
