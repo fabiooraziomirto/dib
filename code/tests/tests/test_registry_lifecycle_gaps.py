@@ -305,20 +305,46 @@ def _snapshot(session, score, decision):
     )
 
 
-def test_third_dispute_after_revoke_adds_no_transition(record_property) -> None:
+def _snapshot_without_version(session, score, decision):
+    status, disputed_by, _version, score_events, state, dversion, dec_events = _snapshot(session, score, decision)
+    return (status, disputed_by, score_events, state, dversion, dec_events)
+
+
+def test_third_dispute_after_revoke_adds_no_transition() -> None:
+    """Stato dello score, disputed_by, decisioni locali e storie (score e decisioni) restano
+    invariati. score.version e negative_attestations sono nel test _characterization sotto."""
     session = _fresh_session()
     try:
         score, decision = _revoked_fact_with_committed_site(session)
-        before = _snapshot(session, score, decision)
-        neg_before = score.negative_attestations
+        before = _snapshot_without_version(session, score, decision)
         _dispute(session, "site-d")
         score = _score(session)
-        assert _snapshot(session, score, decision) == before
-        assert before[3] == ["upsert", "dispute", "revoke"]
-        # Registrato, non asserito (B8): il paper non dice se le attestazioni crescano.
-        record_property("negative_attestations_before_third_dispute", neg_before)
-        record_property("negative_attestations_after_third_dispute", score.negative_attestations)
-        print(f"B8 negative_attestations: before={neg_before} after={score.negative_attestations}")
+        assert _snapshot_without_version(session, score, decision) == before
+        assert before[2] == ["upsert", "dispute", "revoke"]
+    finally:
+        session.close()
+
+
+def test_third_dispute_after_revoke_bumps_version_and_attestations_characterization(record_property) -> None:
+    """Split di B8 (2026-10-10, su richiesta): una dispute dopo la revoca da un sito NUOVO non crea
+    eventi ma aggiorna negative_attestations (services.py:644-646); l'UPDATE della riga Score
+    fa avanzare il token di concorrenza ottimistica (db.py:117-124). Risultato: score.version
+    (4) non coincide piu' con l'ultima versione in get_score_history (3). Fissa il
+    comportamento osservato, non lo approva."""
+    session = _fresh_session()
+    try:
+        score, decision = _revoked_fact_with_committed_site(session)
+        version_before, neg_before = score.version, score.negative_attestations
+        history_len = len(services.get_score_history(session, score.id))
+        _dispute(session, "site-d")
+        score = _score(session)
+        record_property("score_version_before_after", f"{version_before}->{score.version}")
+        record_property("negative_attestations_before_after", f"{neg_before}->{score.negative_attestations}")
+        assert (version_before, score.version) == (3, 4)
+        assert (neg_before, score.negative_attestations) == (2, 3)
+        history = services.get_score_history(session, score.id)
+        assert len(history) == history_len == 3
+        assert history[-1].version == 3 != score.version
     finally:
         session.close()
 
