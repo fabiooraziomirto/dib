@@ -41,3 +41,4 @@ Regole aggiuntive per questa fase:
 - Dati con data sharing agreement (Mon(IoT)r, PingPong): non copiarli nella repo e non committare dati derivati prima di aver verificato la licenza.
 - Il paper non è in questa repo; i numeri da riportare vanno in `docs/audit/`, con file:riga.
 
+- mTLS è dentro l'ambito della revisione: prima il design (`docs/audit/13_mtls_design.md`), poi il mio OK. Nessuna modifica a `code/src` prima di quell'OK; dopo, solo per ciò che il design approvato prevede, un commit per passo, mai su `formal/`.
