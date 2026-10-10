@@ -1,0 +1,48 @@
+{
+ "written": "post hoc, after the run, from commit b18fd1e (the node tree ~/dib_tnsm/tree-b18fd1e was created with git archive of that commit; the generator ran locally and imported its modules once at start)",
+ "commit": "b18fd1e",
+ "node_tree": "~/dib_tnsm/tree-b18fd1e",
+ "node_service_sha256": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+ "started_local": "2026-10-10 21:32",
+ "reading_fixed_in": "3aca8d7 (docs/audit/18, before the results of configuration B were seen)",
+ "configs": {
+  "A": "plain, CMD uvicorn service:app",
+  "B": "plain, uvicorn.Server(Config(http=PeerCertH11Protocol)) via compose override",
+  "C": "mTLS"
+ },
+ "fanout_concurrency": 10,
+ "writers": [
+  1,
+  10
+ ],
+ "ops_per_worker": 200,
+ "warmup_ops": 20,
+ "repetitions": 5,
+ "cell_order": [
+  "C",
+  "A",
+  "B",
+  "B",
+  "A",
+  "C",
+  "A",
+  "B",
+  "C",
+  "A",
+  "C",
+  "B",
+  "A",
+  "C",
+  "B"
+ ],
+ "sha256_of_inputs_at_commit": {
+  "experiments_tnsm/m3_distributed/diag_1writer.py": "b88c05836d1ac8f4a65181702ffb18d6daf52347c22f639ae56a34417e4945f9",
+  "experiments_tnsm/m3_distributed/run.py": "3c5d39329e12ace4b919acf999b771ce405a91c586b159642c78c3509acf27f4",
+  "code/scripts/distributed_concurrency_benchmark.py": "035ab45ea5972fb2bad6a294a5705701e48983f6fcdb45e582e19693b61e9eb5",
+  "experiments_tnsm/common/node_monitor.py": "80fc794e46e6bfe6cff6aaa51f066aa878622ee8290deddf7e0e0f26bd0d3d07",
+  "code/src/dib/registry/distributed/service.py": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+  "code/src/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9",
+  "code/src/dib/registry/distributed/generate_compose.py": "b70ec89235ef2dcc61cfc39b1081e9872e2f3c0f5f2ed005b19eb4880368ce71"
+ },
+ "background": "node_monitor.idle_window 12 s before each cell, containers of project dibtnsm excluded; the during-cell window was not sampled (generator on another host)"
+}

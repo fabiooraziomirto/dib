@@ -68,6 +68,48 @@ Vincoli: 5 ripetizioni in ordine mescolato, potenza limitata per differenze picc
 
 **Provenienza.** I servizi girano dalla copia `~/dib_tnsm/tree-b18fd1e` sul nodo, creata con `git archive` del commit; il generatore gira in locale importando i moduli una sola volta all'avvio. Gli hash dei file di input si registrano nel manifest della diagnostica.
 
+#### Esito della diagnostica (`diag_20261010/`, 15 celle, 21:32-21:44; manifest scritto a posteriori dal commit `b18fd1e`)
+
+Servizi dalla copia `~/dib_tnsm/tree-b18fd1e` del nodo; hash degli input in `manifest.json`. Ordine di esecuzione (per cella): C A B B A C A B C A C B A C B.
+
+**Throughput (ops/s), media con IC al 95% sulle 5 ripetizioni.**
+
+| Writer | A: plain, CLI | B: plain, lanciatore mTLS | C: mTLS |
+|---|---|---|---|
+| 1 | 115,5 [108,4; 123,8] | 113,6 [110,9; 116,9] | **213,0** [208,4; 219,4] |
+| 10 | 282,9 [277,9; 288,3] | 283,5 [269,1; 300,7] | **429,5** [409,7; 447,7] |
+
+**Applicazione della tabella fissata prima (H-D1):** B − A a 1 writer = −1,8 ops/s [−9,8; 4,5], B − C = −99,4 [−107,8; −92,5]. B coincide con A, non con C: **seconda riga, il lanciatore del server è escluso come causa**; l'anomalia si riproduce (C quasi doppio). Secondo la tabella: **nessun costo di mTLS nel paper**, ipotesi aperta. H-D2 (access log presente): in tutte le 15 celle 351 righe `POST` su site-0 e 378 su evidence, anche in A, B e C; per il mio conteggio ne ci si attende ≈ 345 su site-0 (165 + 165 + 15 di seed), quindi ≥ 90% è soddisfatto; la differenza di 6 righe non è spiegata. H-D2 non falsificata: **la sonda P-log è utilizzabile in tutte le modalità**.
+
+**Latenza p50 per tipo di operazione (ms, media sulle ripetizioni).**
+
+| Operazione | A w1 | B w1 | C w1 | A w10 | B w10 | C w10 |
+|---|---|---|---|---|---|---|
+| query (sito) | 9,64 | 9,55 | **5,68** | 45,94 | 46,16 | **28,80** |
+| commit (sito) | 9,38 | 9,39 | **5,65** | 45,19 | 45,28 | **28,46** |
+| attest (evidence) | 3,93 | 3,86 | 3,53 | 4,89 | 4,94 | **8,72** |
+| dispute (evidence) | 1,38 | 1,39 | 1,41 | 2,65 | 2,64 | **6,34** |
+| restore (evidence) | 1,39 | 1,37 | 1,38 | 2,58 | 2,78 | **6,48** |
+
+**Il divario sta nelle operazioni sul sito** (query e commit, −3,9 ms a 1 writer e −17 ms a 10), **non in quelle su evidence**, che a 1 writer sono uguali e a 10 writer sono **più lente** con mTLS (+3,7 ms circa), come ci si aspetta da un costo di TLS.
+
+**Meccanismo candidato [C per il codice, D per la causalità].**
+- `query_score` e `operator_commit` del sito chiamano entrambi `_evidence_get_score` (`service.py:380-390`), cioè un `httpx.get` di modulo che costruisce un `Client` nuovo a ogni chiamata.
+- Senza mTLS `_HTTP_TLS = {}` (`service.py:161`): httpx usa `verify=True` di default e costruisce un contesto SSL, con caricamento del bundle CA, anche per un URL `http://`. Con mTLS `_HTTP_TLS = {"verify": <contesto già costruito>}` (`:167`), quindi non c'è nulla da costruire a ogni chiamata.
+- Micro-misura (`diag_httpx_client_cost.py`, ipotesi H-X committata prima in `abe6289`): costruire il `Client` costa **6,15 ms** con verifica di default e **0,029 ms** con un contesto pronto, nell'immagine del servizio sul nodo (httpx 0,28.1, Python 3.12.15; locale: 5,9 ms e 0,03 ms). H-X supportata (soglia 2 ms).
+- Coerenza con i dati: il risparmio atteso per operazione sul sito è circa 6,1 ms; quello osservato a 1 writer è 3,7-3,9 ms. La differenza (~2,2 ms) è compatibile con l'handshake TLS completo che il braccio mTLS paga a ogni chiamata fra servizi (nessun pool, V1b); **non è stata misurata**. A 10 writer l'effetto cresce perché il sito è un processo Python singolo e la costruzione del contesto è tempo CPU.
+- Non verificato a livello di sistema: richiederebbe un braccio plain che passi lo stesso contesto precostruito (tramite un wrapper del lanciatore in `experiments_tnsm/`, senza toccare `service.py`, congelato).
+
+**Implicazioni (da leggere con la cautela che il meccanismo non è confermato a livello di sistema).**
+1. Il confronto mTLS contro plain **non** isola il costo di TLS: il braccio plain paga in più la costruzione del contesto a ogni chiamata fra servizi. Nessun numero di costo di mTLS va nel paper.
+2. Il bias va nella direzione che l'utente aveva indicato: a 100 writer il rapporto 0,83 sottostima verosimilmente il costo di TLS, perché il braccio plain è rallentato da una spesa che il braccio mTLS non ha. È coerente con i dati, ma non quantificato.
+3. I numeri del prototipo plain (anche quelli del paper vecchio, 530 ops/s a 100 writer) descrivono il prototipo così com'è, inclusa questa spesa per chiamata: restano veri per quel codice, ma non rappresentano un deployment ottimizzato.
+4. Proposta (richiede OK, entro il limite di un'ora che scade alle 22:32): una configurazione D, cioè plain con il lanciatore B più un wrapper che passa a httpx un contesto precostruito. Circa 5 celle (6 minuti). Se D si allinea a C a 1 writer, il meccanismo è confermato e il costo di mTLS si misura fra C e D; se D resta come A, il meccanismo non spiega il divario.
+
+**Regola di scarto, ora applicabile (pre-campione di fondo, 12 s a sistema idle, container `dibtnsm` esclusi).** Soglie invariate (`discard_rule.json`: `other_cores` > 1,0 o `steal_pct` > 2%).
+- `other_cores` 0,096-0,157 (massimo in cella 8, C rep 2: k3s-server 0,137); `steal_pct` 0,005-0,021; `busy_pct` 0,75-1,16. **Nessuna cella segnalata su 15.** Processo principale di fondo: `k3s-server` (~0,09 core), poi `containerd`.
+- Limite: è il campione **prima** della cella. La finestra durante la cella non è misurata (il generatore sta su un altro host), quindi la regola, che per definizione guarda la finestra della cella, è applicata solo al fondo.
+
 **Limiti e cautele.**
 - **Regola di scarto non applicata.** Il driver di M3/M4 registra per cella il carico medio e i primi processi per CPU del nodo (`node_load()`), non `other_cores` né `steal_pct` come `experiments_tnsm/common/node_monitor.py`: non si può quindi applicare `discard_rule.json`, e nessuna cella è stata scartata. G4 (nodo a riposo) resta non soddisfatta.
 - Load average a 1 minuto prima di ogni cella: 0,78-6,5; media per braccio 3,5-4,4 (FANOUT 1 off 3,46; FANOUT 1 on 3,62; FANOUT 10 off 4,03; FANOUT 10 on 4,42). Il valore è contaminato dalla cella precedente e dal riavvio del cluster, quindi **non è una misura pulita del carico di fondo**.

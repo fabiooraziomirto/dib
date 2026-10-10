@@ -1,0 +1,173 @@
+{
+ "hypotheses": {
+  "H-D1": {
+   "B_minus_A": [
+    -1.845367158406296,
+    -9.81940794244942,
+    4.49153056749787
+   ],
+   "B_minus_C": [
+    -99.37613522304287,
+    -107.82834764846,
+    -92.45935918623786
+   ],
+   "launcher_is_cause": false
+  }
+ },
+ "throughput": {
+  "1": {
+   "A": [
+    115.45004697270862,
+    108.43642905685168,
+    123.78345730036068
+   ],
+   "B": [
+    113.60467981430233,
+    110.86826379777507,
+    116.90255256900643
+   ],
+   "C": [
+    212.9808150373452,
+    208.35605926083775,
+    219.38819840667884
+   ]
+  },
+  "10": {
+   "A": [
+    282.9379404329703,
+    277.8728676637607,
+    288.25685788973436
+   ],
+   "B": [
+    283.4590986053543,
+    269.05916428008874,
+    300.6769384270868
+   ],
+   "C": [
+    429.4709431161454,
+    409.6868446762677,
+    447.65464064631703
+   ]
+  }
+ },
+ "per_op_p50_ms_mean": {
+  "A_w1": {
+   "attest": 3.93,
+   "commit": 9.38,
+   "contribute": 0.0,
+   "dispute": 1.38,
+   "query": 9.64,
+   "restore": 1.39
+  },
+  "A_w10": {
+   "attest": 4.89,
+   "commit": 45.19,
+   "contribute": 0.0,
+   "dispute": 2.65,
+   "query": 45.94,
+   "restore": 2.58
+  },
+  "B_w1": {
+   "attest": 3.86,
+   "commit": 9.39,
+   "contribute": 0.0,
+   "dispute": 1.39,
+   "query": 9.55,
+   "restore": 1.37
+  },
+  "B_w10": {
+   "attest": 4.94,
+   "commit": 45.28,
+   "contribute": 0.0,
+   "dispute": 2.64,
+   "query": 46.16,
+   "restore": 2.78
+  },
+  "C_w1": {
+   "attest": 3.53,
+   "commit": 5.65,
+   "contribute": 0.0,
+   "dispute": 1.41,
+   "query": 5.68,
+   "restore": 1.38
+  },
+  "C_w10": {
+   "attest": 8.72,
+   "commit": 28.46,
+   "contribute": 0.0,
+   "dispute": 6.34,
+   "query": 28.8,
+   "restore": 6.48
+  }
+ },
+ "access_log_by_config": {
+  "A": [
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   }
+  ],
+  "B": [
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   }
+  ],
+  "C": [
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   },
+   {
+    "site0_post_lines": 351,
+    "evidence_post_lines": 378
+   }
+  ]
+ },
+ "background_idle_other_cores_max": 0.1566,
+ "background_idle_steal_max": 0.021
+}
