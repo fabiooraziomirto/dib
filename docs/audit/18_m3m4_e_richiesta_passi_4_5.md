@@ -637,3 +637,23 @@ Nel blocco, sostituire `tree-9e8f2ac` con `tree-54f7741` in tutti i comandi di �
 - **B2-kill.** Sono cronometrati `t_kill` e `t_start` (ritorno dei comandi `compose`, non percorso di rete) e il **polling di `/export_mud` sul sito riavviato** (`:575`, P = 50 ms, timeout 2 s), da cui `t_up` e `t_withdrawn`: la prima risposta dopo `start` arriva su connessione nuova (bias ≤ 2d: d per il dial del proxy, d per la risposta); le successive su connessione riusata (bias ≤ d più 50 ms di periodo). È il bias di B2-kill già dichiarato sopra; si aggiunge al ritardo di riapplicazione di netem. I `/dispute` e `/restore` della prova sono preceduti da `Env.warm`; `/pending` (`:566`) e `/state` (`:597`) non sono cronometrati.
 - **Flag di `generator_path_ms`.** Il valore con `reused_ok`/`fresh_ok` è già in `cells_summary[*].profile_timing.generator_path_ms` del manifest e nel record di ogni cella, e stampato a console al momento della misura; fuori dal ±20% lo segnala senza abortire e senza correggere nulla. Se vuoi un campo di primo livello nel riepilogo di cella lo aggiungo dopo il confronto degli hash (cambia `run.py` e quindi il suo sha256), non prima.
 
+**Correzione prima di B1 (decisione dell'utente: "fai il punto 1 prima del via"; una sola ricostruzione del tree). Albero finale: `T=~/dib_tnsm/tree-06d4819`** (commit `06d4819`; `tree-54f7741` rimosso dal nodo; `service.py` `3186304363ed…`; script netem invariati).
+
+Scoperta che va oltre il punto 1: il solo warm prima di ogni lettura **non basta**. Le 10 `GET /pending/site-i` erano **sequenziali**: a `wan` la decima parte ~1,6 s dopo la risposta (10 × d·2), a `degraded` ~2 s su connessione riusata e molto più nel braccio C (connessione nuova con TLS ≈ 4d a lettura). Con T = 5 s un'entry in pending viene drenata al primo trigger, uniforme in 0-5,5 s, quindi una lettura in ritardo di 2 s ne perde fino a ~36%: la **conta letta sottostima la quota in pending**, anche nel braccio D. Il warm di ogni lettura prima di t0 è inoltre inutile quando `/dispute` dura più del keep-alive (~5 s; a `degraded` con FANOUT 1 dura 11-20 s). Cosa ho fatto invece (test R-14 e R-15 scritti prima; 34 test passati):
+1. **Conta dal log di evidence**, non dalle letture: un sito è in pending se esiste una riga `POST /pending/site-i/ack` dopo t0 o se a fine attesa resta una consegna non drenata. Le letture restano come controllo incrociato e il riepilogo riporta `n_pending_sites_read`, `n_pending_sites_log` e `read_undercount_sites` (siti visti dal log e non dalla lettura).
+2. **Letture concorrenti** (un thread per sito, `Env.read_pending`) subito dopo la risposta, con `pending_read_delay_s` per episodio (quanto è in ritardo la lettura).
+3. **Warm concorrente** di `op-site-1` e dei 10 client `site-i` prima di t0 (`Env.warm_many`); utile quando la risposta arriva entro il keep-alive, non garantito altrimenti: per questo la conta non dipende dalle letture.
+4. **Consegne risolte senza ack** (riparazione da snapshot o causa ignota): l'episodio è contato in `n_pending_unmeasured_episodes` e **non entra** nei tempi `P-log-ack`; le consegne ancora pending alla scadenza in `n_pending_undrained_episodes`. Nessuna mescolanza con i tempi P-log. Verificato dal test R-14.
+5. **`generator_path_flag`** di primo livello in ogni voce di `cells_summary` (vero se `generator_path_ms` esce dal ±20% su d o 2d; solo informativo).
+
+Bias residuo dichiarato: nel braccio C le letture restano su connessione nuova se la risposta arriva dopo il keep-alive; ora influenzano solo il controllo incrociato, non la conta di (c).
+
+| File | sha256 (locale = nodo) |
+|---|---|
+| `run.py` | `36194e715aa1f9c1c62d5a49fa77c3c5ea54637a5ed8da245c74130e51efbd4e` |
+| `calib_logs.py` | `c221ca812c6c8d6065d07641cdac38364a8f4dd3f2aa168022e105f1c7b76a93` (invariato) |
+| `calib_profile.py` | `f045d0fdcfd543f8d3a98a6de739ec488290cf430d269eda5e595bb6676c1c38` (invariato) |
+| `calib_ldns.sh` | `0191b1fafc52dc05a69f198390d1029467b4273b04fed9b3ddc771d989a28ba7` (invariato) |
+
+Nei comandi di §2.4-§2.5 usare `tree-06d4819` al posto di `tree-54f7741`.
+
