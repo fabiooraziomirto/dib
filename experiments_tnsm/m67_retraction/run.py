@@ -532,6 +532,7 @@ def live(a, cells, rng) -> int:
                 "run_py_sha256": sha(Path(__file__)), "discard_rule": rule,
                 "disk_start": subprocess.run(["df", "-h", "/"], capture_output=True, text=True).stdout.splitlines()[-1]}
     log = (out / "cells.jsonl").open("a")
+    manifest["cells_summary"] = []
     n_cell = 0
     total = len(cells)
     aborted = False
@@ -591,6 +592,9 @@ def live(a, cells, rng) -> int:
                     rec["summary"] = summarize_rows(rows, a.profile, a.plog_p95_ms)
                 if rec["generator_load"]["near_saturation"]:
                     print("WARNING: generator load near saturation during this cell", flush=True)
+                manifest["cells_summary"].append({"cell": n_cell, "spec": cell, "profile_timing": timing, "flagged_pre": flagged,
+                                                  "excluded": rec["excluded"], "generator_load": rec["generator_load"],
+                                                  "summary": rec.get("summary")})
                 log.write(json.dumps(rec) + "\n")
                 log.flush()
                 print(f"[{n_cell}/{total}] {cell['block']} {arm} f={fo} T={T} rows={len(rows)} excluded={rec['excluded']} flagged={flagged} "
