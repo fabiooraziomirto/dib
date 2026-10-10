@@ -193,3 +193,20 @@ Tutti con il servizio in-process o su porte locali, con la CA di test. Ipotesi e
    - uno script che generi la PKI per il deployment Docker: certificati server con SAN DNS `evidence` e `site-<i>`, operatori, amministratore, mappatura;
    - il benchmark (`code/scripts/distributed_concurrency_benchmark.py`) deve presentare i certificati operatore, member e admin;
    - l'immagine resta `python:3.11-slim` mentre per le misure è stato scelto 3.12 (G1): decidere se l'immagine passa a 3.12, il che cambia anche il braccio senza mTLS.
+
+### 9.1 Aggiornamento (decisioni utente, 2026-10-10)
+
+**Scostamenti approvati:**
+1. **Nessun pool fra servizi.** L'handshake TLS completo per ogni chiamata fra servizi è il **caso peggiore**, riportato come **limite superiore dichiarato** del costo di mTLS. Se in M4 pesa troppo, si valuta un braccio con client persistente solo nel benchmark, senza toccare `service.py`.
+2. **Registry single-node fuori ambito.** Limite dichiarato: lì l'identità resta nel payload.
+3. **Lista tipi solo su `/attest` e `/dispute`**, senza estensioni. **Limite da discutere col supervisore:** ES_d all'ingresso delle osservazioni **non è verificato**. Il denominatore di C_s resta autodichiarato (`dib.py:198`, H2 del REPORT), e la frase proposta in `paper_edits_proposed.md` §1a resta vera.
+
+**Preparazione di M3/M4, un commit ciascuno, test prima:**
+
+| Commit | Cosa | Test |
+|---|---|---|
+| `23d7700` | `code/scripts/make_dist_pki.py`: PKI OpenSSL per Docker, deterministica tranne le chiavi, certificati da 24 h, chiave della CA in `<out>.ca/`, rifiuto di scrivere chiavi in cartelle della repo non ignorate. Cartelle predefinite in `.gitignore`. `_mtls_ca.TestCA` ora riusa la stessa CA | `test_make_dist_pki.py` (4) |
+| `0ac6a51` | `distributed_concurrency_benchmark.py --pki`: identità operatore per sito e admin, `--evidence-url`/`--site-urls` per un host remoto, **403 contato come errore inatteso** (`http.403`) in entrambe le modalità | `test_benchmark_mtls.py` (3), su processi mTLS reali |
+| `2afdb04` | immagine `python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1` (Python 3.12.15). Cambia anche il braccio senza mTLS | `test_mtls_compose.py::test_c4` |
+
+Suite 448 passed su 3.10 e 3.12. `verify_artifact` sempre 260/2, con gli stessi due controlli della Fase 0 (`scripts/verify_artifact.py:250`, `:323`): stesso valore registrato in `results/` (`d09f8db5…`, v43); cambia solo l'atteso, che è l'hash corrente di `service.py` (`31863043…`).
