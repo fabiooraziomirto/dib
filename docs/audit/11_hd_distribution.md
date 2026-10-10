@@ -46,4 +46,80 @@ Riprodurre: `PYTHONPATH=code/src PYTHONDONTWRITEBYTECODE=1 timeout 300 python3 -
 
 ## 2. Distribuzione di h_d (Fase 3)
 
-Da completare.
+Solo dati già sul disco, niente scaricato. Script nuovo `analysis_fs/hd_union.py`; riusati `analysis_fs/hd_heterogeneity.py` (output per corpus) e `dib.adapters.real_federation.find_overlap_devices` (`code/src/dib/adapters/real_federation.py:65-112`).
+
+### 2.1 Cosa c'è sul disco e cosa manca
+
+| Corpus | Sul disco | Forma | Siti | Tipi | Finestra | sha256 (16) |
+|---|---|---|---|---|---|---|
+| UNSW-IoTraffic | sì, solo processato: `/root/Desktop/DIB/data/processed/observations_enriched.csv` (e `_item1fixed`) | osservazioni normalizzate | 1 | 27 | set 2016 – apr 2017 (+ righe spurie del 1970, audit 08 §11) | `e741b426…` (`_item1fixed`: `4de5423c…`) |
+| Mon(IoT)r IMC19 | sì, solo processato: `moniotr_full_observations.csv` | osservazioni normalizzate | 4 capture tree = 2 laboratori (US, UK) | 59 | 29 mar – 8 mag 2019 | `6d2f0080…` |
+| YourThings | sì, solo processato: `yourthings_observations.csv` | osservazioni normalizzate | 1 | 46 | **un solo giorno** (21 mar 2018) | `b6db4884…` |
+| Federazione reale (derivata) | sì: `real_federation_observations.csv` | 6 org label, 10 tipi condivisi | 6 (4 indipendenti) | 10 | — | `ce6d37fb…` |
+| UNSW attack 2018 | sì: `data/unsw_attack_2018/{flowdata,annotations}` (14 MB) | flowstats + annotazioni | — | — | — | — |
+| UNSW MUD profiles | sì: `data/unsw/profiles/{ground_truth,normalized}` | 28 profili | — | 28 | — | — |
+
+**Mancano** (ricerca su tutto il filesystem di `.pcap`, `.pcapng`, archivi e nomi dei dataset; nessuna cattura grezza IoT trovata):
+- PCAP o CSV grezzi di UNSW-IoTraffic (`data/unsw_iotraffic_2025/{flows,protocols}_extracted`), Mon(IoT)r (`iot-data.tar`, `iot-idle.tgz`) e YourThings (`iot_traffic*.tgz`). Gli script `prepare_*.py` non si possono rieseguire. Lo conferma anche `/root/Desktop/DIB/outputs/dataset_inventory.json` ("flows directory missing").
+- Tutti i candidati di `10_dataset_survey.md`: raccolta Ahmed et al. (PETS 2022), NCSU IoT-Lab 2020/2021, PingPong, HomeSnitch, IoT Inspector (nessun CSV per `code/scripts/prepare_iot_inspector_conditional.py`, che richiede `--input`), IoT-23, CICIoT2023, GothX/Gotham.
+- Disco: 35 GB liberi su 540 (94% occupato).
+
+### 2.2 Come si identifica "lo stesso tipo" tra siti
+
+Nel codice ci sono due meccanismi, e **non coincidono** [C]:
+1. `dib.evaluation.profiles.canonical_device_name` (`profiles.py:142-194`): minuscole, caratteri non alfanumerici → `-`, più una tabella di alias, quasi tutti UNSW → nome canonico (es. `SamsungSmartThings` → `smartthings`, `TPLinkSmartPlug` → `tp-link-plug`). Lo usano `real_federation.py:86-99` e quindi i corpora `real_federation_*` e `union_canonical_*`.
+2. `docs/label_mapping_v16.csv`: 6 tipi allineati YourThings ↔ Mon(IoT)r, usato da `hd_heterogeneity.py` per `three_lab_US_UK_YT`. Tre righe (`googlehomemini`, `insteonhub`, `rokutv`, "hyphen-only normalization") **non** sono unite da `canonical_device_name`: per il codice sono tipi diversi da `google-home-mini`, `insteon-hub`, `roku-tv`.
+
+Per questo la tabella riporta l'unione sia con il solo mapping canonico sia con "canonico + v16". Restano quasi-duplicati che nessuno dei due mapping unisce e che non ho unito io: `googlehome` (YT) / `google-home` (Mon(IoT)r UK); `augustdoorbellcam` (YT) / `august-doorbell` (UNSW); `nestcamera` (YT) / `dropcam` (UNSW; `nest-cam` → `dropcam` è un alias, `nestcamera` no); `t-echodot` / `echodot` (stesso laboratorio). Il mapping è per nome commerciale, non per make-and-model o firmware. Alcuni alias uniscono già dispositivi diversi (`philips-bulb` → `philips-hue`, `nest-cam` → `dropcam`: `profiles.py:163-173`). Unire anche questi quasi-duplicati porterebbe al massimo 3 tipi da h = 1 a h = 2 e non cambierebbe le conclusioni sotto.
+
+**Sito.** `real_federation.ORG_LABELS` (`real_federation.py:46-53`). "Indipendente" fonde us/us-vpn e uk/uk-vpn (`NON_INDEPENDENT_PAIRS`, `:59-62`: stessa popolazione di dispositivi, due percorsi di rete). Con i dati sul disco esistono quindi **al più 4 siti indipendenti** (UNSW, Mon(IoT)r US, Mon(IoT)r UK, YourThings). Un sito osserva un tipo se ha almeno una riga di quel tipo. La variante "solo righe con endpoint" (regola di `dib.py:198` e di `hd_heterogeneity.py`) dà gli stessi h per tutti i 119 tipi (0 differenze).
+
+### 2.3 Risultati
+
+**Ipotesi (nel docstring di `hd_union.py`, scritta prima dell'esecuzione).** Nessun tipo ha h ≥ 5. K = 3 non è mai coperto al margine e K = 2 non è mai coperto a f_s. La mediana di h è 1. Falsificata se h_indep ≥ 5 per qualche tipo o se più di metà dei tipi ha h_indep ≥ 2. **Esito: non falsificata.** 0 tipi con h ≥ 5; 32 tipi su 119 (27%) con h_indep ≥ 2.
+
+**Regola di copertura** (sez. 1, H'), con h siti onesti:
+- lo score respinge sempre K avversari se K ≤ 5h/7, cioè h ≥ ⌈7K/5⌉ = 2, 3, 5 per K = 1, 2, 3;
+- il budget dichiarato regge se K/(K+h) ≤ 0,30, cioè h ≥ ⌈7K/3⌉ = 3, 5, 7;
+- il quorum m = 2 respinge K = 1 per ogni h, quindi con m = 2 K = 1 è coperto su tutti i tipi.
+
+Per K ≤ 3 il pareggio K = 5h/7 non si presenta, quindi i conteggi al margine coincidono con quelli di `hd_coverage_requirement.csv`, che usa la disuguaglianza stretta.
+
+Numero di tipi coperti (CSV: `analysis_fs/out/hd_tolerance_k123.csv`). "score" = K ≤ 5h/7; "f_s" = K/(K+h) ≤ 0,30.
+
+| Corpus | tipi (righe) | h min/med/max | K=1 score | K=1 f_s | K=2 score | K=2 f_s | K=3 score | K=3 f_s |
+|---|---|---|---|---|---|---|---|---|
+| Mon(IoT)r, US e UK fusi | 59 | 1/1/2 | 26 | 0 | 0 | 0 | 0 | 0 |
+| Mon(IoT)r, 4 capture tree (non indipendenti) | 59 | 2/2/4 | 59 | 26 | 26 | 0 | 0 | 0 |
+| YourThings | 46 | 1/1/1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| three_lab US+UK+YT (mapping v16) | 6 | 3/3/3 | 6 | 6 | 6 | 0 | 0 | 0 |
+| federazione reale, 6 label | 10 | 2/3/6 | 10 | 5 | 5 | 4 | 4 | 0 |
+| federazione reale, indipendenti | 10 | 2/2/4 | 10 | 4 | 4 | 0 | 0 | 0 |
+| **unione, canonico, indipendenti** | 119 | 1/1/4 | 32 | 4 | 4 | 0 | 0 | 0 |
+| unione, canonico + v16, indipendenti | 116 | 1/1/4 | 32 | 7 | 7 | 0 | 0 | 0 |
+| unione, canonico, capture tree | 119 | 1/2/6 | 64 | 27 | 27 | 4 | 4 | 0 |
+| UNSW 10 pseudo-siti, 20 seed (sintetico) | 540 | 2/10/10 | 540 | 520 | 520 | 519 | 519 | 509 |
+
+Istogramma dell'unione (CSV: `analysis_fs/out/hd_union_histogram.csv`, solo conteggi):
+
+| h_indep | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|
+| canonico | 87 | 28 | 1 | 3 |
+| canonico + v16 | 84 | 25 | 4 | 3 |
+
+I 4 tipi con h_indep ≥ 3 nel mapping canonico sono `smartthings`, `ring-doorbell` e `philips-hue` (h = 4: UNSW, US, UK, YT) e `tp-link-plug` (h = 3). Con v16 si aggiungono `google-home-mini`, `insteon-hub` e `roku-tv` (h = 3).
+
+**Lettura [D].**
+1. Sui dati reali, la garanzia per tipo copre K = 2 colluder solo su 4–7 tipi su circa 117 (al margine) e su nessun tipo a f_s = 0,30. Non copre mai K = 3. K = 1 è coperto solo grazie al quorum. È un limite strutturale: con 4 siti indipendenti h ≤ 4, mentre K = 3 richiede h ≥ 5 al margine e h ≥ 7 a f_s.
+2. I corpora con h alto (UNSW 10 pseudo-siti, mediana 10) sono partizioni sintetiche di un solo laboratorio. I capture tree di Mon(IoT)r gonfiano h (mediana 2 invece di 1) senza indipendenza.
+3. Riproducibilità: `hd_heterogeneity.py` rieseguito nel worktree (3 min 18 s) riproduce byte per byte i 3 CSV `hd_*` committati. `hd_union.py` impiega circa 1 min.
+
+### 2.4 Cosa servirebbe (nessun download fatto)
+
+- **Raccolta Ahmed et al. (PETS 2022).** Rispetto a quanto già c'è, aggiunge NCSU 2020/2021 (un laboratorio, due anni: per la regola di sopra conta come **un** sito indipendente), PingPong (UCI, form e licenza non commerciale) e HomeSnitch (su richiesta). In tutto si arriva al più a 7 siti indipendenti. h ≥ 7 (K = 3 a f_s) richiederebbe un tipo presente in tutti e 7: [D] improbabile. Primo passo proposto: il campione NCSU da 476 MB (survey §3.A), fuori dalla repo, per misurare la sovrapposizione dei make-and-model con i 119 tipi. Licenza non dichiarata.
+- **IoT Inspector.** È l'unica fonte con N reale grande (case come siti) e quindi l'unica che può dire se h ≥ 5–7 è realistico. Richiede una richiesta di accesso; formato atteso da `prepare_iot_inspector_conditional.py` (campi `home_id`, `device_id`, `timestamp`, `hostname`, `port`, `protocol`, `vendor`, `product`).
+- **PCAP grezzi.** Non servono per h_d. Servono solo per rieseguire gli adapter (`prepare_*.py`).
+
+### 2.5 Manifest
+
+Python 3.10.13, Ubuntu 22.04.3, 2 × AMD EPYC 7313 (16 thread), 64 GiB. Nessun seed in `hd_union.py` (deterministico). `hd_heterogeneity.py` usa i seed UNSW 0–19. Hash degli input nella tabella 2.1. Il file per tipo con le etichette (`/root/Desktop/DIB/outputs/tnsm_hd/hd_union_by_type.csv`) resta **fuori dalla repo**, perché elenca i dispositivi Mon(IoT)r (data sharing agreement, `docs/work/PRE_PUBLICATION_CHECKLIST.md`).
