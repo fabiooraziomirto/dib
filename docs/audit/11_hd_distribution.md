@@ -120,6 +120,69 @@ I 4 tipi con h_indep ≥ 3 nel mapping canonico sono `smartthings`, `ring-doorbe
 - **IoT Inspector.** È l'unica fonte con N reale grande (case come siti) e quindi l'unica che può dire se h ≥ 5–7 è realistico. Richiede una richiesta di accesso; formato atteso da `prepare_iot_inspector_conditional.py` (campi `home_id`, `device_id`, `timestamp`, `hostname`, `port`, `protocol`, `vendor`, `product`).
 - **PCAP grezzi.** Non servono per h_d. Servono solo per rieseguire gli adapter (`prepare_*.py`).
 
+### 2.4 bis Budget con N ≤ 7 laboratori (decisione utente)
+
+Con al più N = 7 laboratori indipendenti (i 4 sul disco più NCSU, PingPong e HomeSnitch) e f_s = 0,30, il budget per tipo è **K ≤ 2**: K ≤ ⌊0,30·N⌋ = 2. Per K = 2 il budget regge solo se K/(K+h) ≤ 0,30, cioè h ≥ 5, e quindi K + h ≥ 7: il tipo deve essere presente in **tutti** i siti. K = 3 richiederebbe h ≥ 7 e N ≥ 10, fuori portata con laboratori reali.
+
+### 2.6 Campione NCSU IoT-Lab (Ahmed et al., PETS 2022)
+
+**Download.** Solo il campione (decisione utente), fuori dalla repo:
+- origine: `https://privacy-datahub.csc.ncsu.edu/data/iot-device-fingerprinting/sample.zip`, scaricato il 2026-10-10 alle 15:18 UTC;
+- destinazione: `/root/Desktop/DIB/data/external/ncsu_sample/sample.zip`;
+- dimensione: 498.170.708 byte (`Last-Modified` 27 set 2024); sha256 `10143e349c02c35e9a347cfd7d747107c4867f7cc0a64435cd0df0a2c75dcd11`;
+- licenza: la pagina non ne dichiara nessuna.
+
+Lo zip non è stato estratto. Contiene 51 catture (1,50 GB non compressi, dal 28 gen 2021 18:46 al 29 gen 2021 19:16, circa 24 h) e `sample/device_mappings.csv` (15 righe: etichetta e IP LAN). **Le catture sono in formato pcapng** nonostante l'estensione `.pcap`. Non ho scaricato altro (i due `device_mappings.csv` completi da 4 KB sono disponibili ma esclusi).
+
+**Script.** `analysis_fs/ncsu_overlap.py`, eseguito con `python3 -I` e solo `struct`, senza parser di terze parti; ~21 s. Ipotesi e criterio di falsificazione sono nel docstring, scritti prima dell'esecuzione. Un dispositivo conta come osservato solo se nelle catture c'è almeno un pacchetto IPv4 tra il suo IP e un indirizzo globale. NCSU conta come **un** sito indipendente in più. Output per etichetta fuori dalla repo, perché la licenza non è dichiarata: `/root/Desktop/DIB/outputs/tnsm_hd/ncsu_overlap.csv`.
+
+**Mapping.** `canonical_device_name` e `label_mapping_v16.csv` non sono stati toccati.
+- *stretto*: `canonical_device_name(label)` deve coincidere con uno dei 119 tipi. Nessuna etichetta NCSU colpisce la tabella di alias: verificato importando la funzione, l'output coincide con la sola normalizzazione di `profiles.py:143-144`.
+- *per famiglia*: tabella manuale `FAMILY` nello script, per nome commerciale; generazione e modello non sono verificati.
+
+| Etichetta NCSU | Traffico globale | Stretto | Per famiglia | h prima → dopo |
+|---|---|---|---|---|
+| Ring Doorbell | sì | ring-doorbell | ring-doorbell | 4 → 5 |
+| Samsung SmartThings Hub 2 | sì | — | smartthings | 4 → 5 |
+| Amazon Echo Plus 2nd Gen | sì | — | echoplus | 2 → 3 |
+| Nestcam | sì | — | nestcamera (YT) | 1 → 2 |
+| Google OnHub | sì | — | googleonhub (YT) | 1 → 2 |
+| LG Smart TV | sì | — | lgtv-wired | 1 → 2 |
+| Amcrest Camera | sì | — | amcrest-cam-wired | 1 → 2 |
+| Amazon Echo Look | sì | — | — (nessun tipo) | — |
+| Smart WiFi Plug (2 dispositivi) | sì | — | — (vendor ignoto) | — |
+| Foscam | **no** (0 pacchetti con peer globale) | — | — | — |
+
+Esclusi perché non IoT: Desktop, Router, Motog phone, Pixel 2 Phone. I due "Smart WiFi Plug" hanno la stessa etichetta e lo script ne somma i pacchetti. [?] `Nestcam` potrebbe corrispondere anche a `dropcam` (UNSW, tramite l'alias `nest-cam`): non unito.
+
+**Esito.**
+- Stretto: 1 tipo guadagna un sito (ring-doorbell, h = 5).
+- Per famiglia: 7 tipi guadagnano un sito; istogramma di h dopo {2: 4, 3: 1, 5: 2}.
+- In entrambi i casi **al più 2 tipi raggiungono h = 5 e nessuno h ≥ 7**: il criterio di falsificazione dichiarato non scatta.
+- La previsione accessoria "al più 6 tipi guadagnano un sito" era sbagliata: con il mapping per famiglia sono 7.
+
+**Lettura [D].** Con NCSU, K = 2 a f_s = 0,30 diventa coperto su 1 tipo (stretto) o 2 tipi (per famiglia), ring-doorbell e smartthings, presenti in tutti e 5 i siti indipendenti. K = 3 a f_s resta scoperto. Il campione copre circa 24 h di un solo anno (2021), quindi la raccolta completa 2020/2021 potrebbe aggiungere tipi ma non siti: NCSU resta un laboratorio.
+
+### 2.7 Quale meccanismo produce i "sei tipi comuni" del paper
+
+Il paper (fuori repo, solo letto) dice "only six device types are common to all three deployments" a `/root/Desktop/DIB_reframe/docs/main.tex:622` (sha256 `bf61868d…`, 853 righe; nella copia `DIB_clean/docs/main.tex` è la riga 627). I tre deployment sono Mon(IoT)r US, Mon(IoT)r UK e YourThings (`main.tex:543`, Tabella `tab:threelab`).
+
+**Produce i sei tipi `docs/label_mapping_v16.csv`, non `canonical_device_name`** [C]:
+- `code/scripts/moniotr_cross_lab.py:237-249` (`load_label_mapping`) legge il CSV e costruisce {etichetta grezza → canonico} per entrambe le colonne. `:187` applica `label_map.get(device, device)` alle etichette grezze, e `canonical_device_name` non interviene.
+- `:111` scrive `aligned_device_types = sorted(set(label_map.values()))` nel manifest. I sei tipi sono quindi **per costruzione le righe del file**, non un conteggio fatto sui dati.
+- `results/three_lab_loo/manifest.json` registra `aligned_device_types` = google-home-mini, insteon-hub, philips-hue, ring-doorbell, roku-tv, smartthings e `label_mapping_sha256` = `ff16da15…`, che coincide con `docs/label_mapping_v16.csv` e `results/three_lab_loo/label_mapping_v16.csv`.
+
+Gli stessi sei tipi vengono usati da `v28_matched_ablation.py:21`, `pareto_frontier.py:97` e `union_ranked_budget.py:106`. Questi script cercano il file in `experiments/30_three_lab_loo/label_mapping_v16.csv`, un percorso **assente** dalla repo (il file è in `docs/` e in `results/three_lab_loo/`). `docs/data_provenance.md:123` cita invece `data/label_mapping_v16.csv`, assente anche quello. Lo segnalo senza correggere.
+
+**Quanto cambia h_d** (dati sul disco, `hd_union_by_type.csv` fuori repo):
+
+| Tipo | h su US/UK/YT con v16 | con il solo `canonical_device_name` | h indipendente nell'unione (con UNSW): v16 / canonico |
+|---|---|---|---|
+| philips-hue, ring-doorbell, smartthings | 3 | 3 | 4 / 4 |
+| google-home-mini, insteon-hub, roku-tv | 3 | **2** (YT resta un tipo separato: `googlehomemini`, `insteonhub`, `rokutv`) | 3 / 2 |
+
+Con il solo mapping canonico i tipi comuni ai tre deployment sarebbero **3, non 6**. Il file v16 coincide con l'insieme dei tipi presenti in US, UK e YT dopo la sola rimozione di trattini e maiuscole. L'unica altra coppia di quel genere, `googlehome` (YT) / `google-home` (Mon(IoT)r), è esclusa correttamente perché `google-home` è solo a UK. Per K ≤ 3 la differenza non cambia la copertura al margine (h = 2 e h = 3 coprono entrambi K = 1 e non K = 3). A f_s cambia K = 1: h = 3 lo copre, h = 2 no. Da qui i 4 contro 7 tipi della tabella in 2.3.
+
 ### 2.5 Manifest
 
-Python 3.10.13, Ubuntu 22.04.3, 2 × AMD EPYC 7313 (16 thread), 64 GiB. Nessun seed in `hd_union.py` (deterministico). `hd_heterogeneity.py` usa i seed UNSW 0–19. Hash degli input nella tabella 2.1. Il file per tipo con le etichette (`/root/Desktop/DIB/outputs/tnsm_hd/hd_union_by_type.csv`) resta **fuori dalla repo**, perché elenca i dispositivi Mon(IoT)r (data sharing agreement, `docs/work/PRE_PUBLICATION_CHECKLIST.md`).
+Python 3.10.13, Ubuntu 22.04.3, 2 × AMD EPYC 7313 (16 thread), 64 GiB. Nessun seed in `hd_union.py` e `ncsu_overlap.py` (deterministici). `hd_heterogeneity.py` usa i seed UNSW 0–19. Hash degli input nella tabella 2.1. Il file per tipo con le etichette (`/root/Desktop/DIB/outputs/tnsm_hd/hd_union_by_type.csv`) resta **fuori dalla repo**, perché elenca i dispositivi Mon(IoT)r (data sharing agreement, `docs/work/PRE_PUBLICATION_CHECKLIST.md`).
