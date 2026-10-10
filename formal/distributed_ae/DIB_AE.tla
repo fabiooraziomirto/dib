@@ -34,6 +34,10 @@
 (* local veto and the origin rule are therefore the same everywhere.       *)
 (*                                                                         *)
 (* MODELLING CHOICES AND DECLARED DEVIATIONS                               *)
+(*  0. Reporters are abstract identifiers separate from the sites (as in the tests,  *)
+(*     rep-a/rep-b). With 2 sites and 2 reporters the D12 scenario with a lagging   *)
+(*     site that is NOT a reporter is covered; the case with 3 REAL sites is not,   *)
+(*     except by the robustness cfgs v0_3sites/v1_3sites.                           *)
 (*  1. `unreachable` = the evidence cannot deliver to the site (asymmetric *)
 (*     partition or stopped site). The site's own reconcile run keeps going*)
 (*     (site -> evidence is assumed up). The plan first said "SiteDown     *)
@@ -64,6 +68,7 @@ EXTENDS Naturals, FiniteSets
 
 CONSTANTS
     Sites, Facts, NoSite, NoFact,
+    Reporters,           \* abstract reporter identities (req.site_id, :747-751), NOT the sites
     PartitionableSites,  \* sites that can become unreachable from the evidence
     AllowCommit,
     AntiEntropy,         \* the `current` list + repair step exist (audit 06)
@@ -121,7 +126,7 @@ OpRecord  == [op: Ops, site: Sites \cup {NoSite}, fact: Facts \cup {NoFact},
 TypeOK ==
     /\ estatus     \in [Facts -> EStatuses]
     /\ eseq        \in [Facts -> 0..MaxEvents]
-    /\ edisp       \in [Facts -> Sites \cup {NoSite}]
+    /\ edisp       \in [Facts -> Reporters \cup {NoSite}]
     /\ outbox      \in [Sites -> [Facts -> RowT]]
     /\ todo        \in SUBSET TodoRecs
     /\ sstate      \in [Sites -> [Facts -> States]]
@@ -199,11 +204,11 @@ EvCommit(f, st, e, newDisp, newGen, op, who) ==
                    commitGen, lossCount>>
     /\ Note(op, who, f, e, eseq[f] + 1)
 
-Dispute(s, f) ==     \* dispute route :747-779 (quorum 1)
+Dispute(r, f) ==     \* dispute route :747-779 (quorum 1); r is an abstract reporter id, not a site
     \/ /\ estatus[f] = "Active"
-       /\ EvCommit(f, "Disputed", "dispute", s, gen[f] + 1, "EvDispute", s)
-    \/ /\ estatus[f] = "Disputed" /\ s # edisp[f]
-       /\ EvCommit(f, "Revoked", "revoke", edisp[f], gen[f], "EvRevoke", s)
+       /\ EvCommit(f, "Disputed", "dispute", r, gen[f] + 1, "EvDispute", NoSite)
+    \/ /\ estatus[f] = "Disputed" /\ r # edisp[f]
+       /\ EvCommit(f, "Revoked", "revoke", edisp[f], gen[f], "EvRevoke", NoSite)
 
 Restore(f) ==        \* restore route :781-801
     /\ estatus[f] \in {"Disputed", "Revoked"}
@@ -388,8 +393,9 @@ RcStep(t) ==
     \/ RepairStart(t) \/ AntiEntropyStep(t) \/ RepairFinish(t)
 
 Next ==
+    \/ \E r \in Reporters, f \in Facts : Dispute(r, f)
     \/ \E s \in Sites, f \in Facts :
-          \/ Dispute(s, f) \/ Query(s, f) \/ OperatorCommit(s, f)
+          \/ Query(s, f) \/ OperatorCommit(s, f)
           \/ LocalRevoke(s, f) \/ LocalRestore(s, f)
     \/ \E f \in Facts : Restore(f)
     \/ \E r \in todo : Deliver(r) \/ Lose(r)
