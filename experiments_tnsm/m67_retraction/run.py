@@ -190,6 +190,11 @@ def generator_path_matches(profile: str, gp: dict, mtls: bool) -> dict:
     return {"reused_ok": inside(gp["reused_ms"], d), "fresh_ok": None if mtls else inside(gp["fresh_ms"], 2 * d if d else 0)}
 
 
+def generator_path_flag(gp: dict) -> bool:
+    """True if a measured generator-path value is outside its +-20% expectation (informational, never aborts)."""
+    return gp.get("reused_ok") is False or gp.get("fresh_ok") is False
+
+
 _LOG = re.compile(r'^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(\.\d+)?Z\s.*"(POST|GET) (/[^ ]*) HTTP/1\.1" (\d{3})')
 
 
@@ -298,18 +303,30 @@ def summarize_rows(rows: list[dict], profile: str, plog_p95_ms: float = PLOG_P95
     d_gen = gen_path_d(profile)   # dispute-rtt crosses the generator<->evidence path (response leg), not evidence<->site
     ok = [r for r in rows if not r.get("excluded") and "dispute_rtt_s" in r]
     direct, rtt, diffs, pend = [], [], [], []
+    n_read = n_log = undercount = unmeasured = undrained = 0
     for r in ok:
         rtt.append(r["dispute_rtt_s"])
-        no_pending = not any((r.get("pending_after_response") or {}).values())
+        # Pending count from the evidence LOG (an ack line after t0, or still pending at the deadline); the generator's GET reads are
+        # late by up to ~d..2d per read and can miss a drain, so they are only a cross-check (read_undercount_sites).
+        read_sites = {i for i, n in (r.get("pending_after_response") or {}).items() if n}
+        acks = {i: t - r["t0"] for i, t in (r.get("plog_ack_ts") or {}).items() if t is not None}
+        left_sites = {i for i, n in (r.get("pending_left") or {}).items() if n}
+        log_sites = set(acks) | left_sites
+        n_read += len(read_sites)
+        n_log += len(log_sites)
+        undercount += len(log_sites - read_sites)
         plog = [v for v in (r.get("withdrawn_plog_s") or {}).values() if v is not None]
-        if no_pending and len(plog) == N_SITES:
-            last = max(plog)
-            direct.append(last)
-            diffs.append((r["dispute_rtt_s"] - last) * 1000.0)
-        if not no_pending:
-            acks = [t - r["t0"] for t in (r.get("plog_ack_ts") or {}).values() if t is not None]
-            if acks:
-                pend.append(max(acks))
+        if not (read_sites or log_sites):
+            if len(plog) == N_SITES:
+                last = max(plog)
+                direct.append(last)
+                diffs.append((r["dispute_rtt_s"] - last) * 1000.0)
+        elif left_sites:
+            undrained += 1                                   # not drained within the deadline: no time
+        elif read_sites - set(acks):
+            unmeasured += 1                                  # left pending without an ack (snapshot repair or unknown): NOT measured, not mixed
+        elif acks:
+            pend.append(max(acks.values()))
     med_direct, med_rtt, med_pend = _median(direct), _median(rtt), _median(pend)
     out = {"episodes": len(rows), "excluded": sum(1 for r in rows if r.get("excluded")), "client_timeouts": sum(1 for r in rows if r.get("client_timeout")),
            "median_dispute_rtt_s": med_rtt, "median_direct_plog_s": med_direct, "n_direct": len(direct),
@@ -321,6 +338,8 @@ def summarize_rows(rows: list[dict], profile: str, plog_p95_ms: float = PLOG_P95
            "plog_acceptable_rule_10pct": bool(med_direct and plog_p95_ms / 1000.0 / med_direct < 0.10),
            "dispute_rtt_bias_ratio": (d_gen / med_rtt) if (med_rtt and d_gen) else (0.0 if med_rtt is not None else None),
            "median_pending_withdrawal_s": med_pend, "n_pending_episodes": len(pend),
+           "n_pending_sites_read": n_read, "n_pending_sites_log": n_log, "read_undercount_sites": undercount,
+           "n_pending_unmeasured_episodes": unmeasured, "n_pending_undrained_episodes": undrained,
            "pending_bias_ratio": ((d + 0.05) / med_pend) if med_pend else None}
     out["pending_bias_flag_gt10pct"] = bool(out["pending_bias_ratio"] and out["pending_bias_ratio"] > 0.10)
     return out
@@ -418,6 +437,22 @@ class Env:
         generator path is ~d (response leg only) in every episode."""
         self.req("GET", (url or self.ev) + "/health", identity, 5.0)
 
+    def warm_many(self, identities: list[str]) -> None:
+        """Warm one connection per identity concurrently (before t0)."""
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=len(identities)) as ex:
+            list(ex.map(self.warm, identities))
+
+    def read_pending(self, sites: list[int]) -> dict[int, list]:
+        """GET /pending/site-i for all `sites` CONCURRENTLY (ten sequential reads at ~d..2d each would be late by seconds and miss
+        drains). One thread per site, identity site-i."""
+        from concurrent.futures import ThreadPoolExecutor
+
+        def one(i):
+            return i, self.req("GET", f"{self.ev}/pending/site-{i}", f"site-{i}", 5.0).json()["pending"]
+        with ThreadPoolExecutor(max_workers=len(sites)) as ex:
+            return dict(ex.map(one, sites))
+
     def measure_generator_path_ms(self, n: int = 5) -> dict:
         """Median GET /health time from the generator (root namespace) to evidence on a reused and on a fresh connection."""
         import statistics
@@ -512,21 +547,20 @@ def episode_b1(env: Env, profile: str, tag: str, e: int, setup: bool = True) -> 
             sid = setup_fact(env, ep, list(range(N_SITES)), 30.0 if profile != "extreme" else 90.0)
         else:
             sid = env.req("POST", f"{env.ev}/seed", "admin", 30.0, json={"device_type": "cam-a", "endpoint": ep}).json()["id"]
-        env.warm("op-site-1")
+        env.warm_many(["op-site-1"] + [f"site-{i}" for i in range(N_SITES)])   # connections the dispute and the pending reads will reuse
         t0 = time.time()
         r = env.req("POST", f"{env.ev}/dispute", "op-site-1", tmo, json={"device_type": "cam-a", "endpoint": ep, "site_id": "site-1"})
         t_resp = time.time()
         row.update(t0=t0, t_resp=t_resp, status=r.status_code, dispute_rtt_s=t_resp - t0, score_id=sid)
         pend = {}
-        for i in range(N_SITES):
-            items = env.req("GET", f"{env.ev}/pending/site-{i}", f"site-{i}", 5.0).json()["pending"]
+        for i, items in env.read_pending(list(range(N_SITES))).items():
             pend[i] = sum(1 for it in items if it["score_id"] == sid)
-        row["pending_after_response"] = pend
+        row["pending_read_delay_s"] = time.time() - t_resp           # how late the (concurrent) read is: bias of the READ count
+        row["pending_after_response"] = {i: pend[i] for i in sorted(pend)}
         deadline = t_resp + b_online(profile, env.arm, env.T) + 3.0
         while sum(pend.values()) and time.time() < deadline:
             time.sleep(0.5)
-            for i in [i for i, n in pend.items() if n]:
-                items = env.req("GET", f"{env.ev}/pending/site-{i}", f"site-{i}", 5.0).json()["pending"]
+            for i, items in env.read_pending([i for i, n in pend.items() if n]).items():
                 pend[i] = sum(1 for it in items if it["score_id"] == sid)
         row["pending_left"] = dict(pend)
         applied, acked = {}, {}
@@ -725,6 +759,7 @@ def live(a, cells, rng) -> int:
                     print("WARNING: generator load near saturation during this cell", flush=True)
                 manifest["cells_summary"].append({"cell": n_cell, "spec": cell, "profile_timing": timing, "flagged_pre": flagged,
                                                   "excluded": rec["excluded"], "generator_load": rec["generator_load"],
+                                                  "generator_path_flag": generator_path_flag((timing or {}).get("generator_path_ms") or {}),
                                                   "summary": rec.get("summary")})
                 log.write(json.dumps(rec) + "\n")
                 log.flush()

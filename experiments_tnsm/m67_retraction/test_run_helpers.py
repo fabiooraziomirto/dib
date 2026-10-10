@@ -191,3 +191,41 @@ def test_r13_generator_path_is_d_not_2d():
     rows = [{"excluded": False, "dispute_rtt_s": 1.0, "withdrawn_plog_s": {i: 0.9 for i in range(10)}, "pending_after_response": {i: 0 for i in range(10)},
              "pending_left": {i: 0 for i in range(10)}} for _ in range(5)]
     assert r.summarize_rows(rows, "mixed", 2.5)["dispute_rtt_bias_ratio"] == 0.0
+
+
+def _row(read, ack, left, rtt=1.0):
+    """B1 episode row: read/ack/left = {site: value}; no direct plog for sites that went through pending."""
+    n = r.N_SITES
+    return {"excluded": False, "t0": 100.0, "dispute_rtt_s": rtt,
+            "pending_after_response": {i: read.get(i, 0) for i in range(n)},
+            "pending_left": {i: left.get(i, 0) for i in range(n)},
+            "plog_ack_ts": {i: (100.0 + ack[i] if i in ack else None) for i in range(n)},
+            "withdrawn_plog_s": {i: (None if (i in read or i in ack or i in left) else 0.9) for i in range(n)}}
+
+
+def test_r14_pending_count_from_logs_and_unmeasured_not_mixed():
+    """User decision (2026-10-10): GET /pending reads are late by up to ~d..2d per read and the 10 reads were sequential, so
+    the READ count underestimates the share in pending (drains happen meanwhile). The pending count comes from the evidence
+    log (an ack line after t0, or a delivery still pending at the deadline); the read count is kept as a cross-check.
+    Deliveries that left pending without an ack (snapshot repair or unknown) are NOT measured: the episode is counted as
+    unmeasured and its times are not mixed with the P-log ack times."""
+    rows = [
+        _row({3: 1}, {3: 7.0}, {}),                 # A: read and ack agree, measured 7 s
+        _row({}, {4: 6.0}, {}),                     # B: the read missed it (drained first), the ack shows it: counted, 6 s
+        _row({5: 1}, {}, {}),                       # C: read saw it, no ack, left 0: snapshot/unknown -> unmeasured
+        _row({6: 1}, {}, {6: 1}),                   # D: still pending at the deadline, no ack -> undrained
+        _row({}, {}, {}),                           # E: all direct
+    ]
+    s = r.summarize_rows(rows, "wan", 2.5)
+    assert s["n_pending_sites_read"] == 3 and s["n_pending_sites_log"] == 3       # A, C, D read; A, B, D from logs
+    assert s["read_undercount_sites"] == 1                                         # B (log without read)
+    assert s["n_pending_unmeasured_episodes"] == 1 and s["n_pending_undrained_episodes"] == 1
+    assert s["n_pending_episodes"] == 2 and abs(s["median_pending_withdrawal_s"] - 6.5) < 1e-9   # only A and B enter the times
+    assert s["n_direct"] == 1                                                      # only E is a clean direct episode
+
+
+def test_r15_generator_path_flag_and_concurrent_read_helpers():
+    assert r.generator_path_flag({"reused_ok": True, "fresh_ok": True}) is False
+    assert r.generator_path_flag({"reused_ok": False, "fresh_ok": True}) is True
+    assert r.generator_path_flag({"reused_ok": True, "fresh_ok": None}) is False     # no expectation with TLS fresh
+    assert r.generator_path_flag({"reused_ok": True, "fresh_ok": False}) is True
