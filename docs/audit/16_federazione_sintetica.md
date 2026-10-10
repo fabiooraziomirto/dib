@@ -142,3 +142,48 @@ Raccomandazione: (b) + (c) con il gate di classe applicato a tutti; l'ipotesi H6
 - **H6-2 non falsificata.** D0 resta a 0 violazioni: anche con correlazione DIB ammette solo sopra la soglia.
 - Il bound binomiale sottostima invece di uno a due ordini di grandezza la frequenza con cui la soglia è superata quando i siti sono correlati (firmware o cloud condiviso).
 - Nota: il flag "D1_falsified" in `runs/h62_rho03/points.csv` è calcolato rispetto al p* binomiale. Lì **non** è una falsificazione di H6-1a, che è definita a ρ_corr = 0, ma la misura dell'eccesso dovuto alla correlazione.
+
+## 6. H6-1b riprogettata: esito (`h61b.py`, ipotesi committata in `07fb841` prima del lancio)
+
+**Lancio.**
+- 170 punti × 200 repliche = 34 000 repliche, 12 processi, 954 s. Pilota a N = 100: 50 repliche in 16,9 s.
+- Dati in `runs/h61b/`: `replicas.jsonl.gz`, con lo sha256 del file non compresso in `replicas.jsonl.sha256`; `h61b_tests.csv`; `manifest.json`.
+
+**Famiglia.**
+- 1020 test (2 baseline × 3 budget × 170 punti), di cui **892 testabili**; Holm con FWER 5%.
+- I 128 non testabili sono soprattutto a q = 0,01 (62), dove gli avversari sono rari.
+- **Holm rifiuta H0 in 802 test su 892. H6-1b è FALSIFICATA.**
+
+| Baseline | c | Testabili (ρ_corr 0 / 0,3) | H0 non rifiutata | Lettura |
+|---|---|---|---|---|
+| ranked-volume | 1, 2, 5 | 85 / 85 per c | **0** | il ranking per volume mette sempre in coda più fatti A2 di DIB, a ogni budget |
+| ranked-sites | 2, 5 | 54-85 per cella | **0** | con budget 2× e 5× il ranking per supporto presenta più fatti A2 di DIB |
+| **ranked-sites** | **1** | 23 / 67 | **90 su 90** | **a budget uguale alla coda DIB il ranking per supporto presenta MENO fatti A2 di DIB** |
+
+**Dettaglio di ranked-sites a 1×.**
+- 90 test: IC bootstrap interamente < 0 in 79, che include 0 in 8, > 0 in 3.
+- Media di A2 nella coda DIB = 6,3; differenza media (baseline − DIB) = −0,48.
+- Ricorre a ogni q ≥ 0,05 (16 / 20 / 25 / 29 test per q = 0,05 / 0,1 / 0,2 / 0,3) ed è più frequente con ρ_corr = 0,3 (67 su 90).
+
+**Curva (media sui 170 punti della differenza in numero di fatti A2, baseline − DIB).**
+
+| c | 1 | 1,5 | 2 | 3 | 5 | 10 |
+|---|---|---|---|---|---|---|
+| ranked-volume | 8,8 | 14,1 | 18,6 | 24,9 | 31,5 | 37,2 |
+| ranked-sites | **−0,26** | 1,8 | 4,0 | 7,8 | 14,1 | 24,7 |
+
+Il vantaggio di DIB **non sparisce** a budget grandi: cresce, perché il ranking presenta sempre più fatti inventati. Contro il ranking per supporto, però, il vantaggio **non c'è** a budget pari alla coda DIB, e compare da circa 1,5× in su.
+
+**Riferimenti (fuori dalla famiglia).**
+- `ranked-score`: ≈ DIB a 1× (+0,17 in media), poi +5,8 / +19,9 / +31,6 a 2×, 5× e 10×.
+- `ranked-support-2`: identico a DIB a 1× (0,000 in tutti i punti), come atteso, perché il ranking per score con quorum 2 a budget B coincide con la coda.
+- `ranked-support-3`: **meno A2 di DIB** in 40 punti a 1× (media −0,31) e ancora in 31 punti a c ≥ 2.
+
+**Lettura [D].** Quando la soglia di Criterion 1 è superata (q alto, oppure siti correlati: vedi H6-2), DIB **ammette** i fatti A2 di quel tipo, perché la loro quota supera 5/12. Un ranking per numero di siti a budget uguale li mette dietro i fatti benigni più diffusi, e li esclude. In quei punti DIB non è più protettivo di un filtro di supporto: l'ammissione a quorum 2 con soglia di score non aggiunge protezione rispetto a ordinare per supporto (o a richiedere supporto ≥ 3) a budget uguale. Il vantaggio dell'ammissione è netto solo contro le baseline che il flood sfrutta (volume, ranking per score) e contro qualsiasi ranking quando l'operatore rivede più della coda DIB (c ≥ 1,5-2).
+
+**Da dire nel paper:**
+1. L'ammissione protegge dal flood (volume) e da budget di revisione più grandi della coda.
+2. A budget uguale, ordinare per supporto è altrettanto o più protettivo di DIB quando gli avversari superano la soglia.
+3. La riga per l'abstract (§1, "più favorevole alla guardia") vale anche qui.
+
+Il filtro di classe è applicato a tutte le baseline e non è un contributo dell'ammissione (docstring).
