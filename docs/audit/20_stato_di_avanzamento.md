@@ -1,6 +1,6 @@
 # Audit 20 — Nota di stato (da leggere in un minuto dopo una ripartenza)
 
-Ultimo aggiornamento: 2026-10-10 (notte, dopo le correzioni agli script netem). Branch `revision-tnsm`, worktree `/root/Desktop/DIB_tnsm`. **Più sessioni scrivono su questo worktree**: `git add` solo con percorsi espliciti, `git status` prima di ogni commit, scrittura + `python -m py_compile` + commit concatenati con `&&`. Nessuna modifica a `code/src`, `service.py` (sha256 `3186304363ed…`), `results/` senza l'OK dell'utente; **nessun comando sudo** da questa sessione (netem, tcpdump li lancia l'utente a mano).
+Ultimo aggiornamento: 2026-10-10 22:40 UTC (notte in corso, vedi sotto). Branch `revision-tnsm`, worktree `/root/Desktop/DIB_tnsm`. **Più sessioni scrivono su questo worktree**: `git add` solo con percorsi espliciti, `git status` prima di ogni commit, scrittura + `python -m py_compile` + commit concatenati con `&&`. Nessuna modifica a `code/src`, `service.py` (sha256 `3186304363ed…`), `results/` senza l'OK dell'utente; **nessun comando sudo** da questa sessione (netem, tcpdump li lancia l'utente a mano).
 
 ## Dove siamo
 
@@ -12,6 +12,14 @@ Ultimo aggiornamento: 2026-10-10 (notte, dopo le correzioni agli script netem). 
 | Diagnostica CPU a 100 writer | **fatta, quadro misto**: generatore a ~1,1 core in tutte le celle, evidence 0,84-1,02, nodo ~20% | audit 18 §1.8 | `experiments_tnsm/m3_distributed/diag_cpu100_20261010/` |
 | Calibrazioni a `lan` (log con due container, L_dns) | **fatte**: log p95 ~2-2,5 ms, scarto relativo ~0, L_dns 2,6 ms (errore di risoluzione); nessuna soglia dichiarata | audit 18 §1.9 | `experiments_tnsm/m67_retraction/calib_lan_20261010/` |
 | Passi 4-5 (M6/M7, rete emulata) | **D1 approvata (watcher)**; script netem rinforzati e provati con test (8 test); B1 provato dal vivo a `lan` (3 e 2×20 episodi, nessun `client_timeout`); B2-kill non provato e non parte senza decisione su L_dns; trovato che il netem si perde a ogni ricreazione del cluster (risolto con grouping + `netem_watch.sh`, da decidere D1); script netem corretti (retry, pulizia rumorosa, pid nella firma, `--poll`), albero pinnato `tree-6b8a6fa`; percorso generatore→container (d, non 2d) reso esplicito: warm-up prima di t0, log a connessione persistente, `generator_path_ms`; conta del pending dal log (letture del generatore solo controllo incrociato); albero `06d4819`; attende la conferma degli hash di `06d4819` e il via per le sole calibrazioni di `wan`; prima di B1: un ultimo rifacimento del tree (code vuote a inizio episodio, `queues_not_empty_at_start`; osservabile di (c) per sito, `prediction_c_observable.md`) e nuova conferma degli hash | `experiments_tnsm/m67_retraction/run.py`, audit 18 §2.5 |
+
+## NOTTE IN CORSO (avviata 2026-10-10 22:38:34 UTC, fine 2026-10-11 07:00 UTC)
+
+- Processo: `night.py` staccato sul nodo, PID `878739`, file `~/dib_tnsm/out/night_20261011/run/night.pid`; stato in `run/state.json`, uscita in `run/night.stdout`, un log per gruppo `run/b1_<arm>_f<fanout>.log`, dati in `run/b1_*/`. Si controlla con `kill -0 $(cat …/night.pid)`, `tail run/night.stdout` e `run/state.json`; a fine corsa compare `run/DONE`.
+- Tree congelato `~/dib_tnsm/tree-6b8a6fa` (18 hash controllati dallo script all'avvio). Watcher `netem_watch.sh --poll 0.5 wan` in tmux (`timeout 9h`, parte 22:36 UTC, si ferma ~07:36), log `~/dib_tnsm/m67/watch_wan.log`; `netem_show.sh` verificato dall'utente (11 namespace, `delay 80ms loss 1%`).
+- Eventi di profilo in `~/dib_tnsm/out/night_20261011/profile_events.jsonl` (il primo "applied" 22:34:36 era prematuro; watcher applicato 22:36:04,854).
+- Calibrazione di prova prima della notte (`night_20261011/verify/`): `generator_path_ms` riusata 83,1 ms / nuova 164,0 ms (attesi ~80 / ~160, ipotesi del proxy confermata); L_dns del sito morto p50 179,8 ms, p95 185,2 ms (errore `Temporary failure in name resolution`, massimo 4,0 s). La regola esclude B2-kill (> 50 ms, e watcher a 0,5 s).
+- Previsto: calibrazione `wan`, soglia, B1 (4 gruppi), smontaggio, M1/M2 solo se restano ≥ 3 h (cioè prima delle 04:00 UTC). Nessun intervento sul nodo, sul netem o sul watcher fino al rapporto del mattino (`docs/audit/21_rapporto_notte.md`).
 
 ## Decisioni dell'utente che valgono ora
 
