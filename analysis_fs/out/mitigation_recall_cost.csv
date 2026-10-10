@@ -1,0 +1,12 @@
+option,param,admitted,lost,gained,capture_span_days
+base,,354,0,0,2438
+tenure(timestamp first-seen),T=1,354,0,0,2438
+tenure(timestamp first-seen),T=7,354,0,0,2438
+tenure(timestamp first-seen),T=30,354,0,0,2438
+tenure(timestamp first-seen),T=90,354,0,0,2438
+tenure(timestamp first-seen),T=2438,151,203,0,2438
+tenure(timestamp first-seen),T=2439,0,354,0,2438
+"cap per site per (d,e)",c=1,355,0,1,2438
+"cap per site per (d,e)",c=10,355,0,1,2438
+"cap per site per (d,e)",c=100,355,0,1,2438
+"cap per site per (d,e)",c=1000,354,0,0,2438

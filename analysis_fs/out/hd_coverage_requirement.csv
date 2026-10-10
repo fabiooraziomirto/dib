@@ -1,0 +1,8 @@
+corpus,rows,h_med,k_tol_5_12_med,k_tol_fs_med,cov_k1_5_12,cov_k1_fs,cov_k2_5_12,cov_k2_fs,cov_k3_5_12,cov_k3_fs
+moniotr_US_UK_collapsed,59,1,0,0,0.441,0.0,0.0,0.0,0.0,0.0
+moniotr_4_capture_trees,59,2,1,0,1.0,0.441,0.441,0.0,0.0,0.0
+yourthings,46,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+three_lab_US_UK_YT,6,3.0,2.0,1.0,1.0,1.0,1.0,0.0,0.0,0.0
+real_federation_6_labels,10,2.5,1.5,0.5,1.0,0.5,0.5,0.4,0.4,0.0
+real_federation_independent,10,2.0,1.0,0.0,1.0,0.4,0.4,0.0,0.0,0.0
+unsw_10pseudo_all_seeds,540,10.0,7.0,4.0,1.0,0.963,0.963,0.961,0.961,0.943

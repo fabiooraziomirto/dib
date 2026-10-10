@@ -1,0 +1,10 @@
+option,tau
+none,0.4166666666666667
+cap c=1 (worst case over data),0.5139
+cap c=2 (worst case over data),0.4859
+cap c=5 (worst case over data),0.4553
+cap c=10 (worst case over data),0.4393
+cap c=100 (worst case over data),0.4194
+cap c=1000 (worst case over data),0.4169
+"tenure, registration-based, newcomer adversary",none admissible (alpha<theta)
+"tenure, any mode, established insider",0.4166666666666667

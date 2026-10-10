@@ -1,0 +1,19 @@
+adversary,option,types,max_fake_score,max_fake_ct,types_admitted
+insider k=5/10,none,25,0.699821,0.999553,19
+insider k=5/10,"tenure T=7, timestamp first-seen",25,0.699821,0.999553,19
+insider k=5/10,"tenure T=7, registration first-seen",25,0.699821,0.999553,19
+insider k=5/10,cap c=1,25,0.61,0.775,0
+insider k=5/10,cap c=10,25,0.630847,0.827119,0
+insider k=5/10,cap c=100,25,0.685634,0.964085,4
+"H2 newcomers k=8, h=10",none,25,0.666555,0.99972,11
+"H2 newcomers k=8, h=10","tenure T=7, timestamp first-seen",25,0.666555,0.99972,11
+"H2 newcomers k=8, h=10","tenure T=7, registration first-seen",25,0.266667,0.0,0
+"H2 newcomers k=8, h=10",cap c=1,25,0.588406,0.804348,0
+"H2 newcomers k=8, h=10",cap c=10,25,0.611532,0.862162,0
+"H2 newcomers k=8, h=10",cap c=100,25,0.657266,0.976498,2
+insider k=3/10 (f_s),none,25,0.579702,0.999255,0
+insider k=3/10 (f_s),"tenure T=7, timestamp first-seen",25,0.579702,0.999255,0
+insider k=3/10 (f_s),"tenure T=7, registration first-seen",25,0.579702,0.999255,0
+insider k=3/10 (f_s),cap c=1,25,0.48,0.75,0
+insider k=3/10 (f_s),cap c=10,25,0.496735,0.791837,0
+insider k=3/10 (f_s),cap c=100,25,0.557826,0.944565,0

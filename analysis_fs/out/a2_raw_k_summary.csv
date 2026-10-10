@@ -1,0 +1,13 @@
+k,scope,seeds,types,mean_of_per_seed_max,sd_of_per_seed_max,max_over_seeds,admissions(type x seed),seeds_with_admission
+0,full_coverage(ES_d=10),20,25,0.0,0.0,0.0,0,0
+0,low_coverage(ES_d<10),20,2,0.0,0.0,0.0,0,0
+1,full_coverage(ES_d=10),20,25,0.1177,0.0,0.1177,0,0
+1,low_coverage(ES_d<10),20,2,0.48,0.0,0.48,0,0
+2,full_coverage(ES_d=10),20,25,0.2255,0.011,0.2354,0,0
+2,low_coverage(ES_d<10),20,2,0.94,0.0,0.94,20,20
+3,full_coverage(ES_d=10),20,25,0.3174,0.0219,0.3531,0,0
+3,low_coverage(ES_d<10),20,2,0.94,0.0,0.94,20,20
+4,full_coverage(ES_d=10),20,25,0.4033,0.0202,0.4267,0,0
+4,low_coverage(ES_d<10),20,2,0.94,0.0,0.94,22,20
+5,full_coverage(ES_d=10),20,25,0.4742,0.0339,0.5322,0,0
+5,low_coverage(ES_d<10),20,2,0.94,0.0,0.94,31,20

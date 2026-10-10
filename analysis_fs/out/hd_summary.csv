@@ -1,0 +1,8 @@
+corpus,n_rows(type x seed),h_min,h_median,h_max,frac_types_k3_exceeds_5_12,frac_types_k3_exceeds_fs030,frac_types_h_le_2
+moniotr_US_UK_collapsed,59,1,1,2,1.0,1.0,1.0
+moniotr_4_capture_trees,59,2,2,4,1.0,1.0,0.559
+yourthings,46,1,1,1,1.0,1.0,1.0
+three_lab_US_UK_YT,6,3,3,3,1.0,1.0,0.0
+real_federation_6_labels,10,2,3,6,0.6,1.0,0.5
+real_federation_independent,10,2,2,4,1.0,1.0,0.6
+unsw_10pseudo_all_seeds,540,2,10,10,0.039,0.057,0.037
