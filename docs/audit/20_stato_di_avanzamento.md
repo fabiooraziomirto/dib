@@ -33,6 +33,9 @@ Esito in una riga: B1 `wan` completato solo per i due gruppi FANOUT 1 (D e C); i
 - Calibrazione di prova prima della notte (`night_20261011/verify/`): `generator_path_ms` riusata 83,1 ms / nuova 164,0 ms (attesi ~80 / ~160, ipotesi del proxy confermata); L_dns del sito morto p50 179,8 ms, p95 185,2 ms (errore `Temporary failure in name resolution`, massimo 4,0 s). La regola esclude B2-kill (> 50 ms, e watcher a 0,5 s).
 - Previsto: calibrazione `wan`, soglia, B1 (4 gruppi), smontaggio, M1/M2 solo se restano ≥ 3 h (cioè prima delle 04:00 UTC). Nessun intervento sul nodo, sul netem o sul watcher fino al rapporto del mattino (`docs/audit/21_rapporto_notte.md`).
 
+## 2026-10-11 11:54 — Smoke lan rifatto: RIUSCITO (audit 32 §14); smoke_ok_lan.json presente
+`~/dib_tnsm/out/smoke_lan_20261011b`, tree `8d92c12`, un solo watcher: C_f10 e D_f10 ok, catena profile.applied 11/11 coerente con lan, applicazione a 11 container 0,887-0,923 s. I dati del primo smoke (`smoke_lan_20261011`) restano conservati come "due watcher in conflitto". **Attendo il tuo OK per lo smoke degraded** (C.2: `profile.applied` con `delay 200ms loss 5%` su 11, tu fai `netem_show.sh`).
+
 ## 2026-10-11 — tree-8d92c12 pubblicato sul nodo, verificato (audit 32 §13)
 v1 fermato dall'utente (ps: solo la catena di netem_watch2.sh); controlli (disco 3,6 GB, 0 container dibtnsm, 0 run.py, battito 14 ms) e pubblicazione di `~/dib_tnsm/tree-8d92c12` (archivio sha256 `495cb927…`) + `~/dib_tnsm/frozen_hashes_8d92c12.txt`, ssh autorizzati uno per volta. `sha256sum -c`: 24/24 OK; `auto_block.py` `a96db8f9…`, `netem_watch2.sh` `c82ca772…`; 0 file certificato. Classificazione dei watcher dell'orchestratore verificata: falsi positivi su vi/grep/less/dry-run di `netem_watch*.sh` (direzione prudente), nessun falso negativo; rimedio proposto, NON applicato. **Attendo il tuo OK sullo smoke lan.**
 
