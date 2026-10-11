@@ -33,6 +33,9 @@ Esito in una riga: B1 `wan` completato solo per i due gruppi FANOUT 1 (D e C); i
 - Calibrazione di prova prima della notte (`night_20261011/verify/`): `generator_path_ms` riusata 83,1 ms / nuova 164,0 ms (attesi ~80 / ~160, ipotesi del proxy confermata); L_dns del sito morto p50 179,8 ms, p95 185,2 ms (errore `Temporary failure in name resolution`, massimo 4,0 s). La regola esclude B2-kill (> 50 ms, e watcher a 0,5 s).
 - Previsto: calibrazione `wan`, soglia, B1 (4 gruppi), smontaggio, M1/M2 solo se restano ≥ 3 h (cioè prima delle 04:00 UTC). Nessun intervento sul nodo, sul netem o sul watcher fino al rapporto del mattino (`docs/audit/21_rapporto_notte.md`).
 
+## 2026-10-11 13:17 — BLOCCO REALE degraded + lan_after LANCIATO (pid 3057429, `~/dib_tnsm/out/block_degraded_lan_after_20261011`, tree 244f1d0, watcher d1c8f392…, `--commit-wait-min` 0, `--end-utc 2026-10-11T19:30:00Z`)
+Controlli: disco 3 723 374 592 byte, hashes_id dei marcatori `4a0f22e1…` = atteso, battito 350 ms, 0 container. Prova locale dell'asserzione dei 10 siti su `night_wan_20261011/b1_C_f1` (C/1 con pending: x = 1, n = 100) e sul blocco tcpdump (D 2/200, C 6/200): regge. Stato del processo e dell'hash delle soglie: in `state.json` sul nodo. **Non toccare la finestra tmux del watcher.** Durata prevista circa 40 minuti.
+
 ## 2026-10-11 13:07 — Blocco lan_before COMPLETATO (audit 32 §20); in attesa dell'OK per degraded + lan_after
 `~/dib_tnsm/out/block_lan_before_20261011`: 4 gruppi ok, 4 record 11/11 coerenti, 0 transient. Dati non ancora copiati/analizzati. **Attendo il tuo OK**; poi `--blocks degraded,lan_after` in una seconda cartella.
 
