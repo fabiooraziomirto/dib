@@ -56,14 +56,13 @@ def test_m5_tls_phase():
 
 
 def test_m6_fanout_modes():
-    # one site loses its syn on the first attempt in both modes; others clean
-    flags = {i: scripted(True) if i == 3 else scripted() for i in range(10)}
-    par = m.episode("D", fanout=10, lost_by_site=flags)
-    assert par["apply_last"] == pytest.approx(1.0 + 0.6)
-    flags = {i: scripted(True) if i == 3 else scripted() for i in range(10)}
-    seq = m.episode("D", fanout=1, lost_by_site=flags)
-    assert seq["apply_last"] == pytest.approx(9 * 0.8 + 1.0 + 0.2 + 0.8 - 0.8 + 0.6 - 0.2 + 0.0, abs=2.0) or seq["apply_last"] > par["apply_last"]
-    assert seq["apply_last"] == pytest.approx(9 * 0.8 + 1.0 + 0.8 - 0.8 + 0.6 + (1.0 - 1.0) + 0.0 + 0.0 - 0.0 + 0.0 * 0, abs=1.2)
+    """Site 3 loses its first SYN, the others are clean (D). Parallel: site 3 applies at 1.0 + 0.6 = 1.6 s, the episode ends there.
+    Sequential: sites 0-2 return at 0.8, 1.6, 2.4 s; site 3 starts at 2.4, fails at 3.4, retries and applies at 2.4 + 1.0 + 0.6 = 4.0 s, returns at
+    4.2 s; sites 4-9 start at 4.2 + 0.8*(j - 4); site 9 starts at 8.2 and applies at 8.8 s."""
+    def flags():
+        return {i: scripted(True) if i == 3 else scripted() for i in range(10)}
+    assert m.episode("D", fanout=10, lost_by_site=flags())["apply_last"] == pytest.approx(1.6)
+    assert m.episode("D", fanout=1, lost_by_site=flags())["apply_last"] == pytest.approx(8.8)
 
 
 def test_m7_timeout_and_hedge():
