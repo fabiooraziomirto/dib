@@ -31,3 +31,19 @@ def _cells(tmp, name, med_ms):
 def test_reference_uses_the_higher_median(tmp_path):
     ref = a.lan_reference([_cells(tmp_path, "before", 48.0), _cells(tmp_path, "after", 67.0)], random.Random(1))
     assert abs(ref[("D", 1, "last")][0] - 67.0) < 1e-9 and abs(ref[("D", 1, "rtt")][0] - 70.0) < 1e-9
+
+
+def test_gp_reused_false_makes_prediction_a_not_evaluable():
+    """Rule fixed 2026-10-11 before any `degraded` B1 datum (docstring of analyze_b1.py): at a non-lan profile a cell whose group-start
+    generator_path_ms has reused_ok FALSE gets no verdict for (a) ('not evaluable'), its numbers stay in the report, it is not excluded and not re-run;
+    fresh_ok false alone stays informational; at `lan` the flags are ignored; reused_ok None/True: normal."""
+    cell = lambda gp: {"profile_timing": {"generator_path_ms": gp}}  # noqa: E731
+    bad = cell({"reused_ms": 944.4, "fresh_ms": 403.6, "reused_ok": False, "fresh_ok": True})
+    assert a.gp_not_evaluable(bad, "degraded") == "reused 944.4 ms outside +-20% of d (reused_ok false)"
+    assert a.gp_not_evaluable(bad, "wan") and a.gp_not_evaluable(bad, "regional")
+    assert a.gp_not_evaluable(bad, "lan") is None                                        # lan: flags carry no meaning (audit 22)
+    assert a.gp_not_evaluable(cell({"reused_ms": 202.0, "fresh_ms": 600.0, "reused_ok": True, "fresh_ok": False}), "degraded") is None   # fresh alone: informational
+    assert a.gp_not_evaluable(cell({"reused_ms": 202.0, "fresh_ms": None, "reused_ok": True, "fresh_ok": None}), "degraded") is None
+    assert a.gp_not_evaluable({"profile_timing": {}}, "degraded") is None and a.gp_not_evaluable({}, "degraded") is None   # no data: not invented
+    assert a.verdict_text({"verdict": "falsified"}, bad, "degraded") .startswith("not evaluable")
+    assert a.verdict_text({"verdict": "falsified"}, cell({"reused_ok": True}), "degraded") == "falsified"

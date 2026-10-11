@@ -24,6 +24,13 @@ a drift of the node of the same order as the sought signal, so neither of those 
   "not falsified" otherwise; the observed excess is always reported; the model is not adapted.
 Note: the criterion is applied by this script (analyze_b1.py); its pre-registered version is commit 8b7b45e, which predates the `wan` data of
 the rerun. run.py is not touched.
+Rule R-gp FIXED 2026-10-11, AFTER the two `degraded` smokes (second smoke: calibration `generator_path_ms` reused 944.4 ms with reused_ok False, first smoke 202.3 ms ok,
+unexplained) and BEFORE any `degraded` B1 datum: at a non-`lan` profile, a cell whose group-start generator_path_ms (the manifest/cell field written by run.py)
+has reused_ok FALSE gets NO verdict for prediction (a): the table says "not evaluable: reused X ms outside +-20% of d (reused_ok false)"; its medians and CIs stay
+in the report; the cell is NOT excluded, NOT re-run (a group that produced data is never relaunched) and no threshold or other rule changes. Why `reused`: the
+generator measures on a kept-alive connection, which is the path reused_ok describes. fresh_ok False alone stays informational (the C arm has no fresh expectation).
+At `lan` the flags carry no meaning and are ignored. A flag raised only in the CALIBRATION (calib_profile.py) is recorded and does not stop a block: the thresholds
+come from the log-latency p95, not from the generator path. Prediction (c) (pending counts) does not use timing and is evaluated regardless.
 Rule FIXED 2026-10-11, AFTER the `degraded` smoke and BEFORE any `degraded` B1 datum (the smoke data are not analysed): EXCLUSION BY OVERLAP WITH A
 TRANSIENT INCOHERENCE OF THE NETEM PROFILE. The monitor of auto_block.py writes, in `<block>/profile_events.jsonl`, one `transient` row for every stretch in
 which profile.applied listed all 11 containers but one or more did not carry the expected qdisc (smoke: site-8 without netem for ~1.4 s while the cluster
@@ -132,6 +139,22 @@ def overlap_exclusion(full_cells, profile_events, watch_log_text):
     return labelled, per_cell, text
 
 
+def gp_not_evaluable(cell, profile):
+    """Rule R-gp (docstring): None, or the reason (text) when prediction (a) must be reported `not evaluable` for this cell: non-lan profile and the
+    group-start generator_path_ms of the cell has reused_ok False."""
+    if profile == "lan":
+        return None
+    gp = ((cell.get("profile_timing") or {}).get("generator_path_ms")) or {}
+    if gp.get("reused_ok") is False:
+        return f"reused {gp.get('reused_ms'):.1f} ms outside +-20% of d (reused_ok false)"
+    return None
+
+
+def verdict_text(ra, cell, profile):
+    why = gp_not_evaluable(cell, profile)
+    return f"not evaluable: {why}" if why else ra["verdict"]
+
+
 def rule_a(t, pred_ms, ref_median_ms):
     """t = (median, lo, hi, n) in ms. Threshold = pred + 3 x reference median; excess = median - threshold."""
     thr = pred_ms + 3 * ref_median_ms
@@ -226,7 +249,7 @@ def main() -> int:
             pred = 1000 * m67.N_RTT[arm] * R * (10 if fo == 1 else 1)
             rm = refs[(arm, fo, q)]
             ra = rule_a(t, pred, rm[0])
-            L.append(f"| {arm} | {fo} | {v['measure']} | {fmt(t)} | {pred:.1f} | {rm[0]:.2f} ({rm[1]}) | {ra['threshold_ms']:.1f} | {ra['excess_ms']:.1f} | {ra['verdict']} |")
+            L.append(f"| {arm} | {fo} | {v['measure']} | {fmt(t)} | {pred:.1f} | {rm[0]:.2f} ({rm[1]}) | {ra['threshold_ms']:.1f} | {ra['excess_ms']:.1f} | {verdict_text(ra, v['cell'], prof)} |")
     else:
         L += ["", "## Prediction (a) at `lan` (self-reference, degenerate)", "",
               "| arm | FANOUT | measure | median ms [CI] | n_RTT*R*(x10) ms | 3 x own median ms | threshold ms | verdict |", "|---|---|---|---|---|---|---|---|"]
