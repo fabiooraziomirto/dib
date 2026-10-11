@@ -197,6 +197,15 @@ def q8(cap):
     return gaps, n
 
 
+def capture_host_ip(cap) -> str:
+    """The address of the captured host = the one that appears in (nearly) every packet of its own capture, as source or destination."""
+    c = collections.Counter()
+    for p in cap:
+        c[p["src"]] += 1
+        c[p["dst"]] += 1
+    return c.most_common(1)[0][0]
+
+
 def fmt_q(xs, q):
     return f"{xs[min(len(xs) - 1, int(q * len(xs)))]:.3f}" if xs else "-"
 
@@ -204,9 +213,7 @@ def fmt_q(xs, q):
 def report(d: Path, arm: str) -> str:
     ev = read_pcap(d / f"dib_degraded_{arm}_evidence.pcap")
     s0 = read_pcap(d / f"dib_degraded_{arm}_site0.pcap")
-    syn_dst = collections.Counter(p["dst"] for p in s0 if p["flags"] & SYN and not p["flags"] & ACK and p["dport"] == PORT)
-    s0_ip = syn_dst.most_common(1)[0][0]
-    ev_ip = collections.Counter(p["src"] for p in ev if p["dst"] == s0_ip and p["dport"] == PORT).most_common(1)[0][0]
+    ev_ip, s0_ip = capture_host_ip(ev), capture_host_ip(s0)
     L = [f"## Arm {arm}: evidence {ev_ip}, site-0 {s0_ip}", f"packets: evidence capture {len(ev)}, site-0 capture {len(s0)}; time span evidence {min(p['ts'] for p in ev):.3f}-{max(p['ts'] for p in ev):.3f}, "
          f"site-0 {min(p['ts'] for p in s0):.3f}-{max(p['ts'] for p in s0):.3f}", "", "### Q1 tap side (matched header keys between the two namespaces)"]
     for r in q1(ev, s0, ev_ip, s0_ip):
