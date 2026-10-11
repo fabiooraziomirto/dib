@@ -33,6 +33,9 @@ Esito in una riga: B1 `wan` completato solo per i due gruppi FANOUT 1 (D e C); i
 - Calibrazione di prova prima della notte (`night_20261011/verify/`): `generator_path_ms` riusata 83,1 ms / nuova 164,0 ms (attesi ~80 / ~160, ipotesi del proxy confermata); L_dns del sito morto p50 179,8 ms, p95 185,2 ms (errore `Temporary failure in name resolution`, massimo 4,0 s). La regola esclude B2-kill (> 50 ms, e watcher a 0,5 s).
 - Previsto: calibrazione `wan`, soglia, B1 (4 gruppi), smontaggio, M1/M2 solo se restano ≥ 3 h (cioè prima delle 04:00 UTC). Nessun intervento sul nodo, sul netem o sul watcher fino al rapporto del mattino (`docs/audit/21_rapporto_notte.md`).
 
+## 2026-10-11 12:56 — Smoke lan con tree-244f1d0 RIUSCITO; marcatori lan e degraded validi (hashes_id 4a0f22e1…); NON parto con i blocchi veri senza l'OK dell'utente (audit 32 §18)
+Watcher riavviato dall'utente dopo un arresto su segnale alle 12:43:47 (rilevato dal controllo del battito prima del lancio). Pronti: sequenza lan prima → degraded → lan dopo; regole R-gp ed esclusione per sovrapposizione scritte prima dei dati. **Attendo il tuo OK per i blocchi veri.**
+
 ## 2026-10-11 12:27 — Secondo smoke degraded RIUSCITO (audit 32 §17); smoke_ok_degraded.json presente; smoke_ok_lan non vale più con questo tree
 Watcher aggiornato `d1c8f392…` attivo; nessuna incoerenza, nessun transient; applicazione a 11 container 1,19-1,25 s (+0,35 s). `generator_path_ms` riusata 944 ms con flag falso in calibrazione (non spiegato). **Attendo il tuo OK per: smoke lan ripetuto con il nuovo tree, poi i blocchi (lan prima → degraded → lan dopo).**
 
