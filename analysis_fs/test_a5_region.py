@@ -42,7 +42,7 @@ def test_t1_algebra_equivalence_on_grid():
                 ct = F(j, 100)
                 assert (a * cs + b * ct >= th) == R.region(cs, ct), (N, K, j)
                 n_checked += 1
-    assert n_checked == 7 * 0 + sum((N + 1) * 101 for N in (5, 6, 10, 12, 20, 50, 100))
+    assert n_checked == sum((N + 1) * 101 for N in (5, 6, 10, 12, 20, 50, 100))
 
 
 def test_t1_threshold_values():
@@ -84,3 +84,22 @@ def test_t2_prediction_matches_scorer(seed):
         assert s.accepted == R.predict(s.supporting_sites, cs, ct, eligible, m=2), (seed, s)
     # ties are listed, not asserted
     assert isinstance(ties, list)
+
+
+def test_t2_single_source_inside_region_is_rejected_by_quorum():
+    """Two sites, one endpoint reported by one site only, every day: C_s = 1/2 >= 5/12 and C_t = 0.7 + 0.3*30/33 (> 0.875) put the score above
+    theta (exact), so only the quorum m = 2 rejects it (dib.py:45-46). Guards the |S_e| >= m clause (mutation m = 1)."""
+    obs = []
+    for d in range(3):
+        for k in range(10):  # s0: 10 reports/day of the solo endpoint -> frequency ratio 30/33
+            obs.append(Observation(site_id="s0", device_id=None, device_type="d", fqdn="solo.vendor.example",
+                                   remote_ip=None, protocol="https", port=443,
+                                   timestamp=T0 + timedelta(days=d, seconds=k), source_dataset="syn", evidence_type="flow"))
+        obs.append(Observation(site_id="s1", device_id=None, device_type="d", fqdn="both.vendor.example",
+                               remote_ip=None, protocol="https", port=443,
+                               timestamp=T0 + timedelta(days=d), source_dataset="syn", evidence_type="flow"))
+    cfg = ScoringConfig(alpha=0.6, beta=0.4, gamma=0.0, theta=0.65, min_reporting_sites=2, graph_enabled=False)
+    solo = next(s for s in DIBScorer(cfg).score(obs) if s.endpoint == "solo.vendor.example")
+    cs, ct = F(solo.site_confidence), F(solo.temporal_confidence)
+    assert solo.supporting_sites == 1 and R.region(cs, ct)
+    assert solo.accepted is False and R.predict(1, cs, ct, True, m=2) is False
