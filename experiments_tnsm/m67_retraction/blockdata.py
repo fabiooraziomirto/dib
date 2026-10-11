@@ -38,3 +38,12 @@ def load_block(d) -> tuple[list[dict], dict]:
     merged["finished_utc"] = max((m["finished_utc"] for m in mans if m.get("finished_utc")), default=None)
     merged["aborted"] = any(m.get("aborted") for m in mans)
     return cells, merged
+
+
+def load_cells(d) -> list[dict]:
+    """Cells only (no manifest needed): cells.jsonl of the directory, or of every b1_*/ group directory (numbers are not remapped here)."""
+    d = Path(d)
+    files = [d / "cells.jsonl"] if (d / "cells.jsonl").exists() else sorted(g / "cells.jsonl" for g in d.glob("b1_*") if (g / "cells.jsonl").exists())
+    if not files:
+        raise FileNotFoundError(f"{d}: no cells.jsonl and no b1_*/ group with one")
+    return [json.loads(x) for f in files for x in f.read_text().splitlines() if x.strip()]

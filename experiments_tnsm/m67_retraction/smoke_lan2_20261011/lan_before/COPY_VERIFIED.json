@@ -1,0 +1,8 @@
+{
+ "block": "lan_before",
+ "files": 9,
+ "remote_check_ok": true,
+ "local_check_ok": true,
+ "manifest_sha256": "758ec6b4a450724702c7619a38e92e04a4bd6fb4c5abcccd0064a1d2d21db087",
+ "utc": "2026-10-11T12:59:47.592946+00:00"
+}

@@ -44,3 +44,16 @@ def test_missing_input_raises(tmp_path):
     (tmp_path / "empty").mkdir()
     with pytest.raises(FileNotFoundError):
         b.load_block(tmp_path / "empty")
+
+
+def test_load_cells_needs_no_manifest(tmp_path):
+    """The `lan` reference of rule (a) reads cells only: a directory with cells.jsonl alone, or b1_*/ groups with cells.jsonl alone."""
+    (tmp_path / "one").mkdir()
+    (tmp_path / "one" / "cells.jsonl").write_text(json.dumps({"cell": 1, "rows": []}) + "\n")
+    assert len(b.load_cells(tmp_path / "one")) == 1
+    for g in ("b1_C_f10", "b1_D_f10"):
+        (tmp_path / "blk" / g).mkdir(parents=True)
+        (tmp_path / "blk" / g / "cells.jsonl").write_text(json.dumps({"cell": 1, "rows": []}) + "\n")
+    assert len(b.load_cells(tmp_path / "blk")) == 2
+    with pytest.raises(FileNotFoundError):
+        b.load_cells(tmp_path / "none")

@@ -1,0 +1,8 @@
+{
+ "block": "degraded",
+ "files": 14,
+ "remote_check_ok": true,
+ "local_check_ok": true,
+ "manifest_sha256": "17f29c32bd274385451ac0e0ac121925c53750fb0cb925f115e380399b699e34",
+ "utc": "2026-10-11T13:00:06.448387+00:00"
+}

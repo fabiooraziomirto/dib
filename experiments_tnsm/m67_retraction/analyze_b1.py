@@ -167,8 +167,7 @@ def lan_reference(dirs, rng):
     """{(arm, fanout, measure): highest lan median over the reference sessions} for measure in {last, rtt}."""
     ref = {}
     for d in dirs:
-        for line in (Path(d) / "cells.jsonl").read_text().splitlines():
-            c = json.loads(line)
+        for c in blockdata.load_cells(d):
             if "rows" not in c or "aborted" in c:
                 continue
             sp, rows = c["cell_spec"], c["rows"]
@@ -214,7 +213,7 @@ def main() -> int:
         by[key]["measure"] = measure
         by[key]["values"] = last if measure == "P-log-apply" else rtt
         g = s["plog_minus_response_gap_ms"]
-        L.append(f"| {sp['arm']} | {sp['fanout']} | {s['episodes']} | {s['excluded']} {s.get('excluded_by_cause') or ''} | {fmt(med_ci(rtt, rng))} | {fmt(med_ci(last, rng))} | "
+        L.append(f"| {sp['arm']} | {sp['fanout']} | {s['episodes']} | {s['excluded']} {s.get('excluded_by_cause') or ''}{' +%d overlap' % per_cell_ov[key] if per_cell_ov.get(key) else ''} | {fmt(med_ci(rtt, rng))} | {fmt(med_ci(last, rng))} | "
                  f"{g['median']:.2f}, {g['max_abs']:.2f} | {s['plog_acceptance_ratio']:.3f} ({'accepted' if accepted else 'NOT accepted'}) | {measure} | "
                  f"{s['n_pending_sites_log']}/{s['n_pending_sites_read']}/{s['read_undercount_sites']} | {s['ack_lines_total']}/{s['ack_lines_max_per_site_episode']} |")
     L += ["", "## Exclusions by cause (all cells)", "", "| arm | FANOUT | client_timeout | queues_not_empty_at_start | transport_error_setup | transport_error_measured | flagged by discard rule |", "|---|---|---|---|---|---|---|"]
