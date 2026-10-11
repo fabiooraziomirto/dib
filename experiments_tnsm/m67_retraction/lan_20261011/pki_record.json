@@ -1,0 +1,23 @@
+{
+  "recorded_utc": "2026-10-11",
+  "source": "output of the C.1 command run by the user on the node (pasted), not re-read by the session",
+  "command_started_utc": "2026-10-11T08:24:10Z",
+  "node_path": "/home/ubuntu/dib_tnsm/pki",
+  "old_pki_moved_to": "/home/ubuntu/dib_tnsm/pki_scaduta_20261011 (not deleted; its expiry was 2026-10-11T18:00:00Z)",
+  "pki_ca_dir": "~/dib_tnsm/pki.ca moved to pki_scaduta_20261011.ca only if it existed; the output does not say",
+  "make_dist_pki_py_sha256": "99a2aa3298db09cc4aba582192541ee865c4c5efaddb3668e9d394b029e74fc3",
+  "make_dist_pki_py_equal_in_tree_bf272e8_and_worktree": true,
+  "args": "--out ~/dib_tnsm/pki --n-sites 10 --not-before <now - 2 min> --valid-hours 48 --extra-san-ip 192.168.100.57",
+  "not_before": "2026-10-11T08:22:10Z",
+  "not_after": "2026-10-13T08:22:10Z",
+  "certificates": 22,
+  "pki_manifest_json_sha256": "373d543214a040205c1ed4889fff61cfe4ea004e02f63d40d5c8397e39b3f40b",
+  "ca_crt_sha256": "3c29f51f3d04e9bb20ac79441e8fb9ecbec38aa61cf88a2af1c1c5b095eeacf3",
+  "san_checked_on_node": {
+    "evidence": "URI:spiffe://dib.consortium/evidence, DNS:evidence, DNS:localhost, IP:127.0.0.1, IP:192.168.100.57",
+    "site-0": "URI:spiffe://dib.consortium/site/site-0, DNS:site-0, DNS:localhost, IP:127.0.0.1, IP:192.168.100.57"
+  },
+  "df_before": "98G total, 90G used, 3.6G avail, 97%",
+  "frozen_files_depend_on_certificates": false,
+  "note": "run.py manifest has no PKI fields; this file is the record. The 18 frozen hashes are unchanged."
+}
