@@ -215,6 +215,34 @@ def wait_for(cond, secs=20):
     return cond()
 
 
+class Logged:
+    """Popen of the watcher whose stdout/stderr are read by threads as they are produced, so that a test can WAIT FOR A LOG LINE (the watcher
+    prints `applied` only after the last `tc qdisc replace`: waiting for the number of replace calls and then signalling races with that line)."""
+    def __init__(self, d, *args, poll="0.1"):
+        import threading
+        self.p = subprocess.Popen(["bash", str(HERE / "netem_watch.sh"), *args], env=env_for(d, NETEM_WATCH_POLL=poll),
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        self.out, self.err = [], []
+        self.threads = [threading.Thread(target=lambda s, b: [b.append(l) for l in s], args=(self.p.stdout, self.out), daemon=True),
+                        threading.Thread(target=lambda s, b: [b.append(l) for l in s], args=(self.p.stderr, self.err), daemon=True)]
+        for t in self.threads:
+            t.start()
+
+    def text(self):
+        return "".join(self.out)
+
+    def stop(self):
+        self.p.send_signal(signal.SIGINT)
+        try:
+            self.p.wait(timeout=30)
+        finally:
+            if self.p.poll() is None:
+                self.p.kill()
+        for t in self.threads:
+            t.join(timeout=5)
+        return "".join(self.out), "".join(self.err)
+
+
 def n_replace(d):
     return sum("qdisc replace" in l for l in lines(d, "nsenter.log"))
 
@@ -232,11 +260,13 @@ def stop(p):
 def test_n6_failed_apply_is_retried_without_a_change_of_the_list(tmp_path):
     d = make_fake(tmp_path)
     (d / "fail_once").write_text("")                      # the first `tc qdisc replace` fails once
-    p = start_watch(d, "wan")
+    w = Logged(d, "wan")
     try:
-        assert wait_for(lambda: n_replace(d) >= 12)       # 1 failed call + 11 on the retry: the list never changed
+        assert wait_for(lambda: "applied wan" in w.text())          # the log line, not the number of replace calls
     finally:
-        out, err = stop(p)
+        out, err = w.stop()
+    p = w.p
+    assert n_replace(d) >= 12                                       # 1 failed call + 11 on the retry: the list never changed
     assert p.returncode == 0, err
     assert "apply FAILED" in err and out.count("applied wan") == 1
     assert_docker_shapes(d)
@@ -307,12 +337,13 @@ def test_n9_poll_option_and_timestamps(tmp_path):
     d = make_fake(tmp_path)
     bad = subprocess.run(["bash", str(HERE / "netem_watch.sh"), "--poll", "abc", "wan"], env=env_for(d), capture_output=True, text=True)
     assert bad.returncode != 0 and lines(d, "nsenter.log") == []
-    p = subprocess.Popen(["bash", str(HERE / "netem_watch.sh"), "--poll", "0.1", "wan"], env=env_for(d),
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    w = Logged(d, "--poll", "0.1", "wan", poll="0.5")               # the option, not the env variable, sets the interval here
     try:
-        assert wait_for(lambda: n_replace(d) >= 11)
+        assert wait_for(lambda: "applied wan" in w.text())          # the log line, not the number of replace calls
     finally:
-        out, err = stop(p)
+        out, err = w.stop()
+    p = w.p
+    assert n_replace(d) >= 11
     assert p.returncode == 0, err
     assert re.search(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z netem_watch: containers changed -> applying wan$", out, re.M)
     assert re.search(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z netem_watch: applied wan \(\d+\.\d+ s\)$", out, re.M)

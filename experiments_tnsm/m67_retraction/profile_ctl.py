@@ -70,6 +70,8 @@ def parse_request(value: str) -> tuple[str, int | None, bool]:
 
 
 def parse_applied(text: str) -> Applied:
+    if not text.strip():
+        raise ProfileError("profile.applied is empty")
     hdr, sections, cur = {}, {}, None
     for line in text.splitlines():
         m = re.match(r"^== (\S+) pid (\d+)$", line)
@@ -86,7 +88,8 @@ def parse_applied(text: str) -> Applied:
         return Applied(hdr["request"], hdr["trigger"], hdr["applied_utc"], int(hdr["epoch_ms"]), hdr["base"],
                        None if part == "none" else int(part), float(hdr["poll_s"]), int(hdr["containers"]), sections)
     except (KeyError, ValueError) as exc:
-        raise ProfileError(f"profile.applied is not in the netem_watch2/1 format ({exc!r})") from exc
+        first = "\n".join(f"  | {l[:200]}" for l in text.splitlines()[:5])
+        raise ProfileError(f"profile.applied is not in the netem_watch2/1 format ({exc!r}); first 5 lines of what was found:\n{first}") from exc
 
 
 def parse_qdisc(lines: list[str]) -> dict:

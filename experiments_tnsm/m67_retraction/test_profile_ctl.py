@@ -248,3 +248,23 @@ def test_parse_applied_roundtrip():
     assert sorted(a.sections) == sorted(NAMES) and a.sections["dibtnsm-site-3-1"][0] == 3004
     with pytest.raises(pc.ProfileError):
         pc.parse_applied("garbage\n")
+
+
+def test_unrecognised_applied_reports_its_first_lines(d):
+    """When profile.applied is not in the netem_watch2/1 format the error shows its first lines (what the driver actually found)."""
+    junk = "".join(f"junk line {i}\n" for i in range(12))
+    with pytest.raises(pc.ProfileError) as e:
+        pc.parse_applied(junk)
+    msg = str(e.value)
+    assert "junk line 0" in msg and "junk line 4" in msg and "junk line 5" not in msg and "first 5 lines" in msg
+    (d / "profile.applied").write_text(junk)
+    with pytest.raises(pc.ProfileError) as e:
+        pc.ProfileCtl(d).read_applied()
+    assert "junk line 0" in str(e.value)
+    with pytest.raises(pc.ProfileTimeout) as e:                      # and in the request timeout, where it is the last thing seen
+        pc.ProfileCtl(d).request("wan", timeout_s=0.5)
+    assert "junk line 0" in str(e.value)
+    (d / "profile.applied").write_text("")                           # empty file: said explicitly
+    with pytest.raises(pc.ProfileError) as e:
+        pc.ProfileCtl(d).read_applied()
+    assert "empty" in str(e.value)
