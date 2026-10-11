@@ -1,0 +1,22 @@
+# Audit 51 — Pre-registrazione: (A) sweep di m ∈ {1, 2, 3} e (B) dipendenza dal volume ρ del margine di Criterion 1 (voci 5.4 e 5.5 di audit 36)
+
+Data: 2026-10-11. Offline, nessun nodo, nessun dato terzo: solo aritmetica esatta (`fractions.Fraction`), il vero `DIBScorer` su popolazioni costruite (come audit 11) e l'istogramma aggregato `experiments_tnsm/synthetic_federation/anchor_hd.json` (conteggi, nessuna etichetta di dispositivo). Nessuna modifica a `code/src`, `formal/`, `claims.json`, `results/`. Configurazione: α = 3/5, β = 2/5, γ = 0, θ = 13/20, grafo spento, trust weighting spento (`dib.py:66, 71`), classe eleggibile. Script: `analysis_fs/m_rho_tables.py`, test `analysis_fs/test_m_rho.py` (scritti prima). Fonti: audit 11 (H′ per m ∈ {1, 2}), audit 36 voci 5.4-5.5, audit 44 §3 e audit 48 (regione di ammissione).
+
+## A. Sweep di m
+**Stato di partenza.** Audit 11 ha verificato H′ = "ammesso ⇔ K > r·h ∧ K ≥ m" per m ∈ {1, 2} (16 passed). Qui si estende a m = 3 e si caratterizza dove m cambia l'esito. **Cosa NON si fa:** nessun simulatore con profili UNSW (S2 ritirata, a41:54; a44).
+- **H-A1 (verificabile, falsificabile):** per m ∈ {1, 2, 3}, K = 1..8, h = 0..20, sulle due costruzioni di audit 11 (`bound_grid.population`, `test_followup._flood`), per le 4 coppie (α, θ) di audit 11, il `DIBScorer` ammette il fatto avversario ⇔ K > r·h ∧ K ≥ m (r = (θ + α − 1)/(1 − θ)). **Falsificata** da una sola cella in cui la decisione differisce. Contraddizioni elencate per intero; l'asserzione non si indebolisce.
+- **Soglia effettiva (derivazione, da verificare con H-A1):** con persistenza massima (C_t → 1) un fatto con K sostenitori su N = |ES_d| siti è ammesso solo se K ≥ k_eff(N, m) = max(m, ⌈5N/12⌉). Il quorum m **vincola** (cioè k_eff > ⌈5N/12⌉) solo se m > ⌈5N/12⌉: per m = 2 solo N ≤ 2; per m = 3 solo N ≤ 4 (da riportare con `Fraction`, N = 1..20).
+- **Tabella descrittiva (nessun criterio):** per N = 1..12 e m ∈ {1, 2, 3}: k_eff(N, m); K minimo avversario ammissibile; se m vincola.
+- **Costo di m sui tipi reali (descrittivo, istogramma aggregato `anchor_hd.json`, variante `with_ncsu_family`: h = 1: 83, 2: 31, 3: 2, 4: 1, 5: 2 tipi):** un tipo con h siti indipendenti può avere un fatto ammesso solo se h ≥ m (il massimo sostegno possibile è h e ⌈5h/12⌉ ≤ h). Conteggio di tipi con almeno un fatto ammissibile: m = 1: 119; m = 2: 36; m = 3: 5. Si riporta anche la variante `base_4_sites`. **Limite:** h = siti indipendenti (audit 11 §2.3), non |ES_d| del punteggio; non è un recall, non dice quanti fatti benigni vanno persi.
+- **Cosa si può dire:** m = 2 è la scelta minima che esclude l'auto-ammissione di un sito singolo (h = 1: K = 1 = N, C_s = 1); m = 3 vincola fino a N = 4 e, sui tipi reali, ridurrebbe i tipi con un fatto ammissibile da 36 a 5. **Non** si dice che m = 2 sia ottimale.
+
+## B. Dipendenza del margine da ρ
+**Definizione (da audit 11):** h siti onesti con una osservazione legittima ciascuno nello stesso giorno, K avversari che inondano un fatto fresco con n_a ≥ ρ·h osservazioni complessive, un giorno (costruzione `bound_grid.population(N, K, ρ)`, N = K + h). C_s = K/N; C_t = min(1, 0,7·1 + 0,3·n_a/(n_a + h)); score = α·K/N + β·C_t.
+- **H-B1 (verificabile, falsificabile):** per ρ ∈ {1, 2, 5, 10, 100, 1000}, h = 1..20, K = 1..8 (m = 1, per isolare il punteggio), `DIBScorer` ammette ⇔ lo score esatto in `Fraction` (con n_a = ⌈ρh/K⌉·K, come la costruzione) ≥ θ, fuori dalla zona di pareggio (|score esatto − θ| < 10⁻¹² elencati a parte, non asseriti).
+- **Margine al supremo:** 1 − C_t = 0,3·h/(n_a + h) → 0,3/(1 + ρ) per ρ·h osservazioni; a ρ = 100 il margine in punteggio è β·0,3/101 = 0,00119 (valore di audit 11:32), da riprodurre con `Fraction`.
+- **Tabella descrittiva:** K minimo ammesso per (h, ρ); rapporto K_min/h al crescere di ρ, confrontato con r = 5/7. Nessun criterio.
+- **Saturazione di C_t:** con d ≤ 1 e f ≤ 1, 0,7·d + 0,3·f ≤ 1: il `min(1, ·)` (`dib.py:279`) non vincola mai. **Si verifica** con una griglia esatta (d, f ∈ [0, 1] su multipli di 1/20): C_t ≤ 1 sempre, = 1 solo per d = f = 1.
+- **Cosa si può dire:** il margine finito dipende da ρ come 0,3·β/(1 + ρ); a ρ → ∞ il rapporto K_min/h tende a r; ρ = 100 è una scelta di test, non una derivazione: **non** si giustifica ρ = 100 come valore "realistico".
+
+## Statuto
+Verifiche di derivazioni sul codice vero più tabelle descrittive; nessun esperimento sui dati. Se H-A1 o H-B1 falliscono fuori dalle zone di pareggio, si riporta com'è e non si corregge il codice di produzione.
