@@ -54,7 +54,7 @@ cells in file: 4; complete: 4; partial/aborted: 0
 
 ## Differences between arms (median difference, bootstrap CI over episodes)
 
-- FANOUT 1 (P-a4: +23.5 ms, falsified if CI outside [15, 32]), last-site P-log: C - D = 38.65 ms [22.85; 49.69] -> CI NOT inside [15, 32]: CI straddles a bound: not falsified, not confirmed
+- FANOUT 1 (P-a4: +23.5 ms, falsified if CI outside [15, 32]), last-site P-log: C - D = 38.65 ms [22.85; 49.69] -> CI crosses a bound of [15, 32]: criterio ambiguo, non conclusivo (point estimate outside the interval)
 - FANOUT 1 (P-a4: +23.5 ms, falsified if CI outside [15, 32]), dispute-rtt: C - D = 39.21 ms [22.81; 50.03]
 - FANOUT 10 (no registered interval; descriptive), last-site P-log: C - D = 4.70 ms [0.02; 15.52]
 - FANOUT 10 (no registered interval; descriptive), dispute-rtt: C - D = 6.53 ms [1.64; 18.55]

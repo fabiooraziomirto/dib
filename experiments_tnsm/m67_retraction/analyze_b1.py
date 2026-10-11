@@ -7,6 +7,12 @@ Hypotheses, declared first:
   P-a4 (frozen, 6c11e48): C - D, last site, FANOUT 1, lan: +23.5 ms; falsified if the bootstrap CI of the difference of medians is
      outside [15, 32] ms. P-a1/P-a2 (default - D) cannot be evaluated: no `default` cells in this run (reported as such).
      C - D at FANOUT 10 has no registered interval: descriptive only.
+Rules FIXED 2026-10-11 AFTER seeing the `lan` data, and with the `wan` data of the night (first run, tree 6b8a6fa) already seen:
+  - (a) at `wan`: the reference is the median at `lan` of the SAME arm AND the SAME FANOUT (same session of the rerun); this script already
+    pairs them that way. Written here and in docs/audit/25 and not in run.py (run.py and its sha256 are frozen: no new tree).
+  - Criteria written "falsified if the CI is outside [a, b]" are ambiguous (not inside vs entirely outside). Reading from now on, as in (c):
+    FALSIFIED only if the CI is ENTIRELY outside [a, b]; a CI that crosses a bound is reported "inconclusive" with point estimate and CI.
+    For P-a4 as registered (6c11e48) the text is ambiguous: reported "criterio ambiguo, non conclusivo".
 Method: medians with 95% percentile bootstrap CI over EPISODES (10000 resamples, seed 20261011); with n = 10 the CI is coarse.
 "last site" = max over the 10 sites of the P-log withdrawal (withdrawn_plog_s) of an episode without pending deliveries;
 dispute-rtt = response - t0 (bias 0 at lan, run.dispute_rtt_bias_s). Measure type per cell by the recorded rule: P-log (apply)
@@ -137,7 +143,10 @@ def main() -> int:
                 x = diff_ci(cd[q], dd[q], rng)
                 verdict = ""
                 if fo == 1 and q == "last":
-                    verdict = " -> " + ("CI inside [15, 32]: P-a4 not falsified" if 15 <= x[1] and x[2] <= 32 else "CI NOT inside [15, 32]: " + ("P-a4 FALSIFIED (CI entirely outside)" if (x[2] < 15 or x[1] > 32) else "CI straddles a bound: not falsified, not confirmed"))
+                    inside = 15 <= x[1] and x[2] <= 32
+                    outside = x[2] < 15 or x[1] > 32
+                    verdict = " -> " + ("CI entirely inside [15, 32]" if inside else "CI entirely outside [15, 32]: falsified under the strict reading" if outside
+                                         else "CI crosses a bound of [15, 32]: criterio ambiguo, non conclusivo (point estimate %s the interval)" % ("outside" if not 15 <= x[0] <= 32 else "inside"))
                 L.append(f"- {label}, {name}: C - D = {x[0]:.2f} ms [{x[1]:.2f}; {x[2]:.2f}]{verdict}")
     L.append("- default - D (P-a1 +61.5 ms at FANOUT 1; P-a2 between +6 and +62 ms at FANOUT 10): **not evaluable**, no `default` cells in this run.")
     text = "\n".join(L) + "\n"
