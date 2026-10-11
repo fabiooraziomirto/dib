@@ -13,3 +13,6 @@ Data: 2026-10-11 (orologio della macchina; blocco B5 lanciato alle 16:43Z in `~/
 
 ## Cosa non si fa
 Nessuna modifica di p, soglie o regole dopo aver visto i dati; nessun dato B5 in `results/`; nessun uso dei dati vecchi.
+
+## Addendum (2026-10-11, dopo il commit delle regole, prima di qualunque dato B5)
+Per verificare che `analyze_b5.py` giri end-to-end l'ho eseguito, **come prova del codice**, sul blocco `degraded` **vecchio** (`experiments_tnsm/m67_retraction/block_degraded_lan_after_20261011/degraded`, con `block_lan_before_20261011/lan_before` come riferimento `lan`). Ho visto il suo output: con le regole di questo audit, sui dati vecchi, il verdetto 1 sarebbe "falsificata" in 4/4 celle e il verdetto 2 "ok" (0/4). **Non è un risultato di (a')** (i dati vecchi non entrano, audit 46 §1), non è salvato né riportato come tale, ma **l'analista conosce ora l'esito atteso su dati simili**: lo dichiaro come limite di cecità della replica B5 (le regole non sono state modificate dopo questa esecuzione; nessuna lo sarebbe stata comunque, perché p e soglie erano già fissati sopra).

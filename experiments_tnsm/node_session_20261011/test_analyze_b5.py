@@ -41,7 +41,7 @@ def test_verdicts():
     assert b5.verdicts((800, 700, 900, 40), thr, phys) == ("not falsified", "ok")
     assert b5.verdicts((500, 450, 590, 40), thr, phys) == ("not falsified", "base model falsified")
     assert b5.verdicts((500, 450, 600, 40), thr, phys) == ("not falsified", "ok")        # hi == bound: not below
-    assert b5.verdicts((1000, 1000, 1001, 40), thr, phys)[0] == "inconclusive"          # lo == threshold is not above
+    assert b5.verdicts((1050, 1000, 1100, 40), thr, phys)[0] == "inconclusive"          # lo == threshold is not above; median > threshold
 
 
 def test_completed_values_filters():
