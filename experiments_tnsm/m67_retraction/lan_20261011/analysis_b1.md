@@ -41,16 +41,16 @@ cells in file: 4; complete: 4; partial/aborted: 0
 
 (at `lan` d = 0: the +-20% band is replaced by 0-3 ms; `fresh_ok` False/None carries no meaning here, audit 22.)
 
-## Prediction (a) at `lan` (rule: falsified if median > n_RTT*R*(10 if FANOUT 1) + 3 x median `lan` of the same arm, beyond the CI)
+## Prediction (a) at `lan` (self-reference, degenerate)
 
-| arm | FANOUT | measure | median ms [CI] | n_RTT*R*(x10) ms | 3 x lan median ms (same arm, same FANOUT) | threshold ms | CI lower > threshold? |
+| arm | FANOUT | measure | median ms [CI] | n_RTT*R*(x10) ms | 3 x own median ms | threshold ms | verdict |
 |---|---|---|---|---|---|---|---|
-| C | 1 | P-log-apply | 105.96 [98.69; 117.54] (n=10) | 3.00 | 317.88 | 320.88 | False |
-| C | 10 | P-log-apply | 30.61 [29.27; 43.71] (n=10) | 0.30 | 91.83 | 92.13 | False |
-| D | 1 | P-log-apply | 67.31 [62.78; 82.06] (n=10) | 2.00 | 201.92 | 203.92 | False |
-| D | 10 | P-log-apply | 25.91 [23.85; 30.32] (n=10) | 0.20 | 77.72 | 77.92 | False |
+| C | 1 | P-log-apply | 105.96 [98.69; 117.54] (n=10) | 3.00 | 317.88 | 320.88 | not falsified |
+| C | 10 | P-log-apply | 30.61 [29.27; 43.71] (n=10) | 0.30 | 91.83 | 92.13 | not falsified |
+| D | 1 | P-log-apply | 67.31 [62.78; 82.06] (n=10) | 2.00 | 201.92 | 203.92 | not falsified |
+| D | 10 | P-log-apply | 25.91 [23.85; 30.32] (n=10) | 0.20 | 77.72 | 77.92 | not falsified |
 
-**Degenerate at `lan`**: the reference is the cell itself, so the threshold always exceeds the median; the verdict is False by construction and carries no information. Lan medians for both FANOUT values of each arm are in the table above, so the wan rule can be evaluated with either reading of 'same arm' (same FANOUT, or any FANOUT): the choice is open and must be declared before the wan block is analysed.
+**Degenerate at `lan`**: the reference is the cell itself, so the threshold always exceeds the median; the verdict carries no information.
 
 ## Differences between arms (median difference, bootstrap CI over episodes)
 

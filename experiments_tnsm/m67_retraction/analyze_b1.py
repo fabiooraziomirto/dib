@@ -13,6 +13,15 @@ Rules FIXED 2026-10-11 AFTER seeing the `lan` data, and with the `wan` data of t
   - Criteria written "falsified if the CI is outside [a, b]" are ambiguous (not inside vs entirely outside). Reading from now on, as in (c):
     FALSIFIED only if the CI is ENTIRELY outside [a, b]; a CI that crosses a bound is reported "inconclusive" with point estimate and CI.
     For P-a4 as registered (6c11e48) the text is ambiguous: reported "criterio ambiguo, non conclusivo".
+Reference for rule (a) at `wan` (decided 2026-10-11 BEFORE any `wan` data of the rerun; chosen AFTER seeing that two `lan` sessions of the
+same day gave different D values: D FANOUT 1 P-log 67.3 [62.8; 82.1] ms at 07:52 UTC vs 48.4 [45.4; 51.9] ms at 08:27 UTC, CIs not overlapping;
+a drift of the node of the same order as the sought signal, so neither of those sessions is the reference; both stay in the report as "two lan sessions"):
+  reference = the `lan` cells ADJACENT to the `wan` block, same session: D and C, FANOUT 1 and 10, 10 episodes, mixed order, run immediately
+  BEFORE `wan` (watcher stopped, netem_show.sh clean, checked by the user) and, if time allows, immediately AFTER. Same arm, same FANOUT.
+  If the before/after sessions differ, the HIGHER median is used (the reference most favourable to the prediction: if the prediction is violated
+  anyway, the conclusion is robust). Pass them with --lan-ref <dir> (repeatable). Threshold = n_RTT*R*(10 if FANOUT 1) + 3 x reference median;
+  verdict "falsified" if the median exceeds it with the CI lower bound above it, "inconclusive" if the median exceeds it but the CI crosses it,
+  "not falsified" otherwise; the observed excess is always reported; the model is not adapted.
 Note: the criterion is applied by this script (analyze_b1.py); its pre-registered version is commit 8b7b45e, which predates the `wan` data of
 the rerun. run.py is not touched.
 Method: medians with 95% percentile bootstrap CI over EPISODES (10000 resamples, seed 20261011); with n = 10 the CI is coarse.
@@ -73,10 +82,35 @@ def last_site(rows):
     return out
 
 
+def rule_a(t, pred_ms, ref_median_ms):
+    """t = (median, lo, hi, n) in ms. Threshold = pred + 3 x reference median; excess = median - threshold."""
+    thr = pred_ms + 3 * ref_median_ms
+    verdict = "falsified" if t[1] > thr else ("inconclusive" if t[0] > thr else "not falsified")
+    return {"threshold_ms": thr, "excess_ms": t[0] - thr, "verdict": verdict}
+
+
+def lan_reference(dirs, rng):
+    """{(arm, fanout, measure): highest lan median over the reference sessions} for measure in {last, rtt}."""
+    ref = {}
+    for d in dirs:
+        for line in (Path(d) / "cells.jsonl").read_text().splitlines():
+            c = json.loads(line)
+            if "rows" not in c or "aborted" in c:
+                continue
+            sp, rows = c["cell_spec"], c["rows"]
+            vals = {"last": last_site(rows), "rtt": [1000 * r["dispute_rtt_s"] for r in rows if not r.get("excluded") and "dispute_rtt_s" in r]}
+            for q, v in vals.items():
+                if v:
+                    k = (sp["arm"], sp["fanout"], q)
+                    ref.setdefault(k, []).append((statistics.median(v), str(d)))
+    return {k: max(v) for k, v in ref.items()}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("dir")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--lan-ref", action="append", default=[], help="adjacent `lan` session dir(s) for rule (a) at a non-lan profile (higher median used)")
     a = ap.parse_args()
     d = Path(a.dir)
     cells = [json.loads(x) for x in (d / "cells.jsonl").read_text().splitlines()]
@@ -102,7 +136,7 @@ def main() -> int:
         by[key]["measure"] = measure
         by[key]["values"] = last if measure == "P-log-apply" else rtt
         g = s["plog_minus_response_gap_ms"]
-        L.append(f"| {sp['arm']} | {sp['fanout']} | {s['episodes']} | {s['excluded']} {s['excluded_by_cause'] or ''} | {fmt(med_ci(rtt, rng))} | {fmt(med_ci(last, rng))} | "
+        L.append(f"| {sp['arm']} | {sp['fanout']} | {s['episodes']} | {s['excluded']} {s.get('excluded_by_cause') or ''} | {fmt(med_ci(rtt, rng))} | {fmt(med_ci(last, rng))} | "
                  f"{g['median']:.2f}, {g['max_abs']:.2f} | {s['plog_acceptance_ratio']:.3f} ({'accepted' if accepted else 'NOT accepted'}) | {measure} | "
                  f"{s['n_pending_sites_log']}/{s['n_pending_sites_read']}/{s['read_undercount_sites']} | {s['ack_lines_total']}/{s['ack_lines_max_per_site_episode']} |")
     L += ["", "## Exclusions by cause (all cells)", "", "| arm | FANOUT | client_timeout | queues_not_empty_at_start | transport_error_setup | transport_error_measured | flagged by discard rule |", "|---|---|---|---|---|---|---|"]
@@ -124,19 +158,30 @@ def main() -> int:
         gp = c["profile_timing"]["generator_path_ms"]
         L.append(f"| {key[0]} | {key[1]} | {gp['reused_ms']:.2f} | {gp['fresh_ms']:.2f} | {gp['reused_ok']} | {gp['fresh_ok']} | {flags.get(c['cell'])} |")
     L += ["", "(at `lan` d = 0: the +-20% band is replaced by 0-3 ms; `fresh_ok` False/None carries no meaning here, audit 22.)"]
-    L += ["", "## Prediction (a) at `lan` (rule: falsified if median > n_RTT*R*(10 if FANOUT 1) + 3 x median `lan` of the same arm, beyond the CI)", "",
-          "| arm | FANOUT | measure | median ms [CI] | n_RTT*R*(x10) ms | 3 x lan median ms (same arm, same FANOUT) | threshold ms | CI lower > threshold? |", "|---|---|---|---|---|---|---|---|"]
-    R = m67.PROFILES[prof]["R"]
-    for key, v in sorted(by.items()):
-        arm, fo = key
-        t = med_ci(v["values"], rng)
-        k = 10 if fo == 1 else 1
-        pred = 1000 * m67.N_RTT[arm] * R * k
-        thr = pred + 3 * t[0]
-        L.append(f"| {arm} | {fo} | {v['measure']} | {fmt(t)} | {pred:.2f} | {3 * t[0]:.2f} | {thr:.2f} | {t[1] > thr} |")
-    L += ["", "**Degenerate at `lan`**: the reference is the cell itself, so the threshold always exceeds the median; the verdict is False by construction and carries no information. "
-          "Lan medians for both FANOUT values of each arm are in the table above, so the wan rule can be evaluated with either reading of 'same arm' (same FANOUT, or any FANOUT): "
-          "the choice is open and must be declared before the wan block is analysed."]
+    if a.lan_ref and prof != "lan":
+        refs = lan_reference(a.lan_ref, rng)
+        L += ["", "## Prediction (a) with the adjacent `lan` reference (higher median over: %s)" % ", ".join(a.lan_ref), "",
+              "| arm | FANOUT | measure | median ms [CI] | 10 x n_RTT x R (FANOUT 1) / n_RTT x R ms | reference lan median ms | threshold ms | excess over threshold ms | verdict |", "|---|---|---|---|---|---|---|---|---|"]
+        R = m67.PROFILES[prof]["R"]
+        for key, v in sorted(by.items()):
+            arm, fo = key
+            q = "last" if v["measure"] == "P-log-apply" else "rtt"
+            t = med_ci(v["values"], rng)
+            pred = 1000 * m67.N_RTT[arm] * R * (10 if fo == 1 else 1)
+            rm = refs[(arm, fo, q)]
+            ra = rule_a(t, pred, rm[0])
+            L.append(f"| {arm} | {fo} | {v['measure']} | {fmt(t)} | {pred:.1f} | {rm[0]:.2f} ({rm[1]}) | {ra['threshold_ms']:.1f} | {ra['excess_ms']:.1f} | {ra['verdict']} |")
+    else:
+        L += ["", "## Prediction (a) at `lan` (self-reference, degenerate)", "",
+              "| arm | FANOUT | measure | median ms [CI] | n_RTT*R*(x10) ms | 3 x own median ms | threshold ms | verdict |", "|---|---|---|---|---|---|---|---|"]
+        R = m67.PROFILES[prof]["R"]
+        for key, v in sorted(by.items()):
+            arm, fo = key
+            t = med_ci(v["values"], rng)
+            pred = 1000 * m67.N_RTT[arm] * R * (10 if fo == 1 else 1)
+            ra = rule_a(t, pred, t[0])
+            L.append(f"| {arm} | {fo} | {v['measure']} | {fmt(t)} | {pred:.2f} | {3 * t[0]:.2f} | {ra['threshold_ms']:.2f} | {ra['verdict']} |")
+        L += ["", "**Degenerate at `lan`**: the reference is the cell itself, so the threshold always exceeds the median; the verdict carries no information."]
     L += ["", "## Differences between arms (median difference, bootstrap CI over episodes)", ""]
     for fo, label in ((1, "FANOUT 1 (P-a4: +23.5 ms, falsified if CI outside [15, 32])"), (10, "FANOUT 10 (no registered interval; descriptive)")):
         for q, name in (("last", "last-site P-log"), ("rtt", "dispute-rtt")):
