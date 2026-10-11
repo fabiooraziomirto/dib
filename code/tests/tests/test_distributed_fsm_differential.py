@@ -43,11 +43,30 @@ H-D4  (non vacuita') Sui 40 seed del codice reale: almeno 5 restore applicati me
       il test fallisce.
 Il generatore non e' adattivo: seed, numero di passi e pesi sono fissati qui e non si cambiano
 dopo aver visto gli esiti.
+
+ESITO della prima esecuzione (2026-10-12, docs/audit/64 sez. 2): H-D1, H-D2, H-D3 confermate;
+H-D4 FALSIFICATA (restore con veto locale 1 < 5, reconcile che cambiano un record 3 < 5): H-D1 e'
+quindi debole sul percorso del veto. Durata ~72 s per test, ~290 s per i quattro: il file
+supererebbe il timeout 300 s della suite documentata, percio' gira solo con DIB_FSM_DIFF=1 (le
+asserzioni non cambiano).
+
+PRE-REGISTRAZIONE 2 (scritta dopo l'esito sopra e PRIMA di eseguire i test D5-D7). Generatore
+PESATO, fissato qui: pesi WEIGHTS sotto, 40 passi, seed 100..119 (nuovi, non riusati).
+H-D5  Sul codice reale con il generatore pesato: nessuna violazione (come H-D1) E soglie di non
+      vacuita' di H-D4 raggiunte (>= 5 restore con veto locale, >= 5 dispute con un sito down,
+      >= 5 reconcile che cambiano un record, >= 10 commit riusciti). Falsificata da una
+      violazione o da una soglia mancata.
+H-D6  M1 rilevato da I3-v in almeno 3 seed distinti dei 20 (con il generatore uniforme: 1 seed su
+      40, seed 32 passo 22). Falsificata se < 3.
+H-D7  M2 rilevato da I1 in almeno 3 seed distinti dei 20. Falsificata se < 3.
 """
 from __future__ import annotations
 
+import os
 import random
 from collections import Counter
+
+import pytest
 
 from _dist_harness import DEVICE, make_cluster, make_source_copy  # noqa: F401  (fixture)
 
@@ -56,6 +75,15 @@ FACTS = ("a.vendor.com", "b.vendor.com")
 SEEDS = range(40)
 STEPS = 25
 EVENTS = ("stage", "commit", "local_revoke", "local_restore", "dispute", "restore", "down", "up", "reconcile")
+# Pre-registrazione 2 (generatore pesato), stesso ordine di EVENTS.
+WEIGHTS = (3, 3, 2, 1, 2, 2, 1, 1, 2)
+SEEDS_W = range(100, 120)
+STEPS_W = 40
+
+pytestmark = pytest.mark.skipif(
+    os.environ.get("DIB_FSM_DIFF") != "1",
+    reason="~5 min: run with DIB_FSM_DIFF=1 (docs/audit/64 sez. 2)",
+)
 
 M1 = ('        if event_type == "restore" and state == DECISION_REVOKED and origin == ORIGIN_LOCAL:',
       "        if False:")
@@ -179,15 +207,17 @@ def _do(c, ev, s, f, r):
     raise AssertionError(ev)
 
 
-def run_sequence(c, seed: int, coverage: Counter | None = None) -> list[tuple]:
+def run_sequence(c, seed: int, coverage: Counter | None = None, *, steps: int = STEPS,
+                 weights: tuple | None = None) -> list[tuple]:
     """Return the violations [(kind, seed, step, event, detail)]; empty = all checks hold."""
     rng = random.Random(seed)
     sids = {f: c.seed(f) for f in FACTS}
     oracle = Oracle()
     violations: list[tuple] = []
     before, exp_before = _snapshot(c, sids)
-    for step in range(STEPS):
-        ev, s, f, r = rng.choice(EVENTS), rng.randrange(N_SITES), rng.choice(FACTS), rng.randrange(N_SITES)
+    for step in range(steps):
+        ev = rng.choice(EVENTS) if weights is None else rng.choices(EVENTS, weights=weights)[0]
+        s, f, r = rng.randrange(N_SITES), rng.choice(FACTS), rng.randrange(N_SITES)
         down_before = set(c.net.down)
         c.net.calls.clear()  # FakeNet.MAX_CALLS is a per-test anti-runaway cap, not a per-sequence one
         code = _do(c, ev, s, f, r)
@@ -258,11 +288,11 @@ def run_sequence(c, seed: int, coverage: Counter | None = None) -> list[tuple]:
     return violations
 
 
-def _run_all(make_cluster, source=None, coverage=None) -> list[tuple]:
+def _run_all(make_cluster, source=None, coverage=None, *, seeds=SEEDS, steps=STEPS, weights=None) -> list[tuple]:
     out = []
-    for seed in SEEDS:
+    for seed in seeds:
         c = make_cluster(n_sites=N_SITES, source=source)
-        out += run_sequence(c, seed, coverage)
+        out += run_sequence(c, seed, coverage, steps=steps, weights=weights)
         c.close()
     return out
 
@@ -272,6 +302,8 @@ def test_d1_real_code_keeps_i1_i3_at_every_step(make_cluster) -> None:
     assert violations == [], violations[:10]
 
 
+@pytest.mark.xfail(strict=True, reason="H-D4 falsificata 2026-10-12: restore con veto locale 1 < 5, "
+                   "reconcile che cambiano un record 3 < 5 (docs/audit/64 sez. 2)")
 def test_d4_generator_is_not_vacuous(make_cluster) -> None:
     coverage: Counter = Counter()
     _run_all(make_cluster, coverage=coverage)
@@ -294,3 +326,37 @@ def test_d3_mutant_m2_restore_reactivates_is_caught_by_i1(make_cluster, tmp_path
     kinds = Counter(v[0] for v in _run_all(make_cluster, source=source))
     print(dict(kinds))
     assert kinds["I1"] >= 1, kinds
+
+
+# ------------------------------------------------------------------ pre-registrazione 2 (generatore pesato)
+def _run_weighted(make_cluster, source=None, coverage=None) -> list[tuple]:
+    return _run_all(make_cluster, source, coverage, seeds=SEEDS_W, steps=STEPS_W, weights=WEIGHTS)
+
+
+def test_d5_weighted_real_code_keeps_i1_i3_and_is_not_vacuous(make_cluster) -> None:
+    coverage: Counter = Counter()
+    violations = _run_weighted(make_cluster, coverage=coverage)
+    print(dict(sorted(coverage.items())))
+    assert violations == [], violations[:10]
+    assert coverage["restore_with_local_veto"] >= 5, coverage
+    assert coverage["dispute_with_site_down"] >= 5, coverage
+    assert coverage["reconcile_changed"] >= 5, coverage
+    assert coverage["commit:200"] >= 10, coverage
+
+
+def _seeds_with(violations, kind) -> set[int]:
+    return {v[1] for v in violations if v[0] == kind}
+
+
+def test_d6_weighted_m1_caught_by_i3v_in_three_seeds(make_cluster, tmp_path) -> None:
+    source = make_source_copy(tmp_path, [M1], name="service_m1w.py")
+    seeds = _seeds_with(_run_weighted(make_cluster, source=source), "I3-v")
+    print(sorted(seeds))
+    assert len(seeds) >= 3, seeds
+
+
+def test_d7_weighted_m2_caught_by_i1_in_three_seeds(make_cluster, tmp_path) -> None:
+    source = make_source_copy(tmp_path, [M2], name="service_m2w.py")
+    seeds = _seeds_with(_run_weighted(make_cluster, source=source), "I1")
+    print(sorted(seeds))
+    assert len(seeds) >= 3, seeds
