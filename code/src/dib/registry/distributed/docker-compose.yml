@@ -7,7 +7,7 @@ services:
       - DIB_DIST_ROLE=evidence
       - DIB_DIST_N_SITES=10
       - DIB_DIST_DATA_DIR=/data
-      - DIB_DIST_FANOUT_CONCURRENCY=8
+      - DIB_DIST_FANOUT_CONCURRENCY=10
       - DIB_DIST_SITE_URL_0=http://site-0:8000
       - DIB_DIST_SITE_URL_1=http://site-1:8000
       - DIB_DIST_SITE_URL_2=http://site-2:8000

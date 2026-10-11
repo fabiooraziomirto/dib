@@ -82,9 +82,10 @@ swap would just relocate the same bug class:
     reach (the bound restarts when it is reachable), loss of the evidence
     database. Several missed events collapse to the final state.
 
-  - Fan-out concurrency (audit D11). DIB_DIST_FANOUT_CONCURRENCY (default 1)
-    is the size of ONE module-wide thread pool shared by all fan-outs; with 1
-    the delivery is the historical sequential loop. With cap > 1 every
+  - Fan-out concurrency (audit D11). DIB_DIST_FANOUT_CONCURRENCY (default
+    min(N_SITES, 16), docs/audit/62; it was 1 until 2026-10-12) is the size of
+    ONE module-wide thread pool shared by all fan-outs; with 1 the delivery is
+    the historical sequential loop. With cap > 1 every
     dispute/restore still answers only after all sites were tried, but down
     sites no longer delay the others: worst case ceil(k_down / cap) * 3 s
     (3 attempts x 1 s timeout) instead of k_down * 3 s.
@@ -143,7 +144,7 @@ RECONCILE_INTERVAL = _env_float("DIB_DIST_RECONCILE_INTERVAL", 0.0)
 RECONCILE_JITTER = _env_float("DIB_DIST_RECONCILE_JITTER", 0.1 * RECONCILE_INTERVAL)
 RECONCILE_TIMEOUT = _env_float("DIB_DIST_RECONCILE_TIMEOUT", 5.0, exclusive=True)
 RECONCILE_LOCK_TIMEOUT = _env_float("DIB_DIST_RECONCILE_LOCK_TIMEOUT", 60.0)
-FANOUT_CONCURRENCY = int(os.environ.get("DIB_DIST_FANOUT_CONCURRENCY", "1"))
+FANOUT_CONCURRENCY = int(os.environ.get("DIB_DIST_FANOUT_CONCURRENCY", str(min(N_SITES, 16))))  # default: one slot per site (cap 16); 1 = historical sequential path
 if FANOUT_CONCURRENCY < 1:
     raise ValueError("DIB_DIST_FANOUT_CONCURRENCY must be >= 1")
 # Persistent fan-out connections (docs/audit/62). OFF by default: with DIB_DIST_FANOUT_KEEPALIVE unset or 0 every delivery attempt opens a fresh

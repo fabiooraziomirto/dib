@@ -194,8 +194,12 @@ class Cluster:
         mp.setenv("DIB_DIST_SITE_INDEX", str(index))
         mp.setenv("DIB_DIST_SUSPENSION_QUORUM", str(quorum))
         mp.setenv("DIB_DIST_EVIDENCE_URL", f"http://{EVIDENCE_HOST}")
+        mp.setenv("DIB_DIST_FANOUT_CONCURRENCY", "1")  # the existing tests are written around the historical sequential path (the service default is now min(N_SITES, 16))
         for key, value in self.extra_env.items():
-            mp.setenv(key, str(value))
+            if value is None:
+                mp.delenv(key, raising=False)  # None = leave the variable unset (test of the service default)
+            else:
+                mp.setenv(key, str(value))
         spec = importlib.util.spec_from_file_location(name, self.source)
         module = importlib.util.module_from_spec(spec)
         sys.modules[name] = module

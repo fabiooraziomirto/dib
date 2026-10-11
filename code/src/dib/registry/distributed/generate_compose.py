@@ -4,12 +4,14 @@ if N_SITES changes."""
 import os
 
 N_SITES = int(os.environ.get("DIB_DIST_N_SITES", "10"))
-# Operational values of the new knobs (the service defaults are T=0, cap=1: unbounded staleness,
-# sequential fan-out). Override from the environment when generating, e.g. for the measurements.
+# Operational values of the new knobs (the service defaults are T=0 and cap=min(N_SITES, 16): unbounded staleness,
+# fan-out as wide as the consortium). Override from the environment when generating, e.g. for the measurements.
 RECONCILE_INTERVAL = os.environ.get("DIB_DIST_RECONCILE_INTERVAL", "5")
 RECONCILE_JITTER = os.environ.get("DIB_DIST_RECONCILE_JITTER", "0.5")
 RECONCILE_TIMEOUT = os.environ.get("DIB_DIST_RECONCILE_TIMEOUT", "5.0")
-FANOUT_CONCURRENCY = os.environ.get("DIB_DIST_FANOUT_CONCURRENCY", "8")
+FANOUT_CONCURRENCY = os.environ.get("DIB_DIST_FANOUT_CONCURRENCY", str(min(N_SITES, 16)))
+# opt-in persistent fan-out connections (docs/audit/62): passed to the evidence service only when set in the generator's environment
+_KEEPALIVE_ENV = [f"      - {k}={os.environ[k]}" for k in ("DIB_DIST_FANOUT_KEEPALIVE", "DIB_DIST_FANOUT_WARM_INTERVAL") if k in os.environ]
 # mTLS (docs/audit/13_mtls_design.md): DIB_DIST_MTLS=1 starts every service through
 # dib.registry.distributed.mtls, mounts DIB_DIST_PKI_DIR read-only at /pki (expected files:
 # ca.crt, identities.json, <service>.crt and <service>.key with service = evidence, site-<i>)
@@ -41,7 +43,7 @@ def _mtls_volume():
 lines = ["services:", "  evidence:", "    build:", "      context: ../../../..",
          "      dockerfile: src/dib/registry/distributed/Dockerfile", *_mtls_command(), "    environment:",
          "      - DIB_DIST_ROLE=evidence", f"      - DIB_DIST_N_SITES={N_SITES}",
-         "      - DIB_DIST_DATA_DIR=/data", f"      - DIB_DIST_FANOUT_CONCURRENCY={FANOUT_CONCURRENCY}"]
+         "      - DIB_DIST_DATA_DIR=/data", f"      - DIB_DIST_FANOUT_CONCURRENCY={FANOUT_CONCURRENCY}", *_KEEPALIVE_ENV]
 for i in range(N_SITES):
     lines += [f"      - DIB_DIST_SITE_URL_{i}={SCHEME}://site-{i}:8000"]
 lines += [*_mtls_env("evidence"), "    volumes:", "      - evidence_data:/data", *_mtls_volume(),
