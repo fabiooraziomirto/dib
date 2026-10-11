@@ -1,0 +1,9 @@
+# Commands run on the node by the session (audit 43; CLAUDE.md node authorization requested 2026-10-11). UTC, command, outcome.
+2026-10-11T16:33Z ssh dibnode: echo/hostname/ls ~/dib_tnsm /usr/local/lib/dib-netem; sudo -n true; df -h /  -> OK; "sudo: a password is required"; 3.5G free
+2026-10-11T16:33Z ssh dibnode: date, docker ps, pgrep netem_watch, PKI notAfter, ls m67 -> watcher v2 already running (poll 0.5 s, started earlier by the user); container wasmbed-registry (not ours, untouched); PKI expiry 2026-10-13T08:22:10Z
+2026-10-11T16:33Z ssh dibnode: sha256sum -c frozen_hashes_244f1d0.txt in tree-244f1d0 -> 0 mismatches
+2026-10-11T16:34Z ssh dibnode: B0 (move pki and pki.ca to pki_prec_20261011T163411Z[.ca], make_dist_pki.py --valid-hours 336) -> 22 certificates, valid until 2026-10-25T16:32:11Z (see pki_record.json)
+2026-10-11T16:34Z ssh dibnode: launch_auto_block.sh --blocks lan_before,degraded --smoke -> out/smoke_pki336_20261011 (smoke with new PKI, audit 43 B1a)
+2026-10-11T16:43Z ssh dibnode: smoke_pki336 done (lan+degraded, returncode 0, L_dns degraded killed p95 5.01 ms n=50); launch_auto_block.sh default blocks (lan_before,degraded,lan_after) -> out/b5_20261011 (B5, audit 46)
+2026-10-11T16:46Z ssh dibnode: scp auto_b2k.py (sha a60be9aa..) + launch_auto_b2k.sh to ~/dib_tnsm/b2k; launch_auto_b2k.sh -> out/b2k_20261011 (waits for auto_block.py of B5, end 2026-10-12T02:00Z)
+2026-10-11T17:25Z ssh dibnode: mkdir ~/dib_tnsm/m8; scp run.py launch_m8.sh files/*.json (sha256 in node listing); launch_m8.sh -> out/m8_20261011 (waits for auto_block/auto_b2k to finish, then measure)
