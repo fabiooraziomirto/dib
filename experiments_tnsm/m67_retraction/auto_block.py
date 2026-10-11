@@ -31,6 +31,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import shutil
 import signal
 import subprocess
@@ -52,6 +53,8 @@ BLOCKS = {"lan_before": "lan", "degraded": "degraded", "lan_after": "lan", "wan"
 DEFAULT_BLOCKS = ["lan_before", "degraded", "lan_after"]
 PKI_MARGIN_S = 2 * 3600
 RTT_STREAK_STOP = 3
+PREFLIGHT_HEARTBEAT_MAX_AGE_S = 10.0     # fresher than the 15 s used during the run: a block does not start on a stale heartbeat
+_WATCH_RE = re.compile(r"netem_watch\w*\.sh")
 RUN_REL = "experiments_tnsm/m67_retraction/run.py"
 CALIB_REL = "experiments_tnsm/m67_retraction/calib_profile.py"
 SERVICE_REL = "code/src/dib/registry/distributed/service.py"
@@ -82,6 +85,21 @@ class System:
             except OSError:
                 continue
         return False
+
+    def other_watchers(self) -> list[tuple[int, str]]:
+        """(pid, command line) of every process that runs a netem_watch*.sh script OTHER than netem_watch2.sh (the v1 watcher left active
+        overnight reapplied `degraded` over the v2 in the first smoke). The sudo/timeout wrappers of the v2 carry netem_watch2.sh and are not listed."""
+        me, out = {os.getpid(), os.getppid()}, []
+        for p in Path("/proc").glob("[0-9]*"):
+            try:
+                if int(p.name) in me:
+                    continue
+                cmd = (p / "cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace").strip()
+            except OSError:
+                continue
+            if any(m != "netem_watch2.sh" for m in _WATCH_RE.findall(cmd)):
+                out.append((int(p.name), cmd[:200]))
+        return out
 
     def free_bytes(self) -> float:
         return shutil.disk_usage("/").free
@@ -254,10 +272,13 @@ def preflight(ctx: Ctx) -> list[str]:
     bad = check_hashes(ctx.tree, exp)
     if bad:
         probs.append(f"hash mismatch or missing file: {bad}")
+    others = ctx.system.other_watchers()
+    if others:
+        probs.append(f"another netem watcher is running besides the v2 (it would fight over the qdisc): {others}")
     try:
-        ctx.ctl.check_alive(ctx.hb_max_age_s)
+        ctx.ctl.check_alive(min(ctx.hb_max_age_s, PREFLIGHT_HEARTBEAT_MAX_AGE_S))
     except pc.WatcherDown as exc:
-        probs.append(f"watcher not alive: {exc}")
+        probs.append(f"watcher not alive or heartbeat older than {PREFLIGHT_HEARTBEAT_MAX_AGE_S:g} s: {exc}")
     return probs
 
 

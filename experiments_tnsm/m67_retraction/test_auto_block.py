@@ -31,6 +31,7 @@ import auto_block as ab
 import profile_ctl as pc
 
 NAMES = pc.NAMES
+HERE_DIR = Path(__file__).resolve().parent
 CALIB_OK = r'''
 import json, sys, pathlib
 a = sys.argv[1:]; out = pathlib.Path(a[a.index("--out") + 1]); prof = a[a.index("--profile") + 1]
@@ -58,9 +59,11 @@ class FakeSystem:
     def __init__(self):
         self.containers_, self.runpy, self.free, self.pki = [], False, 50e9, time.time() + 10 * 86400
         self.spawned, self.scripts, self.teardowns, self.on_tick = [], {}, 0, None
+        self.others = []
 
     def containers(self): return list(self.containers_)
     def runpy_running(self): return self.runpy
+    def other_watchers(self): return list(self.others)
     def free_bytes(self): return self.free
     def pki_not_after(self, pki_dir): return self.pki
     def teardown(self, tree, st): self.teardowns += 1
@@ -83,6 +86,7 @@ class FakeCtl:
         self.ticks = 0
 
     def check_alive(self, max_age_s=15.0):
+        self.max_ages = getattr(self, "max_ages", []) + [max_age_s]
         self.ticks += 1
         if not self.alive:
             raise pc.WatcherDown("heartbeat dead")
@@ -138,7 +142,7 @@ def good_system():
 
 
 # ------------------------------------------------------------------------------------------------------------------ A-1
-@pytest.mark.parametrize("what", ["container", "runpy", "disk", "pki", "hash", "watcher"])
+@pytest.mark.parametrize("what", ["container", "runpy", "disk", "pki", "hash", "watcher", "otherwatcher"])
 def test_a1_initial_checks_stop_the_block_before_anything(tmp_path, what):
     s = good_system()
     ctl = FakeCtl()
@@ -148,12 +152,13 @@ def test_a1_initial_checks_stop_the_block_before_anything(tmp_path, what):
     if what == "disk": s.free = 1.9e9
     if what == "pki": s.pki = time.time() + 4 * 3600 + 3600           # expires 1 h after the end, margin is 2 h
     if what == "watcher": ctl.alive = False
+    if what == "otherwatcher": s.others = [(2326458, "bash /usr/local/lib/dib-netem/netem_watch.sh --poll 0.5 degraded")]
     ctx = make_ctx(tmp_path, system=s, ctl=ctl)
     if what == "hash": ctx.expect = {"experiments_tnsm/m67_retraction/netem_watch2.sh": "0" * 64}
     r = ab.run_block(ctx, "degraded")
     assert r["status"] == "stopped" and r["reason"].startswith("preflight")
     assert s.spawned == [] and ctl.calls == []                          # no request, no child
-    token = {"container": "container", "runpy": "run.py", "disk": "disk", "pki": "pki", "hash": "hash", "watcher": "watcher"}[what]
+    token = {"container": "container", "runpy": "run.py", "disk": "disk", "pki": "pki", "hash": "hash", "watcher": "watcher", "otherwatcher": "another netem watcher"}[what]
     assert "stop_block" in kinds(ctx) and token in r["reason"].lower()
 
 
@@ -468,3 +473,57 @@ def test_a14_children_do_not_inherit_ignored_sigint(tmp_path):
     finally:
         signal.signal(signal.SIGINT, old)
     assert "default_int_handler" in log.read_text(), log.read_text()
+
+
+def test_a1_preflight_demands_a_fresh_heartbeat(tmp_path):
+    ctl = FakeCtl()
+    ctx = make_ctx(tmp_path, system=good_system(), ctl=ctl)
+    assert ab.preflight(ctx) == [] and ctl.max_ages[-1] == ab.PREFLIGHT_HEARTBEAT_MAX_AGE_S == 10.0
+
+
+def test_a1_other_watcher_detection_on_the_real_system(tmp_path):
+    """System.other_watchers sees a v1 watcher (netem_watch.sh) and any netem_watch*.sh but NOT netem_watch2.sh and its sudo/timeout wrappers."""
+    import shutil
+    d = tmp_path / "bin"
+    d.mkdir()
+    for name in ("netem_watch.sh", "netem_watch2.sh", "netem_watch3.sh"):
+        (d / name).write_text("#!/usr/bin/env bash\nsleep 30\n")
+    procs = [subprocess.Popen(["bash", str(d / n)]) for n in ("netem_watch.sh", "netem_watch2.sh")]
+    procs.append(subprocess.Popen(["timeout", "30", "bash", str(d / "netem_watch2.sh")]))
+    try:
+        time.sleep(0.5)
+        found = ab.System().other_watchers()
+        assert any("netem_watch.sh" in c for _, c in found) and not any("netem_watch2.sh" in c for _, c in found)
+        procs.append(subprocess.Popen(["bash", str(d / "netem_watch3.sh")]))
+        time.sleep(0.5)
+        assert any("netem_watch3.sh" in c for _, c in ab.System().other_watchers())
+    finally:
+        for p in procs:
+            p.kill()
+            p.wait()
+    assert ab.System().other_watchers() == []
+
+
+def test_a14_background_child_dies_after_terminate(tmp_path):
+    """End to end of the smoke failure: a non-interactive shell starts the 'orchestrator' in BACKGROUND (`setsid nohup ... &`, so SIGINT is
+    ignored there), which spawns a child through System.spawn and calls terminate(). The child must die from the SIGINT well within the grace
+    period (here 20 s), not be killed at its end."""
+    helper = tmp_path / "helper.py"
+    helper.write_text(f"""
+import sys, time, subprocess, json
+sys.path.insert(0, {str(HERE_DIR)!r})
+import auto_block as ab
+log = {str(tmp_path / "child.log")!r}
+p = ab.System().spawn([sys.executable, "-c", "import time\\ntry:\\n    time.sleep(120)\\nexcept KeyboardInterrupt:\\n    print('KI')\\n    raise"], log)
+time.sleep(1.0)
+t0 = time.time()
+ab.terminate(p, grace_s=20)
+print(json.dumps({{"elapsed": time.time() - t0, "rc": p.returncode}}), flush=True)
+""")
+    out = tmp_path / "out.json"
+    sh = tmp_path / "launch.sh"
+    sh.write_text(f"#!/usr/bin/env bash\nsetsid nohup {sys.executable} {helper} > {out} 2>&1 < /dev/null &\nwait\n")
+    subprocess.run(["bash", str(sh)], timeout=60)
+    r = json.loads(out.read_text().strip().splitlines()[-1])
+    assert r["elapsed"] < 10 and r["rc"] not in (None, -9), r                       # died from SIGINT, not from the SIGKILL after the grace
+    assert "KI" in (tmp_path / "child.log").read_text()
