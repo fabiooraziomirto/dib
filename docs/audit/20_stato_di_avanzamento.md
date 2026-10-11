@@ -1,6 +1,6 @@
 # Audit 20 — Nota di stato (da leggere in un minuto dopo una ripartenza)
 
-Ultimo aggiornamento: 2026-10-10 22:40 UTC (notte in corso, vedi sotto). Branch `revision-tnsm`, worktree `/root/Desktop/DIB_tnsm`. **Più sessioni scrivono su questo worktree**: `git add` solo con percorsi espliciti, `git status` prima di ogni commit, scrittura + `python -m py_compile` + commit concatenati con `&&`. Nessuna modifica a `code/src`, `service.py` (sha256 `3186304363ed…`), `results/` senza l'OK dell'utente; **nessun comando sudo** da questa sessione (netem, tcpdump li lancia l'utente a mano).
+Ultimo aggiornamento: 2026-10-11 mattina (notte finita, rapporto in audit 21). Branch `revision-tnsm`, worktree `/root/Desktop/DIB_tnsm`. **Più sessioni scrivono su questo worktree**: `git add` solo con percorsi espliciti, `git status` prima di ogni commit, scrittura + `python -m py_compile` + commit concatenati con `&&`. Nessuna modifica a `code/src`, `service.py` (sha256 `3186304363ed…`), `results/` senza l'OK dell'utente; **nessun comando sudo** da questa sessione (netem, tcpdump li lancia l'utente a mano).
 
 ## Dove siamo
 
@@ -13,7 +13,9 @@ Ultimo aggiornamento: 2026-10-10 22:40 UTC (notte in corso, vedi sotto). Branch 
 | Calibrazioni a `lan` (log con due container, L_dns) | **fatte**: log p95 ~2-2,5 ms, scarto relativo ~0, L_dns 2,6 ms (errore di risoluzione); nessuna soglia dichiarata | audit 18 §1.9 | `experiments_tnsm/m67_retraction/calib_lan_20261010/` |
 | Passi 4-5 (M6/M7, rete emulata) | **D1 approvata (watcher)**; script netem rinforzati e provati con test (8 test); B1 provato dal vivo a `lan` (3 e 2×20 episodi, nessun `client_timeout`); B2-kill non provato e non parte senza decisione su L_dns; trovato che il netem si perde a ogni ricreazione del cluster (risolto con grouping + `netem_watch.sh`, da decidere D1); script netem corretti (retry, pulizia rumorosa, pid nella firma, `--poll`), albero pinnato `tree-6b8a6fa`; percorso generatore→container (d, non 2d) reso esplicito: warm-up prima di t0, log a connessione persistente, `generator_path_ms`; conta del pending dal log (letture del generatore solo controllo incrociato); albero `06d4819`; attende la conferma degli hash di `06d4819` e il via per le sole calibrazioni di `wan`; prima di B1: un ultimo rifacimento del tree (code vuote a inizio episodio, `queues_not_empty_at_start`; osservabile di (c) per sito, `prediction_c_observable.md`) e nuova conferma degli hash | `experiments_tnsm/m67_retraction/run.py`, audit 18 §2.5 |
 
-## NOTTE IN CORSO (avviata 2026-10-10 22:38:34 UTC, fine 2026-10-11 07:00 UTC)
+## NOTTE FINITA (avviata 2026-10-10 22:38:34 UTC, `DONE` 2026-10-11 02:50 UTC): vedi `docs/audit/21_rapporto_notte.md`
+
+Esito in una riga: B1 `wan` completato solo per i due gruppi FANOUT 1 (D e C); i due FANOUT 10 sono caduti per `httpx.RemoteProtocolError` in `setup_fact` (connessione keep-alive stale, ipotesi); B2-kill non eseguito (L_dns p95 186 ms); M1 (100 celle) e M2 (90 celle) eseguiti, non analizzati. Sotto, il testo scritto all'avvio.
 
 - Processo: `night.py` staccato sul nodo, PID `878739`, file `~/dib_tnsm/out/night_20261011/run/night.pid`; stato in `run/state.json`, uscita in `run/night.stdout`, un log per gruppo `run/b1_<arm>_f<fanout>.log`, dati in `run/b1_*/`. Si controlla con `kill -0 $(cat …/night.pid)`, `tail run/night.stdout` e `run/state.json`; a fine corsa compare `run/DONE`.
 - Tree congelato `~/dib_tnsm/tree-6b8a6fa` (18 hash controllati dallo script all'avvio). Watcher `netem_watch.sh --poll 0.5 wan` in tmux (`timeout 9h`, parte 22:36 UTC, si ferma ~07:36), log `~/dib_tnsm/m67/watch_wan.log`; `netem_show.sh` verificato dall'utente (11 namespace, `delay 80ms loss 1%`).

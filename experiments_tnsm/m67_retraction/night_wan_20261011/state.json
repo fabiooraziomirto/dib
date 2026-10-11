@@ -1,0 +1,294 @@
+{
+ "events": [
+  {
+   "t": "2026-10-10T22:38:34.642118+00:00",
+   "kind": "start",
+   "tree": "/home/ubuntu/dib_tnsm/tree-6b8a6fa",
+   "end_utc": "2026-10-11T07:00:00Z",
+   "watcher_poll": 0.5,
+   "python": "3.12.3"
+  },
+  {
+   "t": "2026-10-10T22:38:34.643768+00:00",
+   "kind": "hashes_ok",
+   "files": [
+    "code/src/dib/registry/distributed/service.py",
+    "experiments_tnsm/common/cells.py",
+    "experiments_tnsm/common/cpu_sampler.py",
+    "experiments_tnsm/common/discard_rule.json",
+    "experiments_tnsm/common/node_monitor.py",
+    "experiments_tnsm/m1_single_node/run.py",
+    "experiments_tnsm/m2_p99_tail/run.py",
+    "experiments_tnsm/m3_distributed/launcher_d.py",
+    "experiments_tnsm/m67_retraction/calib_ldns.sh",
+    "experiments_tnsm/m67_retraction/calib_logs.py",
+    "experiments_tnsm/m67_retraction/calib_profile.py",
+    "experiments_tnsm/m67_retraction/launch_night.sh",
+    "experiments_tnsm/m67_retraction/netem_apply.sh",
+    "experiments_tnsm/m67_retraction/netem_common.sh",
+    "experiments_tnsm/m67_retraction/netem_show.sh",
+    "experiments_tnsm/m67_retraction/netem_watch.sh",
+    "experiments_tnsm/m67_retraction/night.py",
+    "experiments_tnsm/m67_retraction/run.py",
+    "code/src/dib/registry/distributed/service.py"
+   ]
+  },
+  {
+   "t": "2026-10-10T22:40:00.936960+00:00",
+   "kind": "calibration",
+   "returncode": 0,
+   "rtt_check_ok": true,
+   "generator_path_ms": {
+    "reused_ms": 83.39801600232022,
+    "fresh_ms": 163.55473600197,
+    "n": 5,
+    "reused_ok": true,
+    "fresh_ok": true
+   },
+   "ldns": {
+    "label": "wan",
+    "alive": {
+     "n": 50,
+     "p50_ms": 0.299781997455284,
+     "p95_ms": 0.5803280000691302,
+     "max_ms": 2.7460080018499866,
+     "outcomes": [
+      "True"
+     ]
+    },
+    "killed": {
+     "n": 50,
+     "p50_ms": 179.04632099816808,
+     "p95_ms": 185.9828029992059,
+     "max_ms": 4005.275740997604,
+     "outcomes": [
+      "gaierror(-3, 'Temporary failure in name resolution')"
+     ]
+    }
+   }
+  },
+  {
+   "t": "2026-10-10T22:40:01.170555+00:00",
+   "kind": "threshold_file",
+   "path": "/home/ubuntu/dib_tnsm/out/night_20261011/run/plog_thresholds_wan.json",
+   "sha256": "aa3e03585cb7294f2f052cc5848801c0708353373690c09c9cddf2f468eb291d",
+   "calibrated_p95_ms": 3.5958290100097656,
+   "cells": {
+    "D/1": {
+     "predicted_direct_median_ms": 3200.0,
+     "threshold_ms": 320.0,
+     "accepted": true
+    },
+    "D/10": {
+     "predicted_direct_median_ms": 320.0,
+     "threshold_ms": 32.0,
+     "accepted": true
+    },
+    "C/1": {
+     "predicted_direct_median_ms": 4800.0,
+     "threshold_ms": 480.0,
+     "accepted": true
+    },
+    "C/10": {
+     "predicted_direct_median_ms": 480.0,
+     "threshold_ms": 48.0,
+     "accepted": true
+    }
+   }
+  },
+  {
+   "t": "2026-10-10T22:50:01.197620+00:00",
+   "kind": "threshold_commit_wait",
+   "flag_seen": false,
+   "waited_s": 600
+  },
+  {
+   "t": "2026-10-10T22:50:01.198982+00:00",
+   "kind": "group_start",
+   "group": "b1_C_f10",
+   "cmd": [
+    "--block",
+    "b1",
+    "--profile",
+    "wan",
+    "--tree",
+    "/home/ubuntu/dib_tnsm/tree-6b8a6fa",
+    "--out",
+    "/home/ubuntu/dib_tnsm/out/night_20261011/run/b1_C_f10",
+    "--arms",
+    "C",
+    "--seed",
+    "20261014",
+    "--profile-wait",
+    "90",
+    "--fanouts",
+    "10",
+    "--plog-thresholds",
+    "/home/ubuntu/dib_tnsm/out/night_20261011/run/plog_thresholds_wan.json",
+    "--plog-p95-ms",
+    "3.5958290100097656"
+   ]
+  },
+  {
+   "t": "2026-10-10T22:51:51.167147+00:00",
+   "kind": "group_end",
+   "group": "b1_C_f10",
+   "returncode": 1,
+   "aborted": [],
+   "ok": false
+  },
+  {
+   "t": "2026-10-10T22:51:51.395132+00:00",
+   "kind": "group_start",
+   "group": "b1_D_f1",
+   "cmd": [
+    "--block",
+    "b1",
+    "--profile",
+    "wan",
+    "--tree",
+    "/home/ubuntu/dib_tnsm/tree-6b8a6fa",
+    "--out",
+    "/home/ubuntu/dib_tnsm/out/night_20261011/run/b1_D_f1",
+    "--arms",
+    "D",
+    "--seed",
+    "20261014",
+    "--profile-wait",
+    "90",
+    "--fanouts",
+    "1",
+    "--plog-thresholds",
+    "/home/ubuntu/dib_tnsm/out/night_20261011/run/plog_thresholds_wan.json",
+    "--plog-p95-ms",
+    "3.5958290100097656"
+   ]
+  },
+  {
+   "t": "2026-10-10T22:53:57.883438+00:00",
+   "kind": "group_end",
+   "group": "b1_D_f1",
+   "returncode": 0,
+   "aborted": [],
+   "ok": true
+  },
+  {
+   "t": "2026-10-10T22:53:58.109899+00:00",
+   "kind": "group_start",
+   "group": "b1_C_f1",
+   "cmd": [
+    "--block",
+    "b1",
+    "--profile",
+    "wan",
+    "--tree",
+    "/home/ubuntu/dib_tnsm/tree-6b8a6fa",
+    "--out",
+    "/home/ubuntu/dib_tnsm/out/night_20261011/run/b1_C_f1",
+    "--arms",
+    "C",
+    "--seed",
+    "20261014",
+    "--profile-wait",
+    "90",
+    "--fanouts",
+    "1",
+    "--plog-thresholds",
+    "/home/ubuntu/dib_tnsm/out/night_20261011/run/plog_thresholds_wan.json",
+    "--plog-p95-ms",
+    "3.5958290100097656"
+   ]
+  },
+  {
+   "t": "2026-10-10T22:57:02.364140+00:00",
+   "kind": "group_end",
+   "group": "b1_C_f1",
+   "returncode": 0,
+   "aborted": [],
+   "ok": true
+  },
+  {
+   "t": "2026-10-10T22:57:02.584425+00:00",
+   "kind": "group_start",
+   "group": "b1_D_f10",
+   "cmd": [
+    "--block",
+    "b1",
+    "--profile",
+    "wan",
+    "--tree",
+    "/home/ubuntu/dib_tnsm/tree-6b8a6fa",
+    "--out",
+    "/home/ubuntu/dib_tnsm/out/night_20261011/run/b1_D_f10",
+    "--arms",
+    "D",
+    "--seed",
+    "20261014",
+    "--profile-wait",
+    "90",
+    "--fanouts",
+    "10",
+    "--plog-thresholds",
+    "/home/ubuntu/dib_tnsm/out/night_20261011/run/plog_thresholds_wan.json",
+    "--plog-p95-ms",
+    "3.5958290100097656"
+   ]
+  },
+  {
+   "t": "2026-10-10T22:58:01.397534+00:00",
+   "kind": "group_end",
+   "group": "b1_D_f10",
+   "returncode": 1,
+   "aborted": [],
+   "ok": false
+  },
+  {
+   "t": "2026-10-10T22:58:01.565582+00:00",
+   "kind": "ldns_decision",
+   "decision": "skip",
+   "reason": "L_dns p95 186.0 ms > 50 ms: user decision (rule: >= 0.5 s only B2-partition + kill-min; in between recompute the cost table)",
+   "killed": {
+    "n": 50,
+    "p50_ms": 179.04632099816808,
+    "p95_ms": 185.9828029992059,
+    "max_ms": 4005.275740997604,
+    "outcomes": [
+     "gaierror(-3, 'Temporary failure in name resolution')"
+    ]
+   },
+   "alive": {
+    "n": 50,
+    "p50_ms": 0.299781997455284,
+    "p95_ms": 0.5803280000691302,
+    "max_ms": 2.7460080018499866,
+    "outcomes": [
+     "True"
+    ]
+   }
+  },
+  {
+   "t": "2026-10-10T22:58:01.730728+00:00",
+   "kind": "m1_start"
+  },
+  {
+   "t": "2026-10-11T01:25:26.079101+00:00",
+   "kind": "m1_end",
+   "returncode": 0
+  },
+  {
+   "t": "2026-10-11T01:25:26.080055+00:00",
+   "kind": "m2_start"
+  },
+  {
+   "t": "2026-10-11T02:50:11.972054+00:00",
+   "kind": "m2_end",
+   "returncode": 0
+  },
+  {
+   "t": "2026-10-11T02:50:12.315156+00:00",
+   "kind": "done",
+   "containers_left": [],
+   "free_bytes": 3852087296
+  }
+ ]
+}
