@@ -114,7 +114,7 @@ def test_r8_summarize_rows_agreement_bias_and_acceptance():
     bad = [_ep(0.0200, [0.001] * 10)]                                   # gap 19 ms: the two measures disagree
     assert r.summarize_rows(bad, "lan")["plog_rtt_agree"] is False
     wan = r.summarize_rows([_ep(0.5, [0.2] * 10)], "wan")
-    assert abs(wan["dispute_rtt_bias_ratio"] - 0.08 / 0.5) < 1e-9       # d / median(dispute-rtt)
+    assert abs(wan["dispute_rtt_bias_ratio"] - 0.16 / 0.5) < 1e-9       # 2d / median(dispute-rtt) (corrected 2026-10-11: was d)
     pend = {i: (1 if i == 3 else 0) for i in range(10)}
     sp = r.summarize_rows([_ep(5.0, [0.2] * 10, pending=pend, d_ack=6.0)], "degraded")
     assert abs(sp["pending_bias_ratio"] - (0.2 + 0.05) / 6.0) < 1e-9 and sp["pending_bias_flag_gt10pct"] is False
@@ -187,10 +187,10 @@ def test_r13_generator_path_is_d_not_2d():
     assert bad["reused_ok"] is False and bad["fresh_ok"] is True
     assert r.generator_path_matches("wan", {"reused_ms": 81.0, "fresh_ms": 400.0}, mtls=True)["fresh_ok"] is None   # TLS fresh: no expectation
     assert r.generator_path_matches("mixed", {"reused_ms": 0.5, "fresh_ms": 1.0}, mtls=False)["reused_ok"] is True
-    # the dispute-rtt bias uses the generator path, not the profile's evidence<->site d
+    # the dispute-rtt bias is the exit delay of the last site + the exit delay of evidence (corrected 2026-10-11, test r17)
     rows = [{"excluded": False, "dispute_rtt_s": 1.0, "withdrawn_plog_s": {i: 0.9 for i in range(10)}, "pending_after_response": {i: 0 for i in range(10)},
              "pending_left": {i: 0 for i in range(10)}} for _ in range(5)]
-    assert r.summarize_rows(rows, "mixed", 2.5)["dispute_rtt_bias_ratio"] == 0.0
+    assert abs(r.summarize_rows(rows, "mixed", 2.5)["dispute_rtt_bias_ratio"] - 0.08) < 1e-9   # mixed: only the wan site delays (0.08 / 1.0 s)
 
 
 def _row(read, ack, left, rtt=1.0):
@@ -246,3 +246,140 @@ def test_r16_queues_must_be_empty_before_t0_and_ack_lines_counted():
     rows[0]["plog_ack_count"] = {3: 2}                                   # two ack lines for the same site: collapsed events visible
     s = r.summarize_rows(rows, "wan", 2.5)
     assert s["n_queue_not_clean"] == 1 and s["ack_lines_total"] == 2 and s["ack_lines_max_per_site_episode"] == 2
+
+
+# ---- 2026-10-11 corrections before the re-run (user instructions B1-B3) -------------------------------------------------
+# Hypotheses (declared before the code): r17 dispute-rtt exceeds the true withdrawal (last P-log site) by the exit delay of the
+# last site plus the exit delay of evidence towards the generator: lan 0, regional 2x20, wan 2x80 (night: ~163 ms), degraded 2x200,
+# extreme 2x550, mixed 80 ms (only the wan sites delay, evidence does not), partition not applicable (None). r18 a transport error
+# in the setup (the night's RemoteProtocolError) excludes the episode with cause `transport_error_setup` and the exception type,
+# the next episodes run, the driver does not die. r19 the client's keepalive_expiry is below the server's 5 s timeout (uvicorn
+# 0.51.0 default, no override anywhere) but the keep-alive is kept (not 0). r20 each finished episode is handed to a sink at once.
+# Falsification: any assertion failing.
+import httpx  # noqa: E402
+import pytest  # noqa: E402
+
+
+def test_r17_dispute_rtt_bias_per_profile():
+    exp = {"lan": 0.0, "regional": 0.040, "wan": 0.160, "degraded": 0.400, "extreme": 1.100, "mixed": 0.080}
+    for prof, v in exp.items():
+        assert abs(r.dispute_rtt_bias_s(prof) - v) < 1e-12, prof
+    assert r.dispute_rtt_bias_s("partition") is None
+    rows = [{"excluded": False, "dispute_rtt_s": 1.0, "withdrawn_plog_s": {i: 0.9 for i in range(10)}, "pending_after_response": {i: 0 for i in range(10)},
+             "pending_left": {i: 0 for i in range(10)}} for _ in range(5)]
+    assert r.summarize_rows(rows, "lan", 2.5)["dispute_rtt_bias_ratio"] == 0.0
+    s = r.summarize_rows(rows, "wan", 2.5)
+    assert abs(s["dispute_rtt_bias_s"] - 0.160) < 1e-12 and abs(s["dispute_rtt_bias_ratio"] - 0.16) < 1e-12
+    assert abs(r.summarize_rows(rows, "degraded", 2.5)["dispute_rtt_bias_ratio"] - 0.40) < 1e-12
+    assert abs(r.summarize_rows(rows, "mixed", 2.5)["dispute_rtt_bias_ratio"] - 0.08) < 1e-12
+    assert r.summarize_rows(rows, "extreme", 2.5)["dispute_rtt_bias_s"] == 1.1
+    # gen_path_d (generator path check) is NOT changed by this correction
+    assert r.gen_path_d("wan") == 0.080 and r.gen_path_d("mixed") == 0.0
+
+
+class _FakeResp:
+    status_code = 200
+
+    def json(self):
+        return {"id": 1}
+
+
+class _FakeEnv:
+    arm, fanout, T = "D", 1, 5.0
+    ev = "http://ev"
+
+    def __init__(self, fail_setup_on):
+        self.fail_setup_on, self.n_setup = set(fail_setup_on), 0
+
+    def site(self, i):
+        return f"http://s{i}"
+
+    def queues_clean(self, timeout):
+        return True, 0.0
+
+    def warm_many(self, ids):
+        pass
+
+    def read_pending(self, sites):
+        return {i: [] for i in sites}
+
+    def logs(self, c, since):
+        return ""
+
+    def req(self, method, url, identity, timeout, **kw):
+        if url.endswith("/seed"):
+            k = self.n_setup
+            self.n_setup += 1
+            if k in self.fail_setup_on:
+                raise r.TransportFailure("RemoteProtocolError", "Server disconnected without sending a response")
+        return _FakeResp()
+
+
+def test_r18_transport_error_in_setup_excludes_episode_and_queue_continues(monkeypatch):
+    monkeypatch.setattr(r.time, "sleep", lambda s: None)
+    env = _FakeEnv(fail_setup_on={0, 2})
+    rows = [r.episode_b1(env, "lan", "t", e) for e in range(4)]
+    assert [bool(x["excluded"]) for x in rows] == [True, False, True, False]
+    for x in (rows[0], rows[2]):
+        assert x["excluded_reason"] == "transport_error_setup" and x["exception_type"] == "RemoteProtocolError"
+        assert "client_timeout" not in x
+    assert all("dispute_rtt_s" in x for x in (rows[1], rows[3]))
+    s = r.summarize_rows(rows, "lan", 2.5)
+    assert s["excluded"] == 2 and s["excluded_by_cause"] == {"transport_error_setup": 2}
+
+
+def test_r18b_transport_error_after_t0_is_its_own_cause(monkeypatch):
+    monkeypatch.setattr(r.time, "sleep", lambda s: None)
+    env = _FakeEnv(fail_setup_on=())
+    orig = env.req
+
+    def req(method, url, identity, timeout, **kw):
+        if url.endswith("/dispute"):
+            raise r.TransportFailure("ReadError", "boom")
+        return orig(method, url, identity, timeout, **kw)
+    env.req = req
+    row = r.episode_b1(env, "lan", "t", 0)
+    assert row["excluded"] and row["excluded_reason"] == "transport_error_measured" and row["exception_type"] == "ReadError"
+
+
+def test_r18c_req_maps_httpx_errors(monkeypatch):
+    env = r.Env("/x", "D", 1, 5.0, Path("/x"))
+
+    class C:
+        def __init__(self, exc):
+            self.exc = exc
+
+        def request(self, *a, **k):
+            raise self.exc
+    env._clients[None] = C(httpx.RemoteProtocolError("Server disconnected without sending a response"))
+    with pytest.raises(r.TransportFailure) as ei:
+        env.req("GET", "http://x", None, 1.0)
+    assert ei.value.exc_type == "RemoteProtocolError"
+    env._clients[None] = C(httpx.ReadTimeout("t"))
+    with pytest.raises(r.ClientTimeout):
+        env.req("GET", "http://x", None, 1.0)
+
+
+def test_r19_client_keepalive_below_server_timeout_but_kept():
+    assert r.SERVER_KEEPALIVE_S == 5 and 0 < r.KEEPALIVE_EXPIRY_S < r.SERVER_KEEPALIVE_S
+    env = r.Env("/x", "D", 1, 5.0, Path("/x"))
+    c = env._make_client(None)
+    assert c._transport._pool._keepalive_expiry == r.KEEPALIVE_EXPIRY_S
+    assert c._transport._pool._max_keepalive_connections is None or c._transport._pool._max_keepalive_connections > 0
+    import uvicorn
+    assert uvicorn.Config("x:y").timeout_keep_alive == r.SERVER_KEEPALIVE_S   # uvicorn default (0.51.0); no override in the repo
+
+
+def test_r20_each_episode_goes_to_the_sink_even_if_the_next_one_dies(monkeypatch):
+    monkeypatch.setattr(r.time, "sleep", lambda s: None)
+    seen, calls = [], iter(range(10))
+
+    def fake_episode(env, profile, tag, e, setup=True):
+        if next(calls) == 2:
+            raise RuntimeError("unexpected")
+        return {"episode": e, "excluded": False}
+    monkeypatch.setattr(r, "episode_b1", fake_episode)
+    rows = []
+    with pytest.raises(RuntimeError):
+        r.run_episodes(None, "lan", "t", 5, True, rows, seen.append)
+    assert [x["episode"] for x in seen] == [0, 1] and rows == seen

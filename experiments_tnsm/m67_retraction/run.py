@@ -8,8 +8,20 @@ Paths and RTTs (user check, 2026-10-10). evidence<->site: netem on both egresses
 (wait_profile, calib_profile.py, VERIFY_NOW) checks, +-20%. generator->container: the generator is in the root namespace with
 no qdisc on its egress, so only the response leg is delayed: ~d on a reused connection, ~2d on a fresh one (the userland
 docker-proxy dials the container at accept time). The driver therefore warms the connection right before t0 (Env.warm) and
-records the measured generator path per cluster (Env.measure_generator_path_ms, informational, never aborts). dispute-rtt and
-P-log (withdrawal - t0) carry the generator-path bias d (gen_path_d; 0 in `mixed`), not 2d.
+records the measured generator path per cluster (Env.measure_generator_path_ms, informational, never aborts).
+dispute-rtt bias (CORRECTED 2026-10-11, after the night data; the earlier text "bias <= d" was wrong): dispute-rtt exceeds the true
+withdrawal (last P-log site) by ~2d, = exit delay of the last site + exit delay of evidence towards the generator (night, wan:
+163 ms measured vs 2d = 160). Per profile (dispute_rtt_bias_s): lan 0; regional/wan/degraded/extreme 2d; mixed d (only the wan
+sites delay, evidence does not); partition not applicable. It changes neither the thresholds nor the measures already taken.
+gen_path_d (the generator<->evidence path check, informational) is unchanged.
+Client connections (2026-10-11): uvicorn 0.51.0 closes an idle keep-alive connection after 5 s (Config.timeout_keep_alive default;
+no override in the service Dockerfile CMD, in mtls.main/server_config or in launcher_d.py: same value in plain and mTLS mode). The
+night's two failed FANOUT 10 groups died on `RemoteProtocolError: Server disconnected` in setup_fact (a connection the server had
+closed while the FIN was still in flight at d = 80 ms). The client now expires idle connections after KEEPALIVE_EXPIRY_S = 2 s, so
+it discards before the server does; keep-alive is KEPT (the t0 bias analysis needs a reused connection after the warm). Transport
+errors are excluded per episode with cause `transport_error_setup` (before t0) or `transport_error_measured` (after t0) and the
+exception type; they never kill the invocation. Episodes are appended to episodes.jsonl one by one, and a cell interrupted by an
+unexpected exception leaves a partial record in cells.jsonl.
 
 Arms. D = DIB_DIST_MTLS=0 + compose override running launcher_d.py (plain, same launcher as the
 mTLS arm, prebuilt SSL context set from outside; service.py untouched); C = mTLS. The default
@@ -58,6 +70,11 @@ background sample (node_monitor.sample, containers excluded) precedes each cell;
 
 Predictions (declared before launch; prediction (a) re-frozen in audit 18 s.1.5 B3, commit 6c11e48,
 NOT modified here; (c) and (d) unchanged until the tcpdump capture says otherwise):
+  (a)  [reading for FANOUT 1, added 2026-10-11 AFTER seeing the night data, supported by the text of rev. 3 ("with concurrency 1
+       the duration of /dispute is ~ 10*n_RTT*R"): the quantity is the withdrawal of the LAST site, predicted as 10 x n_RTT x R plus
+       the service time (V6); the rule is unchanged: falsified if the median exceeds n_RTT*R (x10 for FANOUT 1) + 3 x (`lan` median
+       of the same arm, same session) beyond the CI. If for arm C the rule is violated because the `lan` median is very low, it is
+       reported as falsified with the observed excess; the model is not adapted.]
   (a)  withdrawal ~ n_RTT*R + service, n_RTT = 2 (D) or 3 (C), R = 2d (R = d for the `wan` sites of
        `mixed`); falsified if the median at regional/wan/mixed exceeds n_RTT*R + 3 x (median at
        `lan` of the SAME arm) beyond the CI. P-a1: default - D, last site, FANOUT 1, lan: +61.5 ms
@@ -179,6 +196,16 @@ def gen_path_d(profile: str) -> float:
     generator is in the root namespace, no qdisc on its egress). Equals the profile's d, except in `mixed`, where evidence
     has no netem (only sites 5-9 are delayed)."""
     return 0.0 if profile == "mixed" else PROFILES[profile]["d"]
+
+
+def dispute_rtt_bias_s(profile: str) -> float | None:
+    """Excess of dispute-rtt over the true withdrawal (last P-log site), in s: exit delay of the last site + exit delay of
+    evidence towards the generator (corrected 2026-10-11). lan 0; mixed: only the wan sites delay, evidence does not -> d;
+    partition: not applicable (None); every other profile 2d."""
+    if profile == "partition":
+        return None
+    d = PROFILES[profile]["d"]
+    return d if profile == "mixed" else 2.0 * d
 
 
 def generator_path_matches(profile: str, gp: dict, mtls: bool) -> dict:
@@ -309,11 +336,20 @@ def _median(xs):
     return statistics.median(xs) if xs else None
 
 
+def excluded_by_cause(rows: list[dict]) -> dict:
+    out: dict = {}
+    for r in rows:
+        if r.get("excluded"):
+            c = r.get("excluded_reason") or ("client_timeout" if r.get("client_timeout") else "other")
+            out[c] = out.get(c, 0) + 1
+    return out
+
+
 def summarize_rows(rows: list[dict], profile: str, plog_p95_ms: float = PLOG_P95_MS_DEFAULT) -> dict:
     """Per-cell summary of B1/tcpdump episodes: median dispute-rtt, median direct withdrawal by P-log (last site), their
     agreement, the acceptance ratio of the log probe, and the bias ratios of the manifest (user decision B/A4)."""
     d = PROFILES[profile]["d"]
-    d_gen = gen_path_d(profile)   # dispute-rtt crosses the generator<->evidence path (response leg), not evidence<->site
+    bias = dispute_rtt_bias_s(profile)   # exit delay of the last site + exit delay of evidence (not gen_path_d)
     ok = [r for r in rows if not r.get("excluded") and "dispute_rtt_s" in r]
     direct, rtt, diffs, pend = [], [], [], []
     n_read = n_log = undercount = unmeasured = undrained = 0
@@ -353,7 +389,9 @@ def summarize_rows(rows: list[dict], profile: str, plog_p95_ms: float = PLOG_P95
            "plog_p95_ms_used": plog_p95_ms,
            "plog_acceptance_ratio": (plog_p95_ms / 1000.0 / med_direct) if med_direct else None,
            "plog_acceptable_rule_10pct": bool(med_direct and plog_p95_ms / 1000.0 / med_direct < 0.10),
-           "dispute_rtt_bias_ratio": (d_gen / med_rtt) if (med_rtt and d_gen) else (0.0 if med_rtt is not None else None),
+           "excluded_by_cause": excluded_by_cause(rows),
+           "dispute_rtt_bias_s": bias,
+           "dispute_rtt_bias_ratio": (bias / med_rtt) if (med_rtt and bias) else (0.0 if (med_rtt is not None and bias is not None) else None),
            "median_pending_withdrawal_s": med_pend, "n_pending_episodes": len(pend),
            "n_queue_not_clean": sum(1 for r in rows if r.get("excluded_reason") == "queues_not_empty_at_start"),
            "ack_lines_total": ack_total, "ack_lines_max_per_site_episode": ack_max,
@@ -394,6 +432,19 @@ def group_cells(cells: list[dict], rng: random.Random) -> list[tuple[tuple, list
 
 class ClientTimeout(Exception):
     """A client-side timeout: the episode/trial is EXCLUDED from the statistics, never counted as a service failure."""
+
+
+class TransportFailure(Exception):
+    """A non-timeout transport error (e.g. httpx.RemoteProtocolError on a connection the server closed): the episode/trial is
+    EXCLUDED with the cause and the exception type, the invocation goes on."""
+
+    def __init__(self, exc_type: str, msg: str):
+        super().__init__(f"{exc_type}: {msg}")
+        self.exc_type = exc_type
+
+
+SERVER_KEEPALIVE_S = 5        # uvicorn 0.51.0 Config.timeout_keep_alive default; not overridden anywhere (plain and mTLS)
+KEEPALIVE_EXPIRY_S = 2.0      # client side: discard idle connections before the server does (keep-alive KEPT)
 
 
 class Env:
@@ -440,7 +491,7 @@ class Env:
             ctx = ssl.create_default_context(cafile=str(self.pki / "ca.crt"))
             ctx.load_cert_chain(str(self.pki / f"{identity}.crt"), str(self.pki / f"{identity}.key"))
             verify = ctx
-        return httpx.Client(verify=verify)
+        return httpx.Client(verify=verify, limits=httpx.Limits(keepalive_expiry=KEEPALIVE_EXPIRY_S))
 
     def client(self, identity: str | None):
         key = identity if self.mtls else None
@@ -502,6 +553,8 @@ class Env:
             return self.client(identity).request(method, url, timeout=httpx.Timeout(connect=5.0, read=timeout, write=5.0, pool=5.0), **kw)
         except httpx.TimeoutException as exc:
             raise ClientTimeout(f"{method} {url}: {exc!r}") from exc
+        except httpx.TransportError as exc:
+            raise TransportFailure(type(exc).__name__, f"{method} {url}: {exc}") from exc
 
     def logs(self, container: str, since: float) -> str:
         return self.sh(f"/snap/bin/docker logs -t --since {since - 1.0:.3f} {container} 2>&1", check=False, timeout=60)
@@ -564,6 +617,7 @@ def episode_b1(env: Env, profile: str, tag: str, e: int, setup: bool = True) -> 
     row = {"episode": e, "excluded": False}
     ep = f"m67-{tag}-{e}.example"
     tmo = client_timeout_s(profile, env.arm, env.fanout)
+    phase = "setup"      # until t0 is taken: transport_error_setup; after: transport_error_measured
     try:
         clean, waited = env.queues_clean(b_online(profile, env.arm, env.T) + 3.0)
         row["queue_wait_before_s"] = waited
@@ -576,6 +630,7 @@ def episode_b1(env: Env, profile: str, tag: str, e: int, setup: bool = True) -> 
             sid = env.req("POST", f"{env.ev}/seed", "admin", 30.0, json={"device_type": "cam-a", "endpoint": ep}).json()["id"]
         env.warm_many(["op-site-1"] + [f"site-{i}" for i in range(N_SITES)])   # connections the dispute and the pending reads will reuse
         t0 = time.time()
+        phase = "measured"
         r = env.req("POST", f"{env.ev}/dispute", "op-site-1", tmo, json={"device_type": "cam-a", "endpoint": ep, "site_id": "site-1"})
         t_resp = time.time()
         row.update(t0=t0, t_resp=t_resp, status=r.status_code, dispute_rtt_s=t_resp - t0, score_id=sid)
@@ -600,8 +655,19 @@ def episode_b1(env: Env, profile: str, tag: str, e: int, setup: bool = True) -> 
         row["withdrawn_plog_s"] = {i: (None if t is None else t - t0) for i, t in applied.items()}
     except ClientTimeout as exc:
         row.update(excluded=True, client_timeout=str(exc)[:200])
+    except TransportFailure as exc:
+        row.update(excluded=True, excluded_reason=f"transport_error_{phase}", exception_type=exc.exc_type, exception=str(exc)[:200])
     time.sleep(0.5)
     return row
+
+
+def run_episodes(env, profile: str, tag: str, n: int, setup: bool, rows: list, sink) -> None:
+    """Run n B1 episodes; every finished row is appended to `rows` and handed to `sink` (episodes.jsonl) at once, so an
+    unexpected exception in a later episode loses nothing already measured."""
+    for e in range(n):
+        row = episode_b1(env, profile, tag, e, setup=setup)
+        rows.append(row)
+        sink(row)
 
 
 def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None) -> dict:
@@ -666,6 +732,8 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
             row["final_all_monitor_only"] = all(s == "monitor-only" for s in states)
     except ClientTimeout as exc:
         row.update(excluded=True, client_timeout=str(exc)[:200])
+    except TransportFailure as exc:
+        row.update(excluded=True, excluded_reason="transport_error", exception_type=exc.exc_type, exception=str(exc)[:200])
     return row
 
 
@@ -723,6 +791,7 @@ def live(a, cells, rng) -> int:
                 "run_py_sha256": sha(Path(__file__)), "discard_rule": rule,
                 "disk_start": subprocess.run(["df", "-h", "/"], capture_output=True, text=True).stdout.splitlines()[-1]}
     log = (out / "cells.jsonl").open("a")
+    eplog = (out / "episodes.jsonl").open("a")     # one line per finished episode/trial (sidecar of cells.jsonl)
     manifest["cells_summary"] = []
     n_cell = 0
     total = len(cells)
@@ -772,16 +841,26 @@ def live(a, cells, rng) -> int:
                 sampler.start()
                 t_cell0 = time.time()
                 rows = []
-                if cell["block"] in ("b1", "tcpdump"):
-                    if cell["block"] == "tcpdump":
-                        print(f"CAPTURE_WINDOW_START {time.time():.3f} arm={arm}", flush=True)
-                    for e in range(cell["episodes"]):
-                        rows.append(episode_b1(env, a.profile, tag, e, setup=(cell["block"] == "b1")))
-                    if cell["block"] == "tcpdump":
-                        print(f"CAPTURE_WINDOW_END {time.time():.3f} arm={arm}", flush=True)
-                else:
-                    for t in range(cell["trials"]):
-                        rows.append(trial_b2kill(env, a.profile, cell["k"], t, a.l_dns))
+
+                def sink(row, _cell=n_cell, _arm=arm, _fo=fo, _T=T):
+                    eplog.write(json.dumps({"cell": _cell, "arm": _arm, "fanout": _fo, "T": _T, "row": row}) + "\n")
+                    eplog.flush()
+                try:
+                    if cell["block"] in ("b1", "tcpdump"):
+                        if cell["block"] == "tcpdump":
+                            print(f"CAPTURE_WINDOW_START {time.time():.3f} arm={arm}", flush=True)
+                        run_episodes(env, a.profile, tag, cell["episodes"], cell["block"] == "b1", rows, sink)
+                        if cell["block"] == "tcpdump":
+                            print(f"CAPTURE_WINDOW_END {time.time():.3f} arm={arm}", flush=True)
+                    else:
+                        for t in range(cell["trials"]):
+                            rows.append(trial_b2kill(env, a.profile, cell["k"], t, a.l_dns))
+                            sink(rows[-1])
+                except BaseException as exc:   # partial cell: the rows measured so far are kept, then the exception goes on
+                    sampler.stop()
+                    log.write(json.dumps({**rec, "rows": rows, "aborted": f"exception {type(exc).__name__}: {exc}"[:300]}) + "\n")
+                    log.flush()
+                    raise
                 t_cell1 = time.time()
                 samples = sampler.stop()
                 rec.update(rows=rows, t_cell=[t_cell0, t_cell1], excluded=sum(1 for r in rows if r.get("excluded")), generator_samples=samples,
