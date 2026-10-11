@@ -93,3 +93,19 @@ def test_t4_gate_and_quorum():
     out = S.score_keys_variant(agg, {"A", "B"})
     assert all(k[1] != "192.168.1.9" for k in out)
     assert S.score_keys_variant(agg, {"A", "B"}, m=3) == set()
+
+
+def test_ablation_parameters_are_used():
+    """Ct-only must admit a key with C_t >= 0.65 and reject one with C_t = 0.14 that V0 admits (guards alpha/beta being applied)."""
+    agg = Aggregate()
+    hi, lo = ("d", "hi.vendor.example", "https", 443), ("d", "lo.vendor.example", "https", 443)
+    for s in ("A", "B"):
+        add(agg, s, hi, range(10), 1)                                 # every day: d = 1
+        add(agg, s, lo, [0, 1], 1)                                    # d = 0.2
+        add(agg, s, ("d", "base.vendor.example", "https", 443), range(10), 1000)
+    src = {"A", "B"}
+    ct = S.score_keys_variant(agg, src, alpha=0.0, beta=1.0)
+    v0 = S.score_keys_variant(agg, src)
+    assert hi in ct and lo not in ct and lo in v0 and hi in v0
+    cs = S.score_keys_variant(agg, src, alpha=1.0, beta=0.0)
+    assert hi in cs and lo in cs

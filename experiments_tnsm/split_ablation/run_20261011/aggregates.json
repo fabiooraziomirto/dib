@@ -1,0 +1,267 @@
+{
+ "receivers": [
+  {
+   "receiver": "US",
+   "variants": {
+    "V0": {
+     "candidates": 36,
+     "coverage": 0.8333333333333334,
+     "precision": 0.75,
+     "recall": 0.06499818283939605,
+     "f1": 0.1158520571311269
+    },
+    "w0.0": {
+     "candidates": 0,
+     "coverage": 0.0,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "w0.5": {
+     "candidates": 36,
+     "coverage": 0.8333333333333334,
+     "precision": 0.75,
+     "recall": 0.06499818283939605,
+     "f1": 0.1158520571311269
+    },
+    "w0.6": {
+     "candidates": 36,
+     "coverage": 0.8333333333333334,
+     "precision": 0.75,
+     "recall": 0.06499818283939605,
+     "f1": 0.1158520571311269
+    },
+    "w0.8": {
+     "candidates": 38,
+     "coverage": 0.8333333333333334,
+     "precision": 0.75,
+     "recall": 0.06782304159645819,
+     "f1": 0.12029951680246716
+    },
+    "w0.9": {
+     "candidates": 38,
+     "coverage": 0.8333333333333334,
+     "precision": 0.75,
+     "recall": 0.06782304159645819,
+     "f1": 0.12029951680246716
+    },
+    "w1.0": {
+     "candidates": 38,
+     "coverage": 0.8333333333333334,
+     "precision": 0.75,
+     "recall": 0.06782304159645819,
+     "f1": 0.12029951680246716
+    },
+    "Cs-only": {
+     "candidates": 38,
+     "coverage": 0.8333333333333334,
+     "precision": 0.75,
+     "recall": 0.06782304159645819,
+     "f1": 0.12029951680246716
+    },
+    "Ct-only": {
+     "candidates": 7,
+     "coverage": 0.5,
+     "precision": 0.5,
+     "recall": 0.0203347351429421,
+     "f1": 0.03849135613841496
+    }
+   },
+   "symdiff_with_V0": {
+    "w0.0": 36,
+    "w0.5": 0,
+    "w0.6": 0,
+    "w0.8": 2,
+    "w0.9": 2,
+    "w1.0": 2,
+    "Cs-only": 2,
+    "Ct-only": 29
+   },
+   "H-S1_sets_equal_to_V0": {
+    "w0.6": true,
+    "w0.8": false,
+    "w0.9": false
+   },
+   "H-S2_Cs_only_equals_quorum_class": true,
+   "quorum_class_candidates": 38,
+   "H-S3_Ct_only_subset_of_V0": true
+  },
+  {
+   "receiver": "UK",
+   "variants": {
+    "V0": {
+     "candidates": 43,
+     "coverage": 0.8333333333333334,
+     "precision": 0.7838468720821662,
+     "recall": 0.06435819093866967,
+     "f1": 0.11512393907676265
+    },
+    "w0.0": {
+     "candidates": 0,
+     "coverage": 0.0,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "w0.5": {
+     "candidates": 41,
+     "coverage": 0.8333333333333334,
+     "precision": 0.7895833333333333,
+     "recall": 0.06306620127458698,
+     "f1": 0.11330938633413062
+    },
+    "w0.6": {
+     "candidates": 43,
+     "coverage": 0.8333333333333334,
+     "precision": 0.7838468720821662,
+     "recall": 0.06435819093866967,
+     "f1": 0.11512393907676265
+    },
+    "w0.8": {
+     "candidates": 43,
+     "coverage": 0.8333333333333334,
+     "precision": 0.7838468720821662,
+     "recall": 0.06435819093866967,
+     "f1": 0.11512393907676265
+    },
+    "w0.9": {
+     "candidates": 43,
+     "coverage": 0.8333333333333334,
+     "precision": 0.7838468720821662,
+     "recall": 0.06435819093866967,
+     "f1": 0.11512393907676265
+    },
+    "w1.0": {
+     "candidates": 43,
+     "coverage": 0.8333333333333334,
+     "precision": 0.7838468720821662,
+     "recall": 0.06435819093866967,
+     "f1": 0.11512393907676265
+    },
+    "Cs-only": {
+     "candidates": 43,
+     "coverage": 0.8333333333333334,
+     "precision": 0.7838468720821662,
+     "recall": 0.06435819093866967,
+     "f1": 0.11512393907676265
+    },
+    "Ct-only": {
+     "candidates": 23,
+     "coverage": 0.5,
+     "precision": 0.48148148148148145,
+     "recall": 0.040174746640526705,
+     "f1": 0.07408308004052684
+    }
+   },
+   "symdiff_with_V0": {
+    "w0.0": 43,
+    "w0.5": 2,
+    "w0.6": 0,
+    "w0.8": 0,
+    "w0.9": 0,
+    "w1.0": 0,
+    "Cs-only": 0,
+    "Ct-only": 20
+   },
+   "H-S1_sets_equal_to_V0": {
+    "w0.6": true,
+    "w0.8": true,
+    "w0.9": true
+   },
+   "H-S2_Cs_only_equals_quorum_class": true,
+   "quorum_class_candidates": 43,
+   "H-S3_Ct_only_subset_of_V0": true
+  },
+  {
+   "receiver": "YT",
+   "variants": {
+    "V0": {
+     "candidates": 107,
+     "coverage": 1.0,
+     "precision": 0.285672514619883,
+     "recall": 0.22293351302785266,
+     "f1": 0.24722305198756458
+    },
+    "w0.0": {
+     "candidates": 1,
+     "coverage": 0.16666666666666666,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "w0.5": {
+     "candidates": 107,
+     "coverage": 1.0,
+     "precision": 0.285672514619883,
+     "recall": 0.22293351302785266,
+     "f1": 0.24722305198756458
+    },
+    "w0.6": {
+     "candidates": 107,
+     "coverage": 1.0,
+     "precision": 0.285672514619883,
+     "recall": 0.22293351302785266,
+     "f1": 0.24722305198756458
+    },
+    "w0.8": {
+     "candidates": 113,
+     "coverage": 1.0,
+     "precision": 0.2745628194780737,
+     "recall": 0.22293351302785266,
+     "f1": 0.24253809663742076
+    },
+    "w0.9": {
+     "candidates": 113,
+     "coverage": 1.0,
+     "precision": 0.2745628194780737,
+     "recall": 0.22293351302785266,
+     "f1": 0.24253809663742076
+    },
+    "w1.0": {
+     "candidates": 113,
+     "coverage": 1.0,
+     "precision": 0.2745628194780737,
+     "recall": 0.22293351302785266,
+     "f1": 0.24253809663742076
+    },
+    "Cs-only": {
+     "candidates": 129,
+     "coverage": 1.0,
+     "precision": 0.22738468896660988,
+     "recall": 0.22293351302785266,
+     "f1": 0.21226146270225024
+    },
+    "Ct-only": {
+     "candidates": 18,
+     "coverage": 0.6666666666666666,
+     "precision": 0.22916666666666666,
+     "recall": 0.10166077044025157,
+     "f1": 0.11555769848923177
+    }
+   },
+   "symdiff_with_V0": {
+    "w0.0": 106,
+    "w0.5": 0,
+    "w0.6": 0,
+    "w0.8": 6,
+    "w0.9": 6,
+    "w1.0": 6,
+    "Cs-only": 22,
+    "Ct-only": 89
+   },
+   "H-S1_sets_equal_to_V0": {
+    "w0.6": true,
+    "w0.8": false,
+    "w0.9": false
+   },
+   "H-S2_Cs_only_equals_quorum_class": true,
+   "quorum_class_candidates": 129,
+   "H-S3_Ct_only_subset_of_V0": true
+  }
+ ],
+ "verdicts": {
+  "H-S1": "falsified",
+  "H-S2": "not falsified",
+  "H-S3": "not falsified"
+ }
+}
