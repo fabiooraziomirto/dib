@@ -1,0 +1,69 @@
+# Audit 36 — Cosa manca per i cinque obiettivi della fase revisione TNSM (solo lista; nulla eseguito)
+
+Data: 2026-10-11 sera. Fonti rilette per intero: audit 04, 12, 14, 19 (`docs/audit/04_piano_misure_tnsm.md`, `12_test_realistici.md`, `14_priorita_esperimenti_tnsm.md`, `19_ricerche_per_paper.md`); per lo stato attuale: audit 09, 11, 13 §9, 16, 20-22, 24, 27, 34, 35 **letti solo nelle parti citate** (grep e righe indicate; non ho riletto i risultati interni di 16 e 18: li riporto come li riassumono audit 19 e 20). Obiettivi da `CLAUDE.md` (fase revisione TNSM). Sigle: [A] analisi su dati già presenti; [D] nuovi dati/esperimento; [C] codice; [U] decisione dell'utente; [P] testo del paper (fuori repo). Nessuna voce è un'istruzione a eseguire: l'ordine e le scelte sono tue.
+
+## Obiettivo 1 — Ripartire dai design goal e definire il threat model
+| # | Cosa manca | Stato / riferimento | Tipo |
+|---|---|---|---|
+| 1.1 | Riscrittura di G1-G4: i 4 goal attivi (`main_old.tex:153,156,157,160-161`) hanno numerazione incoerente con 2 voci commentate (`:158`, `:163`), con i test (`code/tests/tests/test_rescoring_non_destructive.py:1-5`) e con `formal/base/DIB.tla:208` | audit 19:117-118, 123-127; non toccato in audit 09:51 | [P][U] |
+| 1.2 | Decisione su quale numerazione G1-G4 si adotta (G4 attivo contro G4 dei test; etichette `(G4)` a `:491` e `(G2)` a `:528`, quest'ultima non coerente con il cold start, audit 19:123) | audit 19:377 (3c, "da chiedere a te"); piano `DIB_piano_completo.md:39,77` (fuori repo) | [U] |
+| 1.3 | Threat model scritto: nessun elenco A1-A4/T9-T14 in un testo unico. Esistono solo: gli eventi S1-S8 (audit 12:41-54), T9/T10/T14 di mTLS (audit 13), la nota che "un avversario possa guadagnare peso è un'ipotesi da dichiarare nel threat model" (audit 16:129) e il collegamento "sito avversario = sito con un device compromesso del tipo" (audit 09:43) | audit 09:51 ("Non toccato"); `main_old.tex:166-168` (due soli rischi: ripristino e cancellazione) | [P][U] |
+| 1.4 | Assunzione di autenticazione: ES_d (denominatore di C_s) resta autodichiarato, il paper dice "finite models assume authenticated callers" (`old:652`) | audit 13 §9.1 punto 3; audit 19:300 | [U][P] |
+| 1.5 | Definire se il caso ibrido (MUD del produttore, S5) e S3/S4 sono dentro o fuori ambito: oggi "fuori" | audit 12:49-51, 14:416-420 | [U] |
+| 1.6 | Riferimento orfano "P5" (`old:648`); il Criterion non qualifica "raw breadth" (`old:397-406` contro `:408,:414`) | audit 19:319-321 | [P] |
+
+## Obiettivo 2 — Giustificare f_s = 0,30
+| # | Cosa manca | Stato / riferimento | Tipo |
+|---|---|---|---|
+| 2.1 | Fatto: derivazione f* = (θ−β)/α = 5/12, forma in conteggi K < 5h/7, paragrafi "Why f_s = 0,30" e probabilistico, 5 fonti | audit 09:7-22, 27-37; testo solo in `main.tex:411,413` (fuori repo), non in `main_old.tex` | già chiuso |
+| 2.2 | **Verifica indipendente delle citazioni**: i PDF di Antonakakis, Kumar, Zhao, Lamport, Castro-Liskov non sono sul disco; audit 09 dice di averli verificati il 10 ott, ma le cifre (600.000 infezioni; 1,3%; 28,25%) non sono ricontrollabili qui | audit 19:197 | [A][U] |
+| 2.3 | Nessuna prevalenza misurata per tipo di device: 0,30 resta "budget sotto il margine", non una stima (IoT Inspector fuori dal percorso critico; PingPong senza licenza verificata) | audit 12:9-13; 14:344; audit 19:349 | [D][U] |
+| 2.4 | Correlazione fra siti: con ρ_corr = 0,3 il bound binomiale sottostima di 1-2 ordini (0,304 contro 0,0072 a N = 100, q = 0,3); il paragrafo probabilistico assume indipendenza (H1/H3) e questo limite non è nel testo proposto | audit 16:139-144; audit 19:346; audit 09:41 | [P] |
+| 2.5 | Il valore 0,562 di `old:631` non è il massimo a f_s = 0,30 (worst case su dati reali 0,5788) ed è trust-weighted mentre il Criterion è per raw breadth | audit 19:347; audit 09:48; audit 08 riga 208 (citata da 19) | [P][A] |
+| 2.6 | Copertura per tipo sui dati reali: K = 2 colluder coperto su 4-7 tipi su ~117 al margine e su nessuno a f_s = 0,30; K = 3 mai; mediana h_d = 1; al più 4-5 siti indipendenti | audit 11:84,113; audit 12:7 | [P] (dichiarare) |
+
+## Obiettivo 3 — Rifare i test per TNSM (latenza, throughput, scalabilità, rete realistica)
+| # | Cosa manca | Stato / riferimento | Tipo |
+|---|---|---|---|
+| 3.1 | Fatto: M3/M4 (throughput distribuito, costo mTLS con arco C contro D); B1 a `lan`, `wan`, `degraded` con (a) e (c) | audit 20:11, 24, 27, 34 | già chiuso |
+| 3.2 | **B2-kill e B2-partition** (un sito irraggiungibile durante k episodi, convergenza dopo riavvio/rimozione della perdita, bound (d-kill), (d-part)): non eseguiti; richiedono cella di fumo, test partition+restore con il vero watcher e L_dns (186 ms nella notte, ~3 ms oggi); tabella dei costi 2,36-7,64 h | audit 14:253-263, 277-328; audit 21 §1; audit 33 | [D][U] |
+| 3.3 | **Profili `regional`, `extreme`, `mixed`** per B1 (fattori profilo × mTLS × FANOUT, 14:250) non eseguiti: solo `lan`, `wan`, `degraded` | audit 14:152-159, 250; audit 20:81 ("solo se avanza tempo") | [D][U] |
+| 3.4 | **Braccio `default`** (P-a1, P-a2) mai eseguito a `degraded` né a `wan`; "not evaluable" nei rapporti | `<blk>/analysis_degraded.md:78`; audit 25 (citato da 20) | [D][U] |
+| 3.5 | **M1/M2 della notte** (100 e 90 celle) non analizzati; censura del timeout del pool (30 s non è una latenza, `db.py:244-262`; `p99_censored_cells`) da riportare a parte; pre-registrazione prima dell'analisi; il watcher `wan` era attivo (~0,07 core di fondo); M1 `default` aborted conservato non analizzato | audit 21 §1; audit 04:204-217; audit 14:402-405 | [A] |
+| 3.6 | **M5 (numero di siti)** N ∈ {1, 2, 5, 10, 20, 50}: mai eseguito (RAM del nodo 15 GiB, disco ~3,7 GB, N = 50 da verificare) | audit 04:62, 171-176; audit 14:417 | [D][U] |
+| 3.7 | **M8 (firma MUD)**, `openssl cms` sign/verify: mai eseguito (ipotesi < 10 ms) | audit 04:65, 78; audit 14:418 | [D] |
+| 3.8 | Bound di convergenza e correttezza (I1-I3, "nessuna regola disputata esportabile oltre il bound"): provati solo con siti tutti online (B1); il paper dichiara "no established withdrawal deadline" (`old:650`) e "WAN … outside this evaluation" (`old:505`): le due frasi vanno aggiornate quando B2 ci sarà | audit 19:285-303 | [P] |
+| 3.9 | **(a) falsificata a `degraded`** (4/4): la sezione Evaluation deve riportarla così, con le esclusioni (8/200) e il calcolo post-hoc B5 etichettato; (c) non falsificata (D e C inconclusivi per braccio) | audit 34 §2, §7; audit 35 §C | [P] |
+| 3.10 | Numeri del paper vecchio dipendenti da `fault_injection`/`restore_ablation`/`offline_veto` (0,51 ± 0,03 s; 0,50 ± 0,04 s; "< 100 ms") da rigenerare/promuovere in `results/` (nuovi: 0,480 ± 0,017 s; 0,509 ± 0,034 s; riconciliazione max 0,105 s, quindi "< 100 ms" non vale più per il massimo); `verify_artifact.py:220,222` falliscono con 0,48 s; i controlli 0,45 s e 0,1 s non esistono | audit 19:225-243, 388 (6d) | [U] |
+| 3.11 | Limiti dichiarati da riportare: un solo host/generatore co-locato per B1, hop LAN, CPU QEMU generica senza AVX2 (tempi non confrontabili con altre macchine), G4 non soddisfatta (k3s, altre sessioni), emulazione della rete e non eterogeneità degli host; Python 3.12.15 qui contro 3.12.3 sul nodo | audit 04:35-41, 82-91, 171-177; audit 12:53 | [P] |
+| 3.12 | Misure di tempo del controllo di processo: polling effettivo del watcher non misurato (solo `--poll 0.5`); campioni grezzi di `generator_path_ms` non registrati (`run.py:529-548`) | audit 34 §3; audit 32 §19 | [C][U] |
+
+## Obiettivo 4 — Test più realistici (dataset: audit 10)
+| # | Cosa manca | Stato / riferimento | Tipo |
+|---|---|---|---|
+| 4.1 | Fatto: federazione sintetica (H6-1a, H6-2, D0, H6-1b riprogettata; H6-1c), con la riga di abstract da riportare "più favorevole alla guardia della popolazione reale" | audit 16:97-146, 14:347-400, 350; audit 19:329-335 | già chiuso |
+| 4.2 | **Punto "ancorato"** all'istogramma reale di h_d (170 punti, V11) e profili per tipo da UNSW (27 tipi): non verificato qui se H6-1b include il punto ancorato | audit 12:24; audit 14:78; audit 16:78 | [A] (da verificare) |
+| 4.3 | **"Threshold-then-rank" come strategia composta** non è stata testata; H6-1b falsificata, H6-1c C3 (budget uguale) non falsificata: l'affermazione di `old:619` va limitata | audit 19:329-335, 395 (9b) | [P][U] |
+| 4.4 | **A1 con dispositivi reali** (IoT-23, CC BY 4.0, 8,7 GiB compressi, non scaricato; destinazione e streaming proposti): richiede OK al download e spazio (pool ZFS al 94%) | audit 12:58-66, 104-108 | [D][U] |
+| 4.5 | GothX: clonato (MIT) ma non eseguibile qui (KVM, RAM, `install.sh docker` toccherebbe altri progetti): fuori | audit 12:98-102 | fuori |
+| 4.6 | PingPong (22 device) e HomeSnitch: licenza e accordo da verificare; nulla nella repo; Mon(IoT)r e PingPong non copiabili senza verifica | audit 14:344; audit 10:37,41; `CLAUDE.md` | [U] |
+| 4.7 | Scenari S3 (join/leave), S4 (firmware), S5 (MUD del produttore): fuori ambito; S6 (disputer malevolo, per identità certificata) e S8 (certificato rubato) dopo mTLS: non verificato qui se eseguiti; **scenario completo (§7.7: S1+S2+S6+S7+S8 con N = 20, mTLS, rete variabile)** non eseguito | audit 12:47-56; audit 14:416-420 | [D][U] |
+| 4.8 | Sensitivity θ/α di `old:635` misurata su Mon(IoT)r contro i profili UNSW: il paper non lo dichiara | audit 19:158, 162, 380 (4c) | [P] |
+
+## Obiettivo 5 — Spiegazione scientifica dei valori numerici (θ, α, β, m, 0,7/0,3)
+| # | Cosa manca | Stato / riferimento | Tipo |
+|---|---|---|---|
+| 5.1 | Fatto: legame θ, α, β tramite f* = (θ−β)/α = 5/12, forma K < r·h con r = (θ+α−1)/(1−θ) = 5/7, verifiche con `Fraction` e `DIBScorer` | audit 09:7-22, 24-25; audit 11:9-31 | già chiuso |
+| 5.2 | **Scelta dei singoli valori** θ = 0,65, α = 0,6, β = 0,4 (con γ = 0): il testo dice solo che sono due parametri legati da una quantità; manca la giustificazione del perché proprio (0,6; 0,65) e non le altre coppie provate (0,7;0,65), (0,6;0,7), (0,55;0,6) con r = 1, 1, 3/8 | audit 11:11, 36-40; audit 09:11 | [A][P] |
+| 5.3 | **Ablation C_s-only / C_t-only e sweep del 0,7/0,3** di C_t = min(1, 0,7·giorni + 0,3·volume) (`dib.py:277-279`): "nel testo ho scritto solo che lo split non entra nel bound, non che l'ablation esista" | audit 09:49; audit 16:31 | [A][D] |
+| 5.4 | **Giustificazione di m = 2** (quorum): esiste la motivazione operativa (respinge K = 1 per ogni h; unica fonte di rifiuto nel cold-start a tre lab) ma non una scelta fra m ∈ {1, 2, 3}; `site_quorum_sensitivity` copre m = 2…10 con 346 fatti | audit 08:55-59; audit 11:43, 84; audit 19:153 | [A][P] |
+| 5.5 | **Parametri di volume e persistenza** (ρ = 100 nei test; "giorni attivi", saturazione di C_t): nessuna derivazione; il margine finito per il pareggio (0,00119 = 0,3β/101) dipende da ρ | audit 11:32; audit 08:103 | [A] |
+| 5.6 | **Parametri temporali del lifecycle** (T = 5 s, 15 s; J = 0,1·T; 3 tentativi da 1 s; `RECONCILE_TIMEOUT` 5 s): descritti da B1 per T = 5; il confronto T = 5/15 è previsto solo in B2 e non c'è | audit 14:64, 257, 260; `service.py:120-143` | [D] (con 3.2) |
+| 5.7 | **Trust-weighted contro raw**: la configurazione selezionata del repository (`graph_free_selected.yaml:44`) è pesata, il default del paper è raw; molti numeri (A1 risolvibile, A2 0,562/0,663, A3 drift, recall funnel, cold start, quorum) sono pesati e il paper non lo dice (`old:629,631,639`); 245 casi su 3700 ammessi a quota grezza ≥ 0,30 con pesi gonfiati | audit 19:83-86, 347, 374 (2c) | [U][P] |
+
+## Trasversale (non legato a un solo obiettivo)
+- **Base del lavoro sul paper:** `main_old.tex` o `main.tex` (865 righe)? Gli audit 01/08/09 citano `main_old` con il nome `main.tex`; in `main.tex` i numeri di riga oltre :389 slittano di +5 (audit 19:371, 47). [U]
+- **Limite di pagine TNSM e scadenza:** non trovati (audit 19:256, 391). [U]
+- **Promozione dei dati in `results/`:** nulla è promosso (regola di `CLAUDE.md`); `verify_artifact.py` resta a 266 controlli su `revision-tnsm` (CLAUDE.md). [U]
+- **Scadenze operative del nodo:** PKI scade 2026-10-13 08:22:10Z; watcher `timeout 9h` scade ~21:48 UTC dell'11 ottobre; disco ~3,7 GB. (audit 20, 33.) [U]
+- **Dettagli di processo non risolti da riportare, non da correggere:** `generator_path_ms` fresca di C a `degraded` = 607 ms con `fresh_ok` None; 8 esclusi su 200 con testi delle eccezioni non letti (audit 34 §3, §9).
