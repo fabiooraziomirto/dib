@@ -33,6 +33,9 @@ Esito in una riga: B1 `wan` completato solo per i due gruppi FANOUT 1 (D e C); i
 - Calibrazione di prova prima della notte (`night_20261011/verify/`): `generator_path_ms` riusata 83,1 ms / nuova 164,0 ms (attesi ~80 / ~160, ipotesi del proxy confermata); L_dns del sito morto p50 179,8 ms, p95 185,2 ms (errore `Temporary failure in name resolution`, massimo 4,0 s). La regola esclude B2-kill (> 50 ms, e watcher a 0,5 s).
 - Previsto: calibrazione `wan`, soglia, B1 (4 gruppi), smontaggio, M1/M2 solo se restano ≥ 3 h (cioè prima delle 04:00 UTC). Nessun intervento sul nodo, sul netem o sul watcher fino al rapporto del mattino (`docs/audit/21_rapporto_notte.md`).
 
+## 2026-10-11 12:27 — Secondo smoke degraded RIUSCITO (audit 32 §17); smoke_ok_degraded.json presente; smoke_ok_lan non vale più con questo tree
+Watcher aggiornato `d1c8f392…` attivo; nessuna incoerenza, nessun transient; applicazione a 11 container 1,19-1,25 s (+0,35 s). `generator_path_ms` riusata 944 ms con flag falso in calibrazione (non spiegato). **Attendo il tuo OK per: smoke lan ripetuto con il nuovo tree, poi i blocchi (lan prima → degraded → lan dopo).**
+
 ## 2026-10-11 12:20 — tree-244f1d0 pubblicato e verificato sul nodo; in attesa della reinstallazione del watcher (d1c8f392…) da parte dell'utente
 `~/dib_tnsm/tree-244f1d0` (archivio sha256 `43240840…`) + `~/dib_tnsm/frozen_hashes_244f1d0.txt`: `sha256sum -c` 24/24 OK, `auto_block.py` `b58d58f0…`, `netem_watch2.sh` `d1c8f392…`, 0 file certificato. Watcher installato in `/usr/local/lib/dib-netem/` ancora `c82ca772…` (verificato alle 12:16). **Attendo: revisione del diff del watcher, reinstallazione e riavvio a cura dell'utente, poi "watcher v2 aggiornato"; quindi nuovo smoke degraded in cartella nuova.**
 
