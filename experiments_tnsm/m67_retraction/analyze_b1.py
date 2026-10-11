@@ -56,7 +56,7 @@ dispute-rtt = response - t0 (bias 0 at lan, run.dispute_rtt_bias_s). Measure typ
 if the calibrated p95 (default 2.5 ms, audit 18 s.1.9; --plog-p95-ms was not passed) is < 10% of the cell's median direct
 withdrawal, else dispute-rtt. Nothing is explained beyond the data.
 Falsification of the script: it must reproduce the per-cell summaries recorded in cells.jsonl (medians, counts).
-Usage: python3 analyze_b1.py <dir with cells.jsonl and manifest.json> [--out analysis.md]"""
+Usage: python3 analyze_b1.py <dir with cells.jsonl and manifest.json, OR a block dir holding b1_*/ group dirs> [--out analysis.md]"""
 from __future__ import annotations
 
 import argparse
@@ -69,6 +69,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+import blockdata  # noqa: E402
 import profile_exclusion as px  # noqa: E402
 import run as m67  # noqa: E402
 
@@ -188,8 +189,7 @@ def main() -> int:
     ap.add_argument("--lan-ref", action="append", default=[], help="adjacent `lan` session dir(s) for rule (a) at a non-lan profile (higher median used)")
     a = ap.parse_args()
     d = Path(a.dir)
-    cells = [json.loads(x) for x in (d / "cells.jsonl").read_text().splitlines()]
-    man = json.loads((d / "manifest.json").read_text())
+    cells, man = blockdata.load_block(d)      # one run.py invocation (cells.jsonl + manifest.json) or a block directory of b1_*/ groups
     prof = man["profile"]
     rule = man["discard_rule"]
     rng = random.Random(SEED)

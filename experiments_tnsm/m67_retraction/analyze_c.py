@@ -1,5 +1,16 @@
 """Prediction (c) at `degraded`: share of deliveries that end in pending, per arm (D, C), with exact Clopper-Pearson 95% CIs (two-sided,
-pure Python, no dependency). Written and committed BEFORE any `degraded` datum (and before the tcpdump block).
+pure Python, no dependency). Written and committed (7684585) BEFORE any `degraded` datum; revised 2026-10-11 (this revision also committed BEFORE any
+`degraded` B1 datum, the smokes are not data) as declared in the next paragraph.
+REVISION 2026-10-11 (user decision, before B1): (1) the intervals D [0.004, 0.015] and C [0.025, 0.08] are UNCHANGED, not recomputed after seeing the tcpdump
+counts. (2) DISCLOSURE: the tcpdump block (400 deliveries, 200 per arm: pending 2/200 for D and 6/200 for C) was KNOWN before B1; B1 is the CONFIRMATORY test
+(50 episodes x 10 sites x FANOUT 1 and 10 = 1000 deliveries per arm, FANOUT 1 and 10 pooled because f^3 depends on the attempt, not on the concurrency). The
+tcpdump episodes are not part of the count. (3) UNAMBIGUOUS FORM of the criterion: (c) is FALSIFIED if the Clopper-Pearson CI of an arm lies ENTIRELY outside
+that arm's interval, OR if the mTLS arm does not exceed the arm without mTLS in the sense that the CI of C lies ENTIRELY BELOW the CI of D (disjoint CIs in the
+opposite direction); a CI that crosses a bound, or CIs that overlap, is "inconclusive" for that clause, never "falsified". This replaces the earlier code
+reading of the second clause (point estimate of C <= point estimate of D), which is still printed as information. (4) The count is recomputed from the
+episode rows (not from the stored summary) so that episodes excluded for overlap with an unsettled netem profile (docstring of analyze_b1.py,
+profile_exclusion.py) leave both the numerator and the denominator; give --profile-events and --watch-log to apply it. (5) Input: one run.py directory or a
+block directory of b1_*/ groups (blockdata.py). The exclusion code has not been run on any degraded B1 data.
 Observable (prediction_c_observable.md): per site and episode, with k = 1 fan-out per fact in B1: a delivery is "in pending" if the evidence log
 shows an ack line after t0 for that site or the delivery was still pending at the deadline (summary field n_pending_sites_log, computed by
 run.summarize_rows from the log, not from the generator's reads). Denominator = deliveries executed = episodes x 10 sites of the NON-excluded episodes.
@@ -7,13 +18,17 @@ Population: B1 cells only (50 episodes per cell at degraded), pooled over FANOUT
 descriptively). The tcpdump-block episodes are NOT part of the count.
 Registered intervals (audit 14 "Tabella degli intervalli"; conditional on the tcpdump calibration, to be frozen after it): D predicted
 0.0063-0.0115, falsified if the CI is entirely outside [0.004, 0.015]; C predicted 0.028-0.064, falsified if entirely outside [0.025, 0.08]; the
-registered text adds "or the mTLS arm does not exceed the arm without mTLS" (read as: point estimate of C <= point estimate of D). A CI that crosses a
-bound is "inconclusive" (rule of audit 25 s.A.2). wan/regional/mixed: >= 2 pending in the block falsifies; extreme: not computed here.
-Hypothesis: as registered; falsification: as above. Usage: python3 analyze_c.py <degraded b1 dir with cells.jsonl> [--out file.md]"""
+registered text adds "or the mTLS arm does not exceed the arm without mTLS" (earlier read as point estimate of C <= point estimate of D; now, see REVISION: CI of C
+entirely below the CI of D). A CI that crosses a bound is "inconclusive" (rule of audit 25 s.A.2). wan/regional/mixed: >= 2 pending in the block falsifies; extreme: not computed here.
+Hypothesis: as registered; falsification: as above. Usage: python3 analyze_c.py <run dir with cells.jsonl, or block dir with b1_*/ groups> [--profile-events <block>/profile_events.jsonl] [--watch-log watch2.log] [--out file.md]"""
 import json
 import math
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import blockdata  # noqa: E402
+import profile_exclusion as px  # noqa: E402
 
 INTERVALS = {"D": (0.004, 0.015), "C": (0.025, 0.08)}
 PREDICTED = {"D": (0.0063, 0.0115), "C": (0.028, 0.064)}
@@ -56,41 +71,77 @@ def classify(ci: tuple[float, float], interval: tuple[float, float]) -> str:
     return "CI crosses a bound: inconclusive"
 
 
-def counts(path: Path) -> dict:
+def row_pending_sites(r: dict) -> int:
+    """Sites in pending of one episode, from the evidence LOG as run.summarize_rows does: an ack line after t0 or a delivery still pending at the deadline."""
+    acks = {i for i, t in (r.get("plog_ack_ts") or {}).items() if t is not None}
+    left = {i for i, n in (r.get("pending_left") or {}).items() if n}
+    return len(acks | left)
+
+
+def counts_from_cells(cells: list[dict]) -> dict:
     out: dict = {}
-    for line in path.read_text().splitlines():
-        c = json.loads(line)
+    for c in cells:
         if "rows" not in c or "aborted" in c:
             continue
-        sp, s = c["cell_spec"], c["summary"]
+        sp = c["cell_spec"]
         ok = [r for r in c["rows"] if not r.get("excluded")]
         a = out.setdefault(sp["arm"], {"x": 0, "n": 0, "cells": {}})
-        x, n = s["n_pending_sites_log"], 10 * len(ok)
+        x = sum(row_pending_sites(r) for r in ok if "dispute_rtt_s" in r)
+        n = 10 * len(ok)
         a["x"] += x
         a["n"] += n
-        a["cells"][sp["fanout"]] = (x, n)
+        k = a["cells"].get(sp["fanout"], (0, 0))
+        a["cells"][sp["fanout"]] = (k[0] + x, k[1] + n)
     return out
 
 
-def report(path: Path) -> str:
-    cs = counts(path)
-    L = ["| arm | pending / deliveries (pooled) | share | CP 95% CI | predicted | registered interval | classification | per FANOUT (pending/deliveries) |", "|---|---|---|---|---|---|---|---|"]
+def counts(path: Path) -> dict:
+    """Counts from a cells.jsonl (compatibility) or from a run/block directory."""
+    path = Path(path)
+    if path.is_dir():
+        return counts_from_cells(blockdata.load_block(path)[0])
+    return counts_from_cells([json.loads(line) for line in path.read_text().splitlines() if line.strip()])
+
+
+def second_clause(ci_d: tuple[float, float], ci_c: tuple[float, float], pd: float, pc: float) -> str:
+    if ci_c[1] < ci_d[0]:
+        return f"FALSIFIED: the CI of C [{ci_c[0]:.5f}; {ci_c[1]:.5f}] lies entirely below the CI of D [{ci_d[0]:.5f}; {ci_d[1]:.5f}] (the mTLS arm does not exceed D)"
+    if ci_c[0] > ci_d[1]:
+        return f"satisfied: the CI of C lies entirely above the CI of D (point estimates C {pc:.5f}, D {pd:.5f})"
+    return f"inconclusive for this clause: the CIs overlap (point estimates C {pc:.5f}, D {pd:.5f}; point estimate of C {'above' if pc > pd else 'NOT above'} D, information only)"
+
+
+def report(source, profile_events=None, watch_log_text=None) -> str:
+    cells = blockdata.load_block(source)[0] if Path(source).is_dir() else [json.loads(l) for l in Path(source).read_text().splitlines() if l.strip()]
+    L = []
+    if profile_events or watch_log_text:
+        labelled = ([("monitor", iv) for iv in px.monitor_intervals(profile_events)] if profile_events else []) + \
+                   ([("watch2.log", iv) for iv in px.watch_unsettled_intervals(watch_log_text)] if watch_log_text else [])
+        n_ex = sum(px.mark_overlaps(c["rows"], labelled)[0] for c in cells if "rows" in c and "aborted" not in c)
+        L.append(f"Exclusion by overlap with an unsettled netem profile applied: {n_ex} episode(s) excluded ({len(labelled)} interval(s) read).\n")
+    else:
+        L.append("**WARNING: exclusion by overlap NOT applied (no --profile-events / --watch-log).**\n")
+    cs = counts_from_cells(cells)
+    L += ["| arm | pending / deliveries (pooled) | share | CP 95% CI | predicted | registered interval | classification | per FANOUT (pending/deliveries) |", "|---|---|---|---|---|---|---|---|"]
+    cis = {}
     for arm in ("D", "C"):
-        if arm not in cs:
+        if arm not in cs or not cs[arm]["n"]:
             continue
         x, n = cs[arm]["x"], cs[arm]["n"]
-        ci = clopper_pearson(x, n)
-        L.append(f"| {arm} | {x} / {n} | {x / n:.5f} | [{ci[0]:.5f}; {ci[1]:.5f}] | {PREDICTED[arm][0]}-{PREDICTED[arm][1]} | {INTERVALS[arm]} | {classify(ci, INTERVALS[arm])} | "
+        cis[arm] = clopper_pearson(x, n)
+        L.append(f"| {arm} | {x} / {n} | {x / n:.5f} | [{cis[arm][0]:.5f}; {cis[arm][1]:.5f}] | {PREDICTED[arm][0]}-{PREDICTED[arm][1]} | {INTERVALS[arm]} | {classify(cis[arm], INTERVALS[arm])} | "
                  + ", ".join(f"f{k}: {v[0]}/{v[1]}" for k, v in sorted(cs[arm]["cells"].items())) + " |")
-    if "D" in cs and "C" in cs:
-        pd, pc = cs["D"]["x"] / cs["D"]["n"], cs["C"]["x"] / cs["C"]["n"]
-        L.append(f"\nSecond clause (registered): mTLS arm exceeds the arm without mTLS? point estimates C {pc:.5f} vs D {pd:.5f}: "
-                 + ("yes (clause satisfied)" if pc > pd else "NO: the registered clause is violated"))
+    if "D" in cis and "C" in cis:
+        L.append("\nSecond clause (registered, unambiguous form of the 2026-10-11 revision): " + second_clause(cis["D"], cis["C"], cs["D"]["x"] / cs["D"]["n"], cs["C"]["x"] / cs["C"]["n"]))
     return "\n".join(L) + "\n"
 
 
 if __name__ == "__main__":
-    text = report(Path(sys.argv[1]) / "cells.jsonl")
+    args = sys.argv
+    opt = lambda k: args[args.index(k) + 1] if k in args else None  # noqa: E731
+    wl = Path(opt("--watch-log")).read_text() if opt("--watch-log") else None
+    src = Path(args[1])
+    text = report(src if src.is_dir() else src, opt("--profile-events"), wl)
     print(text)
-    if "--out" in sys.argv:
-        Path(sys.argv[sys.argv.index("--out") + 1]).write_text(text)
+    if opt("--out"):
+        Path(opt("--out")).write_text(text)
