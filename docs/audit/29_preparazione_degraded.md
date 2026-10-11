@@ -17,3 +17,16 @@ Stima della durata (dalle previsioni (a) a `degraded`, R = 0,4 s, senza ripetizi
 5. **Copia con sha256 e analisi** (io): celle, esclusioni per causa, `other_cores`, `steal_pct`, `generator_path_ms`, tipo di misura, P-log per cella, consegne in pending con ack e `read_undercount_sites`; (a) con la regola di audit 26; (c) con il criterio "IC Clopper-Pearson interamente fuori" sugli intervalli D [0,004; 0,015] e C [0,025; 0,08].
 6. **Dopo:** tu fermi il watcher; opzionalmente sessione `lan` dopo.
 **Da decidere da te prima di partire** (non preparo altro): (i) riferimento `lan` per (a) a `degraded`: riusare la sessione 09:21 come "prima" se si parte presto, oppure una nuova sessione `lan` adiacente; (ii) `analyze_b1.py` non calcola gli intervalli Clopper-Pearson di (c): lo scrivo dopo la tua conferma del metodo, con test, prima dei dati; (iii) `run_wan_block.py` è cablato su `wan` (nessun flag `--profile`): per `degraded` userei i comandi a mano come sopra, a meno che tu non voglia lo script esteso.
+
+## 4. Celle `lan` adiacenti prima di `degraded` (`degraded_20261011/lan_before`, 09:30:29-09:34:20 UTC; comando lanciato dall'utente; copia dell'utente)
+**sha256 locali** (non ho visto l'output di `sha256sum` sul nodo, quindi **il confronto fra i due lati non è verificato da me**): `cells.jsonl` `f8609aa7bcaa82e074029beafc4ad101222c6a579d06ecfa300311cec458d596`, `manifest.json` `826004c7…`, `episodes.jsonl` `aa0a337a…`. Analisi `analysis_lan_before.md`. `aborted: false`, 4 celle, 10 episodi, ordine C f10, D f1, C f1, D f10; 0 esclusioni per ogni causa, nessuna cella segnalata (`other_cores` 0,075-0,150, `steal_pct` 0,010-0,016), nessuna consegna in pending, `generator_path_ms` riusata 1,04-1,31 ms.
+
+| Braccio | FANOUT | Ultimo sito P-log ms [IC] | `dispute-rtt` ms [IC] | Rapporto P-log | Misura |
+|---|---|---|---|---|---|
+| D | 1 | 50,94 [47,74; 55,88] | 52,98 [49,37; 57,56] | 0,049, accettato | `P-log-apply` |
+| C | 1 | 70,38 [66,32; 83,33] | 72,20 [67,86; 85,03] | 0,036, accettato | `P-log-apply` |
+| D | 10 | 18,41 [17,87; 20,18] | 21,43 [19,83; 22,80] | 0,136, non accettato | `dispute-rtt` |
+| C | 10 | 20,19 [18,50; 22,81] | 24,34 [23,69; 26,48] | 0,124, non accettato | `dispute-rtt` |
+
+P-a4 (ripetizione, quarta sessione `lan` con C e D): C − D = 19,44 ms [11,96; 31,17], l'IC attraversa il 15 e il 32: non conclusivo, stima puntuale dentro [15, 32]. Serie delle quattro: 38,65 / 27,46 / 22,67 / 19,44 ms. D/1 nelle sessioni: 67,3 / 48,4 / 45,9 / 47,4 / 50,9 ms (09:30).
+Questa sessione è il riferimento `lan` "prima" per (a) a `degraded`; la sessione 09:21 resta disponibile ("dopo" del blocco `wan`), con la regola della mediana più alta.
