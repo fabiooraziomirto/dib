@@ -1,0 +1,427 @@
+{
+ "ietf-access-control-list:access-lists": {
+  "acl": [
+   {
+    "aces": {
+     "ace": [
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc000.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-0"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc001.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-1"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc002.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-2"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc003.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-3"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc004.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-4"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc005.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-5"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc006.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-6"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc007.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-7"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc008.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-8"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc009.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-9"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc010.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-10"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc011.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-11"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc012.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-12"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc013.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-13"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc014.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-14"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc015.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-15"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc016.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-16"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc017.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-17"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc018.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-18"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc019.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-19"
+      }
+     ]
+    },
+    "acl-type": "ipv4-acl-type",
+    "name": "dib-cam-a-fr"
+   },
+   {
+    "aces": {
+     "ace": []
+    },
+    "acl-type": "ipv4-acl-type",
+    "name": "dib-cam-a-to"
+   }
+  ]
+ },
+ "ietf-mud:mud": {
+  "cache-validity": 48,
+  "from-device-policy": {
+   "access-lists": {
+    "access-list": [
+     {
+      "name": "dib-cam-a-fr"
+     }
+    ]
+   }
+  },
+  "is-supported": true,
+  "last-update": "2026-01-01T00:00:00+00:00",
+  "mud-url": "https://dib.example.org/.well-known/mud/cam-a",
+  "mud-version": 1,
+  "systeminfo": "DIB corroborated policy for cam-a",
+  "to-device-policy": {
+   "access-lists": {
+    "access-list": [
+     {
+      "name": "dib-cam-a-to"
+     }
+    ]
+   }
+  }
+ }
+}

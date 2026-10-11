@@ -1,6 +1,6 @@
 """Tests of m8_mud_sig/run.py (audit 55). Local tests with the REAL `openssl` (tiny sizes); no node. Hypotheses (before the module; falsification = any
 assertion failing):
- M-1  the MUD files come from export_mud_file: the exported ACE count equals the requested one (5, 20, 100) and the JSON is deterministic (same bytes twice);
+ M-1  the MUD files come from export_mud_file: the exported ACE count equals the requested one (5, 20, 100) and the JSON is reproducible (same bytes twice) ONLY once `last-update` is fixed: the production exporter stamps the current time (found by the first run of this test, which asserted determinism without that step);
  M-2  the sign command is a DETACHED CMS signature (no -nodetach), -binary, -md sha256, DER; the verify command uses -content, -CAfile, -purpose any;
  M-3  validity: verify of a correct signature succeeds for ecdsa-p256 and rsa-2048; verify of a file altered by one byte FAILS (negative control);
  M-4  p95 = sorted[ceil(0.95 n) - 1]; the verdict is 'falsified' iff the CI lower bound > 10 ms, 'inconclusive' iff p95 > 10 with the CI crossing, else
@@ -28,7 +28,7 @@ def test_mud_files_from_export(tmp_path):
     p2 = m8.make_mud_files(tmp_path / "b", (5, 20, 100))
     for n in (5, 20, 100):
         doc = json.loads(p1[n].read_text())
-        aces = doc["ietf-access-control-list:acls"]["acl"][0]["aces"]["ace"]
+        aces = next(a for a in doc["ietf-access-control-list:access-lists"]["acl"] if a["name"].endswith("-fr"))["aces"]["ace"]
         assert len(aces) == n
         assert p1[n].read_bytes() == p2[n].read_bytes()
 

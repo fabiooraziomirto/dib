@@ -1,0 +1,142 @@
+{
+ "ietf-access-control-list:access-lists": {
+  "acl": [
+   {
+    "aces": {
+     "ace": [
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc000.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-0"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc001.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-1"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc002.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-2"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc003.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-3"
+      },
+      {
+       "actions": {
+        "forwarding": "accept"
+       },
+       "matches": {
+        "ipv4": {
+         "ietf-acldns:dst-dnsname": "svc004.vendor.example",
+         "protocol": 6
+        },
+        "tcp": {
+         "destination-port-range-or-operator": {
+          "operator": "eq",
+          "port": 443
+         },
+         "ietf-mud:direction-initiated": "from-device"
+        }
+       },
+       "rule-name": "dib-cam-a-fr-4"
+      }
+     ]
+    },
+    "acl-type": "ipv4-acl-type",
+    "name": "dib-cam-a-fr"
+   },
+   {
+    "aces": {
+     "ace": []
+    },
+    "acl-type": "ipv4-acl-type",
+    "name": "dib-cam-a-to"
+   }
+  ]
+ },
+ "ietf-mud:mud": {
+  "cache-validity": 48,
+  "from-device-policy": {
+   "access-lists": {
+    "access-list": [
+     {
+      "name": "dib-cam-a-fr"
+     }
+    ]
+   }
+  },
+  "is-supported": true,
+  "last-update": "2026-01-01T00:00:00+00:00",
+  "mud-url": "https://dib.example.org/.well-known/mud/cam-a",
+  "mud-version": 1,
+  "systeminfo": "DIB corroborated policy for cam-a",
+  "to-device-policy": {
+   "access-lists": {
+    "access-list": [
+     {
+      "name": "dib-cam-a-to"
+     }
+    ]
+   }
+  }
+ }
+}
