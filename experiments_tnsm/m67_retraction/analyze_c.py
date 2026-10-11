@@ -10,7 +10,11 @@ opposite direction); a CI that crosses a bound, or CIs that overlap, is "inconcl
 reading of the second clause (point estimate of C <= point estimate of D), which is still printed as information. (4) The count is recomputed from the
 episode rows (not from the stored summary) so that episodes excluded for overlap with an unsettled netem profile (docstring of analyze_b1.py,
 profile_exclusion.py) leave both the numerator and the denominator; give --profile-events and --watch-log to apply it. (5) Input: one run.py directory or a
-block directory of b1_*/ groups (blockdata.py). The exclusion code has not been run on any degraded B1 data.
+block directory of b1_*/ groups (blockdata.py). The exclusion code has not been run on any degraded B1 data. (6) HOW n IS COUNTED (declared 2026-10-11, before B1): the
+numerator x and the denominator n are taken over the SAME set of episodes: those NOT excluded AND carrying dispute_rtt_s (a recorded response). n = 10 x
+(that number of episodes), x = sites in pending of those episodes. A non-excluded episode WITHOUT dispute_rtt_s (no response recorded) is counted in NEITHER x
+nor n, and its number is reported per arm in the report ("without dispute_rtt_s"); it is not replaced. (The earlier code counted such an episode in n but not
+in x; the case does not occur in the lan_before data, where every row has dispute_rtt_s.)
 Observable (prediction_c_observable.md): per site and episode, with k = 1 fan-out per fact in B1: a delivery is "in pending" if the evidence log
 shows an ack line after t0 for that site or the delivery was still pending at the deadline (summary field n_pending_sites_log, computed by
 run.summarize_rows from the log, not from the generator's reads). Denominator = deliveries executed = episodes x 10 sites of the NON-excluded episodes.
@@ -84,12 +88,14 @@ def counts_from_cells(cells: list[dict]) -> dict:
         if "rows" not in c or "aborted" in c:
             continue
         sp = c["cell_spec"]
-        ok = [r for r in c["rows"] if not r.get("excluded")]
-        a = out.setdefault(sp["arm"], {"x": 0, "n": 0, "cells": {}})
-        x = sum(row_pending_sites(r) for r in ok if "dispute_rtt_s" in r)
+        live = [r for r in c["rows"] if not r.get("excluded")]
+        ok = [r for r in live if "dispute_rtt_s" in r]                  # x and n over the same episodes (docstring, point 6)
+        a = out.setdefault(sp["arm"], {"x": 0, "n": 0, "no_rtt": 0, "cells": {}})
+        x = sum(row_pending_sites(r) for r in ok)
         n = 10 * len(ok)
         a["x"] += x
         a["n"] += n
+        a["no_rtt"] += len(live) - len(ok)
         k = a["cells"].get(sp["fanout"], (0, 0))
         a["cells"][sp["fanout"]] = (k[0] + x, k[1] + n)
     return out
@@ -112,8 +118,19 @@ def second_clause(ci_d: tuple[float, float], ci_c: tuple[float, float], pd: floa
 
 
 def report(source, profile_events=None, watch_log_text=None) -> str:
-    cells = blockdata.load_block(source)[0] if Path(source).is_dir() else [json.loads(l) for l in Path(source).read_text().splitlines() if l.strip()]
+    profile = None
+    if Path(source).is_dir():
+        cells, man = blockdata.load_block(source)
+        profile = man.get("profile")
+    else:
+        cells = [json.loads(l) for l in Path(source).read_text().splitlines() if l.strip()]
+    return report_from_cells(cells, profile_events, watch_log_text, profile)
+
+
+def report_from_cells(cells, profile_events=None, watch_log_text=None, profile=None) -> str:
     L = []
+    if profile != "degraded":
+        L.append(f"**Profile is {profile!r}, not `degraded`: (c) is a prediction at `degraded`; the classification below is NOT a test of (c).**\n")
     if profile_events or watch_log_text:
         labelled = ([("monitor", iv) for iv in px.monitor_intervals(profile_events)] if profile_events else []) + \
                    ([("watch2.log", iv) for iv in px.watch_unsettled_intervals(watch_log_text)] if watch_log_text else [])
@@ -131,6 +148,7 @@ def report(source, profile_events=None, watch_log_text=None) -> str:
         cis[arm] = clopper_pearson(x, n)
         L.append(f"| {arm} | {x} / {n} | {x / n:.5f} | [{cis[arm][0]:.5f}; {cis[arm][1]:.5f}] | {PREDICTED[arm][0]}-{PREDICTED[arm][1]} | {INTERVALS[arm]} | {classify(cis[arm], INTERVALS[arm])} | "
                  + ", ".join(f"f{k}: {v[0]}/{v[1]}" for k, v in sorted(cs[arm]["cells"].items())) + " |")
+    L.append("\nNon-excluded episodes without dispute_rtt_s (in neither x nor n): " + ", ".join(f"{a}: {cs[a]['no_rtt']}" for a in ("D", "C") if a in cs))
     if "D" in cis and "C" in cis:
         L.append("\nSecond clause (registered, unambiguous form of the 2026-10-11 revision): " + second_clause(cis["D"], cis["C"], cs["D"]["x"] / cs["D"]["n"], cs["C"]["x"] / cs["C"]["n"]))
     return "\n".join(L) + "\n"

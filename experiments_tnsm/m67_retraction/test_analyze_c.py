@@ -82,3 +82,40 @@ def test_report_on_a_block_directory_with_overlap_exclusion(tmp_path):
         p.write_text(json.dumps(cell) + "\n")
     ex = c.report(tmp_path, None, log)
     assert "2 episode(s) excluded" in ex and "| C | 0 / 40 |" in ex and "| D | 0 / 40 |" in ex       # the pending episode of C is excluded with the others: x and n shrink
+
+
+# ---- tests added to catch two mutations (2026-10-11, before the degraded data)
+def test_mutation_second_clause_needs_DISJOINT_cis():
+    """Mutation M1 = `ci_c[1] < ci_d[1]` instead of `ci_c[1] < ci_d[0]` (falsify when C's upper bound is merely below D's upper bound). C's CI [0.001, 0.010]
+    overlaps D's [0.004, 0.015] (C's upper bound is inside D's CI): NOT falsified."""
+    s = c.second_clause((0.004, 0.015), (0.001, 0.010), 0.008, 0.004)
+    assert s.startswith("inconclusive"), s
+    assert c.second_clause((0.004, 0.015), (0.001, 0.0039999), 0.008, 0.002).startswith("FALSIFIED")      # strictly below D's lower bound
+    assert c.second_clause((0.004, 0.015), (0.001, 0.004), 0.008, 0.002).startswith("inconclusive")       # touching: not disjoint
+
+
+def test_mutation_excluded_episodes_leave_numerator_and_denominator():
+    """Mutation M2 = counting excluded rows (ignoring the `excluded` flag, i.e. the overlap exclusion would change nothing)."""
+    rows = [_row(10.0, 3, excluded=True), _row(20.0, 0)]
+    cs = c.counts_from_cells([{"cell_spec": {"arm": "C", "fanout": 10}, "rows": rows}])
+    assert cs["C"]["x"] == 0 and cs["C"]["n"] == 10
+
+
+def test_episodes_without_dispute_rtt_are_in_neither_x_nor_n_and_are_reported():
+    """Declared 2026-10-11 (docstring): a non-excluded episode WITHOUT dispute_rtt_s (no response recorded) is counted in NEITHER the numerator nor the
+    denominator, and its number is reported."""
+    no_resp = {"t0": 50.0, "excluded": False, "plog_ack_ts": {"0": 51.0, "1": 51.0}, "pending_left": {}}
+    rows = [_row(10.0, 1), no_resp, _row(20.0, 0)]
+    cs = c.counts_from_cells([{"cell_spec": {"arm": "D", "fanout": 1}, "rows": rows}])
+    assert cs["D"]["x"] == 1 and cs["D"]["n"] == 20 and cs["D"]["no_rtt"] == 1
+    out = c.report_from_cells([{"cell_spec": {"arm": "D", "fanout": 1}, "rows": rows}])
+    assert "without dispute_rtt_s" in out and ": 1" in out.split("without dispute_rtt_s")[1].splitlines()[0]
+
+
+def test_report_says_when_the_profile_is_not_degraded():
+    """(c) is a prediction AT `degraded`: at another profile the classification is printed but is NOT a test of (c) (it printed 'falsified' for C on lan data)."""
+    rows = [_row(10.0, 0)]
+    cells = [{"cell_spec": {"arm": "C", "fanout": 1}, "rows": rows}]
+    assert "NOT a test of (c)" in c.report_from_cells(cells, profile="lan")
+    assert "NOT a test of (c)" not in c.report_from_cells(cells, profile="degraded")
+    assert "NOT a test of (c)" in c.report_from_cells(cells)                    # profile unknown: said, never assumed
