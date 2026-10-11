@@ -1,0 +1,650 @@
+2026-10-11T12:48:21.202Z netem_watch: profile.request present at start: stale, ignored
+2026-10-11T12:48:21.209Z netem_watch: watching: dir=/home/ubuntu/dib_tnsm/m67 owner=ubuntu poll=0.5s fast-poll=0.1s max=32400s (STOP file or Ctrl-C to stop and clean)
+2026-10-11T12:49:06.601Z netem_watch: request accepted: lan
+2026-10-11T12:49:06.661Z netem_watch: applied lan (0.027 s)
+2026-10-11T12:49:08.792Z netem_watch: containers changed -> applying lan
+2026-10-11T12:49:09.038Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T12:49:09.043Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T12:49:10.022Z netem_watch: applied lan (0.412 s)
+2026-10-11T12:49:10.586Z netem_watch: containers changed -> applying lan
+2026-10-11T12:49:11.316Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T12:49:11.322Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T12:49:12.875Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T12:49:14.795Z netem_watch: applied lan (1.359 s)
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T12:49:48.074Z netem_watch: containers changed -> applying lan
+2026-10-11T12:49:48.338Z netem_watch: applied lan (0.254 s)
+2026-10-11T12:49:57.961Z netem_watch: containers changed -> applying lan
+2026-10-11T12:49:57.998Z netem_watch: applied lan (0.024 s)
+2026-10-11T12:50:00.643Z netem_watch: containers changed -> applying lan
+2026-10-11T12:50:00.889Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T12:50:00.895Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T12:50:01.907Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T12:50:03.171Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T12:50:04.821Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T12:50:06.656Z netem_watch: applied lan (1.271 s)
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-3-1
+2026-10-11T12:50:30.157Z netem_watch: containers changed -> applying lan
+2026-10-11T12:50:30.189Z netem_watch: applied lan (0.024 s)
+2026-10-11T12:50:31.224Z netem_watch: request accepted: lan
+2026-10-11T12:50:31.272Z netem_watch: applied lan (0.024 s)
+2026-10-11T13:02:29.437Z netem_watch: request accepted: lan
+2026-10-11T13:02:29.504Z netem_watch: applied lan (0.032 s)
+2026-10-11T13:02:31.627Z netem_watch: containers changed -> applying lan
+2026-10-11T13:02:31.858Z netem_watch: applied lan (0.221 s)
+2026-10-11T13:02:32.407Z netem_watch: containers changed -> applying lan
+2026-10-11T13:02:32.826Z netem_watch: applied lan (0.412 s)
+2026-10-11T13:02:33.374Z netem_watch: containers changed -> applying lan
+2026-10-11T13:02:34.045Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T13:02:34.050Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:02:35.639Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T13:02:37.433Z netem_watch: applied lan (1.227 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-5-1
+2026-10-11T13:03:29.082Z netem_watch: containers changed -> applying lan
+2026-10-11T13:03:29.278Z netem_watch: applied lan (0.189 s)
+2026-10-11T13:03:38.998Z netem_watch: containers changed -> applying lan
+2026-10-11T13:03:39.030Z netem_watch: applied lan (0.023 s)
+2026-10-11T13:03:41.685Z netem_watch: containers changed -> applying lan
+2026-10-11T13:03:41.999Z netem_watch: applied lan (0.305 s)
+2026-10-11T13:03:42.548Z netem_watch: containers changed -> applying lan
+2026-10-11T13:03:43.063Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:03:43.069Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:03:44.391Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T13:03:46.119Z netem_watch: the set of containers changed during the application (before: 9, after: 10): profile.applied not written, re-applying
+2026-10-11T13:03:47.905Z netem_watch: applied lan (1.224 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T13:04:28.836Z netem_watch: containers changed -> applying lan
+2026-10-11T13:04:28.868Z netem_watch: applied lan (0.022 s)
+2026-10-11T13:04:31.513Z netem_watch: containers changed -> applying lan
+2026-10-11T13:04:31.746Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T13:04:31.751Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:04:32.749Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:04:34.015Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T13:04:35.634Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T13:04:37.447Z netem_watch: applied lan (1.250 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-8-1
+2026-10-11T13:05:29.501Z netem_watch: containers changed -> applying lan
+2026-10-11T13:05:29.693Z netem_watch: applied lan (0.184 s)
+2026-10-11T13:05:39.354Z netem_watch: containers changed -> applying lan
+2026-10-11T13:05:39.387Z netem_watch: applied lan (0.023 s)
+2026-10-11T13:05:42.048Z netem_watch: containers changed -> applying lan
+2026-10-11T13:05:42.344Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T13:05:42.350Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:05:43.364Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:05:44.657Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T13:05:46.287Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T13:05:48.062Z netem_watch: applied lan (1.218 s)
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-0-1
+2026-10-11T13:06:29.569Z netem_watch: containers changed -> applying lan
+2026-10-11T13:06:29.604Z netem_watch: applied lan (0.026 s)
+2026-10-11T13:06:30.644Z netem_watch: request accepted: lan
+2026-10-11T13:06:30.702Z netem_watch: applied lan (0.024 s)
+2026-10-11T13:17:07.868Z netem_watch: request accepted: degraded
+2026-10-11T13:17:07.913Z netem_watch: applied degraded (0.022 s)
+2026-10-11T13:17:09.511Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:17:09.717Z netem_watch: applied degraded (0.197 s)
+2026-10-11T13:17:10.265Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:17:10.571Z netem_watch: the set of containers changed during the application (before: 2, after: 3): profile.applied not written, re-applying
+2026-10-11T13:17:10.576Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:17:11.739Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T13:17:13.167Z netem_watch: the set of containers changed during the application (before: 7, after: 8): profile.applied not written, re-applying
+2026-10-11T13:17:14.840Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T13:17:16.611Z netem_watch: applied degraded (1.203 s)
+2026-10-11T13:19:06.656Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:19:07.811Z netem_watch: applied degraded (1.145 s)
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T13:19:10.843Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:19:11.157Z netem_watch: applied degraded (0.306 s)
+2026-10-11T13:19:18.500Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:19:18.704Z netem_watch: applied degraded (0.195 s)
+2026-10-11T13:19:21.879Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:19:22.195Z netem_watch: applied degraded (0.307 s)
+2026-10-11T13:19:22.768Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:19:23.294Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:19:23.300Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:19:24.599Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T13:19:26.186Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T13:19:28.055Z netem_watch: applied degraded (1.302 s)
+2026-10-11T13:37:20.539Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:21.681Z netem_watch: applied degraded (1.132 s)
+2026-10-11T13:37:22.243Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:23.281Z netem_watch: applied degraded (1.029 s)
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-0-1
+2026-10-11T13:37:32.618Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:32.857Z netem_watch: applied degraded (0.228 s)
+2026-10-11T13:37:42.516Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:42.551Z netem_watch: applied degraded (0.023 s)
+2026-10-11T13:37:45.204Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:45.453Z netem_watch: applied degraded (0.238 s)
+2026-10-11T13:37:46.003Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:46.452Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:37:46.458Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:37:47.713Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T13:37:49.233Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T13:37:51.030Z netem_watch: applied degraded (1.239 s)
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-3-1
+2026-10-11T13:56:42.062Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:56:42.108Z netem_watch: applied degraded (0.032 s)
+2026-10-11T13:56:44.773Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:56:45.106Z netem_watch: applied degraded (0.322 s)
+2026-10-11T13:56:45.659Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:56:46.159Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:56:46.164Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:56:47.504Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T13:56:49.133Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T13:56:50.877Z netem_watch: applied degraded (1.174 s)
+2026-10-11T14:26:16.868Z netem_watch: containers changed -> applying degraded
+2026-10-11T14:26:17.945Z netem_watch: applied degraded (1.068 s)
+2026-10-11T14:26:18.513Z netem_watch: containers changed -> applying degraded
+2026-10-11T14:26:19.583Z netem_watch: applied degraded (1.062 s)
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-3-1
+2026-10-11T14:26:29.054Z netem_watch: containers changed -> applying degraded
+2026-10-11T14:26:29.243Z netem_watch: applied degraded (0.180 s)
+2026-10-11T14:26:41.696Z netem_watch: containers changed -> applying degraded
+2026-10-11T14:26:41.939Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T14:26:41.946Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T14:26:43.010Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T14:26:44.272Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T14:26:45.863Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T14:26:47.853Z netem_watch: applied degraded (1.410 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+2026-10-11T14:39:14.813Z netem_watch: containers changed -> applying degraded
+2026-10-11T14:39:14.858Z netem_watch: applied degraded (0.033 s)
+2026-10-11T14:39:15.901Z netem_watch: request accepted: lan
+2026-10-11T14:39:15.972Z netem_watch: applied lan (0.033 s)
+2026-10-11T14:39:17.026Z netem_watch: request accepted: lan
+2026-10-11T14:39:17.096Z netem_watch: applied lan (0.032 s)
+2026-10-11T14:39:19.244Z netem_watch: containers changed -> applying lan
+2026-10-11T14:39:19.452Z netem_watch: applied lan (0.199 s)
+2026-10-11T14:39:20.000Z netem_watch: containers changed -> applying lan
+2026-10-11T14:39:20.389Z netem_watch: the set of containers changed during the application (before: 2, after: 3): profile.applied not written, re-applying
+2026-10-11T14:39:20.396Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T14:39:21.593Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T14:39:23.094Z netem_watch: the set of containers changed during the application (before: 7, after: 8): profile.applied not written, re-applying
+2026-10-11T14:39:24.860Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T14:39:26.726Z netem_watch: applied lan (1.288 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T14:40:16.857Z netem_watch: containers changed -> applying lan
+2026-10-11T14:40:17.074Z netem_watch: applied lan (0.206 s)
+2026-10-11T14:40:26.756Z netem_watch: containers changed -> applying lan
+2026-10-11T14:40:26.794Z netem_watch: applied lan (0.025 s)
+2026-10-11T14:40:29.440Z netem_watch: containers changed -> applying lan
+2026-10-11T14:40:29.636Z netem_watch: applied lan (0.187 s)
+2026-10-11T14:40:30.201Z netem_watch: containers changed -> applying lan
+2026-10-11T14:40:30.635Z netem_watch: applied lan (0.423 s)
+2026-10-11T14:40:31.206Z netem_watch: containers changed -> applying lan
+2026-10-11T14:40:31.950Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T14:40:31.957Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T14:40:33.597Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T14:40:35.502Z netem_watch: applied lan (1.342 s)
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T14:41:17.443Z netem_watch: containers changed -> applying lan
+2026-10-11T14:41:17.478Z netem_watch: applied lan (0.025 s)
+2026-10-11T14:41:20.127Z netem_watch: containers changed -> applying lan
+2026-10-11T14:41:20.363Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T14:41:20.369Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T14:41:21.423Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T14:41:22.701Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T14:41:24.281Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T14:41:26.129Z netem_watch: applied lan (1.290 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T14:42:18.370Z netem_watch: containers changed -> applying lan
+2026-10-11T14:42:18.582Z netem_watch: applied lan (0.203 s)
+2026-10-11T14:42:28.249Z netem_watch: containers changed -> applying lan
+2026-10-11T14:42:28.285Z netem_watch: applied lan (0.024 s)
+2026-10-11T14:42:30.945Z netem_watch: containers changed -> applying lan
+2026-10-11T14:42:31.228Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T14:42:31.235Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T14:42:32.304Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T14:42:33.694Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T14:42:35.374Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T14:42:37.285Z netem_watch: applied lan (1.335 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T14:43:18.866Z netem_watch: containers changed -> applying lan
+2026-10-11T14:43:18.900Z netem_watch: applied lan (0.025 s)
+2026-10-11T14:43:19.937Z netem_watch: request accepted: lan
+2026-10-11T14:43:19.985Z netem_watch: applied lan (0.022 s)
+2026-10-11T16:34:48.221Z netem_watch: request accepted: lan
+2026-10-11T16:34:48.291Z netem_watch: applied lan (0.035 s)
+2026-10-11T16:34:50.429Z netem_watch: containers changed -> applying lan
+2026-10-11T16:34:50.674Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:34:50.680Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:34:51.721Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:34:53.018Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:34:54.682Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T16:34:56.576Z netem_watch: applied lan (1.319 s)
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-3-1
+2026-10-11T16:35:29.366Z netem_watch: containers changed -> applying lan
+2026-10-11T16:35:29.580Z netem_watch: applied lan (0.205 s)
+2026-10-11T16:35:39.216Z netem_watch: containers changed -> applying lan
+2026-10-11T16:35:39.251Z netem_watch: applied lan (0.026 s)
+2026-10-11T16:35:41.901Z netem_watch: containers changed -> applying lan
+2026-10-11T16:35:42.144Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:35:42.151Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:35:43.166Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:35:44.438Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:35:46.061Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T16:35:47.921Z netem_watch: applied lan (1.296 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+2026-10-11T16:36:11.105Z netem_watch: containers changed -> applying lan
+2026-10-11T16:36:11.139Z netem_watch: applied lan (0.024 s)
+2026-10-11T16:36:12.180Z netem_watch: request accepted: lan
+2026-10-11T16:36:12.232Z netem_watch: applied lan (0.024 s)
+2026-10-11T16:36:13.277Z netem_watch: request accepted: degraded
+2026-10-11T16:36:13.327Z netem_watch: applied degraded (0.023 s)
+2026-10-11T16:36:15.478Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:36:15.688Z netem_watch: applied degraded (0.196 s)
+2026-10-11T16:36:16.250Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:36:16.690Z netem_watch: applied degraded (0.429 s)
+2026-10-11T16:36:17.247Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:36:17.949Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:36:17.956Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:36:19.552Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T16:36:21.382Z netem_watch: applied degraded (1.265 s)
+2026-10-11T16:38:29.327Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:38:30.540Z netem_watch: applied degraded (1.202 s)
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T16:38:33.655Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:38:34.010Z netem_watch: applied degraded (0.344 s)
+2026-10-11T16:38:41.016Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:38:41.223Z netem_watch: applied degraded (0.194 s)
+2026-10-11T16:38:44.438Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:38:44.678Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:38:44.685Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:38:45.699Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:38:46.923Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:38:48.461Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T16:38:50.246Z netem_watch: applied degraded (1.223 s)
+2026-10-11T16:40:41.138Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:40:42.229Z netem_watch: applied degraded (1.081 s)
+2026-10-11T16:40:42.804Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:40:44.019Z netem_watch: applied degraded (1.205 s)
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T16:40:53.436Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:40:53.647Z netem_watch: applied degraded (0.200 s)
+2026-10-11T16:41:03.271Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:41:03.312Z netem_watch: applied degraded (0.025 s)
+2026-10-11T16:41:05.983Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:41:06.194Z netem_watch: applied degraded (0.202 s)
+2026-10-11T16:41:06.764Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:41:07.210Z netem_watch: applied degraded (0.435 s)
+2026-10-11T16:41:07.772Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:41:08.433Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:41:08.441Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:41:09.892Z netem_watch: the set of containers changed during the application (before: 7, after: 8): profile.applied not written, re-applying
+2026-10-11T16:41:11.613Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T16:41:13.671Z netem_watch: applied degraded (1.476 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-5-1
+2026-10-11T16:42:39.429Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:42:39.679Z netem_watch: applied degraded (0.240 s)
+2026-10-11T16:42:41.251Z netem_watch: request accepted: lan
+2026-10-11T16:42:41.313Z netem_watch: applied lan (0.028 s)
+2026-10-11T16:43:50.061Z netem_watch: request accepted: lan
+2026-10-11T16:43:50.112Z netem_watch: applied lan (0.024 s)
+2026-10-11T16:43:52.256Z netem_watch: containers changed -> applying lan
+2026-10-11T16:43:52.544Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:43:52.552Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:43:53.596Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:43:54.973Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T16:43:56.679Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T16:43:58.549Z netem_watch: applied lan (1.287 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T16:44:49.412Z netem_watch: containers changed -> applying lan
+2026-10-11T16:44:49.618Z netem_watch: applied lan (0.195 s)
+2026-10-11T16:44:59.502Z netem_watch: containers changed -> applying lan
+2026-10-11T16:44:59.544Z netem_watch: applied lan (0.028 s)
+2026-10-11T16:45:02.208Z netem_watch: containers changed -> applying lan
+2026-10-11T16:45:02.409Z netem_watch: applied lan (0.191 s)
+2026-10-11T16:45:02.957Z netem_watch: containers changed -> applying lan
+2026-10-11T16:45:03.373Z netem_watch: applied lan (0.407 s)
+2026-10-11T16:45:03.948Z netem_watch: containers changed -> applying lan
+2026-10-11T16:45:04.627Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:45:04.634Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:45:06.156Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T16:45:07.976Z netem_watch: applied lan (1.252 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T16:45:49.784Z netem_watch: containers changed -> applying lan
+2026-10-11T16:45:49.818Z netem_watch: applied lan (0.023 s)
+2026-10-11T16:45:52.457Z netem_watch: containers changed -> applying lan
+2026-10-11T16:45:52.739Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:45:52.747Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:45:53.774Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:45:55.082Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T16:45:56.668Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T16:45:58.419Z netem_watch: applied lan (1.191 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-2-1
+2026-10-11T16:46:50.110Z netem_watch: containers changed -> applying lan
+2026-10-11T16:46:50.319Z netem_watch: applied lan (0.198 s)
+2026-10-11T16:46:59.997Z netem_watch: containers changed -> applying lan
+2026-10-11T16:47:00.035Z netem_watch: applied lan (0.025 s)
+2026-10-11T16:47:02.722Z netem_watch: containers changed -> applying lan
+2026-10-11T16:47:02.970Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:47:02.977Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:47:03.983Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:47:05.218Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:47:06.769Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T16:47:08.575Z netem_watch: applied lan (1.238 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T16:47:50.211Z netem_watch: containers changed -> applying lan
+2026-10-11T16:47:50.249Z netem_watch: applied lan (0.025 s)
+2026-10-11T16:47:51.300Z netem_watch: request accepted: lan
+2026-10-11T16:47:51.364Z netem_watch: applied lan (0.030 s)
+2026-10-11T16:47:52.414Z netem_watch: request accepted: degraded
+2026-10-11T16:47:52.480Z netem_watch: applied degraded (0.033 s)
+2026-10-11T16:47:54.625Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:47:54.828Z netem_watch: applied degraded (0.192 s)
+2026-10-11T16:47:55.393Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:47:55.836Z netem_watch: applied degraded (0.431 s)
+2026-10-11T16:47:56.393Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:47:57.050Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:47:57.058Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:47:58.658Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T16:48:00.416Z netem_watch: applied degraded (1.193 s)
+2026-10-11T16:49:49.107Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:49:50.254Z netem_watch: applied degraded (1.138 s)
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T16:49:53.430Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:49:53.750Z netem_watch: applied degraded (0.308 s)
+2026-10-11T16:50:00.919Z netem_watch: containers changed -> applying degraded
+error: no such object: dibtnsm-evidence-1
+netem_apply.sh: inspect failed for dibtnsm-evidence-1
+2026-10-11T16:50:01.448Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:50:04.308Z netem_watch: applied degraded (0.188 s)
+2026-10-11T16:50:04.854Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:50:05.254Z netem_watch: applied degraded (0.388 s)
+2026-10-11T16:50:05.814Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:50:06.466Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:50:06.473Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:50:07.958Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T16:50:09.651Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T16:50:11.537Z netem_watch: applied degraded (1.320 s)
+2026-10-11T17:07:10.149Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:11.575Z netem_watch: applied degraded (1.416 s)
+2026-10-11T17:07:12.154Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:13.282Z netem_watch: applied degraded (1.118 s)
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T17:07:22.335Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:22.570Z netem_watch: applied degraded (0.222 s)
+2026-10-11T17:07:32.218Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:32.259Z netem_watch: applied degraded (0.030 s)
+2026-10-11T17:07:34.909Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:35.151Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T17:07:35.158Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T17:07:36.112Z netem_watch: applied degraded (0.404 s)
+2026-10-11T17:07:36.672Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:37.351Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T17:07:37.359Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T17:07:38.902Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T17:07:40.750Z netem_watch: applied degraded (1.286 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T17:27:44.550Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:27:44.587Z netem_watch: applied degraded (0.027 s)
+2026-10-11T17:27:47.243Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:27:47.470Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T17:27:47.477Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T17:27:48.477Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T17:27:49.888Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T17:27:51.492Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T17:27:53.364Z netem_watch: applied degraded (1.307 s)
+2026-10-11T17:58:05.633Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:06.825Z netem_watch: applied degraded (1.181 s)
+2026-10-11T17:58:07.415Z netem_watch: containers changed -> applying degraded
+error: no such object: dibtnsm-site-5-1
+netem_watch2.sh: inspect failed for dibtnsm-site-5-1
+2026-10-11T17:58:07.928Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+error: no such object: dibtnsm-site-7-1
+2026-10-11T17:58:10.391Z netem_watch: applied degraded (0.537 s)
+2026-10-11T17:58:11.244Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:11.570Z netem_watch: applied degraded (0.311 s)
+2026-10-11T17:58:12.426Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:12.679Z netem_watch: applied degraded (0.239 s)
+2026-10-11T17:58:13.241Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:13.481Z netem_watch: applied degraded (0.228 s)
+2026-10-11T17:58:22.921Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:22.959Z netem_watch: applied degraded (0.023 s)
+2026-10-11T17:58:25.619Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:25.828Z netem_watch: applied degraded (0.197 s)
+2026-10-11T17:58:26.384Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:26.791Z netem_watch: applied degraded (0.397 s)
+2026-10-11T17:58:27.348Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:28.062Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T17:58:28.072Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T17:58:29.654Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T17:58:31.452Z netem_watch: applied degraded (1.233 s)
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-5-1
+2026-10-11T18:11:22.033Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:11:22.069Z netem_watch: applied degraded (0.024 s)
+2026-10-11T18:11:23.123Z netem_watch: request accepted: lan
+2026-10-11T18:11:23.183Z netem_watch: applied lan (0.028 s)
+2026-10-11T18:11:24.230Z netem_watch: request accepted: lan
+2026-10-11T18:11:24.299Z netem_watch: applied lan (0.031 s)
+2026-10-11T18:11:26.438Z netem_watch: containers changed -> applying lan
+2026-10-11T18:11:26.644Z netem_watch: applied lan (0.195 s)
+2026-10-11T18:11:27.198Z netem_watch: containers changed -> applying lan
+2026-10-11T18:11:27.652Z netem_watch: applied lan (0.442 s)
+2026-10-11T18:11:28.202Z netem_watch: containers changed -> applying lan
+2026-10-11T18:11:28.889Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T18:11:28.896Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T18:11:30.463Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T18:11:32.319Z netem_watch: applied lan (1.282 s)
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T18:12:23.949Z netem_watch: containers changed -> applying lan
+2026-10-11T18:12:24.159Z netem_watch: applied lan (0.201 s)
+2026-10-11T18:12:33.830Z netem_watch: containers changed -> applying lan
+2026-10-11T18:12:33.869Z netem_watch: applied lan (0.025 s)
+2026-10-11T18:12:36.523Z netem_watch: containers changed -> applying lan
+2026-10-11T18:12:36.778Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T18:12:36.785Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T18:12:37.778Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T18:12:39.030Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T18:12:40.679Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T18:12:42.563Z netem_watch: applied lan (1.309 s)
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T18:13:23.732Z netem_watch: containers changed -> applying lan
+2026-10-11T18:13:23.771Z netem_watch: applied lan (0.026 s)
+2026-10-11T18:13:26.421Z netem_watch: containers changed -> applying lan
+2026-10-11T18:13:26.621Z netem_watch: applied lan (0.190 s)
+2026-10-11T18:13:27.185Z netem_watch: containers changed -> applying lan
+2026-10-11T18:13:27.628Z netem_watch: applied lan (0.430 s)
+2026-10-11T18:13:28.186Z netem_watch: containers changed -> applying lan
+2026-10-11T18:13:28.854Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T18:13:28.863Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T18:13:30.457Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T18:13:32.260Z netem_watch: applied lan (1.244 s)
+2026-10-11T18:13:32.825Z netem_watch: containers changed -> applying lan
+2026-10-11T18:13:34.204Z netem_watch: applied lan (1.368 s)
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T18:14:24.280Z netem_watch: containers changed -> applying lan
+2026-10-11T18:14:24.507Z netem_watch: applied lan (0.216 s)
+2026-10-11T18:14:36.365Z netem_watch: containers changed -> applying lan
+2026-10-11T18:14:36.552Z netem_watch: applied lan (0.177 s)
+2026-10-11T18:14:37.104Z netem_watch: containers changed -> applying lan
+2026-10-11T18:14:37.455Z netem_watch: the set of containers changed during the application (before: 2, after: 3): profile.applied not written, re-applying
+2026-10-11T18:14:37.461Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T18:14:38.647Z netem_watch: applied lan (0.631 s)
+2026-10-11T18:14:39.212Z netem_watch: containers changed -> applying lan
+2026-10-11T18:14:40.187Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T18:14:40.194Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T18:14:41.934Z netem_watch: applied lan (1.178 s)
+2026-10-11T18:14:42.510Z netem_watch: containers changed -> applying lan
+2026-10-11T18:14:43.833Z netem_watch: applied lan (1.311 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+2026-10-11T18:15:23.026Z netem_watch: containers changed -> applying lan
+2026-10-11T18:15:23.057Z netem_watch: applied lan (0.021 s)
+2026-10-11T18:15:24.097Z netem_watch: request accepted: lan
+2026-10-11T18:15:24.141Z netem_watch: applied lan (0.020 s)
+2026-10-11T18:15:50.468Z netem_watch: request accepted: lan+fast
+2026-10-11T18:15:50.535Z netem_watch: applied lan (0.031 s)
+2026-10-11T18:15:52.292Z netem_watch: containers changed -> applying lan
+2026-10-11T18:15:52.489Z netem_watch: applied lan (0.188 s)
+2026-10-11T18:15:52.794Z netem_watch: containers changed -> applying lan
+2026-10-11T18:15:53.110Z netem_watch: applied lan (0.305 s)
+2026-10-11T18:15:53.265Z netem_watch: containers changed -> applying lan
+2026-10-11T18:15:53.682Z netem_watch: applied lan (0.404 s)
+2026-10-11T18:15:53.843Z netem_watch: containers changed -> applying lan
+2026-10-11T18:15:54.442Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T18:15:54.449Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:15:55.359Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T18:15:56.530Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T18:15:57.907Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:15:59.378Z netem_watch: applied lan (1.283 s)

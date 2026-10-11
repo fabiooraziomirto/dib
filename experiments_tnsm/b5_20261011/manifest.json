@@ -1,0 +1,58 @@
+{
+ "block_order": [
+  "lan_before",
+  "degraded",
+  "lan_after"
+ ],
+ "profiles": [
+  "lan",
+  "degraded",
+  "lan"
+ ],
+ "seed": 20261014,
+ "arms": "D,C",
+ "smoke": false,
+ "tree": "/home/ubuntu/dib_tnsm/tree-244f1d0",
+ "end_utc": "2026-10-12T00:30:00+00:00",
+ "expected_hashes": {
+  "code/src/dib/registry/distributed/service.py": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+  "experiments_tnsm/m67_retraction/netem_common.sh": "bfce039a5fb5c313b4b63543ae90382a2678b0df8aaa6969ffcd85f5b363d707",
+  "experiments_tnsm/m67_retraction/netem_apply.sh": "d0d9496c22c35a0672434954426ca349c9ec756506b8d435e302dc27f776b0bd",
+  "experiments_tnsm/m67_retraction/netem_watch.sh": "49249c63a6a431f7f7ae94dca795d0f1b92653c4ecb2f5223aae7821e6e62009",
+  "experiments_tnsm/m67_retraction/netem_show.sh": "8a0e8ce5533804bae903734456751ab94ff8a02d4b730fc7807591eab95ee2c5",
+  "experiments_tnsm/m67_retraction/run.py": "022d97a6dc76808cf3a866c92f71d6076d0bcafca65a3ebdeab300b423393c02",
+  "experiments_tnsm/m67_retraction/calib_logs.py": "c221ca812c6c8d6065d07641cdac38364a8f4dd3f2aa168022e105f1c7b76a93",
+  "experiments_tnsm/m67_retraction/calib_profile.py": "f045d0fdcfd543f8d3a98a6de739ec488290cf430d269eda5e595bb6676c1c38",
+  "experiments_tnsm/m67_retraction/calib_ldns.sh": "0191b1fafc52dc05a69f198390d1029467b4273b04fed9b3ddc771d989a28ba7",
+  "experiments_tnsm/m67_retraction/night.py": "33e358d39eeeb78aa6ea4c40877e105a4c43b1f80bf8b58eb8bfc3923f0a8244",
+  "experiments_tnsm/m67_retraction/launch_night.sh": "0facc8dc2b8024586b71c01fbc84b12e354b87eb642dc8e2d7ad0d2eae656187",
+  "experiments_tnsm/m3_distributed/launcher_d.py": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+  "experiments_tnsm/m1_single_node/run.py": "df2dcdd80079fcec6b059abd4030ccd4478aaecbed608076bd1338894cfe2cff",
+  "experiments_tnsm/m2_p99_tail/run.py": "17b936a1de90666bafba9800d07124147ff4e347ed249b87d4cadab8cc15baa3",
+  "experiments_tnsm/common/cells.py": "d0477043b611b47589bb67d25b4d7c01b439c4ae4b603fc912b2a353c00c9f48",
+  "experiments_tnsm/common/node_monitor.py": "80fc794e46e6bfe6cff6aaa51f066aa878622ee8290deddf7e0e0f26bd0d3d07",
+  "experiments_tnsm/common/cpu_sampler.py": "c154bd78c09ed77603301fe95ba0ab14cd0763566dd1070cea60d4c0a811bc9b",
+  "experiments_tnsm/common/discard_rule.json": "6b098bec3a9c551ab1f8a087d794f489eb2a5e0c9345fdd96733fff98b5daf68",
+  "experiments_tnsm/m67_retraction/netem_watch2.sh": "d1c8f392d686c63aa56bf09628844dd29cfec2c1d2f5c7d37fd94694d7df5534",
+  "experiments_tnsm/m67_retraction/profile_ctl.py": "2aca85dc33f736c9e49a21a210be8ba99a7258d36bbe7d01306abfc80f21afbe",
+  "experiments_tnsm/m67_retraction/auto_block.py": "b58d58f047ca8da01bd81d8bc81d6d79294612ad7539edd907483362d211e23c",
+  "experiments_tnsm/m67_retraction/make_plog_thresholds.py": "9a97cb5e465be7b2175f1534d910d5d1f846967fe3aa78959cf163d334974d97",
+  "experiments_tnsm/m67_retraction/launch_auto_block.sh": "ad117a522449704a4491447b01a7455148f1cb0985693399efbfe8ddaf9f93b0",
+  "experiments_tnsm/m67_retraction/copy_block.py": "85abb38f9a115f20bcc1f78a35a5cf0dba937cf5348b7fcfb892d38e21527419"
+ },
+ "python": "3.12.3",
+ "host": "ubuntu",
+ "argv": [
+  "/home/ubuntu/dib_tnsm/tree-244f1d0/experiments_tnsm/m67_retraction/auto_block.py",
+  "--tree",
+  "/home/ubuntu/dib_tnsm/tree-244f1d0",
+  "--out",
+  "/home/ubuntu/dib_tnsm/out/b5_20261011",
+  "--end-utc",
+  "2026-10-12T00:30:00Z",
+  "--hashes",
+  "/home/ubuntu/dib_tnsm/frozen_hashes_244f1d0.txt"
+ ],
+ "started_utc": "2026-10-11T16:43:49.069686+00:00",
+ "rules": "see the docstring of auto_block.py; B2-kill is not part of the sequence"
+}

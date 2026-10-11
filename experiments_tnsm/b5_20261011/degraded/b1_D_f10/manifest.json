@@ -1,0 +1,197 @@
+{
+ "started_utc": "2026-10-11T17:58:23.716921+00:00",
+ "argv": [
+  "/home/ubuntu/dib_tnsm/tree-244f1d0/experiments_tnsm/m67_retraction/run.py",
+  "--block",
+  "b1",
+  "--profile",
+  "degraded",
+  "--tree",
+  "/home/ubuntu/dib_tnsm/tree-244f1d0",
+  "--out",
+  "/home/ubuntu/dib_tnsm/out/b5_20261011/degraded/b1_D_f10",
+  "--arms",
+  "D",
+  "--fanouts",
+  "10",
+  "--seed",
+  "20261014",
+  "--profile-wait",
+  "90",
+  "--plog-thresholds",
+  "/home/ubuntu/dib_tnsm/out/b5_20261011/degraded/plog_thresholds_degraded.json",
+  "--plog-p95-ms",
+  "2.5856494903564453"
+ ],
+ "profile": "degraded",
+ "blocks": "b1",
+ "seed": 20261014,
+ "group_order": [
+  [
+   [
+    "D",
+    10,
+    5
+   ],
+   1
+  ]
+ ],
+ "cell_order": [
+  {
+   "block": "b1",
+   "arm": "D",
+   "fanout": 10,
+   "T": 5,
+   "episodes": 50
+  }
+ ],
+ "node_tree": "/home/ubuntu/dib_tnsm/tree-244f1d0",
+ "generator_host": "ubuntu",
+ "generator_is_node": true,
+ "clock": "time.time() = CLOCK_REALTIME of the node (same clock as docker logs -t)",
+ "cluster_recreations": 1,
+ "plog_thresholds": {
+  "profile": "degraded",
+  "calibrated_p95_ms": 2.5856494903564453,
+  "rule": "p95 of the log latency < 10% of the median direct withdrawal of the cell (denominator: prediction (a), n_RTT*R, x10 for the sequential FANOUT 1); the per-cell rule on the OBSERVED median stays in the cell summary",
+  "cells": {
+   "D/1": {
+    "predicted_direct_median_ms": 8000.0,
+    "threshold_ms": 800.0,
+    "accepted": true
+   },
+   "D/10": {
+    "predicted_direct_median_ms": 800.0,
+    "threshold_ms": 80.0,
+    "accepted": true
+   },
+   "C/1": {
+    "predicted_direct_median_ms": 12000.000000000002,
+    "threshold_ms": 1200.0000000000002,
+    "accepted": true
+   },
+   "C/10": {
+    "predicted_direct_median_ms": 1200.0000000000002,
+    "threshold_ms": 120.00000000000003,
+    "accepted": true
+   }
+  }
+ },
+ "measure_rule": "per profile from the thresholds file",
+ "node_service_sha256": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+ "launcher_d_sha256": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+ "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
+ "run_py_sha256": "022d97a6dc76808cf3a866c92f71d6076d0bcafca65a3ebdeab300b423393c02",
+ "discard_rule": {
+  "fixed_before_measuring": "2026-10-10, after the 5-minute no-DIB baseline (experiments_tnsm/node_baseline/baseline_noDIB.json), before any M1/M2 cell",
+  "rule": "a cell is flagged as disturbed if, over the cell window, other_cores > max_other_cores OR steal_pct > max_steal_pct; flagged cells are never dropped: results are reported on all cells and on unflagged cells, with the flagged count",
+  "max_other_cores": 1.0,
+  "max_steal_pct": 2.0,
+  "other_cores_definition": "CPU of user-space processes other than the measuring process (kernel threads excluded, reported as kernel_cores)",
+  "baseline": {
+   "samples": 60,
+   "interval_s": 5,
+   "other_cores": {
+    "median": 0.123,
+    "p95": 0.23,
+    "max": 0.28
+   },
+   "steal_pct": {
+    "median": 0.013,
+    "p95": 0.013,
+    "max": 0.038
+   },
+   "load1": {
+    "median": 0.145,
+    "max": 0.26
+   },
+   "main_process": "k3s-server ~0.10 cores"
+  },
+  "rationale": "1.0 core = 3.6x the baseline maximum and 8x its median: another tenant taking a whole vCPU; 2% steal = 50x the baseline maximum: hypervisor contention"
+ },
+ "disk_start": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.5G  97% /",
+ "cells_summary": [
+  {
+   "cell": 1,
+   "spec": {
+    "block": "b1",
+    "arm": "D",
+    "fanout": 10,
+    "T": 5,
+    "episodes": 50
+   },
+   "profile_timing": {
+    "t_created": 1791741520.30198,
+    "t_profile_confirmed": 1791741555.103732,
+    "profile_apply_delay_s": 34.80175280570984,
+    "rtt_attempts": 2,
+    "first_rtt_ms": {
+     "0": 400.33007599413395,
+     "1": 400.3841649973765,
+     "2": 400.40649799630046,
+     "3": 1406.5060619905125,
+     "4": 400.37255399511196,
+     "5": 400.4258140048478,
+     "6": 400.380288992892,
+     "7": 400.3804090025369,
+     "8": 400.4087729990715,
+     "9": 400.58125600626227
+    },
+    "generator_path_ms": {
+     "reused_ms": 203.30391700554173,
+     "fresh_ms": 403.2889759982936,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": true
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 706,
+    "gen_proc_cores_mean": 0.009367401696970357,
+    "gen_proc_cores_max": 0.03996347903844015,
+    "host_busy_pct_mean": 3.2994974435272955,
+    "host_busy_pct_max": 12.70440251572327,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": {
+    "episodes": 50,
+    "excluded": 0,
+    "client_timeouts": 0,
+    "median_dispute_rtt_s": 2.8279640674591064,
+    "median_direct_plog_s": 1.6392924785614014,
+    "n_direct": 49,
+    "plog_minus_response_gap_ms": {
+     "median": 655.6572914123535,
+     "max_abs": 4063.126802444458
+    },
+    "plog_rtt_agree_within_ms": 3.0,
+    "plog_rtt_agree": false,
+    "plog_p95_ms_used": 2.5856494903564453,
+    "plog_acceptance_ratio": 0.0015772960128661976,
+    "plog_acceptable_rule_10pct": true,
+    "excluded_by_cause": {},
+    "dispute_rtt_bias_s": 0.4,
+    "dispute_rtt_bias_ratio": 0.14144451289276652,
+    "median_pending_withdrawal_s": 8.705826997756958,
+    "n_pending_episodes": 1,
+    "n_queue_not_clean": 0,
+    "ack_lines_total": 1,
+    "ack_lines_max_per_site_episode": 1,
+    "n_pending_sites_read": 1,
+    "n_pending_sites_log": 1,
+    "read_undercount_sites": 0,
+    "n_pending_unmeasured_episodes": 0,
+    "n_pending_undrained_episodes": 0,
+    "pending_bias_ratio": 0.028716398805582983,
+    "pending_bias_flag_gt10pct": false
+   }
+  }
+ ],
+ "profile_events": [],
+ "aborted": false,
+ "finished_utc": "2026-10-11T18:11:22.505647+00:00",
+ "disk_end": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.5G  97% /"
+}
