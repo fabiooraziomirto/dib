@@ -34,7 +34,7 @@ Esito in una riga: B1 `wan` completato solo per i due gruppi FANOUT 1 (D e C); i
 - Previsto: calibrazione `wan`, soglia, B1 (4 gruppi), smontaggio, M1/M2 solo se restano ≥ 3 h (cioè prima delle 04:00 UTC). Nessun intervento sul nodo, sul netem o sul watcher fino al rapporto del mattino (`docs/audit/21_rapporto_notte.md`).
 
 ## 2026-10-11 12:20 — Dopo lo smoke degraded: corretti watcher (b) e monitor (a) in locale, commit 3f0a219; nulla pubblicato né reinstallato (audit 32 §16)
-Servono: tua revisione del diff del watcher (hash `d1c8f392…`) e reinstallazione, ssh per `tree-3f0a219`, nuovo smoke degraded in cartella nuova.
+Servono: tua revisione del diff del watcher (hash `d1c8f392…`) e reinstallazione, ssh per `tree-244f1d0`, nuovo smoke degraded in cartella nuova.
 
 ## 2026-10-11 12:00 — Smoke degraded: calibrazione OK, B1 fermato dal monitor su incoerenza transitoria (audit 32 §15)
 `smoke_degraded_20261011`: calibrazione riuscita (soglie 800/80/1200/120 ms, sha256 registrato prima di B1); `C_f10` fermato al primo record incoerente (site-8 senza netem per ~1,4 s durante la creazione del cluster); nessun `smoke_ok_degraded`; `lan` riconfermato, 0 container. Stop con SIGINT efficace (rc -2). **Attendo la tua decisione**: (a) tolleranza del monitor (10 s di persistenza), (b) eventuale correzione del watcher, poi nuovo smoke degraded.
