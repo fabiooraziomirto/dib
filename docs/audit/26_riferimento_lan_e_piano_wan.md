@@ -57,3 +57,19 @@ Come da istruzioni dell'utente: `calib_profile.py --profile wan --hold 60`; L_dn
 
 ## C.3 eseguito (2026-10-11 08:45:29-08:46:22 UTC; `lan` pulito, nessun watcher, nessun container secondo l'utente; ora del controllo di `netem_show.sh` non indicata, il messaggio riportava il segnaposto "HH:MM")
 L_dns a `lan` "prima" (50 campioni, cluster D, `site-3` ucciso, `calib_profile.py --profile lan`): sito vivo p50 0,188 / p95 0,338 / max 2,09 ms; **sito morto p50 3,05 / p95 4,02 / max 7,84 ms**, errore `gaierror(-3, 'Temporary failure in name resolution')`. Dati sul nodo in `~/dib_tnsm/out/lan_ref_20261011/ldns_before/calib_ldns_lan.txt`; copia con sha256 in C.4. Valore adiacente a `lan` per il confronto con `wan`, da riportare accanto a quello di `wan` senza etichette.
+
+## C.4 e analisi delle celle `lan` di riferimento "prima" (`lan_ref_20261011/before`, 08:40:04-08:44:00 UTC)
+Copia eseguita dall'utente; **sha256 coincidenti** fra nodo e locale: `before/cells.jsonl` `9002eea70829bf6b24ba019d84cec1cfb2e4d1f4c8c4539f3b54a251b92db5fd`, `ldns_before/calib_ldns_lan.txt` `bdcc6a39f65b91a69b1d642fe77e76144877067ecd530573bd82d5c288edbef9`. Analisi completa: `experiments_tnsm/m67_retraction/lan_ref_20261011/analysis_before.md`. `aborted: false`, `run.py` `022d97a6…`, ordine C f10, D f1, C f1, D f10. IC bootstrap sugli episodi, n = 10.
+
+| Braccio | FANOUT | `dispute-rtt` ms [IC] | Ultimo sito P-log ms [IC] | Rapporto P-log | Misura | Esclusioni | other_cores / steal_pct | `generator_path_ms` riusata / nuova (flag) |
+|---|---|---|---|---|---|---|---|---|
+| C | 1 | 75,08 [74,18; 79,43] | 73,31 [72,20; 77,06] | 0,034, accettato | `P-log-apply` | 0 | 0,102 / 0,021 | 1,24 / 3,67 (falso) |
+| C | 10 | 25,92 [24,34; 27,71] | 20,88 [20,22; 21,70] | 0,120, **non accettato** | `dispute-rtt` | 0 | 0,134 / 0,016 | 1,35 / 3,82 (falso) |
+| D | 1 | 47,58 [44,07; 50,45] | 45,85 [43,11; 48,77] | 0,055, accettato | `P-log-apply` | 0 | 0,133 / 0,010 | 0,96 / 1,53 (falso) |
+| D | 10 | 20,69 [19,32; 21,34] | 17,82 [16,43; 19,40] | 0,140, **non accettato** | `dispute-rtt` | 0 | 0,199 / 0,016 | 1,17 / 2,00 (falso) |
+
+Nessuna esclusione per nessuna causa, nessuna cella segnalata, 0 consegne in pending, 0 righe di ack, `read_undercount_sites` 0, nessuna saturazione del generatore. P-log non accettato per **entrambi** i FANOUT 10 (a `lan` vale `dispute-rtt`, bias nullo).
+**Mediane di riferimento per (a)** (stessa misura della cella `wan`: P-log o `dispute-rtt`), ms: D/1 45,85 / 47,58; D/10 17,82 / 20,69; C/1 73,31 / 75,08; C/10 20,88 / 25,92. Se si farà la sessione "dopo", si userà la mediana più alta per cella.
+
+**Tre sessioni a `lan` oggi (descrittivo, non spiegato):** mediana P-log dell'ultimo sito, ms: D/1: 67,3 (07:52) → 48,4 (08:27) → 45,9 (08:40); D/10: 25,9 (07:56) → 22,0 (08:27) → 17,8 (08:44); C/1: 106,0 (07:55) → 73,3 (08:42); C/10: 30,6 (07:52) → 20,9 (08:40). Per D e C la sequenza è decrescente nel tempo in tutte le celle con più di una misura (due punti per C). Il tempo che passerà fra questa sessione e il blocco `wan` fa parte della deriva: l'adiacenza della regola è in tempo, non solo in ordine. Nessuna causa scelta.
+**P-a4 (ripetizione, non sostituisce la valutazione del primo run):** C − D, ultimo sito, FANOUT 1: **27,46 ms [25,34; 32,38]**; l'IC attraversa l'estremo 32: "criterio ambiguo, non conclusivo" con stima puntuale dentro [15, 32]. Prima sessione: 38,65 [22,85; 49,69], stessa classificazione. C − D a FANOUT 10: 3,06 ms [1,23; 4,85] (P-log), 5,23 [3,20; 7,78] (`dispute-rtt`), descrittivi.

@@ -1,0 +1,23 @@
+netem_apply: profile=lan, 11 of 11 expected containers of project dibtnsm
+dibtnsm-evidence-1 (pid 2071102): no qdisc
++ nsenter -t 2071102 -n tc qdisc del dev eth0 root
+dibtnsm-site-0-1 (pid 2072548): no qdisc
++ nsenter -t 2072548 -n tc qdisc del dev eth0 root
+dibtnsm-site-1-1 (pid 2073493): no qdisc
++ nsenter -t 2073493 -n tc qdisc del dev eth0 root
+dibtnsm-site-2-1 (pid 2072076): no qdisc
++ nsenter -t 2072076 -n tc qdisc del dev eth0 root
+dibtnsm-site-3-1 (pid 2074427): no qdisc
++ nsenter -t 2074427 -n tc qdisc del dev eth0 root
+dibtnsm-site-4-1 (pid 2071602): no qdisc
++ nsenter -t 2071602 -n tc qdisc del dev eth0 root
+dibtnsm-site-5-1 (pid 2072310): no qdisc
++ nsenter -t 2072310 -n tc qdisc del dev eth0 root
+dibtnsm-site-6-1 (pid 2072784): no qdisc
++ nsenter -t 2072784 -n tc qdisc del dev eth0 root
+dibtnsm-site-7-1 (pid 2071838): no qdisc
++ nsenter -t 2071838 -n tc qdisc del dev eth0 root
+dibtnsm-site-8-1 (pid 2073256): no qdisc
++ nsenter -t 2073256 -n tc qdisc del dev eth0 root
+dibtnsm-site-9-1 (pid 2071367): no qdisc
++ nsenter -t 2071367 -n tc qdisc del dev eth0 root
