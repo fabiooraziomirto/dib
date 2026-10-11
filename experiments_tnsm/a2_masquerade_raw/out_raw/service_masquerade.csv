@@ -1,0 +1,4 @@
+case,protocol,port,malicious_fraction,spread_days,endpoint_class,class_eligible,device_type,supporting_sites,eligible_sites,site_confidence,temporal_confidence,score,theta,accepted,blocked_by,quorum_clearing_instances,total_instances
+dns-port,udp,53,0.3,120,dns,True,HelloBarbie,3,10,0.3,0.952336,0.560935,0.65,False,score,25,27
+ntp-port,udp,123,0.3,120,ntp,True,HelloBarbie,3,10,0.3,0.952336,0.560935,0.65,False,score,25,27
+https-control,https,443,0.3,120,other,False,HelloBarbie,3,10,0.3,0.952336,0.560935,0.65,False,eligibility-filter+score,25,27

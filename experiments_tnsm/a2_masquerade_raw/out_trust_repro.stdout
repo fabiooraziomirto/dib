@@ -1,0 +1,4 @@
+dns-port f=0.3 D=120: class=dns score=0.5617 admitted=False blocked_by=score rss=1.56GiB
+ntp-port f=0.3 D=120: class=ntp score=0.5617 admitted=False blocked_by=score rss=1.56GiB
+https-control f=0.3 D=120: class=other score=0.5617 admitted=False blocked_by=eligibility-filter+score rss=1.56GiB
+done: 3 cells, 0 admitted, peak RSS 1.56 GiB, 72.4s
