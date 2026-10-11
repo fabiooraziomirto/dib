@@ -430,6 +430,11 @@ def group_cells(cells: list[dict], rng: random.Random) -> list[tuple[tuple, list
     return out
 
 
+def keepalive_enabled() -> bool:
+    """True only when DIB_M67_KEEPALIVE=1 in the driver's environment (docs/audit/62)."""
+    return os.environ.get("DIB_M67_KEEPALIVE", "0") == "1"
+
+
 class ClientTimeout(Exception):
     """A client-side timeout: the episode/trial is EXCLUDED from the statistics, never counted as a service failure."""
 
@@ -466,6 +471,8 @@ class Env:
         gen = f"{self.home}/dib_tnsm/m67/gen_{self.arm}_f{self.fanout}_T{int(self.T)}.yml"
         env = (f"DIB_DIST_FANOUT_CONCURRENCY={self.fanout} DIB_DIST_MTLS={self.mtls} DIB_DIST_PKI_DIR={self.pki} "
                f"DIB_DIST_RECONCILE_INTERVAL={self.T} DIB_DIST_RECONCILE_JITTER={0.1 * self.T}")
+        if keepalive_enabled():   # docs/audit/62: opt-in persistent fan-out connections, switched on from the DRIVER's environment
+            env += " DIB_DIST_FANOUT_KEEPALIVE=1 DIB_DIST_FANOUT_WARM_INTERVAL=2"
         files = f"-f {gen}" + (f" -f {self.home}/dib_tnsm/m67/override_d.yml" if self.arm == "D" else "")
         return (f"export PATH=/snap/bin:$PATH && cd {dist} && mkdir -p {self.home}/dib_tnsm/m67 && {env} "
                 f"python3 generate_compose.py > {gen} && docker compose -p dibtnsm {files} --project-directory {dist} ")
@@ -796,7 +803,7 @@ def live(a, cells, rng) -> int:
                 "generator_is_node": True, "clock": "time.time() = CLOCK_REALTIME of the node (same clock as docker logs -t)",
                 "cluster_recreations": len(groups), "plog_thresholds": thresholds,
                 "measure_rule": "per profile from the thresholds file" if thresholds else "dispute-rtt (no P-log calibration applied)",
-                "node_service_sha256": sha(Path(f"{tree}/code/src/dib/registry/distributed/service.py")),
+                "node_service_sha256": sha(Path(f"{tree}/code/src/dib/registry/distributed/service.py")), "fanout_keepalive": keepalive_enabled(),
                 "launcher_d_sha256": sha(Path(f"{tree}/experiments_tnsm/m3_distributed/launcher_d.py")),
                 "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
                 "run_py_sha256": sha(Path(__file__)), "discard_rule": rule,
