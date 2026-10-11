@@ -5,11 +5,11 @@ Data: 2026-10-11 sera. Dati: 100 celle M1 (22:58-01:25 UTC) e 90 celle M2 (01:25
 ## 1. Cosa è già registrato (committato prima della notte)
 | Elemento | Dove | Commit (prima del lancio, 2026-10-10 +0200) |
 |---|---|---|
-| H-M1, H-M1b, H-M1c e falsificazioni | `experiments_tnsm/m1_single_node/run.py:9-31` | `c23d1e3` 18:14, braccio `deploy` aggiunto in `a90b27a` 19:22 |
-| H-M2a, H-M2b, H-M2c, H-G1, H-G2, celle e controlli GIL | `experiments_tnsm/m2_p99_tail/run.py:1-49` e oltre (strumentazione `instrument.py`) | `f6d1c28` 18:30 (riformulazione), `a90b27a` 19:22 |
+| H-M1, H-M1b, H-M1c e falsificazioni | `experiments_tnsm/m1_single_node/run.py:12-30` (H-M1 a `:12`, H-M1b `:25`, H-M1c `:27`; statistiche `:32-36`) | `c23d1e3` 18:14, braccio `deploy` aggiunto in `a90b27a` 19:22 |
+| H-M2a, H-M2b, H-M2c, H-G1, H-G2, celle e controlli GIL | `experiments_tnsm/m2_p99_tail/run.py:1-55` (H-M2a a `:39`, falsificazione di H-M2 `:43`, H-G2 `:49`) (strumentazione `instrument.py`) | `f6d1c28` 18:30 (riformulazione), `a90b27a` 19:22 |
 | Regola di scarto (other_cores > 1,0 core o steal_pct > 2%) e baseline senza DIB | `experiments_tnsm/common/discard_rule.json` (60 campioni, other_cores max 0,280, steal max 0,038) | `c23d1e3`, "fissata prima di ogni cella" |
-| Codice di analisi: unità = cella, bootstrap percentile 95% sulle celle, 10 000 ricampionamenti, seme 20261010; "all" e "filtered"; censura p99 ≥ 29,9 s con errori inattesi (`p99_censored_cells`) | `experiments_tnsm/common/analyze.py:1-32` (`CENSOR_MS = 29_900.0`) | `c23d1e3`/`f6d1c28` |
-| Tre definizioni di throughput (`throughput`, `throughput_completed`, `throughput_clean` solo M2) | `analyze.py:16-22`, audit 04 §7.4 | idem |
+| Codice di analisi: unità = cella, bootstrap percentile 95% sulle celle, 10 000 ricampionamenti, seme 20261010; "all" e "filtered"; censura p99 ≥ 29,9 s con errori inattesi (`p99_censored_cells`) | `experiments_tnsm/common/analyze.py:1-31` (docstring), `:33` (`CENSOR_MS = 29_900.0`), `:50` (regola di censura) | `c23d1e3`/`f6d1c28` |
+| Tre definizioni di throughput (`throughput`, `throughput_completed`, `throughput_clean` solo M2) | `analyze.py:12-16`, audit 04 §7.4 | idem |
 Il processo notturno (`night.py`, avviato 2026-10-10 22:38:34 UTC, tree `6b8a6fa`, 2026-10-11 00:12 +0200) è **posteriore** a tutti questi commit.
 
 ## 2. Esiti da riportare, nell'ordine fisso (nessun criterio nuovo)
