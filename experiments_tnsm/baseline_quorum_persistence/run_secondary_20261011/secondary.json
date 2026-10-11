@@ -1,0 +1,65 @@
+{
+ "receivers": {
+  "US": {
+   "tau_match": 0.17,
+   "sets": {
+    "dib": 36,
+    "base": 36,
+    "inter": 36,
+    "symdiff": 0
+   },
+   "n_units": 6,
+   "units_d_nonzero": 0,
+   "mean_d": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "verdict": "descrittivo (n < 10): nessun verdetto"
+  },
+  "UK": {
+   "tau_match": 0.0,
+   "sets": {
+    "dib": 43,
+    "base": 43,
+    "inter": 43,
+    "symdiff": 0
+   },
+   "n_units": 6,
+   "units_d_nonzero": 0,
+   "mean_d": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "verdict": "descrittivo (n < 10): nessun verdetto"
+  },
+  "YT": {
+   "tau_match": 0.17,
+   "sets": {
+    "dib": 107,
+    "base": 107,
+    "inter": 107,
+    "symdiff": 0
+   },
+   "n_units": 6,
+   "units_d_nonzero": 0,
+   "mean_d": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "verdict": "descrittivo (n < 10): nessun verdetto"
+  }
+ },
+ "pooled": {
+  "n_units": 18,
+  "units_d_nonzero": 0,
+  "mean_d": 0.0,
+  "ci95": [
+   0.0,
+   0.0
+  ],
+  "verdict": "non falsificata; nessuna differenza osservata, nessun potere"
+ }
+}

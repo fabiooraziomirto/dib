@@ -1,0 +1,19 @@
+{
+ "argv": [
+  "experiments_tnsm/baseline_quorum_persistence/analyze_baseline.py",
+  "real",
+  "--out",
+  "experiments_tnsm/baseline_quorum_persistence/run_20261012/real"
+ ],
+ "seed": 20261012,
+ "python": "3.10.13 (main, Sep 11 2023, 13:44:35) [GCC 11.2.0]",
+ "platform": "Linux-6.8.12-18-pve-x86_64-with-glibc2.35",
+ "audit": "docs/audit/40_prereg_baseline_quorum_persistenza.md",
+ "sha256": {
+  "/root/Desktop/DIB_tnsm/experiments_tnsm/baseline_quorum_persistence/analyze_baseline.py": "ce018fbf86cf610e7f30a1ebf9090124b2b88cae5f4e100c04fed52e58e5fa90",
+  "/root/Desktop/DIB_tnsm/results/three_lab_matched/matched_ablation.csv": "f04866a952855f2f312c0ec895b506900532134ccca1370eb844cf75d25d2d95",
+  "/root/Desktop/DIB_tnsm/docs/label_mapping_v16.csv": "ff16da1527f5bc99d5cf588842ea5f3391185963030bd529838b3a65fa8c89cb",
+  "/root/Desktop/DIB/data/processed/moniotr_full_observations.csv": "6d2f0080b6221b4ca696687e91e3225bc37e6e7665d4575947731c4897a1911b",
+  "/root/Desktop/DIB/data/processed/yourthings_observations.csv": "b6db48840353f7a26c62ef53842a552561f1096a7fab1187ee1ebe44ae50ef8a"
+ }
+}

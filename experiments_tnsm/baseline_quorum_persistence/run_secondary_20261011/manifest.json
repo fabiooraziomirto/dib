@@ -1,0 +1,26 @@
+{
+ "argv": [
+  "experiments_tnsm/baseline_quorum_persistence/analyze_secondary.py",
+  "--confirmatory",
+  "experiments_tnsm/baseline_quorum_persistence/run_20261012/real/aggregates.json",
+  "--private-dir",
+  "/root/Desktop/DIB/outputs/tnsm_baseline_53b",
+  "--out",
+  "experiments_tnsm/baseline_quorum_persistence/run_secondary_20261011"
+ ],
+ "seed": 20261012,
+ "B": 10000,
+ "python": "3.10.13 (main, Sep 11 2023, 13:44:35) [GCC 11.2.0]",
+ "platform": "Linux-6.8.12-18-pve-x86_64-with-glibc2.35",
+ "label": "POST-HOC (audit 41 s.1)",
+ "private_file": "/root/Desktop/DIB/outputs/tnsm_baseline_53b/per_device_53b.csv",
+ "private_file_sha256": "e8893a0918ede3485313704cf082cc5d466b5420cf022c27e1056fefdb30484b",
+ "sha256": {
+  "/root/Desktop/DIB_tnsm/experiments_tnsm/baseline_quorum_persistence/analyze_secondary.py": "d2104d39c35c0e4ed90c925e41f342a349a2251864c461dcafa9acd6be7fefbb",
+  "/root/Desktop/DIB_tnsm/experiments_tnsm/baseline_quorum_persistence/analyze_baseline.py": "ce018fbf86cf610e7f30a1ebf9090124b2b88cae5f4e100c04fed52e58e5fa90",
+  "experiments_tnsm/baseline_quorum_persistence/run_20261012/real/aggregates.json": "15cd3be186b01654cd1d41b6ef6133b44473460630483122a7304ba6d5a9a560",
+  "/root/Desktop/DIB_tnsm/docs/label_mapping_v16.csv": "ff16da1527f5bc99d5cf588842ea5f3391185963030bd529838b3a65fa8c89cb",
+  "/root/Desktop/DIB/data/processed/moniotr_full_observations.csv": "6d2f0080b6221b4ca696687e91e3225bc37e6e7665d4575947731c4897a1911b",
+  "/root/Desktop/DIB/data/processed/yourthings_observations.csv": "b6db48840353f7a26c62ef53842a552561f1096a7fab1187ee1ebe44ae50ef8a"
+ }
+}
