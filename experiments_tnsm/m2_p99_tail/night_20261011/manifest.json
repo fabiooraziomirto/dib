@@ -1,0 +1,796 @@
+{
+ "started_utc": "2026-10-11T01:25:26.805775+00:00",
+ "argv": [
+  "/home/ubuntu/dib_tnsm/tree-6b8a6fa/experiments_tnsm/m2_p99_tail/run.py",
+  "--code",
+  "/home/ubuntu/dib_tnsm/tree-6b8a6fa/code",
+  "--out",
+  "/home/ubuntu/dib_tnsm/out/night_20261011/run/m2",
+  "--commit",
+  "6b8a6fa",
+  "--arm",
+  "deploy"
+ ],
+ "commit": "6b8a6fa",
+ "seed": 20261010,
+ "python_vv": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+ "python_executable": "/home/ubuntu/dib_tnsm/venv/bin/python",
+ "sqlite_version": "3.45.1",
+ "pip_freeze": [
+  "annotated-doc==0.0.5",
+  "annotated-types==0.8.0",
+  "anyio==4.15.1",
+  "certifi==2026.7.22",
+  "charset-normalizer==3.5.2",
+  "click==8.5.0",
+  "cloudpickle==3.1.2",
+  "contourpy==1.4.0",
+  "cycler==0.12.1",
+  "et_xmlfile==2.0.0",
+  "fastapi==0.128.8",
+  "filelock==4.1.0",
+  "fonttools==4.66.1",
+  "greenlet==3.5.6",
+  "h11==0.16.0",
+  "httpcore==1.0.9",
+  "httpx==0.28.1",
+  "idna==3.20",
+  "iniconfig==2.3.1",
+  "joblib==1.6.0",
+  "kiwisolver==1.5.1",
+  "matplotlib==3.10.1",
+  "networkx==3.4.2",
+  "numpy==2.2.6",
+  "openpyxl==3.1.5",
+  "packaging==26.3",
+  "pandas==2.3.3",
+  "pillow==12.3.0",
+  "pluggy==1.6.0",
+  "psycopg==3.3.4",
+  "pydantic==2.12.5",
+  "pydantic_core==2.41.5",
+  "Pygments==2.21.0",
+  "pyparsing==3.3.3",
+  "pytest==9.0.2",
+  "python-dateutil==2.9.0.post0",
+  "pytz==2026.5",
+  "PyYAML==6.0.3",
+  "requests==2.34.2",
+  "requests-file==3.0.1",
+  "scikit-learn==1.7.2",
+  "scipy==1.15.3",
+  "six==1.17.0",
+  "SQLAlchemy==2.0.51",
+  "starlette==0.52.1",
+  "threadpoolctl==3.7.0",
+  "tldextract==5.3.1",
+  "typing-inspection==0.4.4",
+  "typing_extensions==4.16.0",
+  "tzdata==2026.5",
+  "urllib3==2.8.0",
+  "uvicorn==0.51.0"
+ ],
+ "host": {
+  "hostname": "ubuntu",
+  "kernel": "6.8.0-146-generic",
+  "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+  "cpu_model": "QEMU Virtual CPU version 2.5+",
+  "nproc": 16,
+  "mem_total_gib": 15.57,
+  "avx2": false
+ },
+ "uptime_load_at_start": "1.27 1.48 2.29 1/837 1245099",
+ "disk_free_mb_at_start": 3683,
+ "sha256": {
+  "code/src/dib/registry/services.py": "609b80439f261b73175c906d324e6337c407511345945628b1750a790e499f0b",
+  "code/src/dib/registry/db.py": "3493e64fd16f4583c50b06972ec92cd25652f6381b7d4018835f979265d471f8",
+  "code/scripts/fsm_concurrency_harness.py": "37a6ebe92ed376287533247e6b78a5ac01b48833366168e29c2212504a44ffe0",
+  "code/scripts/p99_tail_breakdown.py": "a3d7f7452b41f9f30a00a66ec5b834f085902d8ecea27c97ed69e52b1fb2ba5d",
+  "experiments_tnsm/m2_p99_tail/run.py": "17b936a1de90666bafba9800d07124147ff4e347ed249b87d4cadab8cc15baa3",
+  "experiments_tnsm/m2_p99_tail/instrument.py": "79cc93261c7cfd7d7ceb9d3d74dff5c3958dc611e7d606dbd898bcddc09d3bb0",
+  "experiments_tnsm/common/cells.py": "d0477043b611b47589bb67d25b4d7c01b439c4ae4b603fc912b2a353c00c9f48",
+  "experiments_tnsm/common/node_monitor.py": "80fc794e46e6bfe6cff6aaa51f066aa878622ee8290deddf7e0e0f26bd0d3d07"
+ },
+ "discard_rule": {
+  "fixed_before_measuring": "2026-10-10, after the 5-minute no-DIB baseline (experiments_tnsm/node_baseline/baseline_noDIB.json), before any M1/M2 cell",
+  "rule": "a cell is flagged as disturbed if, over the cell window, other_cores > max_other_cores OR steal_pct > max_steal_pct; flagged cells are never dropped: results are reported on all cells and on unflagged cells, with the flagged count",
+  "max_other_cores": 1.0,
+  "max_steal_pct": 2.0,
+  "other_cores_definition": "CPU of user-space processes other than the measuring process (kernel threads excluded, reported as kernel_cores)",
+  "baseline": {
+   "samples": 60,
+   "interval_s": 5,
+   "other_cores": {
+    "median": 0.123,
+    "p95": 0.23,
+    "max": 0.28
+   },
+   "steal_pct": {
+    "median": 0.013,
+    "p95": 0.013,
+    "max": 0.038
+   },
+   "load1": {
+    "median": 0.145,
+    "max": 0.26
+   },
+   "main_process": "k3s-server ~0.10 cores"
+  },
+  "rationale": "1.0 core = 3.6x the baseline maximum and 8x its median: another tenant taking a whole vCPU; 2% steal = 50x the baseline maximum: hypervisor contention"
+ },
+ "g4_host_quiet": "NOT satisfied: k3s server, a registry container and other user sessions run on the node (audit 04 sez. 7.2); background load is recorded per cell and the discard rule is applied in the analysis, never silently",
+ "cell_order": [
+  [
+   [
+    "threads",
+    10
+   ],
+   4
+  ],
+  [
+   [
+    "threads",
+    10
+   ],
+   2
+  ],
+  [
+   [
+    "processes",
+    50
+   ],
+   6
+  ],
+  [
+   [
+    "threads",
+    1
+   ],
+   1
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   1
+  ],
+  [
+   [
+    "threads",
+    50
+   ],
+   8
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   6
+  ],
+  [
+   [
+    "threads",
+    1
+   ],
+   6
+  ],
+  [
+   [
+    "null",
+    100
+   ],
+   4
+  ],
+  [
+   [
+    "processes",
+    100
+   ],
+   3
+  ],
+  [
+   [
+    "processes",
+    50
+   ],
+   9
+  ],
+  [
+   [
+    "processes",
+    10
+   ],
+   6
+  ],
+  [
+   [
+    "threads",
+    1
+   ],
+   9
+  ],
+  [
+   [
+    "threads",
+    1
+   ],
+   7
+  ],
+  [
+   [
+    "processes",
+    50
+   ],
+   1
+  ],
+  [
+   [
+    "processes",
+    50
+   ],
+   7
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   10
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   0
+  ],
+  [
+   [
+    "processes",
+    10
+   ],
+   7
+  ],
+  [
+   [
+    "threads",
+    10
+   ],
+   6
+  ],
+  [
+   [
+    "threads",
+    50
+   ],
+   7
+  ],
+  [
+   [
+    "processes",
+    10
+   ],
+   0
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   19
+  ],
+  [
+   [
+    "threads",
+    50
+   ],
+   3
+  ],
+  [
+   [
+    "null",
+    100
+   ],
+   9
+  ],
+  [
+   [
+    "null",
+    100
+   ],
+   3
+  ],
+  [
+   [
+    "threads",
+    10
+   ],
+   5
+  ],
+  [
+   [
+    "processes",
+    50
+   ],
+   5
+  ],
+  [
+   [
+    "threads",
+    10
+   ],
+   0
+  ],
+  [
+   [
+    "null",
+    100
+   ],
+   2
+  ],
+  [
+   [
+    "processes",
+    100
+   ],
+   0
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   18
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   9
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   3
+  ],
+  [
+   [
+    "processes",
+    100
+   ],
+   7
+  ],
+  [
+   [
+    "threads",
+    10
+   ],
+   9
+  ],
+  [
+   [
+    "processes",
+    10
+   ],
+   9
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   16
+  ],
+  [
+   [
+    "threads",
+    1
+   ],
+   4
+  ],
+  [
+   [
+    "processes",
+    10
+   ],
+   4
+  ],
+  [
+   [
+    "processes",
+    50
+   ],
+   3
+  ],
+  [
+   [
+    "processes",
+    10
+   ],
+   3
+  ],
+  [
+   [
+    "threads",
+    50
+   ],
+   6
+  ],
+  [
+   [
+    "processes",
+    100
+   ],
+   1
+  ],
+  [
+   [
+    "threads",
+    1
+   ],
+   2
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   4
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   5
+  ],
+  [
+   [
+    "null",
+    100
+   ],
+   7
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   17
+  ],
+  [
+   [
+    "threads",
+    1
+   ],
+   8
+  ],
+  [
+   [
+    "processes",
+    10
+   ],
+   8
+  ],
+  [
+   [
+    "processes",
+    100
+   ],
+   8
+  ],
+  [
+   [
+    "processes",
+    10
+   ],
+   1
+  ],
+  [
+   [
+    "processes",
+    10
+   ],
+   2
+  ],
+  [
+   [
+    "threads",
+    10
+   ],
+   8
+  ],
+  [
+   [
+    "threads",
+    50
+   ],
+   5
+  ],
+  [
+   [
+    "null",
+    100
+   ],
+   5
+  ],
+  [
+   [
+    "processes",
+    50
+   ],
+   0
+  ],
+  [
+   [
+    "threads",
+    50
+   ],
+   0
+  ],
+  [
+   [
+    "threads",
+    10
+   ],
+   7
+  ],
+  [
+   [
+    "processes",
+    100
+   ],
+   6
+  ],
+  [
+   [
+    "threads",
+    1
+   ],
+   3
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   13
+  ],
+  [
+   [
+    "threads",
+    10
+   ],
+   1
+  ],
+  [
+   [
+    "threads",
+    10
+   ],
+   3
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   8
+  ],
+  [
+   [
+    "processes",
+    50
+   ],
+   4
+  ],
+  [
+   [
+    "processes",
+    100
+   ],
+   9
+  ],
+  [
+   [
+    "threads",
+    50
+   ],
+   4
+  ],
+  [
+   [
+    "processes",
+    50
+   ],
+   8
+  ],
+  [
+   [
+    "null",
+    100
+   ],
+   6
+  ],
+  [
+   [
+    "processes",
+    100
+   ],
+   2
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   7
+  ],
+  [
+   [
+    "processes",
+    10
+   ],
+   5
+  ],
+  [
+   [
+    "processes",
+    50
+   ],
+   2
+  ],
+  [
+   [
+    "threads",
+    1
+   ],
+   0
+  ],
+  [
+   [
+    "null",
+    100
+   ],
+   8
+  ],
+  [
+   [
+    "null",
+    100
+   ],
+   0
+  ],
+  [
+   [
+    "threads",
+    50
+   ],
+   1
+  ],
+  [
+   [
+    "threads",
+    50
+   ],
+   2
+  ],
+  [
+   [
+    "processes",
+    100
+   ],
+   5
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   15
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   11
+  ],
+  [
+   [
+    "null",
+    100
+   ],
+   1
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   12
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   2
+  ],
+  [
+   [
+    "threads",
+    1
+   ],
+   5
+  ],
+  [
+   [
+    "processes",
+    100
+   ],
+   4
+  ],
+  [
+   [
+    "threads",
+    50
+   ],
+   9
+  ],
+  [
+   [
+    "threads",
+    100
+   ],
+   14
+  ]
+ ],
+ "filesystem": {
+  "path": "/tmp/dib_tnsm_db",
+  "mount": "/",
+  "fstype": "ext4",
+  "source": "/dev/mapper/ubuntu--vg-ubuntu--lv",
+  "free_mb": 3683,
+  "used_pct": 91.2
+ },
+ "fsync_bench_before": {
+  "n": 500,
+  "bytes": 4096,
+  "p50_ms": 1.3298,
+  "p95_ms": 1.6636,
+  "p99_ms": 15.2268,
+  "max_ms": 33.5367,
+  "mean_ms": 1.6898
+ },
+ "sqlite": {
+  "arm": "deploy",
+  "journal_mode": "wal",
+  "synchronous": 2,
+  "busy_timeout": 30000,
+  "pool_class": "QueuePool",
+  "pool_size": 100,
+  "pool_max_overflow": 100,
+  "pool_timeout_s": 30.0,
+  "DIB_SQLITE_WAL": "1",
+  "DIB_SQLITE_POOL_SIZE": "100"
+ },
+ "finished_utc": "2026-10-11T02:50:10.836613+00:00",
+ "stopped_reason": null,
+ "cells_completed": 90,
+ "disk_free_mb_at_end": 3658,
+ "fsync_bench_after": {
+  "n": 500,
+  "bytes": 4096,
+  "p50_ms": 1.3275,
+  "p95_ms": 1.6272,
+  "p99_ms": 2.2226,
+  "max_ms": 79.968,
+  "mean_ms": 1.6251
+ }
+}
