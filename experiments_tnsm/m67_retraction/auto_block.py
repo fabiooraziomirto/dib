@@ -8,19 +8,20 @@ Sequence of ONE block (profile P; blocks lan_before -> degraded -> lan_after in 
   1. initial checks, stop on any failure: no dibtnsm container, no run.py process, df / > 2 GB, every PKI certificate valid until at least
      end + 2 h, sha256 of the frozen tree and of the new files (+ service.py), watcher heartbeat alive;
   2. request P to the watcher (acknowledged without a cluster; confirmed 11 of 11 once the cluster exists, by the ProfileMonitor);
-  3. calibration: calib_profile.py --profile P (RTT check, log latency, L_dns in the same invocation); mechanical P-log thresholds with
+  3. (not at lan: user decision 2026-10-11) calibration: calib_profile.py --profile P (RTT check, log latency, L_dns in the same invocation); mechanical P-log thresholds with
      night.plog_thresholds; file written, sha256 recorded in the state BEFORE the first B1 datum (the node has no git: the file is committed
      with the same hash afterwards; with --commit-wait-min > 0 the block waits for the flag file `threshold_committed`);
-  4. B1 with the pre-registered design: ONE run.py invocation, arms D,C, FANOUT 1,10, seed 20261014 (episodes per cell from run.py:
+  4. B1 with the pre-registered design, ONE run.py invocation PER GROUP (arm, FANOUT) in the registered order (user decision 2026-10-11,
+     replaces the single invocation), seed 20261014 (episodes per cell from run.py:
      50 at degraded, 10 at lan/wan); --smoke = 3 episodes, FANOUT 10 only (same code path);
   5. teardown of the project, data manifest DATA.sha256 (sha256 of every file but *.pcap), request `lan` and check of profile.applied.
 The workstation copy of the data with sha256 on both sides is NOT done here (it needs ssh): it is done by the supervising session.
 Rules applied mechanically (declared before running): a block STOPS (child terminated with SIGINT, then SIGKILL; teardown; `lan` requested;
 manifest written) if the watcher heartbeat dies, disk < 2 GB, a PKI certificate expires, profile.applied stops matching the expected state,
 or the RTT check fails on 3 consecutive cells; a failed step is recorded and the queue goes on with the next block (whose initial checks
-decide); ONE relaunch of a step, only if it produced no data and with the cause recorded (B1: no non-aborted cell in cells.jsonl; calibration:
+decide); ONE relaunch of a step, only if it produced no data and with the cause recorded (B1: per group, no non-aborted cell in cells.jsonl; calibration:
 no result with rtt_check_ok); a step that produced data is never relaunched; no thresholds, discard rules or code are changed. B2-kill is NOT
-part of this sequence. Exit status: 3 if a final `lan` request could not be confirmed, else 0.
+part of this sequence. A non-smoke block needs smoke_ok_<profile> (written by a successful --smoke with the same hashes). Exit status: 3 if a final `lan` request could not be confirmed, else 0.
 Usage (on the node): python auto_block.py --tree <tree> --out <dir> --end-utc <ISO Z> --hashes <frozen_hashes file> --dir ~/dib_tnsm/m67
        [--blocks lan_before,degraded,lan_after] [--smoke] [--commit-wait-min 0] [--dry-run]"""
 from __future__ import annotations
@@ -124,6 +125,8 @@ class Ctx:
     hb_max_age_s: float = pc.HEARTBEAT_MAX_AGE_S
     profile_wait_s: int = 90
     pki_recheck_s: float = 60.0
+    require_smoke: bool = True
+    smoke_dir: Path = Path.home() / "dib_tnsm/m67/smoke"
     seed: int = SEED
     arms: str = "D,C"
     on_tick: Callable | None = None
@@ -184,12 +187,22 @@ def calib_cmd(py: str, tree: Path, out: Path, prof: str, profile_wait: int) -> l
     return [py, str(tree / CALIB_REL), "--tree", str(tree), "--out", str(out), "--profile", prof, "--profile-wait", str(profile_wait)]
 
 
-def b1_cmd(py: str, tree: Path, out: Path, prof: str, seed: int, arms: str, profile_wait: int, smoke: bool,
-           thr: str = "<thresholds.json>", p95: str = "<p95>") -> list[str]:
+def b1_cmd(py: str, tree: Path, out: Path, prof: str, seed: int, arms: str, fanouts: str, profile_wait: int, smoke: bool,
+           thr: str | None = None, p95: str | None = None) -> list[str]:
     cmd = [py, str(tree / RUN_REL), "--block", "b1", "--profile", prof, "--tree", str(tree), "--out", str(out), "--arms", arms,
-           "--fanouts", "10" if smoke else "1,10", "--seed", str(seed), "--profile-wait", str(profile_wait),
-           "--plog-thresholds", thr, "--plog-p95-ms", p95]
+           "--fanouts", fanouts, "--seed", str(seed), "--profile-wait", str(profile_wait)]
+    if thr is not None:
+        cmd += ["--plog-thresholds", thr, "--plog-p95-ms", p95]
     return cmd + (["--episodes", "3"] if smoke else [])
+
+
+def hashes_id(expect: dict) -> str:
+    return hashlib.sha256(json.dumps(sorted(expect.items())).encode()).hexdigest()
+
+
+def b1_groups(prof: str, arms: str, seed: int, smoke: bool) -> list[tuple]:
+    """Groups (arm, FANOUT, T) in the registered order (night.group_order: same shuffle as run.py); smoke keeps FANOUT 10 only."""
+    return [k for k in night.group_order(prof, ["b1"], arms.split(","), seed) if not smoke or k[1] == 10]
 
 
 # ---------------------------------------------------------------------------------------------------------------- monitor
@@ -243,6 +256,17 @@ def preflight(ctx: Ctx) -> list[str]:
     except pc.WatcherDown as exc:
         probs.append(f"watcher not alive: {exc}")
     return probs
+
+
+def smoke_marker(ctx: Ctx, prof: str) -> Path:
+    return Path(ctx.smoke_dir) / f"smoke_ok_{prof}.json"
+
+
+def smoke_ok(ctx: Ctx, prof: str) -> bool:
+    try:
+        return json.loads(smoke_marker(ctx, prof).read_text()).get("hashes_id") == hashes_id(ctx.expect)
+    except (OSError, ValueError):
+        return False
 
 
 def _violation(ctx: Ctx, cells: Path | None, monitor: ProfileMonitor | None) -> str | None:
@@ -334,32 +358,44 @@ def _calibrate(ctx: Ctx, name: str, prof: str, bdir: Path, mon: ProfileMonitor, 
     return None, "calibration"
 
 
-def _b1(ctx: Ctx, name: str, prof: str, bdir: Path, mon: ProfileMonitor, thr: Path, p95: float, res: dict) -> str | None:
-    """Runs B1 (one invocation, one relaunch only without data). Returns a stop reason or None."""
+def _b1(ctx: Ctx, name: str, prof: str, bdir: Path, mon: ProfileMonitor, thr: Path | None, p95: float | None, res: dict) -> str | None:
+    """B1 as ONE run.py invocation PER GROUP (arm, FANOUT), in the registered order (user decision 2026-10-11). A group is relaunched once,
+    only if it produced no data (cause recorded); a group with data is never relaunched; a failed group does not stop the queue. Returns a
+    stop reason or None."""
     st = ctx.state
-    expected = len(ctx.arms.split(",")) * (1 if ctx.smoke else 2)
-    for attempt in (1, 2):
-        od = bdir / ("b1" if attempt == 1 else "b1_retry1")
-        log = bdir / ("b1.log" if attempt == 1 else "b1_retry1.log")
-        cmd = b1_cmd(ctx.py, ctx.tree, od, prof, ctx.seed, ctx.arms, ctx.profile_wait_s, ctx.smoke, str(thr), repr(p95))
-        st.event("b1_start", block=name, attempt=attempt, cmd=cmd[1:])
-        rc, reason = supervised_run(ctx, cmd, log, ctx.run_timeout_s, od / "cells.jsonl", mon)
-        ctx.system.teardown(ctx.tree, st)
-        n = data_cells(od / "cells.jsonl")
-        aborted = [r.get("aborted") for r in _cells(od / "cells.jsonl") if r.get("aborted")]
-        st.event("b1_end", block=name, attempt=attempt, returncode=rc, data_cells=n, expected_cells=expected, aborted=aborted, stop=reason)
-        res["b1_data_cells"] = res.get("b1_data_cells", 0) + n
-        if reason:
-            return reason
-        if n == 0 and attempt == 1:
-            st.event("b1_retry", block=name, cause=f"no data produced; returncode {rc}, aborted {aborted}, log: {_tail(log)}")
-            continue
-        if n == 0:
-            res["status"], res["reason"] = "done_with_errors", "b1 produced no data after one relaunch"
-        elif rc != 0 or aborted or n < expected:
-            res["status"], res["reason"] = "done_with_errors", (f"b1 returncode {rc}, aborted {aborted}, {n} of {expected} cells with data; "
-                                                                 f"not relaunched (it produced data)")
-        return None
+    fc = night.FailureCounter(3)
+    res["groups"] = {}
+    for arm, fo, T in b1_groups(prof, ctx.arms, ctx.seed, ctx.smoke):
+        g = f"{arm}_f{fo}"
+        n = 0
+        for attempt in (1, 2):
+            od = bdir / (f"b1_{g}" if attempt == 1 else f"b1_{g}_retry1")
+            log = bdir / (f"b1_{g}.log" if attempt == 1 else f"b1_{g}_retry1.log")
+            cmd = b1_cmd(ctx.py, ctx.tree, od, prof, ctx.seed, arm, str(fo), ctx.profile_wait_s, ctx.smoke,
+                         None if thr is None else str(thr), None if p95 is None else repr(p95))
+            st.event("b1_start", block=name, group=g, attempt=attempt, cmd=cmd[1:])
+            rc, reason = supervised_run(ctx, cmd, log, ctx.run_timeout_s, od / "cells.jsonl", mon)
+            ctx.system.teardown(ctx.tree, st)
+            n = data_cells(od / "cells.jsonl")
+            aborted = [r.get("aborted") for r in _cells(od / "cells.jsonl") if r.get("aborted")]
+            st.event("b1_end", block=name, group=g, attempt=attempt, returncode=rc, data_cells=n, aborted=aborted, stop=reason)
+            res["b1_data_cells"] += n
+            if reason:
+                return reason
+            if n == 0 and attempt == 1:
+                st.event("b1_retry", block=name, group=g, cause=f"no data produced; returncode {rc}, aborted {aborted}, log: {_tail(log)}")
+                continue
+            if n == 0:
+                res["groups"][g] = "no data after one relaunch"
+            elif rc != 0 or aborted:
+                res["groups"][g] = f"data produced, returncode {rc}, aborted {aborted}; not relaunched"
+            else:
+                res["groups"][g] = "ok"
+            break
+        if res["groups"][g] != "ok":
+            res["status"], res["reason"] = "done_with_errors", "; ".join(f"{k}: {v}" for k, v in res["groups"].items() if v != "ok")
+        if fc.record(n > 0):
+            return "three consecutive groups without data"
     return None
 
 
@@ -371,6 +407,8 @@ def run_block(ctx: Ctx, name: str) -> dict:
     res = {"block": name, "profile": prof, "status": "done", "reason": None, "lan_confirmed": None, "b1_data_cells": 0}
     st.event("block_start", block=name, profile=prof, smoke=ctx.smoke)
     probs = preflight(ctx)
+    if not ctx.smoke and ctx.require_smoke and not smoke_ok(ctx, prof):
+        probs.append(f"smoke: no successful --smoke run of profile {prof} with these hashes ({smoke_marker(ctx, prof)}); new groups need their smoke cell first")
     if probs:
         res.update(status="stopped", reason="preflight: " + "; ".join(probs))
         st.event("stop_block", block=name, reason=res["reason"])
@@ -380,16 +418,22 @@ def run_block(ctx: Ctx, name: str) -> dict:
         a = ctx.ctl.request(prof, timeout_s=ctx.request_timeout_s, allow_no_cluster=True)
         st.event("profile_requested", block=name, request=prof, containers=getattr(a, "containers", None))
         mon = ProfileMonitor(ctx.ctl, bdir / "profile_events.jsonl")
-        p95, stop = _calibrate(ctx, name, prof, bdir, mon, res)
+        if prof == "lan":     # user decision 2026-10-11: no calibration and no thresholds at lan (as the earlier lan sessions: dispute-rtt)
+            p95, tf, stop = None, None, None
+            st.event("calibration_skipped", block=name, reason="lan: no calibration, no P-log thresholds")
+        else:
+            p95, stop = _calibrate(ctx, name, prof, bdir, mon, res)
+            tf = None
+            if stop is None:
+                thr = night.plog_thresholds(prof, p95)
+                tf = bdir / f"plog_thresholds_{prof}.json"
+                tf.write_text(json.dumps(thr, indent=1))
+                st.event("threshold_file", block=name, path=str(tf), sha256=sha256_file(tf), calibrated_p95_ms=p95, cells=thr["cells"])
+                flag, t_w = bdir / "threshold_committed", time.time()
+                while not flag.exists() and time.time() - t_w < ctx.commit_wait_s:
+                    time.sleep(min(5.0, max(0.05, ctx.commit_wait_s)))
+                st.event("threshold_commit_wait", block=name, flag_seen=flag.exists(), waited_s=round(time.time() - t_w))
         if stop is None:
-            thr = night.plog_thresholds(prof, p95)
-            tf = bdir / f"plog_thresholds_{prof}.json"
-            tf.write_text(json.dumps(thr, indent=1))
-            st.event("threshold_file", block=name, path=str(tf), sha256=sha256_file(tf), calibrated_p95_ms=p95, cells=thr["cells"])
-            flag, t_w = bdir / "threshold_committed", time.time()
-            while not flag.exists() and time.time() - t_w < ctx.commit_wait_s:
-                time.sleep(min(5.0, max(0.05, ctx.commit_wait_s)))
-            st.event("threshold_commit_wait", block=name, flag_seen=flag.exists(), waited_s=round(time.time() - t_w))
             stop = _b1(ctx, name, prof, bdir, mon, tf, p95, res)
     except pc.ProfileError as exc:
         stop = f"profile request failed: {exc}"
@@ -411,6 +455,10 @@ def run_block(ctx: Ctx, name: str) -> dict:
         except pc.ProfileError as exc:
             res["lan_confirmed"] = False
             st.event("lan_not_confirmed", block=name, error=str(exc))
+    if ctx.smoke and res["status"] == "done" and res["lan_confirmed"]:
+        Path(ctx.smoke_dir).mkdir(parents=True, exist_ok=True)
+        smoke_marker(ctx, prof).write_text(json.dumps({"hashes_id": hashes_id(ctx.expect), "block": name, "utc": datetime.now(timezone.utc).isoformat()}))
+        st.event("smoke_ok", block=name, profile=prof)
     st.event("block_end", block=name, status=res["status"], reason=res["reason"])
     (bdir / "BLOCK.json").write_text(json.dumps(res, indent=1))
     return res
@@ -462,10 +510,16 @@ def dry_run(a, blocks: list[str]) -> None:
         print(f"\n== block {b} (profile {prof})")
         print("  0. initial checks: no dibtnsm container, no run.py, df / > 2 GB, PKI valid until end + 2 h, hashes, watcher heartbeat")
         print(f"  1. request {prof}   (profile_ctl.ProfileCtl.request, file {a.dir}/profile.request)")
-        print("  2. " + " ".join(calib_cmd(sys.executable, tree, out / "calib", prof, 90)))
-        print(f"  3. thresholds: night.plog_thresholds({prof!r}, p95) -> {out}/plog_thresholds_{prof}.json, sha256 into the state before B1")
-        print("  4. " + " ".join(b1_cmd(sys.executable, tree, out / "b1", prof, SEED, "D,C", 90, a.smoke)))
+        if prof == "lan":
+            print("  2-3. no calibration, no thresholds at lan")
+        else:
+            print("  2. " + " ".join(calib_cmd(sys.executable, tree, out / "calib", prof, 90)))
+            print(f"  3. thresholds: night.plog_thresholds({prof!r}, p95) -> {out}/plog_thresholds_{prof}.json, sha256 into the state before B1")
+        thr = None if prof == "lan" else "<thresholds.json>"
+        for arm, fo, _T in b1_groups(prof, "D,C", SEED, a.smoke):
+            print("  4. " + " ".join(b1_cmd(sys.executable, tree, out / f"b1_{arm}_f{fo}", prof, SEED, arm, str(fo), 90, a.smoke, thr, None if thr is None else "<p95>")))
         print(f"  5. teardown, {out}/DATA.sha256 (no pcap), request lan, check of profile.applied")
+        print("  (a non-smoke block needs smoke_ok_<profile> from a successful --smoke with the same hashes)")
 
 
 def main(argv=None) -> int:
@@ -476,7 +530,8 @@ def main(argv=None) -> int:
     ap.add_argument("--dir", default=str(Path.home() / "dib_tnsm/m67"), help="request directory of netem_watch2.sh")
     ap.add_argument("--hashes", default=None, help="frozen_hashes file (sha256sum format: '<sha256>  <path relative to the tree>')")
     ap.add_argument("--blocks", default=None, help="subset of " + ",".join(BLOCKS) + " (default: " + ",".join(DEFAULT_BLOCKS) + ")")
-    ap.add_argument("--smoke", action="store_true", help="B1 with 3 episodes and FANOUT 10 only (smoke cell)")
+    ap.add_argument("--smoke", action="store_true", help="B1 with 3 episodes and FANOUT 10 only (smoke cell); a successful one enables the profile")
+    ap.add_argument("--smoke-dir", default=str(Path.home() / "dib_tnsm/m67/smoke"))
     ap.add_argument("--commit-wait-min", type=float, default=0.0)
     ap.add_argument("--pki", default=str(Path.home() / "dib_tnsm/pki"))
     ap.add_argument("--dry-run", action="store_true")
@@ -500,7 +555,7 @@ def main(argv=None) -> int:
     signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
     st = State(out / "state.json")
     ctx = Ctx(tree=tree, out=out, end_ts=end_ts, ctl=pc.ProfileCtl(a.dir), system=System(), state=st, expect=expect, smoke=a.smoke,
-              commit_wait_s=a.commit_wait_min * 60, pki_dir=a.pki)
+              commit_wait_s=a.commit_wait_min * 60, pki_dir=a.pki, smoke_dir=Path(a.smoke_dir))
     st.event("start", tree=str(tree), blocks=blocks, end_utc=a.end_utc, smoke=a.smoke, python=sys.version.split()[0])
     results = []
     try:

@@ -110,7 +110,7 @@ class FakeCtl:
 def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
-def make_ctx(tmp_path, system=None, ctl=None, smoke=False, expect=None, end_in=4 * 3600, tick=0.05, commit_wait=0.0):
+def make_ctx(tmp_path, system=None, ctl=None, smoke=False, expect=None, end_in=4 * 3600, tick=0.05, commit_wait=0.0, require_smoke=False):
     tree = tmp_path / "tree"
     (tree / "code/src/dib/registry/distributed").mkdir(parents=True, exist_ok=True)
     (tree / "experiments_tnsm/m67_retraction").mkdir(parents=True, exist_ok=True)
@@ -121,6 +121,8 @@ def make_ctx(tmp_path, system=None, ctl=None, smoke=False, expect=None, end_in=4
                  expect=expect if expect is not None else {}, smoke=smoke, tick_s=tick, commit_wait_s=commit_wait, py=sys.executable,
                  check_service_hash=False, request_timeout_s=5.0, calib_timeout_s=60, run_timeout_s=60)
     ctx.pki_recheck_s = 0.0
+    ctx.require_smoke = require_smoke
+    ctx.smoke_dir = tmp_path / "smoke"
     ctx.out.mkdir(parents=True, exist_ok=True)
     return ctx
 
@@ -172,11 +174,15 @@ def test_a2_sequence_of_a_block(tmp_path):
     assert r["status"] == "done", r
     assert ctl.calls == ["degraded", "lan"]
     names = [Path(c[1]).name for c in s.spawned]
-    assert names == ["calib_profile.py", "run.py"]
-    cal, run = s.spawned
+    assert names == ["calib_profile.py"] + ["run.py"] * 4                                 # one run.py invocation PER GROUP
+    cal, run = s.spawned[0], s.spawned[1]
+    import night
+    groups = night.group_order("degraded", ["b1"], ["D", "C"], 20261014)
+    got = [(c[c.index("--arms") + 1], int(c[c.index("--fanouts") + 1])) for c in s.spawned[1:]]
+    assert got == [(a_, f_) for a_, f_, _ in groups]                                       # registered order
     assert cal[cal.index("--profile") + 1] == "degraded" and "--profile-wait" in cal
     assert run[2:6] == ["--block", "b1", "--profile", "degraded"] and "b2kill" not in " ".join(run)
-    for flag, val in [("--arms", "D,C"), ("--fanouts", "1,10"), ("--seed", "20261014"), ("--profile-wait", "90")]:
+    for flag, val in [("--seed", "20261014"), ("--profile-wait", "90")]:
         assert run[run.index(flag) + 1] == val
     assert "--episodes" not in run and "--tree" in run
     tf = Path(run[run.index("--plog-thresholds") + 1])
@@ -211,6 +217,7 @@ def test_a2_all_default_blocks_in_order_with_lan_between(tmp_path):
     res = ab.run_all(ctx, ab.DEFAULT_BLOCKS)
     assert [r["status"] for r in res] == ["done"] * 3
     assert ctl.calls == ["lan", "lan", "degraded", "lan", "lan", "lan"]
+    assert [Path(c[1]).name for c in s.spawned].count("calib_profile.py") == 1             # no calibration at lan
     for b in ab.DEFAULT_BLOCKS:
         assert (ctx.out / b / "DATA.sha256").is_file()
     assert not any("b2kill" in " ".join(c) for c in s.spawned)
@@ -228,35 +235,36 @@ def test_a11_manifest_excludes_pcap_and_verifies(tmp_path):
     for l in lines:
         h, rel = l.split("  ", 1)
         assert sha(d / rel) == h
-    assert any(l.endswith("b1/cells.jsonl") for l in lines)
+    assert any(l.endswith("cells.jsonl") and "b1_" in l for l in lines)
 
 
 # ------------------------------------------------------------------------------------------------------------------ A-4, A-6
-def test_a4_retry_once_only_without_data(tmp_path):
+def test_a4_retry_once_per_group_only_without_data(tmp_path):
     s = good_system()
+    # first invocation: no data -> relaunched once (data); the other three groups run once
     s.scripts["run.py"] = [(RUN_OK, dict(rows="[]", sleep=0.0, rc=1)), (RUN_OK, dict(rows=repr(GOOD_ROWS), sleep=0.0, rc=0))]
     ctx = make_ctx(tmp_path, system=s)
     r = ab.run_block(ctx, "lan_before")
-    assert [Path(c[1]).name for c in s.spawned].count("run.py") == 2 and r["status"] == "done"
+    assert [Path(c[1]).name for c in s.spawned].count("run.py") == 5 and r["status"] == "done"
     ev = next(e for e in ctx.state.d["events"] if e["kind"] == "b1_retry")
-    assert ev["cause"]
-    # twice without data: no third attempt
+    assert ev["cause"] and ev["group"]
+    # never any data: each group gets one relaunch (2 invocations), a third consecutive group without data stops the block
     s2 = good_system()
     s2.scripts["run.py"] = [(RUN_OK, dict(rows="[]", sleep=0.0, rc=1))]
     ctx2 = make_ctx(tmp_path / "b", system=s2)
     r2 = ab.run_block(ctx2, "lan_before")
-    assert [Path(c[1]).name for c in s2.spawned].count("run.py") == 2 and r2["b1_data_cells"] == 0
+    assert [Path(c[1]).name for c in s2.spawned].count("run.py") == 6 and r2["b1_data_cells"] == 0
+    assert r2["status"] == "stopped" and "three consecutive" in r2["reason"]
 
 
-def test_a6_error_with_data_is_not_retried_and_queue_goes_on(tmp_path):
+def test_a4_failed_group_does_not_stop_the_queue(tmp_path):
     s = good_system()
-    s.scripts["run.py"] = [(RUN_OK, dict(rows=repr(GOOD_ROWS), sleep=0.0, rc=1))]           # exits 1 but produced data
-    ctl = FakeCtl()
-    ctx = make_ctx(tmp_path, system=s, ctl=ctl)
-    res = ab.run_all(ctx, ["lan_before", "degraded"])
-    assert [Path(c[1]).name for c in s.spawned].count("run.py") == 2                        # one per block, no relaunch
-    assert [r["status"] for r in res] == ["done_with_errors", "done_with_errors"] and ctl.calls[-1] == "lan"
-    assert "b1_retry" not in kinds(ctx)
+    s.scripts["run.py"] = [(RUN_OK, dict(rows="[]", sleep=0.0, rc=1)), (RUN_OK, dict(rows="[]", sleep=0.0, rc=1)),   # group 1 and its relaunch: no data
+                           (RUN_OK, dict(rows=repr(GOOD_ROWS), sleep=0.0, rc=0))]                                    # the rest is fine
+    ctx = make_ctx(tmp_path, system=s)
+    r = ab.run_block(ctx, "lan_before")
+    assert [Path(c[1]).name for c in s.spawned].count("run.py") == 5 and r["status"] == "done_with_errors"
+    assert sum(v == "ok" for v in r["groups"].values()) == 3 and "no data after one relaunch" in r["reason"]
 
 
 def test_a4_aborted_group_record_is_not_data(tmp_path):
@@ -367,8 +375,10 @@ def test_a9_smoke_uses_3_episodes_and_fanout_10(tmp_path):
     s = good_system()
     ctx = make_ctx(tmp_path, system=s, smoke=True)
     ab.run_block(ctx, "degraded")
-    run = s.spawned[-1]
-    assert run[run.index("--episodes") + 1] == "3" and run[run.index("--fanouts") + 1] == "10"
+    runs = [c for c in s.spawned if Path(c[1]).name == "run.py"]
+    assert len(runs) == 2                                                                  # FANOUT 10 only: D and C
+    for run in runs:
+        assert run[run.index("--episodes") + 1] == "3" and run[run.index("--fanouts") + 1] == "10"
     assert "smoke" in str(ctx.out / "degraded") or (ctx.out / "degraded").exists()
 
 
@@ -398,13 +408,47 @@ def test_a12_dry_run_prints_plan_and_touches_nothing(tmp_path, capsys):
     rc = ab.main(["--tree", str(tmp_path / "t"), "--out", str(out), "--end-utc", "2026-10-14T06:00:00Z", "--dir", str(tmp_path / "d"), "--dry-run"])
     txt = capsys.readouterr().out
     assert rc == 0 and not out.exists()
-    for needle in ["lan_before", "degraded", "lan_after", "calib_profile.py", "--block b1", "--seed 20261014", "--fanouts 1,10", "request lan"]:
+    for needle in ["lan_before", "degraded", "lan_after", "calib_profile.py", "--block b1", "--seed 20261014", "--fanouts 1", "--fanouts 10", "request lan", "no calibration, no thresholds at lan"]:
         assert needle in txt, needle
     assert "b2kill" not in txt.replace("never", "")
 
 
 def test_report_is_written(tmp_path):
     ctx = make_ctx(tmp_path, system=good_system())
-    res = ab.run_all(ctx, ["lan_before"])
+    res = ab.run_all(ctx, ["degraded"])
     rep = (ctx.out / "REPORT_raw.md").read_text()
-    assert "lan_before" in rep and "done" in rep and "threshold" in rep.lower()
+    assert "degraded" in rep and "done" in rep and "threshold" in rep.lower()
+
+
+# ------------------------------------------------------------------------------------------------------------------ lan: no calibration, smoke gate
+def test_lan_block_skips_calibration_and_thresholds(tmp_path):
+    s = good_system()
+    ctx = make_ctx(tmp_path, system=s)
+    ab.run_block(ctx, "lan_after")
+    assert "calibration_skipped" in kinds(ctx) and "threshold_file" not in kinds(ctx)
+    for c in s.spawned:
+        assert Path(c[1]).name == "run.py" and "--plog-thresholds" not in c and "--plog-p95-ms" not in c
+    assert not (ctx.out / "lan_after" / "plog_thresholds_lan.json").exists()
+
+
+def test_a13_smoke_gate(tmp_path):
+    s = good_system()
+    ctx = make_ctx(tmp_path, system=s, require_smoke=True)
+    ctx.expect = {"experiments_tnsm/m67_retraction/netem_watch2.sh": sha(ctx.tree / "experiments_tnsm/m67_retraction/netem_watch2.sh")}
+    r = ab.run_block(ctx, "degraded")                                  # no smoke yet: refused before anything
+    assert r["status"] == "stopped" and "smoke" in r["reason"] and s.spawned == [] and ctx.ctl.calls == []
+    ctx.smoke = True                                                    # the smoke cell itself is allowed and leaves the marker
+    r = ab.run_block(ctx, "degraded")
+    assert r["status"] == "done" and ab.smoke_ok(ctx, "degraded") and not ab.smoke_ok(ctx, "lan")
+    ctx.smoke = False
+    assert ab.run_block(ctx, "degraded")["status"] == "done"            # now the real block may start
+    ctx.expect = {"experiments_tnsm/m67_retraction/netem_watch2.sh": "1" * 64}   # other hashes: the marker no longer counts
+    assert not ab.smoke_ok(ctx, "degraded")
+
+
+def test_a13_failed_smoke_leaves_no_marker(tmp_path):
+    s = good_system()
+    s.scripts["run.py"] = [(RUN_OK, dict(rows="[]", sleep=0.0, rc=1))]
+    ctx = make_ctx(tmp_path, system=s, smoke=True)
+    ab.run_block(ctx, "lan_before")
+    assert not ab.smoke_ok(ctx, "lan")
