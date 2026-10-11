@@ -72,6 +72,7 @@ import threading
 import time
 
 import httpx
+import pytest
 
 from _dist_harness import make_cluster  # noqa: F401  (pytest fixture)
 
@@ -96,6 +97,7 @@ def _query_race(c):
     return sid, r
 
 
+@pytest.mark.xfail(strict=True, reason="H-b3q-1 falsificata 2026-10-12: monitor-only con last_applied_seq 0 durante l'episodio (S:476-478, S:512; docs/audit/64_fsm_test_risultati.md)")
 def test_b3q_1_query_racing_dispute_does_not_stage_during_open_episode(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, _r = _query_race(c)
@@ -130,6 +132,7 @@ def _commit_race(c, lose_fanout: bool):
     return sid, r
 
 
+@pytest.mark.xfail(strict=True, reason="H-b3c-1 falsificata 2026-10-12: commit 200, stato active, 1 ACE durante la dispute (S:528; docs/audit/64_fsm_test_risultati.md)")
 def test_b3c_1_commit_racing_dispute_with_lost_fanout_creates_no_active(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, _r = _commit_race(c, lose_fanout=True)
@@ -163,6 +166,7 @@ def _local_restore_race(c):
     return sid, r
 
 
+@pytest.mark.xfail(strict=True, reason="H-b3r-1 falsificata 2026-10-12: local_restore 200, monitor-only durante la dispute (S:487-490, S:570-573; docs/audit/64_fsm_test_risultati.md)")
 def test_b3r_1_local_restore_racing_dispute_is_refused(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, r = _local_restore_race(c)
@@ -171,6 +175,7 @@ def test_b3r_1_local_restore_racing_dispute_is_refused(make_cluster) -> None:
     assert (st["state"], st["origin"]) == ("revoked", "local"), st
 
 
+@pytest.mark.xfail(strict=True, reason="H-b3r-2 falsificata 2026-10-12: dopo /reconcile resta monitor-only con seq allineato (S:593; docs/audit/64_fsm_test_risultati.md)")
 def test_b3r_2_reconcile_repairs_local_restore_race(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, _r = _local_restore_race(c)
@@ -186,6 +191,7 @@ def test_b3r_3_raced_local_restore_still_cannot_export(make_cluster) -> None:
 
 
 # --------------------------------------------------------------------------- b4: evidence down
+@pytest.mark.xfail(strict=True, reason="H-b4-1 falsificata 2026-10-12: ConnectError, record ancora active (S:538, S:461-470; docs/audit/64_fsm_test_risultati.md)")
 def test_b4_1_local_revoke_works_with_evidence_down(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid = _setup(c, sites=(0,))
@@ -270,6 +276,7 @@ def test_b6_2_quorum2_single_vote_persists_and_restore_refused_characterization(
     assert c.state(0, sid)["state"] == "disputed"
 
 
+@pytest.mark.xfail(strict=True, reason="H-a10 falsificata 2026-10-12: site-0 (votante della sospensione) conferma la revoca (S:918; docs/audit/64_fsm_test_risultati.md)")
 def test_a10_quorum2_confirmation_needs_a_site_outside_the_suspending_voters(make_cluster) -> None:
     c = make_cluster(n_sites=N3, quorum=2)
     sid = _setup(c, sites=(0, 1, 2))
@@ -281,3 +288,54 @@ def test_a10_quorum2_confirmation_needs_a_site_outside_the_suspending_voters(mak
     assert c.dispute("site-2").json() == {"applied": True}
     assert c.evidence_score()["status"] == "revoked"
     assert c.state(0, sid)["state"] == "revoked"
+
+
+# --------------------------------------------------------------------------- observed behaviour
+# Added AFTER the run of 2026-10-12 (rule of Fase 2): each test pins what the code does where the
+# pre-registered hypothesis above was falsified. Characterization, not approval.
+def test_b3q_1_observed_query_race_stages_monitor_only_with_stale_seq_characterization(make_cluster) -> None:
+    c = make_cluster(n_sites=N3)
+    sid, r = _query_race(c)
+    assert r.json() == {"applied": True, "score_id": sid}
+    assert c.state(0, sid) == {"state": "monitor-only", "origin": None, "last_applied_seq": 0}
+    assert c.evidence_score()["fanout_seq"] == 1
+
+
+def test_b3c_1_observed_commit_race_creates_active_until_reconcile_characterization(make_cluster) -> None:
+    c = make_cluster(n_sites=N3)
+    sid, r = _commit_race(c, lose_fanout=True)
+    assert r.status_code == 200
+    assert c.state(0, sid) == {"state": "active", "origin": None, "last_applied_seq": 0}
+    assert c.ace_count(0) == 1
+    assert c.pending(0) == [{"score_id": sid, "seq": 1, "event_type": "dispute", "target_state": "disputed"}]
+
+
+def test_b3r_observed_local_restore_race_leaves_unrepaired_monitor_only_characterization(make_cluster) -> None:
+    c = make_cluster(n_sites=N3)
+    sid, r = _local_restore_race(c)
+    assert r.status_code == 200
+    expected = {"state": "monitor-only", "origin": None, "last_applied_seq": 1}
+    assert c.state(0, sid) == expected
+    assert c.reconcile(0).status_code == 200
+    assert c.state(0, sid) == expected
+
+
+def test_b4_1_observed_local_revoke_raises_with_evidence_down_characterization(make_cluster) -> None:
+    c = make_cluster(n_sites=N3)
+    sid = _setup(c, sites=(0,))
+    c.net.evidence_down = True
+    with pytest.raises(httpx.ConnectError):
+        c.local_revoke(0)
+    assert c.state(0, sid) == {"state": "active", "origin": None, "last_applied_seq": 0}
+    assert c.ace_count(0) == 1
+
+
+def test_a10_observed_suspending_voter_confirms_on_three_sites_characterization(make_cluster) -> None:
+    c = make_cluster(n_sites=N3, quorum=2)
+    sid = _setup(c, sites=(0, 1, 2))
+    c.dispute("site-0")
+    c.dispute("site-1")
+    assert c.evidence_score()["disputed_by"] == "site-1"
+    assert c.dispute("site-0").json() == {"applied": True}
+    assert c.evidence_score()["status"] == "revoked"
+    assert c.state(2, sid)["state"] == "revoked"
