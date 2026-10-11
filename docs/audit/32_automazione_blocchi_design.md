@@ -155,3 +155,17 @@ Esito: `status stopped`, nessun `smoke_ok_degraded.json`; `lan` riconfermato (11
 - **Regola (docstring di \`analyze_b1.py\`, prima di ogni dato di B1 a \`degraded\`):** oltre agli intervalli `transient` del monitor, un episodio la cui finestra [t0, max(t_resp, plog_apply_ts, plog_ack_ts)] sovrappone un intervallo di **profilo non assestato** del watcher è escluso (causa \`profile_incoherent_overlap\`, sorgente \`monitor\` o \`watch2.log\` registrata per episodio). L'intervallo parte da \`containers changed -> applying\`, \`request accepted\`, \`apply FAILED\`, \`the set of containers changed during the application\` o \`profile.applied NOT written\` e finisce al successivo \`applied …\` (o \`profile.applied written after …\`); più eventi di inizio senza \`applied\` in mezzo = un solo intervallo dal primo; senza fine = aperto. Intervalli chiusi, nessun margine; esclusi mai sostituiti né rilanciati.
 - **Codice:** \`profile_exclusion.py\` (funzioni pure) e, in \`analyze_b1.py\`, \`overlap_exclusion\` + opzioni \`--profile-events\` e \`--watch-log\` + sezione di rapporto con gli intervalli verbatim; senza gli input, a un profilo non \`lan\`, il rapporto porta un WARNING e nessun episodio è escluso per questa regola. Test su righe sintetiche (\`test_profile_exclusion.py\`, 5 test; mutazioni: intervalli aperti invece che chiusi e intervallo senza fine scartato, entrambe rilevate). **Non eseguito su dati reali.** Onestà di processo: modulo e test sono stati scritti nello stesso passo (i test sono passati al primo colpo), non test-prima come per il resto.
 - **Conseguenza da sapere:** applicando la regola ai log dello smoke, sarebbero intervalli non assestati anche tutte le applicazioni durante la creazione del cluster (prima delle celle: nessuna sovrapposizione con gli episodi) e ogni \`request accepted\`; durante un blocco B1 normale, le sole sovrapposizioni attese sono quelle degli eventi che avvengono mentre una cella misura.
+
+### 16.3 Record reale dello smoke `degraded` (letto in sola lettura dal nodo, `smoke_degraded_20261011/degraded/profile_events.jsonl`, righe 7-10, e `watch2.log`)
+```
+8:  {"epoch_ms": 1791719940833, "applied_utc": "2026-10-11T11:59:00.832Z", "request": "degraded", "trigger": "recreate", "base": "degraded", "partition": null, "containers": 4, "coherent": null, "problems": []}
+9:  {"epoch_ms": 1791719943010, "applied_utc": "2026-10-11T11:59:03.010Z", ..., "containers": 8, "coherent": null, "problems": []}
+10: {"epoch_ms": 1791719944457, "applied_utc": "2026-10-11T11:59:04.456Z", "request": "degraded", "trigger": "recreate", "base": "degraded", "partition": null, "containers": 11, "coherent": false, "problems": ["dibtnsm-site-8-1: expected netem delay 200ms loss 5%, found no netem ('qdisc noqueue 0: root refcnt 2')"]}
+watch2.log:
+2026-10-11T11:59:03.019Z netem_watch: applied degraded (0.669 s)
+2026-10-11T11:59:03.585Z netem_watch: containers changed -> applying degraded
+2026-10-11T11:59:04.465Z netem_watch: applied degraded (0.871 s)
+2026-10-11T11:59:05.023Z netem_watch: containers changed -> applying degraded
+2026-10-11T11:59:05.870Z netem_watch: applied degraded (0.838 s)
+```
+La riga 10 è l'ultima del file (il monitor non è stato interrogato dopo lo stop): il record delle 11:59:05.87 non è stato letto. Il record precedente (riga 9) aveva 8 container. Con la regola di §16.2 sarebbero intervalli non assestati 11:59:03.585 → 11:59:04.465 e 11:59:05.023 → 11:59:05.870 (watcher); l'intervallo del monitor partirebbe dal record precedente (11:59:03.010).
