@@ -63,5 +63,62 @@ Limiti di tutte le cfg salvo dove indicato: quelli di `formal/distributed_ae/s0_
   usato in sola lettura come in quegli audit);
 - manifest in `experiments_tnsm/tla_fsm/logs/manifest.tsv`.
 
-## 5. Risultati
-(compilati dopo le esecuzioni)
+## 5. Risultati del batch 1 (modello a `ba68604`, 2026-10-11 23:33-23:40Z)
+Ogni run: heap 16-24 GB, 8 worker, jar `237332bd…`, Java 17.0.19. Log in
+`experiments_tnsm/tla_fsm/logs/<cfg>.log`, una riga per run in `logs/manifest.tsv`.
+
+| cfg | Previsione | Esito | Stati distinti | Traccia |
+|---|---|---|---|---|
+| `n1_commit_race` | violazione | **confermata** | 3.005 | QueryRead, QueryWrite, CommitRead, Dispute, CommitWrite → Active con evidence Disputed (= b3c senza partizione: la consegna è ancora in volo) |
+| `n2_lrestore_race` | violazione | **confermata** | 48.173 | QueryRead/Write, LocalRevoke, LRRead, Dispute, Deliver (veto: solo last_applied → 1), LRWrite → MonitorOnly con last_applied = eseq = 1 (= b3r) |
+| `n3_caughtup` | violazione dell'invariante ORIGINALE CaughtUpIsCoherent | **confermata** | 57.934 | stessa finestra b3r |
+| `q1_code_rule` | violazione | **confermata** | 185 | Vote(r1), Dispute(r2) → disputed_by = r2, Dispute(r1) → Revoked (= a10) |
+| `f1_witness` | violazione (non vacuità) | **confermata** | 13.859 | con FixRace un commit diviso arriva ad Active |
+| `q2_witness` | violazione (non vacuità) | **confermata** | 196 | con la regola outsider e 3 reporter la revoca è raggiungibile |
+| `f1_lrestore_strict` | violazione (diagnostica) | **confermata** | 15.224 | dispute committata ma ancora in `todo` quando LRWrite scrive: la finestra di qualunque fan-out |
+| `r0_regress` | nessuna violazione, esattamente 14.947.820 stati | **confermata** | **14.947.820**, profondità 32, 3 min 48 s | — |
+| `n4_rest` | nessuna violazione delle altre proprietà originali | **FALSIFICATA** | 509 | QueryRead (Active), Dispute, Deliver a s1 (riga assente: no-op), QueryWrite → MonitorOnly su un sito raggiungibile senza nulla in volo: viola l'invariante ORIGINALE `DisputeSuspendsAtReachableSites` (= b3q) |
+| `f1_fix` | nessuna violazione | **FALSIFICATA** | 498 | stessa traccia di n4: FixRace non copre la query (errore di progetto mio: avevo ritenuto b3q coperto dall'anti-entropia, che però interviene solo alla reconcile successiva) |
+| `q2_outsider_rule` | nessuna violazione | (in corso) | | |
+
+Lettura:
+- Il modello esteso riproduce esattamente il modello pubblicato quando le operazioni sono atomiche
+  (r0). Quindi le violazioni dipendono solo dalla divisione lettura/scrittura, non da errori
+  dell'estensione.
+- Con la semantica del prototipo, **due invarianti del modello pubblicato non valgono**
+  (`CaughtUpIsCoherent`, `DisputeSuspendsAtReachableSites`) e la precondizione della tabella per il
+  commit (main_wip.tex:321) è violabile. Le tre finestre coincidono con i test rossi dell'audit 64.
+- n4 non dice ancora se **l'export** (stato Active) resta sicuro: la prima violazione trovata
+  riguarda un MonitorOnly, che non è esportabile, e TLC si ferma alla prima. Serve una proprietà
+  separata (batch 2).
+
+## 6. Batch 2 — pre-registrazione (scritta dopo il batch 1, prima di eseguire il batch 2)
+Modello v2 in `experiments_tnsm/tla_fsm/v2/DIB_AE_NA.tla`: il batch 1 resta legato a `ba68604`.
+Aggiunte rispetto a v1:
+- **FixQuery** (riserva-poi-leggi): la query divisa inserisce prima una riga `Staging` (non
+  esportabile, non è una decisione), poi legge l'evidence, poi chiude: Staging → MonitorOnly se ha
+  letto Active, altrimenti torna Absent. Un fan-out arrivato dopo la riserva trova la riga e si
+  applica.
+- **Mutazioni:**
+  - `MutNoLRGuard`: FixRace senza la guardia su last_applied in LRWrite;
+  - `MutNoVerify`: commit Active alla scrittura, con la guardia ma senza la seconda lettura.
+- **Proprietà:**
+  - `ExportSafeAtReachableSites`: la metà "export" di DisputeSuspendsAtReachableSites, cioè nessun
+    Active su un sito raggiungibile senza nulla in volo mentre l'evidence ha il fatto
+    disputed/revoked;
+  - `DisputeSuspendsAtReachableSitesV2`: come l'originale, ma ammette `Staging` mentre la query del
+    sito su quel fatto è pendente;
+  - `StagingIsTransient`;
+  - testimone `NeverMonitorOnlyOnSplitSite`.
+
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `r1_regress_v2` | v2 conservativa: SplitSites={} → nessuna violazione, esattamente 14.947.820 stati | violazione o altro conteggio |
+| `n5_export_nofix` | semantica del PROTOTIPO (s1 diviso, nessuna correzione): ExportSafe, NoStaleActiveAfterEpisode e tutte le proprietà d'azione originali reggono | qualunque violazione |
+| `f2_fix_all` | FixRace + FixQuery: nessuna violazione di nessuna proprietà | qualunque violazione |
+| `f2_orig_strict` | con le correzioni l'originale DisputeSuspends è violato SOLO da una riserva Staging | nessuna violazione, o record non Staging |
+| `f2_witness_mo`, `f2_witness_active` | con le correzioni query e commit divisi arrivano a MonitorOnly e ad Active | nessuna violazione del testimone |
+| `m2_nolrguard` | senza la guardia di LRWrite: NoMonitorOnlyCaughtUpDuringEpisode violato | nessuna violazione |
+| `m3_noverify` | senza seconda lettura: I1_CommitOnUndisputedEvidence violato | nessuna violazione |
+| `m4_noqueryfix` | senza FixQuery: DisputeSuspendsAtReachableSitesV2 violato | nessuna violazione |
+| `f3_two_split` | correzioni su ENTRAMBI i siti, MaxToggles 2: nessuna violazione | qualunque violazione (incompleto oltre 3 h = riportato come tale) |
