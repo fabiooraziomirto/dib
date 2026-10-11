@@ -34,8 +34,15 @@ no margin, no tolerance). Excluded episodes are counted apart from the other cau
 in the report; a cell with no episode left is reported as such. The same stretches are NOT used to change thresholds, measure types or any other rule.
 Related stop rules of the orchestrator (not exclusions): an incoherence lasting more than 10 s without a coherent record, or more than 3 transient
 incoherences within 60 s, stops the block.
-STATUS OF THIS RULE: declared here before the data; the code of this script that APPLIES it (reading profile_events.jsonl, the exclusion and the report
-lines) is NOT written yet and must be written, with a test, before the `degraded` B1 data are analysed.
+EXTENSION (same date, still before any `degraded` B1 datum): the intervals of the WATCHER'S OWN LOG count too. From watch2.log, an UNSETTLED-PROFILE interval
+starts at a line `containers changed -> applying`, `request accepted`, `apply FAILED`, `the set of containers changed during the application` or
+`profile.applied NOT written`, and ends at the next `applied ...` (or `profile.applied written after ...`) line; start lines with no `applied` between them
+make one interval from the first; with no end the interval is open. An episode whose window overlaps such an interval is excluded with the same cause
+(`profile_incoherent_overlap`, the source `monitor` or `watch2.log` is recorded per episode). The watcher's times are the node's UTC ms, the same clock as t0.
+Both inputs are passed with --profile-events <block>/profile_events.jsonl and --watch-log <watch2.log>; without them at a non-`lan` profile the report
+carries a WARNING line and no episode is excluded for this rule.
+STATUS: the rule (profile_exclusion.py, the helper overlap_exclusion here, the report section and the two options) is written and tested on SYNTHETIC rows
+(test_profile_exclusion.py); it has NOT been run on any real data.
 Method: medians with 95% percentile bootstrap CI over EPISODES (10000 resamples, seed 20261011); with n = 10 the CI is coarse.
 "last site" = max over the 10 sites of the P-log withdrawal (withdrawn_plog_s) of an episode without pending deliveries;
 dispute-rtt = response - t0 (bias 0 at lan, run.dispute_rtt_bias_s). Measure type per cell by the recorded rule: P-log (apply)
@@ -50,10 +57,12 @@ import json
 import random
 import statistics
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+import profile_exclusion as px  # noqa: E402
 import run as m67  # noqa: E402
 
 RES, SEED = 10000, 20261011
@@ -94,6 +103,35 @@ def last_site(rows):
     return out
 
 
+def overlap_exclusion(full_cells, profile_events, watch_log_text):
+    """Applies the exclusion-by-overlap rule of the docstring to the rows of the complete cells (in place). Returns (labelled intervals, {(arm, fanout):
+    newly excluded}, report text). With no input the report says so explicitly."""
+    labelled = []
+    if profile_events:
+        labelled += [("monitor", iv) for iv in px.monitor_intervals(profile_events)]
+    if watch_log_text:
+        labelled += [("watch2.log", iv) for iv in px.watch_unsettled_intervals(watch_log_text)]
+    if not profile_events and not watch_log_text:
+        return [], {}, ["", "## Exclusion by overlap with an unsettled netem profile", "",
+                        "**NOT applied**: neither --profile-events nor --watch-log was given (the rule is in the docstring; no episode was excluded for it)."]
+    per_cell, used_all, lo, hi = {}, [], float("inf"), float("-inf")
+    for c in full_cells:
+        n, used = px.mark_overlaps(c["rows"], labelled)
+        per_cell[(c["cell_spec"]["arm"], c["cell_spec"]["fanout"])] = n
+        used_all += [u for u in used if u not in used_all]
+        for r in c["rows"]:
+            if "t0" in r:
+                w = px.episode_window(r)
+                lo, hi = min(lo, w[0]), max(hi, w[1])
+    shown = [(lab, iv) for lab, iv in labelled if px.overlaps((lo, hi), [iv])]
+    fmt_t = lambda x: "open" if x == float("inf") else datetime.fromtimestamp(x, timezone.utc).strftime("%H:%M:%S.%f")[:-3]  # noqa: E731
+    text = ["", "## Exclusion by overlap with an unsettled netem profile (cause `profile_incoherent_overlap`)", "",
+            "Excluded episodes per cell: " + (", ".join(f"{k[0]}/{k[1]}: {v}" for k, v in sorted(per_cell.items())) or "none"),
+            "", "Intervals overlapping the block's time range, verbatim (UTC):", ""]
+    text += [f"- {lab}: {fmt_t(iv[0])} → {fmt_t(iv[1])}{'  **excluded at least one episode**' if (lab, iv) in used_all else ''}" for lab, iv in shown] or ["- none"]
+    return labelled, per_cell, text
+
+
 def rule_a(t, pred_ms, ref_median_ms):
     """t = (median, lo, hi, n) in ms. Threshold = pred + 3 x reference median; excess = median - threshold."""
     thr = pred_ms + 3 * ref_median_ms
@@ -122,6 +160,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("dir")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--profile-events", default=None, help="<block>/profile_events.jsonl of auto_block.py (transient incoherences of the monitor)")
+    ap.add_argument("--watch-log", default=None, help="watch2.log of the watcher v2 (unsettled-profile intervals)")
     ap.add_argument("--lan-ref", action="append", default=[], help="adjacent `lan` session dir(s) for rule (a) at a non-lan profile (higher median used)")
     a = ap.parse_args()
     d = Path(a.dir)
@@ -134,6 +174,9 @@ def main() -> int:
          f"started {man['started_utc']}, finished {man.get('finished_utc')}, aborted: {man.get('aborted')}", ""]
     full = [c for c in cells if "rows" in c and "aborted" not in c]
     L.append(f"cells in file: {len(cells)}; complete: {len(full)}; partial/aborted: {len(cells) - len(full)}")
+    labelled, per_cell_ov, ov_text = overlap_exclusion(full, a.profile_events, Path(a.watch_log).read_text() if a.watch_log else None)
+    if prof != "lan" and not (a.profile_events or a.watch_log):
+        L.append("**WARNING: exclusion by overlap NOT applied (no --profile-events / --watch-log)**")
     by = {}
     L += ["", "## Per cell", "", "| arm | FANOUT | n | excl. | dispute-rtt ms | last-site P-log ms | gap rtt - P-log ms (med, max) | P-log ratio | measure | pending sites (log/read/undercount) | ack lines (tot/max) |", "|---|---|---|---|---|---|---|---|---|---|---|"]
     for c in sorted(full, key=lambda c: (c["cell_spec"]["arm"], c["cell_spec"]["fanout"])):
@@ -157,6 +200,7 @@ def main() -> int:
         rows = c["rows"]
         n = lambda reason: sum(1 for r in rows if r.get("excluded_reason") == reason)  # noqa: E731
         L.append(f"| {key[0]} | {key[1]} | {sum(1 for r in rows if r.get('client_timeout'))} | {n('queues_not_empty_at_start')} | {n('transport_error_setup')} | {n('transport_error_measured')} | {c['flagged_pre']} |")
+    L += ov_text
     L += ["", f"## Background and discard rule (other_cores > {rule['max_other_cores']} or steal_pct > {rule['max_steal_pct']} flags a cell)", "",
           "| arm | FANOUT | other_cores | steal_pct | flagged | generator proc cores mean/max | host busy % mean | near saturation |", "|---|---|---|---|---|---|---|---|"]
     for key, v in sorted(by.items()):
