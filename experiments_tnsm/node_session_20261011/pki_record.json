@@ -1,0 +1,24 @@
+{
+  "recorded_utc": "2026-10-11T16:36Z",
+  "source": "output of the B0 command run by the session over ssh (alias dibnode, ubuntu@192.168.100.57), audit 43 B0; decision Q12: validity 336 h",
+  "command_started_utc": "2026-10-11T16:34:11Z",
+  "node_path": "/home/ubuntu/dib_tnsm/pki",
+  "old_pki_moved_to": "/home/ubuntu/dib_tnsm/pki_prec_20261011T163411Z and /home/ubuntu/dib_tnsm/pki_prec_20261011T163411Z.ca (not deleted; old expiry 2026-10-13T08:22:10Z)",
+  "generator": "tree-244f1d0/code/scripts/make_dist_pki.py",
+  "make_dist_pki_py_sha256": "99a2aa3298db09cc4aba582192541ee865c4c5efaddb3668e9d394b029e74fc3",
+  "args": "--out ~/dib_tnsm/pki --n-sites 10 --not-before 2026-10-11T16:32:11Z --valid-hours 336 --extra-san-ip 192.168.100.57",
+  "valid_hours": 336,
+  "not_before": "2026-10-11T16:32:11Z",
+  "not_after": "2026-10-25T16:32:11Z",
+  "certificates": 22,
+  "pki_manifest_json_sha256": "a08bd93775513cba93434dafd82cb49d2f490c081755f99e2d5ffb95c78c7d21",
+  "ca_crt_sha256": "43e404a95be09f57ed33721c5a84228796a736cdd58ba2b09d7122f88441f59f",
+  "san_checked_on_node": {
+    "evidence": "URI:spiffe://dib.consortium/evidence, DNS:evidence, DNS:localhost, IP:127.0.0.1, IP:192.168.100.57",
+    "site-0": "URI:spiffe://dib.consortium/site/site-0, DNS:site-0, DNS:localhost, IP:127.0.0.1, IP:192.168.100.57"
+  },
+  "df_before": "98G total, 90G used, 3.5G avail, 97%",
+  "df_after": "98G total, 90G used, 3.5G avail, 97%",
+  "frozen_files_depend_on_certificates": false,
+  "note": "tree-244f1d0 hashes verified on the node (24 lines, 0 mismatches) and equal to experiments_tnsm/m67_retraction/frozen_hashes_244f1d0.txt. Smoke cell C with the new PKI still to run (audit 43 B0)."
+}
