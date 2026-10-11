@@ -28,6 +28,8 @@
 # Children: `timeout --foreground` signals only this shell, so the exit path kills its own background sleep; a SIGKILL after --kill-after cannot be handled.
 # Files in DIR written by root (profile.applied, watch2.log, watch2.heartbeat) are created with mktemp (O_EXCL) and moved into place
 # with `mv -fT`, so a symlink planted by the owner at the final name is replaced, never followed.
+# CONSISTENCY: profile.applied is written only if the containers (names and pids) listed after the application are exactly those listed before it; a container
+# that appears while netem_apply.sh runs (a cluster being created) triggers a new application instead of a record that lists it without netem.
 # TRUST: profile.applied (like watch2.log and watch2.heartbeat) is evidence written by root, but it lives in a directory owned by --owner, who can
 # delete or replace any file in it (a symlink or a forged record included). It is a consistency check against faults (wrong profile, partial
 # cluster, dead watcher), NOT an authentication of what root applied; the authoritative check stays `sudo netem_show.sh` and the RTT probe of the driver.
@@ -201,18 +203,25 @@ collect_show() {  # prints sections; non-zero on any failure
   done <<< "$entries"
 }
 try_apply() {  # trigger ; uses BASE/PART/CUR_REQ/POLL_CUR already set to the CANDIDATE state; returns 0 on success
-  local trigger=$1 psout n shown
+  local trigger=$1 psout n shown before after
   psout=$(docker ps --filter "label=com.docker.compose.project=$PROJECT" --format '{{.Names}}') || return 1
   if [[ -z $psout ]]; then
     write_applied "$trigger" 0 "note: no container of project $PROJECT; the state is applied when the cluster appears" || return 1
     return 0
   fi
+  before=$(list_project | sort) || return 1                  # "name pid" of the containers the application is about to cover
   bash "$APPLY" "$BASE" >/dev/null || return 1
   if [[ -n $PART ]]; then
     list_project | awk -v n="$PROJECT-site-$PART-1" '$1==n{f=1} END{exit !f}' || { echo "partition site-$PART: container not present" >&2; return 1; }
     bash "$APPLY" partition "$PART" >/dev/null || return 1
   fi
   shown=$(collect_show) || return 1
+  # a container created (or restarted) while the application ran was not covered: do NOT report it as applied, re-apply at the next poll
+  after=$(sed -n 's/^== \(.*\) pid \(.*\)$/\1 \2/p' <<< "$shown" | sort)
+  if [[ $before != "$after" ]]; then
+    warn "the set of containers changed during the application (before: $(wc -l <<< "$before"), after: $(wc -l <<< "$after")): profile.applied not written, re-applying"
+    return 1
+  fi
   n=$(grep -c '^== ' <<< "$shown")
   if ! write_applied "$trigger" "$n" "$shown"; then
     # the netem state IS in place: retry only the write (a failed write must never re-run the application)

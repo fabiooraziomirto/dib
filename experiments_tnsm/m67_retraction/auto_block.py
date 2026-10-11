@@ -146,6 +146,7 @@ class Ctx:
     hb_max_age_s: float = pc.HEARTBEAT_MAX_AGE_S
     profile_wait_s: int = 90
     pki_recheck_s: float = 60.0
+    monitor_grace_s: float = 10.0
     require_smoke: bool = True
     smoke_dir: Path = Path.home() / "dib_tnsm/m67/smoke"
     seed: int = SEED
@@ -228,27 +229,47 @@ def b1_groups(prof: str, arms: str, seed: int, smoke: bool) -> list[tuple]:
 
 # ---------------------------------------------------------------------------------------------------------------- monitor
 class ProfileMonitor:
-    """Records every new profile.applied record in profile_events.jsonl; returns a problem text when a record with all 11 containers
-    does not match the expected state. Partial clusters (a cluster being created) and `containers: 0` are recorded and ignored."""
-    def __init__(self, ctl, path: Path):
-        self.ctl, self.path, self.last = ctl, Path(path), None
+    """Records every new profile.applied record in profile_events.jsonl and returns a problem text when an incoherence PERSISTS: a record with all
+    11 containers that does not match the expected state is pending; it is a stop only if it lasts `grace_s` (default 10 s) without a newer
+    record that is not incoherent (smoke of 2026-10-11: one container without netem for ~1.4 s while the cluster was being created, corrected by
+    the watcher's next application, is not a fault; the v1 watcher fighting the v2 was persistent and is still caught). A resolved incoherence is
+    written as a `transient` row with start/end (epoch ms) so that the analysis can exclude cells overlapping it (incoherent_intervals).
+    Partial clusters and `containers: 0` records are recorded and say nothing (they neither clear nor start a pending incoherence)."""
+    def __init__(self, ctl, path: Path, grace_s: float = 10.0, clock=time.time):
+        self.ctl, self.path, self.grace_s, self.clock = ctl, Path(path), grace_s, clock
+        self.last = None
+        self.pending = None            # {"start_ms", "since", "problems"}
+
+    def _write(self, row: dict) -> None:
+        with self.path.open("a") as f:
+            f.write(json.dumps(row) + "\n")
 
     def poll(self) -> str | None:
         try:
             a = self.ctl.read_applied()
         except pc.ProfileError:
-            return None
-        if a.epoch_ms == self.last:
-            return None
-        self.last = a.epoch_ms
-        probs, coherent = [], None
-        if a.containers == len(pc.NAMES) and self.ctl.expected_base is not None:
-            probs = pc.check_coherent(a, self.ctl.expected_base, self.ctl.expected_partition)
-            coherent = not probs
-        with self.path.open("a") as f:
-            f.write(json.dumps({"epoch_ms": a.epoch_ms, "applied_utc": a.applied_utc, "request": a.request, "trigger": a.trigger, "base": a.base,
-                                "partition": a.partition, "containers": a.containers, "coherent": coherent, "problems": probs}) + "\n")
-        return "; ".join(probs) if probs else None
+            a = None
+        if a is not None and a.epoch_ms != self.last:
+            self.last = a.epoch_ms
+            probs, coherent = [], None
+            if a.containers == len(pc.NAMES) and self.ctl.expected_base is not None:
+                probs = pc.check_coherent(a, self.ctl.expected_base, self.ctl.expected_partition)
+                coherent = not probs
+            self._write({"epoch_ms": a.epoch_ms, "applied_utc": a.applied_utc, "request": a.request, "trigger": a.trigger, "base": a.base,
+                         "partition": a.partition, "containers": a.containers, "coherent": coherent, "problems": probs})
+            if coherent is False and self.pending is None:
+                self.pending = {"start_ms": a.epoch_ms, "since": self.clock(), "problems": probs}
+            elif coherent is True and self.pending is not None:
+                self._write({"transient": True, "start_ms": self.pending["start_ms"], "end_ms": a.epoch_ms, "problems": self.pending["problems"]})
+                self.pending = None
+        if self.pending is not None and self.clock() - self.pending["since"] >= self.grace_s:
+            return "; ".join(self.pending["problems"])
+        return None
+
+
+def incoherent_intervals(path: Path) -> list[tuple[int, int]]:
+    """(start_ms, end_ms) of every incoherent stretch recorded by the monitor (resolved `transient` rows), for the exclusion of overlapping cells."""
+    return [(r["start_ms"], r["end_ms"]) for r in _cells(path) if r.get("transient")]
 
 
 # ---------------------------------------------------------------------------------------------------------------- checks and supervision
@@ -441,7 +462,7 @@ def run_block(ctx: Ctx, name: str) -> dict:
     try:
         a = ctx.ctl.request(prof, timeout_s=ctx.request_timeout_s, allow_no_cluster=True)
         st.event("profile_requested", block=name, request=prof, containers=getattr(a, "containers", None))
-        mon = ProfileMonitor(ctx.ctl, bdir / "profile_events.jsonl")
+        mon = ProfileMonitor(ctx.ctl, bdir / "profile_events.jsonl", grace_s=ctx.monitor_grace_s)
         if prof == "lan":     # user decision 2026-10-11: no calibration and no thresholds at lan (as the earlier lan sessions: dispute-rtt)
             p95, tf, stop = None, None, None
             st.event("calibration_skipped", block=name, reason="lan: no calibration, no P-log thresholds")

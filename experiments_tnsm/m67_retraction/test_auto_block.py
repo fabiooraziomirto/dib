@@ -125,6 +125,7 @@ def make_ctx(tmp_path, system=None, ctl=None, smoke=False, expect=None, end_in=4
                  expect=expect if expect is not None else {}, smoke=smoke, tick_s=tick, commit_wait_s=commit_wait, py=sys.executable,
                  check_service_hash=False, request_timeout_s=5.0, calib_timeout_s=60, run_timeout_s=60)
     ctx.pki_recheck_s = 0.0
+    ctx.monitor_grace_s = 0.2
     ctx.require_smoke = require_smoke
     ctx.smoke_dir = tmp_path / "smoke"
     ctx.out.mkdir(parents=True, exist_ok=True)
@@ -391,7 +392,8 @@ def test_a9_smoke_uses_3_episodes_and_fanout_10(tmp_path):
 def test_a10_profile_monitor(tmp_path):
     ctl = FakeCtl()
     ctl.expected_base = "degraded"
-    mon = ab.ProfileMonitor(ctl, tmp_path / "profile_events.jsonl")
+    clock = {"t": 1000.0}
+    mon = ab.ProfileMonitor(ctl, tmp_path / "profile_events.jsonl", grace_s=10.0, clock=lambda: clock["t"])
     assert mon.poll() is None                                          # nothing yet
     ctl.applied = pc.parse_applied(_applied("degraded", n=6))
     assert mon.poll() is None                                          # partial cluster: ignored
@@ -400,11 +402,53 @@ def test_a10_profile_monitor(tmp_path):
     assert mon.poll() is None
     assert mon.poll() is None                                          # same record: not recorded twice
     ctl.applied = pc.parse_applied(_applied("degraded", {"dibtnsm-site-5-1": "qdisc noqueue 0: root"}))
-    ctl.applied.epoch_ms += 10
+    ctl.applied.epoch_ms = 1000_000 + 10
+    assert mon.poll() is None                                          # incoherent but within the grace: pending, not a stop
+    clock["t"] += 9.9
+    assert mon.poll() is None
+    clock["t"] += 0.2                                                  # persisted beyond 10 s with no newer record
     p = mon.poll()
     assert p and "dibtnsm-site-5-1" in p
     rows = [json.loads(l) for l in (tmp_path / "profile_events.jsonl").read_text().splitlines()]
-    assert [r["coherent"] for r in rows] == [None, True, False] and [r["containers"] for r in rows] == [6, 11, 11]
+    assert [r["coherent"] for r in rows if "coherent" in r] == [None, True, False] and [r["containers"] for r in rows if "coherent" in r] == [6, 11, 11]
+
+
+def test_a10_transient_incoherence_is_tolerated_and_recorded(tmp_path):
+    """Smoke of 2026-10-11: one container without netem for ~1.4 s while the cluster was being created, corrected by the next record: not a stop,
+    but recorded with start and end (`transient` rows) so that the analysis can exclude cells overlapping it."""
+    ctl = FakeCtl()
+    ctl.expected_base = "degraded"
+    clock = {"t": 2000.0}
+    mon = ab.ProfileMonitor(ctl, tmp_path / "ev.jsonl", grace_s=10.0, clock=lambda: clock["t"])
+    ctl.applied = pc.parse_applied(_applied("degraded", {"dibtnsm-site-8-1": "qdisc noqueue 0: root"}))
+    ctl.applied.epoch_ms = 2000_000
+    assert mon.poll() is None
+    clock["t"] += 1.4
+    ctl.applied = pc.parse_applied(_applied("degraded"))
+    ctl.applied.epoch_ms = 2001_400
+    assert mon.poll() is None
+    clock["t"] += 60
+    assert mon.poll() is None                                          # resolved: never a stop afterwards
+    rows = [json.loads(l) for l in (tmp_path / "ev.jsonl").read_text().splitlines()]
+    tr = [r for r in rows if r.get("transient")]
+    assert len(tr) == 1 and tr[0]["start_ms"] == 2000_000 and tr[0]["end_ms"] == 2001_400 and "dibtnsm-site-8-1" in tr[0]["problems"][0]
+    assert ab.incoherent_intervals(tmp_path / "ev.jsonl") == [(2000_000, 2001_400)]
+
+
+def test_a10_partial_record_does_not_clear_a_pending_incoherence(tmp_path):
+    ctl = FakeCtl()
+    ctl.expected_base = "degraded"
+    clock = {"t": 3000.0}
+    mon = ab.ProfileMonitor(ctl, tmp_path / "ev.jsonl", grace_s=5.0, clock=lambda: clock["t"])
+    ctl.applied = pc.parse_applied(_applied("degraded", {"dibtnsm-site-1-1": "qdisc noqueue 0: root"}))
+    ctl.applied.epoch_ms = 3000_000
+    assert mon.poll() is None
+    clock["t"] += 3
+    ctl.applied = pc.parse_applied(_applied("degraded", n=4))          # cluster being torn down / recreated: says nothing
+    ctl.applied.epoch_ms = 3003_000
+    assert mon.poll() is None
+    clock["t"] += 3
+    assert mon.poll() and True                                         # 6 s since the incoherent record: stop
 
 
 # ------------------------------------------------------------------------------------------------------------------ A-12, report

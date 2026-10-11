@@ -46,6 +46,7 @@ if [[ "$*" == *"tc qdisc show"* ]]; then
   [[ -e "$D/fail_show" ]] && { echo "show failed" >&2; exit 1; }
   if [[ -e "$D/q_$pid" ]]; then cat "$D/q_$pid"; else echo "qdisc noqueue 0: root refcnt 2"; fi
 elif [[ "$*" == *"tc qdisc replace"* ]]; then
+  if [[ -e "$D/switch_on_replace" ]]; then cat "$D/switch_on_replace" > "$D/mode"; rm -f "$D/switch_on_replace"; fi   # a container appears DURING the application
   if [[ -e "$D/fail_once" ]]; then rm -f "$D/fail_once"; echo "boom" >&2; exit 1; fi
   args="${*#*netem }"
   echo "qdisc netem 8001: root refcnt 2 limit 1000 $args" > "$D/q_$pid"
@@ -69,6 +70,7 @@ def make_fake(tmp_path, with_cluster=True):
     (d / "containers_a").write_text("\n".join(a) + "\n")
     (d / "containers_b").write_text("\n".join(b) + "\n")
     (d / "containers_none").write_text("")
+    (d / "containers_ten").write_text("\n".join(a[:9] + a[10:]) + "\n")                   # site-9 not created yet
     (d / "mode").write_text("a" if with_cluster else "none")
     for f in ("docker.log", "nsenter.log", "violations.log"):
         (d / f).write_text("")
@@ -512,5 +514,33 @@ def test_w15_failed_write_does_not_reapply_in_a_loop(env):
     assert wait_for(lambda: "request: wan" in w.applied(), 10)
     assert len([l for l in nsenter_cmds(d) if "replace" in l]) == 11
     assert all("delay 80ms loss 1%" in v for v in qlines(w.applied()).values())
+    w.stop()
+    check_global(d)
+
+
+def test_w16_container_appearing_during_the_application_is_never_reported_as_applied(tmp_path):
+    """Smoke of 2026-10-11: site-8 appeared while the watcher was applying; profile.applied then listed 11 containers with site-8 WITHOUT netem.
+    Declared: the watcher writes profile.applied only if the container set (names and pids) after the application equals the set it applied to;
+    otherwise it re-applies. Every record ever visible has netem on every container it lists, and the final record has all 11."""
+    d, rd = make_fake(tmp_path)
+    (d / "mode").write_text("ten")
+    w = Watch(d, rd)
+    assert wait_for(lambda: (rd / "watch2.heartbeat").exists(), 15)
+    (d / "switch_on_replace").write_text("a")                         # the first `replace` makes site-9 appear
+    w.request("degraded")
+    seen = []
+    t0 = time.time()
+    while time.time() - t0 < 20:
+        a = w.applied()
+        if a and (not seen or seen[-1] != a):
+            seen.append(a)
+        if "containers: 11" in a:
+            break
+        time.sleep(0.01)
+    time.sleep(0.3)
+    final = w.applied()
+    assert "containers: 11" in final and all("delay 200ms loss 5%" in v for v in qlines(final).values()) and len(qlines(final)) == 11
+    for a in seen:                                                    # no visible record lists a container without netem
+        assert all("netem" in v for v in qlines(a).values()), a
     w.stop()
     check_global(d)
