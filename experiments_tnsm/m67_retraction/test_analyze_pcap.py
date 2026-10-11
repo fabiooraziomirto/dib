@@ -69,8 +69,19 @@ def test_flights_counts_direction_changes(tmp_path):
 
 def test_capture_host_ip_is_the_address_in_every_packet(tmp_path):
     # a site-0 capture dominated by its OWN outgoing reconcile SYNs to evidence must still identify site-0, not evidence (bug of the first run)
-    pk = [(1.0 + i, frame("10.0.0.5", "10.0.0.2", 5000 + i, 8000, 0x02, 0, 0)) for i in range(30)] + \\
-         [(40.0 + i, frame("10.0.0.9", "10.0.0.5", 6000 + i, 8000, 0x02, 0, 0)) for i in range(5)] + \\
-         [(60.0, frame("10.0.0.1", "10.0.0.5", 7000, 8000, 0x02, 0, 0))]
+    pk = [(1.0 + i, frame("10.0.0.5", "10.0.0.2", 5000 + i, 8000, 0x02, 0, 0)) for i in range(30)]
+    pk += [(40.0 + i, frame("10.0.0.9", "10.0.0.5", 6000 + i, 8000, 0x02, 0, 0)) for i in range(5)]
+    pk += [(60.0, frame("10.0.0.1", "10.0.0.5", 7000, 8000, 0x02, 0, 0))]
     write_pcap(tmp_path / "x.pcap", pk)
     assert a.capture_host_ip(a.read_pcap(tmp_path / "x.pcap")) == "10.0.0.5"
+
+
+def test_flight_pause_rule_and_common_window(tmp_path):
+    c, s_ = "1.1.1.1", "2.2.2.2"
+    # two client packets 0.5 s apart in the same direction are two flights (declared rule: pause > 100 ms)
+    pk = [(1.0, frame(c, s_, 4000, 8000, 0x02, 0, 0)), (1.2, frame(s_, c, 8000, 4000, 0x12, 0, 1)), (1.7, frame(c, s_, 4000, 8000, 0x18, 1, 1, b"x" * 10)),
+          (2.3, frame(c, s_, 4000, 8000, 0x18, 11, 1, b"y" * 10)), (2.5, frame(s_, c, 8000, 4000, 0x18, 1, 21, b"z" * 10))]
+    write_pcap(tmp_path / "x.pcap", pk)
+    assert a.q5_q6(a.read_pcap(tmp_path / "x.pcap"), c)[0]["flights"] == 5
+    tx = [{"ts": t} for t in (1.0, 2.0, 50.0, 99.5)]
+    assert [p["ts"] for p in a.in_window(tx, 10.0, 99.0)] == [50.0]

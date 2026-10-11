@@ -103,11 +103,19 @@ def clopper(x, n, a=0.05):
     return analyze_c.clopper_pearson(x, n, a)
 
 
+def in_window(pkts, lo, hi):
+    return [p for p in pkts if lo <= p["ts"] <= hi]
+
+
 def q1(ev, s0, ev_ip, s0_ip):
+    """Correction after the first run (disclosed in audit 30 s.3): the SENT packets inside the COMMON coverage of the two captures are compared
+    (edges: site-0's capture started later and ended earlier than evidence's), with 1 s margin at the end for packets in flight."""
+    lo = max(min(p["ts"] for p in ev), min(p["ts"] for p in s0))
+    hi = min(max(p["ts"] for p in ev), max(p["ts"] for p in s0)) - 1.0
     out = []
     for name, tx_cap, rx_cap, src, dst in (("evidence -> site-0", ev, s0, ev_ip, s0_ip), ("site-0 -> evidence", s0, ev, s0_ip, ev_ip)):
-        tx = [p for p in tx_cap if p["src"] == src and p["dst"] == dst]
-        rx = [p for p in rx_cap if p["src"] == src and p["dst"] == dst]
+        tx = in_window([p for p in tx_cap if p["src"] == src and p["dst"] == dst], lo, hi)     # window on the SENT packets only
+        rx = [p for p in rx_cap if p["src"] == src and p["dst"] == dst]                       # received ones are not cut (they arrive later)
         d, un, rxun = match(tx, rx)
         med = S.median(d) * 1000 if d else None
         frac = un / len(tx) if tx else None
@@ -141,7 +149,7 @@ def q3(cap, src_ip):
     iv = []
     for plist in flows(cap).values():
         syns = sorted(p["ts"] for p in plist if p["flags"] & SYN and not p["flags"] & ACK and p["src"] == src_ip)
-        iv += [b - a for a, b in zip(syns, syns[1:])]
+        iv += [b - a for a, b in zip(syns, syns[1:]) if b - a < 10.0]   # < 10 s: same connection attempt (longer gaps = port reuse)
     return sorted(iv)
 
 
@@ -171,7 +179,7 @@ def q5_q6(cap, ev_ip):
         t_last = None
         for p in body:
             d = p["src"] == cl
-            if last is None or d != last or (t_last is not None and p["ts"] - t_last > 0.1 and False):
+            if last is None or d != last or (t_last is not None and p["ts"] - t_last > 0.1):
                 flights += 1
             last, t_last = d, p["ts"]
         server_payload = [p for p in plist if p["src"] != cl and p["plen"] > 0]
@@ -179,6 +187,20 @@ def q5_q6(cap, ev_ip):
         res.append({"flights": flights, "n_syn": len(syn), "completed": bool(server_payload), "client_closed": bool(client_end),
                     "dur": plist[-1]["ts"] - plist[0]["ts"], "t0": plist[0]["ts"]})
     return res
+
+
+def retrans_share(cap, src_ip):
+    """Share of packets sent by src_ip toward port-8000 peers that repeat an earlier identical (flow, flags, seq, len) transmission."""
+    seen, n, rep = set(), 0, 0
+    for p in sorted(cap, key=lambda x: x["ts"]):
+        if p["src"] != src_ip or p["dport"] != PORT or (p["plen"] == 0 and not p["flags"] & (SYN | FIN)):
+            continue
+        k = (p["src"], p["dst"], p["sport"], p["dport"], p["flags"], p["seq"], p["plen"])
+        n += 1
+        if k in seen:
+            rep += 1
+        seen.add(k)
+    return rep, n
 
 
 def q8(cap):
@@ -237,6 +259,8 @@ def report(d: Path, arm: str) -> str:
           f"- connections with no server payload and a client FIN/RST (aborted by the client): {sum(1 for r in rs if not r['completed'] and r['client_closed'])}/{len(rs)}; "
           f"connections with no server payload at all: {sum(1 for r in rs if not r['completed'])}/{len(rs)}",
           f"- duration (s) of completed connections: 5/50/95% {fmt_q(sorted(r['dur'] for r in comp), .05)} / {fmt_q(sorted(r['dur'] for r in comp), .5)} / {fmt_q(sorted(r['dur'] for r in comp), .95)}"]
+    rep, nn = retrans_share(ev, ev_ip)
+    L += ["", f"### Repeated transmissions by evidence toward sites (data/SYN/FIN segments seen twice or more at the sender tap): {rep}/{nn}"]
     L += ["", "### Q7 coverage", f"- evidence->site connections in the evidence capture: {len(rs)} (expected deliveries: 20 episodes x 10 sites = 200, plus retries)"]
     for who, cap in (("evidence", ev), ("site-0", s0)):
         g, n = q8(cap)
