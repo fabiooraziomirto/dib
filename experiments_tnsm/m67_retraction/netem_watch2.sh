@@ -25,8 +25,12 @@
 #   * runs ALWAYS under `timeout` (the script re-executes itself under `timeout --max-seconds`, default 9 h, also when the user already
 #     wrapped it). On SIGINT/SIGTERM/HUP, on the deadline, or when DIR/STOP exists, it restores lan on the validated containers (netem_apply.sh
 #     lan); if that fails it prints the ATTENZIONE warning on stderr and exits 1. With no container left there is nothing to remove.
+# Children: `timeout --foreground` signals only this shell, so the exit path kills its own background sleep; a SIGKILL after --kill-after cannot be handled.
 # Files in DIR written by root (profile.applied, watch2.log, watch2.heartbeat) are created with mktemp (O_EXCL) and moved into place
 # with `mv -fT`, so a symlink planted by the owner at the final name is replaced, never followed.
+# TRUST: profile.applied (like watch2.log and watch2.heartbeat) is evidence written by root, but it lives in a directory owned by --owner, who can
+# delete or replace any file in it (a symlink or a forged record included). It is a consistency check against faults (wrong profile, partial
+# cluster, dead watcher), NOT an authentication of what root applied; the authoritative check stays `sudo netem_show.sh` and the RTT probe of the driver.
 # Until the first request is accepted nothing is applied (a fresh cluster has no qdisc). A stale profile.request present at start is ignored. A STOP file present at start makes the script refuse to start.
 #
 # Usage: sudo timeout 9h bash netem_watch2.sh --dir /home/ubuntu/dib_tnsm/m67 --owner ubuntu [--poll 0.5] [--fast-poll 0.1] [--max-seconds 32400]
@@ -98,7 +102,7 @@ warn() { local l; l="$(ts) netem_watch: $*"; echo "$l" >&2; LOG+=("$l"); flush_l
 # ---- state
 BASE=lan; PART=""; CUR_REQ="(none)"; POLL_CUR=$POLL_BASE
 PEND=0; P_BASE=""; P_PART=""; P_REQ=""; P_POLL=""
-last_sig=""; TOUCHED=0; fails=0; last_req_sig=""; last_hb=0
+UNW_TRIGGER=""; unw_fails=0; last_sig=""; TOUCHED=0; fails=0; last_req_sig=""; last_hb=0
 
 heartbeat() {  # state
   local now
@@ -210,12 +214,26 @@ try_apply() {  # trigger ; uses BASE/PART/CUR_REQ/POLL_CUR already set to the CA
   fi
   shown=$(collect_show) || return 1
   n=$(grep -c '^== ' <<< "$shown")
-  write_applied "$trigger" "$n" "$shown" || return 1
+  if ! write_applied "$trigger" "$n" "$shown"; then
+    # the netem state IS in place: retry only the write (a failed write must never re-run the application)
+    UNW_TRIGGER=$trigger; unw_fails=0
+    warn "profile.applied NOT written (netem applied; the write is retried every poll)"
+  fi
+}
+retry_write() {  # re-reads the qdisc (read only) and writes the record again
+  local shown n
+  if shown=$(collect_show) && n=$(grep -c '^== ' <<< "$shown") && write_applied "$UNW_TRIGGER" "$n" "$shown"; then
+    say "profile.applied written after $((unw_fails + 1)) failed attempt(s)"; UNW_TRIGGER=""
+  else
+    unw_fails=$((unw_fails + 1))
+    if (( unw_fails % 20 == 0 )); then warn "profile.applied NOT written (attempt $unw_fails)"; fi
+  fi
 }
 
 cleanup() {  # reason
   local rc=0 psout
   trap '' INT TERM HUP
+  kill $(jobs -p) 2>/dev/null; wait 2>/dev/null   # `timeout --foreground` signals only this shell: do not leave the background sleep behind
   say "stopping ($1), restoring lan on the dibtnsm containers"
   if ! psout=$(docker ps --filter "label=com.docker.compose.project=$PROJECT" --format '{{.Names}}'); then
     rc=1
@@ -244,6 +262,7 @@ while true; do
   if [[ -e $DIR/STOP || -L $DIR/STOP ]]; then cleanup STOP; fi
   heartbeat running
   check_request
+  [[ -z $UNW_TRIGGER ]] || retry_write
   cur=$(signature) || cur=""
   if (( PEND )); then
     # candidate state; committed only if the application succeeded (a failed apply is retried at the next poll)

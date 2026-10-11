@@ -485,3 +485,32 @@ def test_dry_run_changes_nothing(tmp_path):
         assert n in r.stdout
     assert nsenter_cmds(d) == [] and not (rd / "watch2.heartbeat").exists()
     check_global(d)
+
+
+# ------------------------------------------------------------------------------------------------------------------ W-14, W-15 (review of 2026-10-11)
+def test_w14_no_orphan_children_after_exit(env):
+    """`timeout --foreground` signals only the watcher: its background `sleep` must not outlive it (declared: after SIGTERM no `sleep <poll>`
+    child of this watcher is left; the unusual poll value 7.77 identifies it)."""
+    d, rd, mk = env
+    w = mk(poll="7.77", fast="0.05")
+    time.sleep(0.5)
+    assert w.stop() == 0
+    left = subprocess.run(["pgrep", "-f", "sleep 7.77"], capture_output=True, text=True).stdout.split()
+    assert left == [], f"orphan sleep left: {left}"
+
+
+def test_w15_failed_write_does_not_reapply_in_a_loop(env):
+    """If the netem application succeeded but profile.applied cannot be written, only the WRITE is retried: no further `tc qdisc replace`."""
+    d, rd, mk = env
+    w = mk()
+    (rd / "profile.applied").mkdir()                              # `mv -T` onto a directory fails
+    w.request("wan")
+    assert wait_for(lambda: "profile.applied NOT written" in w.log(), 10), w.log()
+    time.sleep(1.0)                                              # ~10 polls
+    assert len([l for l in nsenter_cmds(d) if "replace" in l]) == 11, "the state was re-applied while only the write failed"
+    (rd / "profile.applied").rmdir()
+    assert wait_for(lambda: "request: wan" in w.applied(), 10)
+    assert len([l for l in nsenter_cmds(d) if "replace" in l]) == 11
+    assert all("delay 80ms loss 1%" in v for v in qlines(w.applied()).values())
+    w.stop()
+    check_global(d)
