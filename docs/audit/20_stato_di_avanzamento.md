@@ -33,6 +33,9 @@ Esito in una riga: B1 `wan` completato solo per i due gruppi FANOUT 1 (D e C); i
 - Calibrazione di prova prima della notte (`night_20261011/verify/`): `generator_path_ms` riusata 83,1 ms / nuova 164,0 ms (attesi ~80 / ~160, ipotesi del proxy confermata); L_dns del sito morto p50 179,8 ms, p95 185,2 ms (errore `Temporary failure in name resolution`, massimo 4,0 s). La regola esclude B2-kill (> 50 ms, e watcher a 0,5 s).
 - Previsto: calibrazione `wan`, soglia, B1 (4 gruppi), smontaggio, M1/M2 solo se restano ≥ 3 h (cioè prima delle 04:00 UTC). Nessun intervento sul nodo, sul netem o sul watcher fino al rapporto del mattino (`docs/audit/21_rapporto_notte.md`).
 
+## 2026-10-11 11:34 — Primo smoke lan FALLITO per due watcher in conflitto (v1 degraded ancora attivo); dati conservati come tali; difetto SIGINT in auto_block corretto in locale (audit 32 §12)
+In attesa: l'utente ferma il v1 (tmux `netem`), poi nuovo smoke lan in cartella nuova. Correzione `4f8ff9c` non ancora sul nodo (serve nuovo tree e tua revisione).
+
 ## 2026-10-11 — Watcher v2: diff approvato; pubblicazione di tree-ebd6c50 in corso (audit 32 §11.1)
 Diff `75a5da0`→`8e49987` incollato dall'output reale (4 hunk; la mia versione precedente era ritrascritta e sbagliata), approvato dall'utente. Watcher da installare: `c82ca772…`. Tree da pubblicare: `tree-ebd6c50` (`git archive ebd6c50 code experiments_tnsm`) + `frozen_hashes_ebd6c50.txt`, un ssh per volta autorizzato dall'utente. **Pubblicato** (ssh autorizzati uno per volta): `~/dib_tnsm/tree-ebd6c50` (`git archive ebd6c50 code experiments_tnsm`, sha256 dell'archivio `a6fb3967…`) e `~/dib_tnsm/frozen_hashes_ebd6c50.txt`; `sha256sum -c` sul nodo: 24/24 OK (18 di `bf272e8` inclusi), 0 file certificato, contenuto `code` ed `experiments_tnsm`. **Attendo "watcher v2 attivo"** prima di qualsiasi altra azione sul nodo.
 
