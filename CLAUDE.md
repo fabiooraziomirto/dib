@@ -13,7 +13,7 @@ Provenienza e inventario: `docs/audit/00_inventario_repo_pulita.md`. Import = ta
 - Scrivi i risultati in `docs/audit/`, non solo in chat.
 - Comandi lunghi (TLC completo, Docker/OpenWrt, esperimenti completi): chiedi prima di lanciarli.
 - Modifiche sempre su branch/copia; mai sovrascrivere gli originali.
-- Nessuna modifica al paper (non è in questa repo), salvo `docs/main_tnsm.tex` (copia di lavoro da `main.tex` 3fdd7489…): mai modificare `main.tex` né `main_old.tex`.
+- Nessuna modifica al paper (non è in questa repo), salvo `docs/main_wip.tex` (copia di lavoro canonica dall'11/10/2026, usata dai commit `75d1b19`, `7091f37`; decisione dell'utente): mai modificare `main.tex` né `main_old.tex`. `docs/main_tnsm.tex` (copia da `main.tex` 3fdd7489…) resta come punto di partenza storico, non più modificata.
 
 ## Come si esegue
 - Test: `cd code && PYTHONDONTWRITEBYTECODE=1 timeout 300 python3 -m pytest tests -q -p no:cacheprovider` (atteso 281 passed al tag `v43-import`, ~6 s). `pytest-timeout` non è installato: usa `timeout`.
