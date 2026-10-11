@@ -105,7 +105,7 @@ def counts(path: Path) -> dict:
 
 def second_clause(ci_d: tuple[float, float], ci_c: tuple[float, float], pd: float, pc: float) -> str:
     if ci_c[1] < ci_d[0]:
-        return f"FALSIFIED: the CI of C [{ci_c[0]:.5f}; {ci_c[1]:.5f}] lies entirely below the CI of D [{ci_d[0]:.5f}; {ci_d[1]:.5f}] (the mTLS arm does not exceed D)"
+        return f"FALSIFIED: the CI of C [{ci_c[0]:.5f}; {ci_c[1]:.5f}] lies entirely below the CI of D [{ci_d[0]:.5f}; {ci_d[1]:.5f}] (the mTLS arm does not exceed D; point estimates C {pc:.5f}, D {pd:.5f})"
     if ci_c[0] > ci_d[1]:
         return f"satisfied: the CI of C lies entirely above the CI of D (point estimates C {pc:.5f}, D {pd:.5f})"
     return f"inconclusive for this clause: the CIs overlap (point estimates C {pc:.5f}, D {pd:.5f}; point estimate of C {'above' if pc > pd else 'NOT above'} D, information only)"

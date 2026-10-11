@@ -54,7 +54,7 @@ def test_counts_come_from_the_rows_and_match_the_run_summary_logic():
 
 def test_second_clause_is_about_disjoint_cis():
     ci_d, ci_c = (0.004, 0.015), (0.001, 0.003)
-    assert c.second_clause(ci_d, ci_c, 0.008, 0.002).startswith("FALSIFIED")
+    assert c.second_clause(ci_d, ci_c, 0.008, 0.002).startswith("FALSIFIED") and "point estimates C 0.00200, D 0.00800" in c.second_clause(ci_d, ci_c, 0.008, 0.002)
     assert c.second_clause((0.004, 0.015), (0.02, 0.06), 0.008, 0.04).startswith("satisfied")
     s = c.second_clause((0.004, 0.015), (0.010, 0.03), 0.008, 0.007)                          # overlapping CIs, C's point estimate BELOW D's: still not falsified
     assert s.startswith("inconclusive") and "NOT above" in s

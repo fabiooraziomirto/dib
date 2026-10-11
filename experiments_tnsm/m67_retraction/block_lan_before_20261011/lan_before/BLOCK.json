@@ -1,0 +1,14 @@
+{
+ "block": "lan_before",
+ "profile": "lan",
+ "status": "done",
+ "reason": null,
+ "lan_confirmed": true,
+ "b1_data_cells": 4,
+ "groups": {
+  "C_f10": "ok",
+  "D_f1": "ok",
+  "C_f1": "ok",
+  "D_f10": "ok"
+ }
+}
