@@ -69,3 +69,18 @@ Nota: il manifest registra `measure_rule: dispute-rtt (no P-log calibration appl
 - **P-a4 (C − D, ultimo sito, FANOUT 1, +23,5 ms; falsificata se l'IC è fuori da [15, 32])**: C − D = **38,65 ms** [22,85; 49,69]. La stima puntuale è oltre l'estremo superiore 32, l'IC lo attraversa e contiene 23,5: **né falsificata (IC non interamente fuori) né confermata**; letta come "stima puntuale fuori dall'intervallo" sarebbe fuori. Il braccio C è oltre D di più di quanto previsto in stima puntuale. Non spiego.
 - C − D a FANOUT 10 (nessun intervallo registrato): 4,70 ms [0,02; 15,52] (ultimo sito), 6,53 ms [1,64; 18,55] (`dispute-rtt`).
 - **P-a1 (default − D, +61,5 ms) e P-a2 (FANOUT 10, +6…+62 ms): non valutabili**, nessuna cella `default` in questo run.
+
+## L_dns a `lan`, tre misure, senza watcher né netem (2026-10-11)
+Comando: `calib_profile.py --tree ~/dib_tnsm/tree-bf272e8 --profile lan` (script hashato `f045d0fd…`, esso lancia `calib_ldns.sh` `0191b1fa…`, uguale alla notte), un comando per volta, intervallo ~5 min. **Sito ucciso: `site-3`** (`calib_ldns.sh`: `kill site-3`, sonda `getaddrinfo("site-3", 8000)` dal container evidence), lo stesso della notte. Cluster D. Nessun container né watcher prima di ciascuna. Dati: `experiments_tnsm/m67_retraction/lan_20261011/ldns_{1,2,3}/calib_ldns_lan.txt`.
+
+| Misura | Ora UTC (inizio-fine) | Controllo sito vivo p50 / p95 / max (ms) | Sito morto p50 / p95 / max (ms) | Errore |
+|---|---|---|---|---|
+| 1 | 08:03:00-08:03:36 | 0,208 / 0,296 / 2,90 | 3,08 / 3,87 / 6,09 | `gaierror(-3, 'Temporary failure in name resolution')` |
+| 2 | 08:08:20-08:08:59 | 0,283 / 0,491 / 2,31 | 3,71 / 7,53 / 26,9 | idem |
+| 3 | 08:13:57-08:14:35 | 0,318 / 0,594 / 2,87 | 4,24 / 9,87 / 13,7 | idem |
+
+Per confronto (da audit 18:708 e 21 §5, stessi script): `lan` 2026-10-10 23:11: 2,6 ms; **`lan` fumo di `night.py` (sera 2026-10-10): p50 176 / p95 186 / max 5,3 s**; `wan` (prova e notte): p50 179,8 / p95 185,2-186,0 / max 4,0 s, controllo vivo p50 0,27 ms.
+**Conclusione, solo dai dati:** a `lan` senza netem oggi 3 misure su 3 danno p95 di 3,9-9,9 ms, quindi lontane dai ~180 ms di `wan`; **ma** un'altra misura etichettata `lan` (fumo di `night.py`) aveva dato 176/186 ms. Perciò **non posso dichiarare i ~180 ms né una proprietà dell'ambiente né una dipendenza dal profilo**: dipende da cosa era attivo durante quel fumo (netem/watcher `wan`?), che nei file che ho letto non è registrato. Lo sai tu; senza quel dato la dichiarazione "proprietà dell'ambiente" non è sostenuta (il caso 176 ms a `lan` oggi non si riproduce). Nota solo descrittiva: il p95 del sito morto sale 3,9 → 7,5 → 9,9 ms nelle tre misure consecutive.
+
+### Tabella dei costi di B2-kill con L_dns (modello di audit 22 §4, non eseguito)
+Con il valore di `lan` (p95 massimo 9,9 ms): episodio 0,59 s a `lan`, 1,70 s a `wan`, 8,75 s a `degraded`; totale 2,37 h (2,36 h con 2,6 ms). Con 186 ms (misurato a `wan`, unico valore sotto netem): 3,06 h (audit 22 §4). **Il valore da usare per `wan` è quello misurato a `wan` (186 ms)**; a `degraded` L_dns non è stato misurato (a `degraded` l'episodio resta 8,75 s per ogni L ≤ 0,92 s). Riga "lento" a `degraded` (11,0 contro 9,5 s): non rientra nei calcoli. La decisione su B2-kill (zona intermedia 50 ms-0,5 s a `wan`, watcher a `--poll 0,1`) resta tua.
