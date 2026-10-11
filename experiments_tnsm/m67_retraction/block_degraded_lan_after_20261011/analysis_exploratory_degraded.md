@@ -113,16 +113,18 @@ Limits: the observed medians are over episodes WITHOUT pending, the arithmetic i
 | lan (before) | C | 1 | 74.14 [70.90; 82.07] | 10 | yes | 0/100 | 0 |
 | lan (before) | C | 10 | 22.46 [20.29; 23.59] | 10 | NO (not accepted) | 0/100 | 0 |
 | lan (before) | D | 1 | 45.71 [43.11; 54.78] | 10 | yes | 0/100 | 0 |
-| lan (before) | D | 10 | 20.71 [18.86; 22.63] | 10 | NO (not accepted) | 0/100 | 0 |
+| lan (before) | D | 10 | 20.71 [18.92; 22.63] | 10 | NO (not accepted) | 0/100 | 0 |
 | lan (after) | C | 1 | 80.04 [75.56; 86.62] | 10 | yes | 0/100 | 0 |
-| lan (after) | C | 10 | 19.65 [19.20; 22.05] | 10 | NO (not accepted) | 0/100 | 0 |
-| lan (after) | D | 1 | 48.76 [43.80; 55.76] | 10 | yes | 0/100 | 0 |
-| lan (after) | D | 10 | 18.86 [17.63; 22.12] | 10 | NO (not accepted) | 0/100 | 0 |
+| lan (after) | C | 10 | 19.65 [19.20; 22.01] | 10 | NO (not accepted) | 0/100 | 0 |
+| lan (after) | D | 1 | 48.76 [43.93; 55.76] | 10 | yes | 0/100 | 0 |
+| lan (after) | D | 10 | 18.86 [17.53; 22.12] | 10 | NO (not accepted) | 0/100 | 0 |
 | wan (rilancio) | C | 1 | 4827.72 [4809.59; 5427.32] | 10 | yes | 0/100 | 0 |
 | wan (rilancio) | C | 10 | 429.26 [420.20; 1017.98] | 10 | yes | 0/100 | 0 |
 | wan (rilancio) | D | 1 | 3191.84 [3174.33; 3824.47] | 10 | yes | 0/100 | 0 |
-| wan (rilancio) | D | 10 | 258.97 [256.75; 591.89] | 10 | yes | 0/100 | 0 |
+| wan (rilancio) | D | 10 | 258.97 [256.55; 591.89] | 10 | yes | 0/100 | 0 |
 | degraded | C | 1 | 17022.36 [15615.42; 19323.99] | 31 | yes | 18/480 | 2 |
 | degraded | C | 10 | 2824.58 [2422.25; 3418.70] | 35 | yes | 14/480 | 2 |
 | degraded | D | 1 | 10669.83 [9769.59; 11177.69] | 41 | yes | 6/470 | 3 |
 | degraded | D | 10 | 2016.77 [1621.25; 2019.21] | 46 | yes | 3/490 | 1 |
+
+Check against the registered analyses (the per-cell `last-site P-log ms` column of the analyze_b1 report of each source): 16/16 cells identical (text `median [lo; hi] (n)`).

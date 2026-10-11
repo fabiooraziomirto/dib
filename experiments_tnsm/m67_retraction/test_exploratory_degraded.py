@@ -102,9 +102,30 @@ def test_b5_retry_arithmetic_closed_form_and_monte_carlo():
     assert ex.retry_arith(q=0.0)["e_failed_f1"] == 0.0
 
 
+def _cell(arm, fanout, rows):
+    return {"cell_spec": {"arm": arm, "fanout": fanout}, "rows": rows, "summary": {"plog_acceptable_rule_10pct": True}}
+
+
+def test_b6_rows_use_the_shared_generator_of_analyze_b1():
+    """B6 CIs must be those analyze_b1.py prints: one random.Random(SEED) shared by the cells in (arm, fanout) order, per cell first
+    med_ci(dispute-rtt) then med_ci(last-site). A fresh generator per cell (the first version) gives different CIs for the second cell."""
+    import random
+    import analyze_b1 as ab
+    mk = lambda base: [row(t0=100.0 + k, apply={i: 100.0 + k + base + 0.1 * ((i * 7 + k) % 5) for i in range(10)}) for k in range(12)]  # noqa: E731
+    cells = [_cell("D", 1, mk(1.0)), _cell("C", 1, mk(2.0))]                           # given out of order: sorted to C/1, D/1
+    got = ex.summary_rows(cells)
+    rng = random.Random(ab.SEED)
+    exp = {}
+    for c in sorted(cells, key=lambda c: (c["cell_spec"]["arm"], c["cell_spec"]["fanout"])):
+        rows = c["rows"]
+        ab.med_ci([1000 * r["dispute_rtt_s"] for r in rows if not r.get("excluded") and "dispute_rtt_s" in r], rng)
+        exp[(c["cell_spec"]["arm"], c["cell_spec"]["fanout"])] = ab.med_ci(ab.last_site(rows), rng)
+    assert [g["median"] for g in got] == [exp[("C", 1)], exp[("D", 1)]]
+
+
 def test_b6_row_excludes_pending_episodes_and_counts():
     ok = row()
     pend = row(ack={2: 118.0})
     exc = row(excluded=True)
-    t = ex.summary_row([ok, pend, exc], seed_rng_seed=1)
-    assert t["n_last"] == 1 and t["x"] == 1 and t["n"] == 20 and t["excluded"] == 1
+    t = ex.summary_rows([_cell("C", 1, [ok, pend, exc])])[0]
+    assert t["n_last"] == 1 and t["x"] == 1 and t["n"] == 20 and t["excluded"] == 1 and t["arm"] == "C" and t["fanout"] == 1

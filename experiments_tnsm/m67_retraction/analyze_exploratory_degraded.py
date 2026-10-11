@@ -20,8 +20,10 @@ import blockdata  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 BLK = HERE / "block_degraded_lan_after_20261011"
-SOURCES = [("lan (before)", HERE / "block_lan_before_20261011" / "lan_before"), ("lan (after)", BLK / "lan_after"),
-           ("wan (rilancio)", HERE / "wan_20261011" / "b1"), ("degraded", BLK / "degraded")]
+SOURCES = [("lan (before)", HERE / "block_lan_before_20261011" / "lan_before", HERE / "block_lan_before_20261011" / "analysis_lan_before.md"),
+           ("lan (after)", BLK / "lan_after", BLK / "analysis_lan_after.md"),
+           ("wan (rilancio)", HERE / "wan_20261011" / "b1", HERE / "wan_20261011" / "analysis_wan.md"),
+           ("degraded", BLK / "degraded", BLK / "analysis_degraded.md")]
 B_ONLINE = {"D": 10.5, "C": 11.1}                                           # audit 14:94,204-207 (T = 5; C with mTLS)
 REGISTERED_THRESHOLD_MS = {("C", 1): 12240.1, ("C", 10): 1267.4, ("D", 1): 8146.3, ("D", 10): 862.1}   # analysis_degraded.md:68-71
 PREDICTED_MS = {("C", 1): 12000.0, ("C", 10): 1200.0, ("D", 1): 8000.0, ("D", 10): 800.0}
@@ -202,12 +204,28 @@ def monte_carlo(p, n, seed):
 
 
 # B6 ---------------------------------------------------------------------------------------------------------------------------------------------
-def summary_row(rows, seed_rng_seed=ab.SEED):
-    rng = random.Random(seed_rng_seed)
-    last = ab.last_site(rows)
-    v = valid(rows)
-    return {"median": ab.med_ci(last, rng), "n_last": len(last), "x": sum(len(pending_set(r)) for r in v), "n": 10 * len(v),
-            "excluded": sum(1 for r in rows if r.get("excluded"))}
+def summary_rows(cells):
+    """B6 rows. The CIs are those of analyze_b1.py: ONE random.Random(SEED) shared by the cells taken in (arm, fanout) order, and per cell first
+    med_ci(dispute-rtt) then med_ci(last-site), exactly the call order of the per-cell table of analyze_b1.main (audit 35, 2026-10-11 decision)."""
+    rng = random.Random(ab.SEED)
+    out = []
+    for c in sorted(cells, key=lambda c: (c["cell_spec"]["arm"], c["cell_spec"]["fanout"])):
+        rows = c["rows"]
+        v = valid(rows)
+        ab.med_ci([1000 * r["dispute_rtt_s"] for r in v], rng)                 # consumed first, as in analyze_b1.main (not reported here)
+        last = ab.last_site(rows)
+        out.append({"arm": c["cell_spec"]["arm"], "fanout": c["cell_spec"]["fanout"], "median": ab.med_ci(last, rng), "n_last": len(last),
+                    "x": sum(len(pending_set(r)) for r in v), "n": 10 * len(v), "excluded": sum(1 for r in rows if r.get("excluded"))})
+    return out
+
+
+def registered_last_site_cell(analysis_md: Path, arm: str, fanout: int):
+    """The `last-site P-log ms` column text of the per-cell table of an analyze_b1 report (None if absent)."""
+    for line in Path(analysis_md).read_text().splitlines():
+        parts = [x.strip() for x in line.split("|")]
+        if len(parts) > 7 and parts[1] == arm and parts[2] == str(fanout) and parts[3].isdigit():
+            return parts[6]
+    return None
 
 
 # report -----------------------------------------------------------------------------------------------------------------------------------------
@@ -294,14 +312,20 @@ def report():
     # B6
     L += ["", "## B6. Summary table (last-site P-log-apply, ONLY episodes without pending; pending share over all valid episodes; excluded per cell)", "",
           "| profile | arm | FANOUT | median last site ms [95% CI] | n (episodes without pending) | P-log accepted | pending x/n | excluded |", "|---|---|---|---|---|---|---|---|"]
-    for name, d in SOURCES:
+    checks = []
+    for name, d, md in SOURCES:
         cs, _m = blockdata.load_block(d)
-        fl = sorted([c for c in cs if "rows" in c and "aborted" not in c], key=lambda c: (c["cell_spec"]["arm"], c["cell_spec"]["fanout"]))
-        for c in fl:
-            sp = c["cell_spec"]
-            t = summary_row(c["rows"])
-            acc = c["summary"]["plog_acceptable_rule_10pct"]
-            L.append(f"| {name} | {sp['arm']} | {sp['fanout']} | {fmt_ci(t['median'])} | {t['n_last']} | {'yes' if acc else 'NO (not accepted)'} | {t['x']}/{t['n']} | {t['excluded']} |")
+        fl = [c for c in cs if "rows" in c and "aborted" not in c]
+        accepted = {(c["cell_spec"]["arm"], c["cell_spec"]["fanout"]): c["summary"]["plog_acceptable_rule_10pct"] for c in fl}
+        for t in summary_rows(fl):
+            acc = accepted[(t["arm"], t["fanout"])]
+            reg = registered_last_site_cell(md, t["arm"], t["fanout"])
+            mine = ab.fmt(t["median"])
+            checks.append((name, t["arm"], t["fanout"], mine == reg, mine, reg))
+            L.append(f"| {name} | {t['arm']} | {t['fanout']} | {fmt_ci(t['median'])} | {t['n_last']} | {'yes' if acc else 'NO (not accepted)'} | {t['x']}/{t['n']} | {t['excluded']} |")
+    L += ["", "Check against the registered analyses (the per-cell `last-site P-log ms` column of the analyze_b1 report of each source): "
+          f"{sum(1 for c in checks if c[3])}/{len(checks)} cells identical (text `median [lo; hi] (n)`)."]
+    L += [f"- DIFFERENT {c[0]} {c[1]}/{c[2]}: here `{c[4]}` registered `{c[5]}`" for c in checks if not c[3]]
     return "\n".join(L) + "\n"
 
 
