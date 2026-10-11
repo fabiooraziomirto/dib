@@ -79,7 +79,7 @@ Ogni run: heap 16-24 GB, 8 worker, jar `237332bd…`, Java 17.0.19. Log in
 | `r0_regress` | nessuna violazione, esattamente 14.947.820 stati | **confermata** | **14.947.820**, profondità 32, 3 min 48 s | — |
 | `n4_rest` | nessuna violazione delle altre proprietà originali | **FALSIFICATA** | 509 | QueryRead (Active), Dispute, Deliver a s1 (riga assente: no-op), QueryWrite → MonitorOnly su un sito raggiungibile senza nulla in volo: viola l'invariante ORIGINALE `DisputeSuspendsAtReachableSites` (= b3q) |
 | `f1_fix` | nessuna violazione | **FALSIFICATA** | 498 | stessa traccia di n4: FixRace non copre la query (errore di progetto mio: avevo ritenuto b3q coperto dall'anti-entropia, che però interviene solo alla reconcile successiva) |
-| `q2_outsider_rule` | nessuna violazione | (in corso) | | |
+| `q2_outsider_rule` | nessuna violazione | **confermata** | **64.458.470**, profondità 34, 16 min 58 s (3 reporter, quorum 2) | — |
 
 Lettura:
 - Il modello esteso riproduce esattamente il modello pubblicato quando le operazioni sono atomiche
