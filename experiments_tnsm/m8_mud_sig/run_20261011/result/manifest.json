@@ -1,0 +1,51 @@
+{
+ "argv": [
+  "/home/ubuntu/dib_tnsm/m8/run.py",
+  "measure",
+  "--files",
+  "/home/ubuntu/dib_tnsm/m8/files",
+  "--out",
+  "/home/ubuntu/dib_tnsm/out/m8_20261011/result"
+ ],
+ "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+ "platform": "Linux-6.8.0-146-generic-x86_64-with-glibc2.39",
+ "host": "ubuntu",
+ "cpu": "QEMU Virtual CPU version 2.5+",
+ "openssl": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)",
+ "seed": 20261011,
+ "reps": 10,
+ "pairs_per_rep": 20,
+ "warmup": 5,
+ "limit_ms": 10.0,
+ "load_before": {
+  "loadavg": [
+   "0.34",
+   "0.69",
+   "0.81"
+  ],
+  "cpu": {
+   "steal": 183343,
+   "total": 180435643
+  },
+  "utc": "2026-10-11T21:30:16Z"
+ },
+ "load_after": {
+  "loadavg": [
+   "0.48",
+   "0.71",
+   "0.81"
+  ],
+  "cpu": {
+   "steal": 183351,
+   "total": 180459968
+  },
+  "utc": "2026-10-11T21:30:32Z"
+ },
+ "audit": "docs/audit/55_prereg_M8_firma_mud.md",
+ "sha256_files": {
+  "mud_n005.json": "2ba06e8ca28153832ee7e87747cbdc431c1e363c87f44c2bcb733b1ffc6f628b",
+  "mud_n020.json": "fa9bafd1c54f7230596559a7fa16be7e8e4298d5c8da25152eccd9d61aad29d0",
+  "mud_n100.json": "ec71b13a25c840b0def7017a05ba91cfe2ec342a1715e5dbeb2128f09127318a"
+ },
+ "sha256_run_py": "8170e461e2cc991c1ca2a8d093f1a3f3d5d6f4edce77634a16b6ce4b7e7e7365"
+}
