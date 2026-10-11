@@ -24,6 +24,18 @@ a drift of the node of the same order as the sought signal, so neither of those 
   "not falsified" otherwise; the observed excess is always reported; the model is not adapted.
 Note: the criterion is applied by this script (analyze_b1.py); its pre-registered version is commit 8b7b45e, which predates the `wan` data of
 the rerun. run.py is not touched.
+Rule FIXED 2026-10-11, AFTER the `degraded` smoke and BEFORE any `degraded` B1 datum (the smoke data are not analysed): EXCLUSION BY OVERLAP WITH A
+TRANSIENT INCOHERENCE OF THE NETEM PROFILE. The monitor of auto_block.py writes, in `<block>/profile_events.jsonl`, one `transient` row for every stretch in
+which profile.applied listed all 11 containers but one or more did not carry the expected qdisc (smoke: site-8 without netem for ~1.4 s while the cluster
+was being created); `from_ms` = epoch (ms) of the record BEFORE the incoherent one (the qdisc was missing from some point after it), `end_ms` = epoch of the
+first coherent record after it (clock of the node, the same as t0). An EPISODE is excluded, cause `profile_incoherent_overlap`, if its window
+[t0, t_end] (t_end = the largest of t_resp, plog_apply_ts of every site, plog_ack_ts when present) intersects [from_ms/1000, end_ms/1000] (closed interval,
+no margin, no tolerance). Excluded episodes are counted apart from the other causes, never replaced and never re-run; the intervals are listed verbatim
+in the report; a cell with no episode left is reported as such. The same stretches are NOT used to change thresholds, measure types or any other rule.
+Related stop rules of the orchestrator (not exclusions): an incoherence lasting more than 10 s without a coherent record, or more than 3 transient
+incoherences within 60 s, stops the block.
+STATUS OF THIS RULE: declared here before the data; the code of this script that APPLIES it (reading profile_events.jsonl, the exclusion and the report
+lines) is NOT written yet and must be written, with a test, before the `degraded` B1 data are analysed.
 Method: medians with 95% percentile bootstrap CI over EPISODES (10000 resamples, seed 20261011); with n = 10 the CI is coarse.
 "last site" = max over the 10 sites of the P-log withdrawal (withdrawn_plog_s) of an episode without pending deliveries;
 dispute-rtt = response - t0 (bias 0 at lan, run.dispute_rtt_bias_s). Measure type per cell by the recorded rule: P-log (apply)

@@ -432,7 +432,51 @@ def test_a10_transient_incoherence_is_tolerated_and_recorded(tmp_path):
     rows = [json.loads(l) for l in (tmp_path / "ev.jsonl").read_text().splitlines()]
     tr = [r for r in rows if r.get("transient")]
     assert len(tr) == 1 and tr[0]["start_ms"] == 2000_000 and tr[0]["end_ms"] == 2001_400 and "dibtnsm-site-8-1" in tr[0]["problems"][0]
+    assert tr[0]["from_ms"] == 2000_000                                # no earlier record: the interval starts at the incoherent record
     assert ab.incoherent_intervals(tmp_path / "ev.jsonl") == [(2000_000, 2001_400)]
+
+
+def _flip(mon, ctl, clock, t_ms, coherent):
+    ctl.applied = pc.parse_applied(_applied("degraded") if coherent else _applied("degraded", {"dibtnsm-site-8-1": "qdisc noqueue 0: root"}))
+    ctl.applied.epoch_ms = t_ms
+    return mon.poll()
+
+
+def test_a10_interval_starts_at_the_previous_record(tmp_path):
+    """The container lacked netem since it appeared, i.e. from some point after the PREVIOUS record: the interval handed to the analysis
+    starts there (conservative), not at the incoherent record."""
+    ctl = FakeCtl()
+    ctl.expected_base = "degraded"
+    clock = {"t": 5000.0}
+    mon = ab.ProfileMonitor(ctl, tmp_path / "ev.jsonl", grace_s=10.0, clock=lambda: clock["t"])
+    ctl.applied = pc.parse_applied(_applied("degraded", n=8))
+    ctl.applied.epoch_ms = 5000_000
+    assert mon.poll() is None
+    assert _flip(mon, ctl, clock, 5002_000, False) is None
+    assert _flip(mon, ctl, clock, 5003_000, True) is None
+    assert ab.incoherent_intervals(tmp_path / "ev.jsonl") == [(5000_000, 5003_000)]
+
+
+def test_a10_more_than_three_transients_in_60_s_is_a_stop(tmp_path):
+    """User rule 2026-10-11: each transient is tolerated, but MORE THAN THREE resolved incoherences within 60 s mean an unstable cluster/watcher: stop."""
+    ctl = FakeCtl()
+    ctl.expected_base = "degraded"
+    clock = {"t": 6000.0}
+    mon = ab.ProfileMonitor(ctl, tmp_path / "ev.jsonl", grace_s=10.0, clock=lambda: clock["t"])
+    t_ms, res = 6000_000, []
+    for k in range(4):
+        res.append(_flip(mon, ctl, clock, t_ms, False)); t_ms += 1000; clock["t"] += 1
+        res.append(_flip(mon, ctl, clock, t_ms, True)); t_ms += 1000; clock["t"] += 1
+    assert res[:6] == [None] * 6                                       # three transients: tolerated
+    assert res[7] and "4 transient" in res[7] and "60 s" in res[7]      # the fourth resolution within 60 s: stop
+    # the same four spread over more than 60 s: never a stop
+    mon2 = ab.ProfileMonitor(ctl, tmp_path / "ev2.jsonl", grace_s=10.0, clock=lambda: clock["t"])
+    t_ms = 7000_000
+    out = []
+    for k in range(4):
+        out.append(_flip(mon2, ctl, clock, t_ms, False)); t_ms += 1000; clock["t"] += 1
+        out.append(_flip(mon2, ctl, clock, t_ms, True)); t_ms += 1000; clock["t"] += 25
+    assert out == [None] * 8
 
 
 def test_a10_partial_record_does_not_clear_a_pending_incoherence(tmp_path):

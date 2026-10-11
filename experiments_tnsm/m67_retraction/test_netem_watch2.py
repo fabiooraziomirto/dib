@@ -70,7 +70,7 @@ def make_fake(tmp_path, with_cluster=True):
     (d / "containers_a").write_text("\n".join(a) + "\n")
     (d / "containers_b").write_text("\n".join(b) + "\n")
     (d / "containers_none").write_text("")
-    (d / "containers_ten").write_text("\n".join(a[:9] + a[10:]) + "\n")                   # site-9 not created yet
+    (d / "containers_ten").write_text("\n".join(a[:9] + a[10:]) + "\n")                   # site-8 not created yet (a[9])
     (d / "mode").write_text("a" if with_cluster else "none")
     for f in ("docker.log", "nsenter.log", "violations.log"):
         (d / f).write_text("")
@@ -519,14 +519,14 @@ def test_w15_failed_write_does_not_reapply_in_a_loop(env):
 
 
 def test_w16_container_appearing_during_the_application_is_never_reported_as_applied(tmp_path):
-    """Smoke of 2026-10-11: site-8 appeared while the watcher was applying; profile.applied then listed 11 containers with site-8 WITHOUT netem.
+    """Smoke of 2026-10-11: site-8 appeared while the watcher was applying (reproduced here with the same container); profile.applied then listed 11 containers with site-8 WITHOUT netem.
     Declared: the watcher writes profile.applied only if the container set (names and pids) after the application equals the set it applied to;
     otherwise it re-applies. Every record ever visible has netem on every container it lists, and the final record has all 11."""
     d, rd = make_fake(tmp_path)
     (d / "mode").write_text("ten")
     w = Watch(d, rd)
     assert wait_for(lambda: (rd / "watch2.heartbeat").exists(), 15)
-    (d / "switch_on_replace").write_text("a")                         # the first `replace` makes site-9 appear
+    (d / "switch_on_replace").write_text("a")                         # the first `replace` makes site-8 appear
     w.request("degraded")
     seen = []
     t0 = time.time()

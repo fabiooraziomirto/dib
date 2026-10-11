@@ -53,6 +53,8 @@ BLOCKS = {"lan_before": "lan", "degraded": "degraded", "lan_after": "lan", "wan"
 DEFAULT_BLOCKS = ["lan_before", "degraded", "lan_after"]
 PKI_MARGIN_S = 2 * 3600
 RTT_STREAK_STOP = 3
+BURST_WINDOW_S = 60.0                    # user rule 2026-10-11: more than 3 resolved transient incoherences within 60 s = stop
+BURST_MAX_TRANSIENTS = 3
 PREFLIGHT_HEARTBEAT_MAX_AGE_S = 10.0     # fresher than the 15 s used during the run: a block does not start on a stale heartbeat
 _WATCH_RE = re.compile(r"netem_watch\w*\.sh")
 RUN_REL = "experiments_tnsm/m67_retraction/run.py"
@@ -238,7 +240,9 @@ class ProfileMonitor:
     def __init__(self, ctl, path: Path, grace_s: float = 10.0, clock=time.time):
         self.ctl, self.path, self.grace_s, self.clock = ctl, Path(path), grace_s, clock
         self.last = None
-        self.pending = None            # {"start_ms", "since", "problems"}
+        self.pending = None            # {"start_ms", "from_ms", "since", "problems"}
+        self.resolved = []             # clock times of the resolved transients (burst rule)
+        self.burst = None
 
     def _write(self, row: dict) -> None:
         with self.path.open("a") as f:
@@ -250,7 +254,7 @@ class ProfileMonitor:
         except pc.ProfileError:
             a = None
         if a is not None and a.epoch_ms != self.last:
-            self.last = a.epoch_ms
+            prev, self.last = self.last, a.epoch_ms
             probs, coherent = [], None
             if a.containers == len(pc.NAMES) and self.ctl.expected_base is not None:
                 probs = pc.check_coherent(a, self.ctl.expected_base, self.ctl.expected_partition)
@@ -258,18 +262,26 @@ class ProfileMonitor:
             self._write({"epoch_ms": a.epoch_ms, "applied_utc": a.applied_utc, "request": a.request, "trigger": a.trigger, "base": a.base,
                          "partition": a.partition, "containers": a.containers, "coherent": coherent, "problems": probs})
             if coherent is False and self.pending is None:
-                self.pending = {"start_ms": a.epoch_ms, "since": self.clock(), "problems": probs}
+                self.pending = {"start_ms": a.epoch_ms, "from_ms": prev if prev is not None else a.epoch_ms, "since": self.clock(), "problems": probs}
             elif coherent is True and self.pending is not None:
-                self._write({"transient": True, "start_ms": self.pending["start_ms"], "end_ms": a.epoch_ms, "problems": self.pending["problems"]})
+                self._write({"transient": True, "from_ms": self.pending["from_ms"], "start_ms": self.pending["start_ms"], "end_ms": a.epoch_ms,
+                             "problems": self.pending["problems"]})
                 self.pending = None
+                now = self.clock()
+                self.resolved = [t for t in self.resolved if now - t <= BURST_WINDOW_S] + [now]
+                if len(self.resolved) > BURST_MAX_TRANSIENTS:
+                    self.burst = f"{len(self.resolved)} transient incoherences within {BURST_WINDOW_S:g} s (more than {BURST_MAX_TRANSIENTS} is unstable)"
+        if self.burst:
+            return self.burst
         if self.pending is not None and self.clock() - self.pending["since"] >= self.grace_s:
             return "; ".join(self.pending["problems"])
         return None
 
 
 def incoherent_intervals(path: Path) -> list[tuple[int, int]]:
-    """(start_ms, end_ms) of every incoherent stretch recorded by the monitor (resolved `transient` rows), for the exclusion of overlapping cells."""
-    return [(r["start_ms"], r["end_ms"]) for r in _cells(path) if r.get("transient")]
+    """(from_ms, end_ms) of every incoherent stretch recorded by the monitor (resolved `transient` rows), for the exclusion of overlapping episodes:
+    from_ms is the epoch of the record BEFORE the incoherent one (the container lacked netem from some point after it), end_ms that of the first coherent one."""
+    return [(r["from_ms"], r["end_ms"]) for r in _cells(path) if r.get("transient")]
 
 
 # ---------------------------------------------------------------------------------------------------------------- checks and supervision
