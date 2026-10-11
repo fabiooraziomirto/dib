@@ -452,3 +452,19 @@ def test_a13_failed_smoke_leaves_no_marker(tmp_path):
     ctx = make_ctx(tmp_path, system=s, smoke=True)
     ab.run_block(ctx, "lan_before")
     assert not ab.smoke_ok(ctx, "lan")
+
+
+# ------------------------------------------------------------------------------------------------------------------ A-14 (smoke of 2026-10-11)
+def test_a14_children_do_not_inherit_ignored_sigint(tmp_path):
+    """A process started with `&` from a non-interactive shell (launch_auto_block.sh: `setsid nohup ... &`) has SIGINT set to SIG_IGN, the child
+    inherits it, Python then installs NO KeyboardInterrupt handler and terminate()'s SIGINT does nothing (first smoke: run.py went on for ~115 s
+    after the stop rule fired). The real System.spawn must give the child the default SIGINT disposition even when the orchestrator ignores it."""
+    import signal
+    old = signal.signal(signal.SIGINT, signal.SIG_IGN)
+    try:
+        log = tmp_path / "sig.log"
+        p = ab.System().spawn([sys.executable, "-c", "import signal; print(signal.getsignal(signal.SIGINT))"], log)
+        p.wait(timeout=30)
+    finally:
+        signal.signal(signal.SIGINT, old)
+    assert "default_int_handler" in log.read_text(), log.read_text()

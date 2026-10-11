@@ -101,7 +101,10 @@ class System:
         night.teardown(tree, st)
 
     def spawn(self, cmd: list[str], logfile: Path) -> subprocess.Popen:
-        return subprocess.Popen(cmd, stdout=open(logfile, "ab"), stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
+        # launched with `&` from a non-interactive shell, this process ignores SIGINT and a child would inherit that (Python then installs no
+        # KeyboardInterrupt handler: terminate() would do nothing): give the child the default disposition (smoke of 2026-10-11)
+        return subprocess.Popen(cmd, stdout=open(logfile, "ab"), stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                                preexec_fn=lambda: signal.signal(signal.SIGINT, signal.SIG_DFL))
 
 
 @dataclass
