@@ -1,0 +1,16 @@
+# Audit 39 — Sensibilità di M1/M2 allo stallo di `fsync` iniziale (definizioni committate PRIMA di calcolare)
+
+Motivo: la micro-misura di `fsync` fatta **prima di M1** (500 scritture da 4 KiB) ha p99 2024,4 ms e massimo 2059,4 ms, mentre la stessa misura dopo M1 ha p99 15,3 ms, prima di M2 15,2 ms, dopo M2 2,2 ms (`experiments_tnsm/m1_single_node/night_20261011/manifest.json`, chiavi `fsync_bench_before`/`fsync_bench_after`; `m2_p99_tail/night_20261011/manifest.json`; audit 38 §4). La causa dello stallo non è nota e non viene cercata qui. **Questa è un'analisi di sensibilità: i verdetti registrati di audit 38 non cambiano e non si sostituiscono**; si riporta soltanto se ricalcolandoli senza le celle più vicine allo stallo cambiano. Nessun nuovo dato, nessun accesso al nodo. M2 è il controllo (nessuno stallo prima di M2).
+
+## Definizioni
+- **Posizione** di una cella = il campo `cell` (0, 1, 2, …), che coincide con l'ordine cronologico di `t_start_unix` (verificato sui dati: monotono in M1 e in M2) e con `cell_order` del manifest. **Tempo dall'avvio** = `t_start_unix` − `started_utc` del manifest.
+- **Insiemi di celle escluse (fissati ora):** E5 = le prime 5 celle di M1; E10 = le prime 10; E20 = le prime 20; ET = le celle con tempo dall'avvio < 600 s. (Nessuna durata dello stallo è nota: sono quattro finestre arbitrarie dichiarate prima del calcolo.)
+- **Ordine:** tabella delle prime 20 celle di M1 (braccio, writer, ripetizione, throughput, errori inattesi) e, per ogni gruppo (braccio, writer), la posizione media delle sue celle (per vedere se la randomizzazione ha concentrato un gruppo all'inizio).
+- **Andamento:** per ogni gruppo (braccio, writer) di M1 con ≥ 8 celle, correlazione di Spearman (ranghi medi per i pareggi) fra posizione e `throughput`, e fra posizione e `unexpected_errors`; per ogni gruppo, throughput medio delle celle del gruppo che cadono in E10 contro le altre (descrittivo, con i due n). Stesse correlazioni per M2 (gruppo = modo, writer; `throughput` solo: M2 non ha `unexpected_errors` nello stesso campo).
+- **Errori:** per M1, per braccio: numero di celle con `unexpected_errors > 0` fra le prime 10 e fra le altre, e le posizioni di tutte le celle con errori nel braccio `deploy` (H-M1b).
+- **Verdetti ricalcolati:** con `analyze_m1_arms.verdicts` (criteri verbatim di `m1_single_node/run.py:12-30`, seme e ricampionamenti di audit 38) sulle celle di M1 **meno** ciascun insieme escluso (E5, E10, E20, ET): H-M1 per braccio, H-M1b, H-M1c, nei due sottoinsiemi "all"/"filtered" della regola di scarto; si riporta per ogni (insieme, ipotesi) "invariato" o "cambia" rispetto al verdetto registrato (audit 38 §3). Per M2: i verdetti di `analyze.py m2` sono già senza stallo precedente; si riporta soltanto l'andamento.
+- **Limiti:** un'esclusione di celle iniziali riduce l'n dei gruppi (es. 50 e 100 writer); le correlazioni di Spearman con n = 10-20 sono grossolane e **non si leggono come prova di assenza di effetto**; nessuna soglia di "effetto" è definita: l'analisi riporta i numeri.
+- **Non si fa:** nessuna causa dello stallo, nessuna modifica dei verdetti registrati, nessuna esclusione di celle dai risultati ufficiali.
+
+## Codice
+`experiments_tnsm/common/analyze_fsync_sensitivity.py` con test su righe sintetiche (scritti prima, rossi prima del codice); eseguito solo dopo il commit del codice.
