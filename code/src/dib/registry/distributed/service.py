@@ -146,6 +146,11 @@ RECONCILE_LOCK_TIMEOUT = _env_float("DIB_DIST_RECONCILE_LOCK_TIMEOUT", 60.0)
 FANOUT_CONCURRENCY = int(os.environ.get("DIB_DIST_FANOUT_CONCURRENCY", "1"))
 if FANOUT_CONCURRENCY < 1:
     raise ValueError("DIB_DIST_FANOUT_CONCURRENCY must be >= 1")
+# Persistent fan-out connections (docs/audit/62). OFF by default: with DIB_DIST_FANOUT_KEEPALIVE unset or 0 every delivery attempt opens a fresh
+# connection exactly as before. With 1 the evidence service keeps one httpx.Client per site and (WARM_INTERVAL > 0) a daemon thread per site sends
+# GET /health on it every WARM_INTERVAL seconds, so a withdrawal usually finds a warm connection (no TCP/TLS handshake, no handshake loss).
+FANOUT_KEEPALIVE = os.environ.get("DIB_DIST_FANOUT_KEEPALIVE", "0") == "1"
+WARM_INTERVAL = _env_float("DIB_DIST_FANOUT_WARM_INTERVAL", 2.0)
 
 # Mutual TLS and certificate-based authorization (docs/audit/13_mtls_design.md). Off by
 # default: with DIB_DIST_MTLS unset or 0 no request is checked and no outgoing call changes,
@@ -333,15 +338,90 @@ def _shutdown_fanout_executor() -> None:
         executor.shutdown(wait=True)
 
 
+_site_clients: dict = {}
+_site_clients_lock = threading.Lock()
+_warmer_threads: list = []
+_warmer_stop = threading.Event()
+
+
+def _new_site_client() -> httpx.Client:
+    return httpx.Client(timeout=_FANOUT_TIMEOUT_S, limits=httpx.Limits(max_keepalive_connections=1, keepalive_expiry=max(30.0, 3 * WARM_INTERVAL)), **_HTTP_TLS)
+
+
+def _site_client(i: int):
+    """The cached persistent client of site i (created once, thread-safe)."""
+    with _site_clients_lock:
+        client = _site_clients.get(i)
+        if client is None:
+            client = _site_clients[i] = _new_site_client()
+        return client
+
+
+def _drop_site_client(i: int, client=None) -> None:
+    """Close and forget the client of site i (only if it is still `client`, when given): the next attempt opens a fresh connection."""
+    with _site_clients_lock:
+        current = _site_clients.get(i)
+        if current is None or (client is not None and current is not client):
+            return
+        del _site_clients[i]
+    try:
+        current.close()
+    except Exception:  # noqa: BLE001 -- closing a broken connection must never raise into the delivery path
+        pass
+
+
+def _close_site_clients() -> None:
+    for i in list(_site_clients):
+        _drop_site_client(i)
+
+
+def _warm_once(i: int) -> None:
+    client = _site_client(i)
+    try:
+        client.get(f"{_site_url(i)}/health", timeout=_FANOUT_TIMEOUT_S)
+    except httpx.HTTPError:
+        _drop_site_client(i, client)
+
+
+def _warm_loop(i: int) -> None:
+    while not _warmer_stop.is_set():
+        try:
+            _warm_once(i)
+        except Exception:  # noqa: BLE001 -- the warmer is best effort and must not die
+            _log.exception("connection warmer failed for site-%d", i)
+        _warmer_stop.wait(WARM_INTERVAL)
+
+
+def _start_warmers() -> None:
+    """One daemon thread per site; only the evidence role, only with KEEPALIVE and WARM_INTERVAL > 0."""
+    if ROLE != "evidence" or not FANOUT_KEEPALIVE or WARM_INTERVAL <= 0 or _warmer_threads:
+        return
+    _warmer_stop.clear()
+    for i in range(N_SITES):
+        t = threading.Thread(target=_warm_loop, args=(i,), name=f"dib-warm-{i}", daemon=True)
+        _warmer_threads.append(t)
+        t.start()
+
+
+def _stop_warmers() -> None:
+    _warmer_stop.set()
+    for t in _warmer_threads:
+        t.join(timeout=5)
+    _warmer_threads.clear()
+
+
 @asynccontextmanager
 async def _lifespan(_app):
     if _trigger is not None:
         _trigger.start()
+    _start_warmers()
     try:
         yield
     finally:
         if _trigger is not None:
             _trigger.stop()
+        _stop_warmers()
+        _close_site_clients()
         _shutdown_fanout_executor()
 
 
@@ -704,11 +784,16 @@ if ROLE == "evidence":
         delivered = False
         for _attempt in range(_FANOUT_RETRIES):
             try:
-                resp = httpx.post(
-                    f"{_site_url(i)}/apply_fanout",
-                    json={"score_id": score_id, "seq": seq, "event_type": event_type, "target_state": target_state},
-                    timeout=_FANOUT_TIMEOUT_S, **_HTTP_TLS,
-                )
+                body = {"score_id": score_id, "seq": seq, "event_type": event_type, "target_state": target_state}
+                if FANOUT_KEEPALIVE:
+                    client = _site_client(i)
+                    try:
+                        resp = client.post(f"{_site_url(i)}/apply_fanout", json=body, timeout=_FANOUT_TIMEOUT_S)
+                    except httpx.HTTPError:
+                        _drop_site_client(i, client)  # the next attempt opens a fresh connection
+                        raise
+                else:
+                    resp = httpx.post(f"{_site_url(i)}/apply_fanout", json=body, timeout=_FANOUT_TIMEOUT_S, **_HTTP_TLS)
                 if resp.status_code == 200:
                     delivered = True
                     break
