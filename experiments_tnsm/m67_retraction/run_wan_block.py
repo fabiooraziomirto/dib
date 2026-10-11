@@ -19,7 +19,7 @@ Steps:
   5. W4: copies b1 with sha256, runs analyze_b1.py with --lan-ref lan_ref_20261011/before, commits data and analysis (only those paths);
   6. with --lan-dopo: asks you to stop the watcher and to check netem_show clean, then runs the four lan cells and the L_dns at lan ("after"),
      copies them with sha256 and analyses them (descriptive).
-Usage: python3 run_wan_block.py [--dry-run] [--lan-dopo]   (watcher `wan` already running in the tmux session, poll 0.5)"""
+Usage: python3 run_wan_block.py [--dry-run] [--lan-dopo | --only-lan-dopo]   (watcher `wan` already running in the tmux session, poll 0.5)"""
 from __future__ import annotations
 
 import argparse
@@ -162,6 +162,27 @@ def analyze(args: list[str]) -> None:
         raise Abort(f"analyze_b1.py failed:\n{r.stderr[-1500:]}")
 
 
+def lan_dopo() -> None:
+    """The `lan` session AFTER the wan block: 4 cells + L_dns at lan, then wan rule (a) re-analysed with before+after (higher median)."""
+    print("lan dopo")
+    print("\n>>> Ferma il watcher (Ctrl-C nel tmux, aspetta la pulizia) e verifica netem_show.sh PULITO (nessun namespace con netem).")
+    if not ask("watcher fermato e netem_show pulito?"):
+        raise Abort("lan-after not confirmed")
+    print(ssh(background("lan_after", lan_cmd(), "absent")).strip())          # the guard also refuses if the watcher is still running
+    if wait_rc("lan_after", "lan after", 1200, tail="lan_after.stdout", every=30) != 0:
+        raise Abort("lan-after run.py failed")
+    print(ssh(background("ldns_after", calib_cmd("lan", "ldns_after", 0), "absent")).strip())
+    if wait_rc("ldns_after", "L_dns lan after", 600) != 0:
+        raise Abort("L_dns lan-after failed")
+    copy_verified("lan_after", ["cells.jsonl", "manifest.json", "episodes.jsonl"])
+    copy_verified("ldns_after", ["calib_ldns_lan.txt"])
+    print("  L_dns lan after:", (LOCAL / "ldns_after" / "calib_ldns_lan.txt").read_text().strip())
+    an2, an3 = LOCAL / "analysis_lan_after.md", LOCAL / "analysis_wan_before_after.md"
+    analyze([str(LOCAL / "lan_after"), "--out", str(an2)])
+    analyze([str(LOCAL / "b1"), "--lan-ref", str(LAN_REF), "--lan-ref", str(LOCAL / "lan_after"), "--out", str(an3)])
+    git_commit([LOCAL / "lan_after", LOCAL / "ldns_after", an2, an3], "experiments: lan session after the wan block (4 cells + L_dns), copied with matching sha256; wan rule (a) with before+after reference")
+
+
 def ask(q: str) -> bool:
     if not sys.stdin.isatty():
         raise Abort("interactive confirmation needed (no tty)")
@@ -172,12 +193,17 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--lan-dopo", action="store_true")
+    ap.add_argument("--only-lan-dopo", action="store_true", help="only the lan-after session (the wan block was already run)")
     a = ap.parse_args()
     if a.dry_run:
         for label, cmd in plan():
             print(f"### {label}\nssh {HOST} '{cmd}'\n")
         return 0
     try:
+        if a.only_lan_dopo:
+            lan_dopo()
+            print("\nFINE (solo lan dopo).")
+            return 0
         import make_plog_thresholds as mt
         print("1. preflight:\n" + ssh(guard("required") + "echo preflight ok"))
         print(f"2. W1: calibration wan with hold {HOLD_S} s, in the background...")
@@ -223,21 +249,7 @@ def main() -> int:
         git_commit([LOCAL / "b1", an], "experiments: B1 wan rerun (tree bf272e8), copied with matching sha256, analysed with the adjacent lan reference")
         print(f"  analysis: {an}")
         if a.lan_dopo:
-            print("6. lan dopo")
-            print("\n>>> Ferma il watcher (Ctrl-C nel tmux, aspetta la pulizia) e verifica netem_show.sh PULITO.")
-            if not ask("watcher fermato e netem_show pulito?"):
-                raise Abort("lan-after not confirmed")
-            print(ssh(background("lan_after", lan_cmd(), "absent")).strip())
-            if wait_rc("lan_after", "lan after", 1200, tail="lan_after.stdout", every=30) != 0:
-                raise Abort("lan-after run.py failed")
-            print(ssh(background("ldns_after", calib_cmd("lan", "ldns_after", 0), "absent")).strip())
-            if wait_rc("ldns_after", "L_dns lan after", 600) != 0:
-                raise Abort("L_dns lan-after failed")
-            copy_verified("lan_after", ["cells.jsonl", "manifest.json", "episodes.jsonl"])
-            copy_verified("ldns_after", ["calib_ldns_lan.txt"])
-            an2 = LOCAL / "analysis_lan_after.md"
-            analyze([str(LOCAL / "lan_after"), "--out", str(an2)])
-            git_commit([LOCAL / "lan_after", LOCAL / "ldns_after", an2], "experiments: lan session after the wan block (4 cells + L_dns), copied with matching sha256")
+            lan_dopo()
         print("\nFINE. Dati copiati e committati; mandami: 'wan finito' (il watcher lo ferma l'utente quando vuole).")
         return 0
     except Abort as exc:

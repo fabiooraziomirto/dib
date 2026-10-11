@@ -48,3 +48,9 @@ def test_dry_run_touches_nothing(monkeypatch, capsys):
 
 def test_calibration_hold_is_long_enough_for_netem_show():
     assert "--hold 240" in w.calib_cmd("wan", "calib_wan_b", w.HOLD_S) and w.HOLD_S >= 180
+
+
+def test_only_lan_dopo_option_and_function_exist():
+    import inspect
+    assert hasattr(w, "lan_dopo") and "--only-lan-dopo" in inspect.getsource(w.main)
+    assert "absent" in inspect.getsource(w.lan_dopo)      # the lan-after commands use the guard that refuses if the watcher is running
