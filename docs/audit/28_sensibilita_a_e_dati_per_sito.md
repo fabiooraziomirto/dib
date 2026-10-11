@@ -42,3 +42,21 @@ Descrittivo: a FANOUT 1 i siti sono ritirati in sequenza, con incrementi di circ
 
 ## 3. `lan` dopo: preparato, non eseguito (serve l'utente)
 Il watcher `wan` è ancora attivo; fermarlo richiede sudo (Ctrl-C nel tmux). Lo script `run_wan_block.py --only-lan-dopo` (nuovo flag, test, 65 in `experiments_tnsm`) chiede conferma "watcher fermato e `netem_show.sh` pulito?", poi lancia le quattro celle `lan` e L_dns a `lan` con il guard "watcher assente" (rifiuta se il watcher gira), copia con sha256, analizza e rifà l'analisi di (a) con riferimento prima+dopo (mediana più alta). Resta a carico dell'utente fermare il watcher.
+
+## 4. `lan` dopo (eseguito dall'utente con `run_wan_block.py --only-lan-dopo`, 2026-10-11 09:21:12-09:25:04 UTC; watcher fermato e `netem_show.sh` pulito confermati dall'utente al prompt; sha256 verificati dallo script; commit `c301754`)
+Dati: `experiments_tnsm/m67_retraction/wan_20261011/lan_after/`, `ldns_after/`; analisi `analysis_lan_after.md` e `analysis_wan_before_after.md`. 4 celle, 10 episodi, `aborted: false`, 0 esclusioni per ogni causa, nessuna cella segnalata (`other_cores` 0,09-0,12, `steal_pct` 0,005-0,016), 0 consegne in pending, 0 ack, nessuna saturazione.
+
+| Braccio | FANOUT | Ultimo sito P-log ms [IC] | `dispute-rtt` ms [IC] | Rapporto P-log | Misura |
+|---|---|---|---|---|---|
+| D | 1 | 47,36 [42,98; 49,25] | 49,07 [44,43; 50,85] | 0,053, accettato | `P-log-apply` |
+| C | 1 | 70,03 [64,72; 74,55] | 71,66 [66,60; 77,14] | 0,036, accettato | `P-log-apply` |
+| D | 10 | 17,09 [15,64; 20,32] | 19,04 [18,25; 22,85] | 0,146, non accettato | `dispute-rtt` |
+| C | 10 | 21,65 [18,43; 22,69] | 26,52 [23,96; 28,48] | 0,115, non accettato | `dispute-rtt` |
+
+**L_dns a `lan` dopo** (50 campioni, `site-3`): sito vivo p50 0,174 / p95 0,217 / max 2,09 ms; **sito morto p50 2,85 / p95 3,04 / max 4,97 ms**, `gaierror(-3, …)`. Serie del giorno (p95 sito morto): `lan` 08:03 3,87; 08:08 7,53; 08:14 9,87; 08:45 4,02; `wan` 08:54-56 3,46; `wan` 09:01-06 3,33; `lan` dopo 09:25 3,04 ms.
+
+**Regola (a) con riferimento prima+dopo (mediana più alta per cella; verdetto pre-registrato in audit 26):** invariato, **non falsificata in tutte e 4 le celle**: C/1 riferimento 73,31 (prima) → soglia 5019,9, eccesso −192,2; D/1 riferimento 47,36 (dopo) → 3342,1, −150,2; C/10 21,65 (dopo) → 545,0, −115,7; D/10 17,82 (prima) → 373,5, −114,5 ms.
+
+**P-a4 (C − D, FANOUT 1, ultimo sito, +23,5 ms, [15, 32]) nelle tre sessioni `lan` con C e D:** 38,65 [22,85; 49,69] (07:52, attraversa il 32: non conclusivo); 27,46 [25,34; 32,38] (08:40, attraversa il 32: non conclusivo); **22,67 [16,92; 29,27] (09:21, IC interamente dentro [15, 32])**. Il criterio registrato è ambiguo (audit 25 §A.2); la classificazione della prima sessione resta "non conclusivo" e le tre misure si riportano **tutte**, senza sceglierne una. C − D a FANOUT 10 (descrittivo): 4,57 ms [0,27; 6,59] (P-log), 7,48 [3,05; 9,55] (`dispute-rtt`).
+
+**Deriva** (D, mediana P-log dell'ultimo sito; descrittivo): FANOUT 1: 67,3 (07:52), 48,4 (08:27), 45,9 (08:40), 47,4 (09:21) ms; FANOUT 10: 25,9, 22,0, 17,8, 17,1 ms. Dopo la prima sessione i valori di D/1 restano fra 45,9 e 48,4 ms; la sequenza non è più decrescente per D/1 (45,9 → 47,4).
