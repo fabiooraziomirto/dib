@@ -1,0 +1,442 @@
+{
+ "started_utc": "2026-10-11T07:51:49.565235+00:00",
+ "argv": [
+  "experiments_tnsm/m67_retraction/run.py",
+  "--block",
+  "b1",
+  "--profile",
+  "lan",
+  "--tree",
+  "/home/ubuntu/dib_tnsm/tree-bf272e8",
+  "--out",
+  "/home/ubuntu/dib_tnsm/out/lan_20261011/b1",
+  "--arms",
+  "D,C",
+  "--fanouts",
+  "1,10"
+ ],
+ "profile": "lan",
+ "blocks": "b1",
+ "seed": 20261014,
+ "group_order": [
+  [
+   [
+    "C",
+    10,
+    5
+   ],
+   1
+  ],
+  [
+   [
+    "D",
+    1,
+    5
+   ],
+   1
+  ],
+  [
+   [
+    "C",
+    1,
+    5
+   ],
+   1
+  ],
+  [
+   [
+    "D",
+    10,
+    5
+   ],
+   1
+  ]
+ ],
+ "cell_order": [
+  {
+   "block": "b1",
+   "arm": "C",
+   "fanout": 10,
+   "T": 5,
+   "episodes": 10
+  },
+  {
+   "block": "b1",
+   "arm": "D",
+   "fanout": 1,
+   "T": 5,
+   "episodes": 10
+  },
+  {
+   "block": "b1",
+   "arm": "C",
+   "fanout": 1,
+   "T": 5,
+   "episodes": 10
+  },
+  {
+   "block": "b1",
+   "arm": "D",
+   "fanout": 10,
+   "T": 5,
+   "episodes": 10
+  }
+ ],
+ "node_tree": "/home/ubuntu/dib_tnsm/tree-bf272e8",
+ "generator_host": "ubuntu",
+ "generator_is_node": true,
+ "clock": "time.time() = CLOCK_REALTIME of the node (same clock as docker logs -t)",
+ "cluster_recreations": 4,
+ "plog_thresholds": null,
+ "measure_rule": "dispute-rtt (no P-log calibration applied)",
+ "node_service_sha256": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+ "launcher_d_sha256": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+ "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
+ "run_py_sha256": "022d97a6dc76808cf3a866c92f71d6076d0bcafca65a3ebdeab300b423393c02",
+ "discard_rule": {
+  "fixed_before_measuring": "2026-10-10, after the 5-minute no-DIB baseline (experiments_tnsm/node_baseline/baseline_noDIB.json), before any M1/M2 cell",
+  "rule": "a cell is flagged as disturbed if, over the cell window, other_cores > max_other_cores OR steal_pct > max_steal_pct; flagged cells are never dropped: results are reported on all cells and on unflagged cells, with the flagged count",
+  "max_other_cores": 1.0,
+  "max_steal_pct": 2.0,
+  "other_cores_definition": "CPU of user-space processes other than the measuring process (kernel threads excluded, reported as kernel_cores)",
+  "baseline": {
+   "samples": 60,
+   "interval_s": 5,
+   "other_cores": {
+    "median": 0.123,
+    "p95": 0.23,
+    "max": 0.28
+   },
+   "steal_pct": {
+    "median": 0.013,
+    "p95": 0.013,
+    "max": 0.038
+   },
+   "load1": {
+    "median": 0.145,
+    "max": 0.26
+   },
+   "main_process": "k3s-server ~0.10 cores"
+  },
+  "rationale": "1.0 core = 3.6x the baseline maximum and 8x its median: another tenant taking a whole vCPU; 2% steal = 50x the baseline maximum: hypervisor contention"
+ },
+ "disk_start": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.6G  97% /",
+ "cells_summary": [
+  {
+   "cell": 1,
+   "spec": {
+    "block": "b1",
+    "arm": "C",
+    "fanout": 10,
+    "T": 5,
+    "episodes": 10
+   },
+   "profile_timing": {
+    "t_created": 1791705119.6477256,
+    "t_profile_confirmed": 1791705120.0816998,
+    "profile_apply_delay_s": 0.4339747428894043,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.16418800078099594,
+     "1": 0.14451100287260488,
+     "2": 0.09976699948310852,
+     "3": 0.1202060011564754,
+     "4": 0.13783900067210197,
+     "5": 0.13525300164474174,
+     "6": 0.10652100172592327,
+     "7": 0.10263299918733537,
+     "8": 0.1045259996317327,
+     "9": 0.07358800212386996
+    },
+    "generator_path_ms": {
+     "reused_ms": 2.2877049996168353,
+     "fresh_ms": 5.580495999311097,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": null
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 32,
+    "gen_proc_cores_mean": 0.06363463789806593,
+    "gen_proc_cores_max": 0.2983129541225939,
+    "host_busy_pct_mean": 9.405485108866769,
+    "host_busy_pct_max": 13.258983890954152,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": {
+    "episodes": 10,
+    "excluded": 0,
+    "client_timeouts": 0,
+    "median_dispute_rtt_s": 0.03644061088562012,
+    "median_direct_plog_s": 0.030611634254455566,
+    "n_direct": 10,
+    "plog_minus_response_gap_ms": {
+     "median": 6.294012069702148,
+     "max_abs": 8.621454238891602
+    },
+    "plog_rtt_agree_within_ms": 3.0,
+    "plog_rtt_agree": false,
+    "plog_p95_ms_used": 2.5,
+    "plog_acceptance_ratio": 0.08166829576033241,
+    "plog_acceptable_rule_10pct": true,
+    "excluded_by_cause": {},
+    "dispute_rtt_bias_s": 0.0,
+    "dispute_rtt_bias_ratio": 0.0,
+    "median_pending_withdrawal_s": null,
+    "n_pending_episodes": 0,
+    "n_queue_not_clean": 0,
+    "ack_lines_total": 0,
+    "ack_lines_max_per_site_episode": 0,
+    "n_pending_sites_read": 0,
+    "n_pending_sites_log": 0,
+    "read_undercount_sites": 0,
+    "n_pending_unmeasured_episodes": 0,
+    "n_pending_undrained_episodes": 0,
+    "pending_bias_ratio": null,
+    "pending_bias_flag_gt10pct": false
+   }
+  },
+  {
+   "cell": 2,
+   "spec": {
+    "block": "b1",
+    "arm": "D",
+    "fanout": 1,
+    "T": 5,
+    "episodes": 10
+   },
+   "profile_timing": {
+    "t_created": 1791705199.230859,
+    "t_profile_confirmed": 1791705199.544623,
+    "profile_apply_delay_s": 0.3137643337249756,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.11008699948433787,
+     "1": 0.11750099656637758,
+     "2": 0.11820100189652294,
+     "3": 0.1015900052152574,
+     "4": 0.13769899669568986,
+     "5": 0.10096900223288685,
+     "6": 0.12480499572120607,
+     "7": 0.10807299986481667,
+     "8": 0.1111490055336617,
+     "9": 0.12227000115672126
+    },
+    "generator_path_ms": {
+     "reused_ms": 1.5736030036350712,
+     "fresh_ms": 6.313170000794344,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": false
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 32,
+    "gen_proc_cores_mean": 0.04673166669983689,
+    "gen_proc_cores_max": 0.14984980378744067,
+    "host_busy_pct_mean": 8.872679144977072,
+    "host_busy_pct_max": 12.362301101591187,
+    "near_saturation": false
+   },
+   "generator_path_flag": true,
+   "summary": {
+    "episodes": 10,
+    "excluded": 0,
+    "client_timeouts": 0,
+    "median_dispute_rtt_s": 0.07051193714141846,
+    "median_direct_plog_s": 0.0673067569732666,
+    "n_direct": 10,
+    "plog_minus_response_gap_ms": {
+     "median": 2.474665641784668,
+     "max_abs": 4.075288772583008
+    },
+    "plog_rtt_agree_within_ms": 3.0,
+    "plog_rtt_agree": false,
+    "plog_p95_ms_used": 2.5,
+    "plog_acceptance_ratio": 0.03714337330192522,
+    "plog_acceptable_rule_10pct": true,
+    "excluded_by_cause": {},
+    "dispute_rtt_bias_s": 0.0,
+    "dispute_rtt_bias_ratio": 0.0,
+    "median_pending_withdrawal_s": null,
+    "n_pending_episodes": 0,
+    "n_queue_not_clean": 0,
+    "ack_lines_total": 0,
+    "ack_lines_max_per_site_episode": 0,
+    "n_pending_sites_read": 0,
+    "n_pending_sites_log": 0,
+    "read_undercount_sites": 0,
+    "n_pending_unmeasured_episodes": 0,
+    "n_pending_undrained_episodes": 0,
+    "pending_bias_ratio": null,
+    "pending_bias_flag_gt10pct": false
+   }
+  },
+  {
+   "cell": 3,
+   "spec": {
+    "block": "b1",
+    "arm": "C",
+    "fanout": 1,
+    "T": 5,
+    "episodes": 10
+   },
+   "profile_timing": {
+    "t_created": 1791705259.151639,
+    "t_profile_confirmed": 1791705259.4841356,
+    "profile_apply_delay_s": 0.33249711990356445,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.17763500363798812,
+     "1": 0.11283200001344085,
+     "2": 0.12595599400810897,
+     "3": 0.10300400026608258,
+     "4": 0.10499800555408001,
+     "5": 0.10516700422158465,
+     "6": 0.143940000270959,
+     "7": 0.11881300451932475,
+     "8": 0.10473700240254402,
+     "9": 0.10176100477110595
+    },
+    "generator_path_ms": {
+     "reused_ms": 2.369608002481982,
+     "fresh_ms": 5.634444998577237,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": null
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 32,
+    "gen_proc_cores_mean": 0.06363037862290749,
+    "gen_proc_cores_max": 0.31784774925077647,
+    "host_busy_pct_mean": 9.579696691323862,
+    "host_busy_pct_max": 12.385600976205003,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": {
+    "episodes": 10,
+    "excluded": 0,
+    "client_timeouts": 0,
+    "median_dispute_rtt_s": 0.10971975326538086,
+    "median_direct_plog_s": 0.10596036911010742,
+    "n_direct": 10,
+    "plog_minus_response_gap_ms": {
+     "median": 3.064870834350586,
+     "max_abs": 4.695653915405273
+    },
+    "plog_rtt_agree_within_ms": 3.0,
+    "plog_rtt_agree": false,
+    "plog_p95_ms_used": 2.5,
+    "plog_acceptance_ratio": 0.023593726796120873,
+    "plog_acceptable_rule_10pct": true,
+    "excluded_by_cause": {},
+    "dispute_rtt_bias_s": 0.0,
+    "dispute_rtt_bias_ratio": 0.0,
+    "median_pending_withdrawal_s": null,
+    "n_pending_episodes": 0,
+    "n_queue_not_clean": 0,
+    "ack_lines_total": 0,
+    "ack_lines_max_per_site_episode": 0,
+    "n_pending_sites_read": 0,
+    "n_pending_sites_log": 0,
+    "read_undercount_sites": 0,
+    "n_pending_unmeasured_episodes": 0,
+    "n_pending_undrained_episodes": 0,
+    "pending_bias_ratio": null,
+    "pending_bias_flag_gt10pct": false
+   }
+  },
+  {
+   "cell": 4,
+   "spec": {
+    "block": "b1",
+    "arm": "D",
+    "fanout": 10,
+    "T": 5,
+    "episodes": 10
+   },
+   "profile_timing": {
+    "t_created": 1791705340.1073663,
+    "t_profile_confirmed": 1791705340.4173794,
+    "profile_apply_delay_s": 0.3100135326385498,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.1121300010709092,
+     "1": 0.10453599679749459,
+     "2": 0.1384799979859963,
+     "3": 0.12452299415599555,
+     "4": 0.11190999794052914,
+     "5": 0.10718099656514823,
+     "6": 0.10381399624748155,
+     "7": 0.10208199819317088,
+     "8": 0.14739700418431312,
+     "9": 0.11446399730630219
+    },
+    "generator_path_ms": {
+     "reused_ms": 1.6572599997743964,
+     "fresh_ms": 4.253541999787558,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": false
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 31,
+    "gen_proc_cores_mean": 0.048842679636107146,
+    "gen_proc_cores_max": 0.1598249826085279,
+    "host_busy_pct_mean": 9.305287063388343,
+    "host_busy_pct_max": 14.875,
+    "near_saturation": false
+   },
+   "generator_path_flag": true,
+   "summary": {
+    "episodes": 10,
+    "excluded": 0,
+    "client_timeouts": 0,
+    "median_dispute_rtt_s": 0.029907584190368652,
+    "median_direct_plog_s": 0.02590775489807129,
+    "n_direct": 10,
+    "plog_minus_response_gap_ms": {
+     "median": 4.715442657470703,
+     "max_abs": 6.037473678588867
+    },
+    "plog_rtt_agree_within_ms": 3.0,
+    "plog_rtt_agree": false,
+    "plog_p95_ms_used": 2.5,
+    "plog_acceptance_ratio": 0.09649620392950813,
+    "plog_acceptable_rule_10pct": true,
+    "excluded_by_cause": {},
+    "dispute_rtt_bias_s": 0.0,
+    "dispute_rtt_bias_ratio": 0.0,
+    "median_pending_withdrawal_s": null,
+    "n_pending_episodes": 0,
+    "n_queue_not_clean": 0,
+    "ack_lines_total": 0,
+    "ack_lines_max_per_site_episode": 0,
+    "n_pending_sites_read": 0,
+    "n_pending_sites_log": 0,
+    "read_undercount_sites": 0,
+    "n_pending_unmeasured_episodes": 0,
+    "n_pending_undrained_episodes": 0,
+    "pending_bias_ratio": null,
+    "pending_bias_flag_gt10pct": false
+   }
+  }
+ ],
+ "profile_events": [],
+ "aborted": false,
+ "finished_utc": "2026-10-11T07:56:29.825958+00:00",
+ "disk_end": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.6G  97% /"
+}
