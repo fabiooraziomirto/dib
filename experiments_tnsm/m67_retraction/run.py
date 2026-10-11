@@ -672,6 +672,7 @@ def run_episodes(env, profile: str, tag: str, n: int, setup: bool, rows: list, s
 
 def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None) -> dict:
     row = {"trial": trial, "k": k, "excluded": False}
+    killed = False
     tmo = client_timeout_s(profile, env.arm, env.fanout, l_dns)
     try:
         clean, waited = env.queues_clean(bound_kill(profile, env.arm, env.T) + 3.0)
@@ -687,6 +688,7 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
             env.req("POST", f"{env.site(3)}/query", "op-site-3", 30.0, json=body)
             env.req("POST", f"{env.site(3)}/commit", "op-site-3", 30.0, json=body)
         env.sh(env.compose() + "kill site-3")
+        killed = True
         t_kill = time.time()
         for ep in eps:
             body = {"device_type": "cam-a", "endpoint": ep}
@@ -699,6 +701,7 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
         pend = env.req("GET", f"{env.ev}/pending/site-3", "site-3", 5.0).json()["pending"]
         row["pending_queued_for_site3"] = len(pend)
         env.sh(env.compose() + "start site-3")
+        killed = False
         t_start = time.time()
         row.update(t_kill=t_kill, t_start=t_start)
         bound = bound_kill(profile, env.arm, env.T)
@@ -734,6 +737,14 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
         row.update(excluded=True, client_timeout=str(exc)[:200])
     except TransportFailure as exc:
         row.update(excluded=True, excluded_reason="transport_error", exception_type=exc.exc_type, exception=str(exc)[:200])
+    finally:
+        if killed:   # audit 57: an excluded trial used to leave site-3 dead and every later trial of the cluster failed queues_not_empty_at_start
+            try:
+                env.sh(env.compose() + "start site-3")
+                row["site3_restarted_after_exception"] = True
+            except Exception as exc:  # noqa: BLE001 -- best effort: the original cause of the exclusion is kept
+                row["site3_restarted_after_exception"] = False
+                row["site3_restart_error"] = str(exc)[:200]
     return row
 
 
