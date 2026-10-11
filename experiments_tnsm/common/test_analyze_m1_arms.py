@@ -58,3 +58,21 @@ def test_censoring_report_counts_only_cells_with_errors_and_p99_at_the_pool_time
     rep = {(r["arm"], r["n_workers"]): r for r in am.censoring_report(cs)}
     assert rep[("default", 100)]["cells"] == 3 and rep[("default", 100)]["censored"] == 1 and rep[("default", 100)]["with_errors"] == 2
     assert rep[("deploy", 100)]["censored"] == 0 and rep[("default", 100)]["p99_uncensored_cells"] == 2
+
+
+def spread(arm, n, base, k=10, step=20):
+    return [cell(arm, n, base + step * i) for i in range(k)]
+
+
+def test_h_m1_requires_ci100_lower_above_ci50_UPPER_not_lower():
+    """CI at 100 entirely above the LOWER bound of CI at 50 but inside its range: overlapping CIs -> not falsified (survived the first version)."""
+    cs = spread("default", 50, 100) + [cell("default", 100, 215 + 0.01 * i) for i in range(10)]
+    v = [x for x in am.verdicts(cs, seed=1, resamples=400) if x["id"] == "H-M1" and x["subset"] == "all"][0]
+    assert v["ci100"][1] > v["ci50"][1] and v["ci100"][1] <= v["ci50"][2] and v["falsified"] is False
+
+
+def test_h_m1c_requires_entirely_below_not_just_a_lower_mean():
+    """Deploy mean lower than default but the CIs overlap -> not falsified (survived the first version)."""
+    cs = spread("default", 100, 100) + spread("deploy", 100, 90)
+    v = [x for x in am.verdicts(cs, seed=1, resamples=400) if x["id"] == "H-M1c" and x["subset"] == "all"][0]
+    assert v["ci_deploy"][0] < v["ci_default"][0] and v["falsified"] is False
