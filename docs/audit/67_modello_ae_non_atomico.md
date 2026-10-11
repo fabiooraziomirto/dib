@@ -136,3 +136,16 @@ reale non è toccato: è congelato per hash e serve il tuo OK.
 Ipotesi H-F1..H-F4 nel docstring del file (le ipotesi originali dei test rossi valgono sulla copia;
 H-b3r-2 corretta in H-F2; i test verdi restano verdi; ciclo base invariato). Ogni ancora compare
 una sola volta nel service.py reale (controllato prima di eseguire).
+
+Esito (2026-10-12, notte): **11 passed in 1,75 s**. H-F1..H-F4 confermate.
+
+### 7.1 Regressione della copia corretta su tutti i test distribuiti — pre-registrazione
+Comando: i file `code/tests/tests/test_distributed_*.py` eseguiti con un plugin pytest (nello
+scratchpad, non nella repo) che punta `_dist_harness.DIST_SOURCE` alla copia corretta. Così ogni
+`Cluster` senza `source` esplicito, e ogni mutante costruito da `make_source_copy`, parte dalla copia.
+**Ipotesi:** ogni fallimento appartiene a una di queste classi, previste:
+(i) test `*_characterization` che fissano i comportamenti corretti dalla patch (b3, b4, a10:
+`test_distributed_fsm_races.py` e `test_distributed_service_inproc.py:108`);
+(ii) test `xfail(strict=True)` del file delle race, che sulla copia passano (XPASS strict = failed);
+(iii) controlli negativi la cui ancora di testo cade in una regione riscritta ("anchor not found").
+Falsificata da un fallimento fuori da queste classi.
