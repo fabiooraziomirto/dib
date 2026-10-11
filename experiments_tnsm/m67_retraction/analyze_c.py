@@ -14,7 +14,12 @@ block directory of b1_*/ groups (blockdata.py). The exclusion code has not been 
 numerator x and the denominator n are taken over the SAME set of episodes: those NOT excluded AND carrying dispute_rtt_s (a recorded response). n = 10 x
 (that number of episodes), x = sites in pending of those episodes. A non-excluded episode WITHOUT dispute_rtt_s (no response recorded) is counted in NEITHER x
 nor n, and its number is reported per arm in the report ("without dispute_rtt_s"); it is not replaced. (The earlier code counted such an episode in n but not
-in x; the case does not occur in the lan_before data, where every row has dispute_rtt_s.)
+in x; the case does not occur in the lan_before data, where every row has dispute_rtt_s.) (7) EVERY counted episode must have exactly 10 sites (the keys of EACH of
+pending_left and plog_ack_ts are {"0".."9"}): counts_from_cells RAISES ValueError otherwise (n = 10 x episodes is asserted, not assumed); excluded episodes are not
+counted and not asserted. (8) ALTERNATIVE DEFINITION: if in ANY arm more than 3 non-excluded episodes lack dispute_rtt_s, the report prints, next to the declared one,
+the alternative definition for BOTH arms (those episodes counted in n with no pending: n_alt = n + 10 x no_rtt, x unchanged), its classification and second clause,
+and says "DEFINITIONS DISAGREE" for every arm whose classification differs. The verdict remains the declared definition (point 6); the alternative is a sensitivity
+shown to the reader, chosen here before B1 and not tuned.
 Observable (prediction_c_observable.md): per site and episode, with k = 1 fan-out per fact in B1: a delivery is "in pending" if the evidence log
 shows an ack line after t0 for that site or the delivery was still pending at the deadline (summary field n_pending_sites_log, computed by
 run.summarize_rows from the log, not from the generator's reads). Denominator = deliveries executed = episodes x 10 sites of the NON-excluded episodes.
@@ -90,6 +95,11 @@ def counts_from_cells(cells: list[dict]) -> dict:
         sp = c["cell_spec"]
         live = [r for r in c["rows"] if not r.get("excluded")]
         ok = [r for r in live if "dispute_rtt_s" in r]                  # x and n over the same episodes (docstring, point 6)
+        for r in ok:                                                    # docstring point 7: n = 10 x episodes is asserted, not assumed
+            for field in ("pending_left", "plog_ack_ts"):               # each map must carry exactly the 10 sites (a union would hide a missing one)
+                sites = set(r.get(field) or {})
+                if sites != {str(i) for i in range(10)}:
+                    raise ValueError(f"episode t0={r.get('t0')} of cell {sp}: {field} has {len(sites)} sites ({sorted(sites)}), expected exactly 10 sites")
         a = out.setdefault(sp["arm"], {"x": 0, "n": 0, "no_rtt": 0, "cells": {}})
         x = sum(row_pending_sites(r) for r in ok)
         n = 10 * len(ok)
@@ -149,6 +159,21 @@ def report_from_cells(cells, profile_events=None, watch_log_text=None, profile=N
         L.append(f"| {arm} | {x} / {n} | {x / n:.5f} | [{cis[arm][0]:.5f}; {cis[arm][1]:.5f}] | {PREDICTED[arm][0]}-{PREDICTED[arm][1]} | {INTERVALS[arm]} | {classify(cis[arm], INTERVALS[arm])} | "
                  + ", ".join(f"f{k}: {v[0]}/{v[1]}" for k, v in sorted(cs[arm]["cells"].items())) + " |")
     L.append("\nNon-excluded episodes without dispute_rtt_s (in neither x nor n): " + ", ".join(f"{a}: {cs[a]['no_rtt']}" for a in ("D", "C") if a in cs))
+    if any(cs[a]["no_rtt"] > 3 for a in cs):
+        L.append("\n**ALTERNATIVE definition** (more than 3 episodes without dispute_rtt_s in an arm; those episodes counted in n with no pending; sensitivity only, the verdict is the declared definition):\n")
+        L += ["| arm | pending / deliveries | share | CP 95% CI | classification |", "|---|---|---|---|---|"]
+        alt = {}
+        for arm in ("D", "C"):
+            if arm not in cs:
+                continue
+            x, n = cs[arm]["x"], cs[arm]["n"] + 10 * cs[arm]["no_rtt"]
+            alt[arm] = clopper_pearson(x, n)
+            L.append(f"| {arm} | {x} / {n} | {x / n:.5f} | [{alt[arm][0]:.5f}; {alt[arm][1]:.5f}] | {classify(alt[arm], INTERVALS[arm])} |")
+            if classify(alt[arm], INTERVALS[arm]) != classify(cis[arm], INTERVALS[arm]):
+                L.append(f"\n**DEFINITIONS DISAGREE for arm {arm}**: declared {classify(cis[arm], INTERVALS[arm])!r}, alternative {classify(alt[arm], INTERVALS[arm])!r}")
+        if "D" in alt and "C" in alt:
+            nd, nc = cs["D"]["n"] + 10 * cs["D"]["no_rtt"], cs["C"]["n"] + 10 * cs["C"]["no_rtt"]
+            L.append("\nSecond clause, alternative definition: " + second_clause(alt["D"], alt["C"], cs["D"]["x"] / nd, cs["C"]["x"] / nc))
     if "D" in cis and "C" in cis:
         L.append("\nSecond clause (registered, unambiguous form of the 2026-10-11 revision): " + second_clause(cis["D"], cis["C"], cs["D"]["x"] / cs["D"]["n"], cs["C"]["x"] / cs["C"]["n"]))
     return "\n".join(L) + "\n"

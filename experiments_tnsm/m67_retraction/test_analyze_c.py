@@ -119,3 +119,59 @@ def test_report_says_when_the_profile_is_not_degraded():
     assert "NOT a test of (c)" in c.report_from_cells(cells, profile="lan")
     assert "NOT a test of (c)" not in c.report_from_cells(cells, profile="degraded")
     assert "NOT a test of (c)" in c.report_from_cells(cells)                    # profile unknown: said, never assumed
+
+
+# ---- 10 sites per episode, and the alternative definition when more than 3 episodes per arm lack dispute_rtt_s (2026-10-11, before B1)
+import pytest  # noqa: E402
+
+
+def test_every_counted_episode_has_exactly_ten_sites():
+    """n = 10 x episodes presumes 10 sites per episode: assert it instead of assuming it."""
+    bad = _row(10.0, 0)
+    del bad["plog_ack_ts"]["9"]                                                   # 9 sites in the ack map
+    with pytest.raises(ValueError, match="10 sites"):
+        c.counts_from_cells([{"cell_spec": {"arm": "D", "fanout": 1}, "rows": [_row(5.0, 0), bad]}])
+    bad2 = _row(10.0, 0)
+    bad2["pending_left"]["10"] = 0                                                # an 11th site
+    with pytest.raises(ValueError, match="10 sites"):
+        c.counts_from_cells([{"cell_spec": {"arm": "D", "fanout": 1}, "rows": [bad2]}])
+    c.counts_from_cells([{"cell_spec": {"arm": "D", "fanout": 1}, "rows": [_row(5.0, 0)]}])   # a good episode passes
+    ex = _row(10.0, 0, excluded=True)
+    del ex["plog_ack_ts"]["9"]                                                    # an EXCLUDED malformed episode is not counted, so not asserted
+    c.counts_from_cells([{"cell_spec": {"arm": "D", "fanout": 1}, "rows": [ex]}])
+
+
+def _no_resp(t0):
+    return {"t0": t0, "excluded": False, "plog_ack_ts": {str(i): None for i in range(10)}, "pending_left": {str(i): 0 for i in range(10)}}
+
+
+def test_alternative_definition_is_reported_when_an_arm_has_more_than_three_episodes_without_rtt():
+    base = [_row(10.0 * i, 0) for i in range(20)]
+    three = [{"cell_spec": {"arm": "D", "fanout": 1}, "rows": base + [_no_resp(900.0 + i) for i in range(3)]}]
+    four = [{"cell_spec": {"arm": "D", "fanout": 1}, "rows": base + [_no_resp(900.0 + i) for i in range(4)]}]
+    assert "ALTERNATIVE definition" not in c.report_from_cells(three, profile="degraded")                      # 3 is not > 3
+    out = c.report_from_cells(four, profile="degraded")
+    assert "ALTERNATIVE definition" in out and "0 / 200" in out and "0 / 240" in out                          # declared n = 200; alternative n = 240 (the 4 counted in n)
+
+
+def test_alternative_definition_flags_a_disagreement_of_classification():
+    """D with 2 pending of 10 x 20 = 200 sites under the declared definition (0.015);
+    the alternative (n = 240 with 40 more deliveries and the same x) must be reported next to it, and a different classification is said explicitly."""
+    rows = [_row(10.0 * i, 1 if i < 3 else 0) for i in range(20)] + [_no_resp(900.0 + i) for i in range(4)]
+    cells = [{"cell_spec": {"arm": "D", "fanout": 1}, "rows": rows}]
+    out = c.report_from_cells(cells, profile="degraded")
+    assert "ALTERNATIVE definition" in out
+    main_cls = c.classify(c.clopper_pearson(3, 200), c.INTERVALS["D"])
+    alt_cls = c.classify(c.clopper_pearson(3, 240), c.INTERVALS["D"])
+    assert ("DEFINITIONS DISAGREE" in out) == (main_cls != alt_cls)
+
+
+def test_alternative_definition_disagreement_is_flagged_when_it_does_disagree():
+    # x = 0 of 10 x 20 = 200 (declared): CI [0; 0.0183] crosses the lower bound 0.004 -> inconclusive; alternative with 75 non-responding episodes counted in n:
+    # n = 950, CI upper 0.003876 < 0.004 -> entirely outside -> falsified: the definitions disagree and the report must say so.
+    rows = [_row(10.0 * i, 0) for i in range(20)] + [_no_resp(2000.0 + i) for i in range(75)]
+    out = c.report_from_cells([{"cell_spec": {"arm": "D", "fanout": 1}, "rows": rows}], profile="degraded")
+    m = c.classify(c.clopper_pearson(0, 200), c.INTERVALS["D"])
+    a = c.classify(c.clopper_pearson(0, 950), c.INTERVALS["D"])
+    assert m != a, (m, a)                                                      # the scenario is chosen so that the definitions disagree
+    assert "DEFINITIONS DISAGREE" in out and "0 / 950" in out
