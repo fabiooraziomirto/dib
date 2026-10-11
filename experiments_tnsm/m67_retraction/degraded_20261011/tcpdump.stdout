@@ -1,0 +1,10 @@
+generator path (ms): {'reused_ms': 202.3343089967966, 'fresh_ms': 402.78165199561045, 'n': 5, 'reused_ok': True, 'fresh_ok': True}
+TCPDUMP_WAIT arm=D evidence_pid=2362484 site0_pid=2365421: start TWO captures in parallel (evidence and site-0 namespaces), then `touch /home/ubuntu/dib_tnsm/m67/tcpdump_ready_D` (waiting up to 600 s)
+CAPTURE_WINDOW_START 1791712157.472 arm=D
+CAPTURE_WINDOW_END 1791712520.233 arm=D
+[1/2] tcpdump D f=1 T=5 rows=20 excluded=0 flagged=False bg_other=0.1724 steal=0.016 gen_proc=0.00
+generator path (ms): {'reused_ms': 203.1844489974901, 'fresh_ms': 608.3933479967527, 'n': 5, 'reused_ok': True, 'fresh_ok': None}
+TCPDUMP_WAIT arm=C evidence_pid=2409033 site0_pid=2410965: start TWO captures in parallel (evidence and site-0 namespaces), then `touch /home/ubuntu/dib_tnsm/m67/tcpdump_ready_C` (waiting up to 600 s)
+CAPTURE_WINDOW_START 1791712721.105 arm=C
+CAPTURE_WINDOW_END 1791713265.807 arm=C
+[2/2] tcpdump C f=1 T=5 rows=20 excluded=0 flagged=False bg_other=0.1649 steal=0.021 gen_proc=0.01

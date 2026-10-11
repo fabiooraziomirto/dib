@@ -1,0 +1,284 @@
+{
+ "started_utc": "2026-10-11T09:46:56.531743+00:00",
+ "argv": [
+  "experiments_tnsm/m67_retraction/run.py",
+  "--block",
+  "tcpdump",
+  "--profile",
+  "degraded",
+  "--tree",
+  "/home/ubuntu/dib_tnsm/tree-bf272e8",
+  "--out",
+  "/home/ubuntu/dib_tnsm/out/degraded_20261011/tcpdump",
+  "--arms",
+  "D,C",
+  "--plog-thresholds",
+  "/home/ubuntu/dib_tnsm/out/degraded_20261011/plog_thresholds_degraded.json",
+  "--plog-p95-ms",
+  "2.4263858795166016"
+ ],
+ "profile": "degraded",
+ "blocks": "tcpdump",
+ "seed": 20261014,
+ "group_order": [
+  [
+   [
+    "D",
+    1,
+    5
+   ],
+   1
+  ],
+  [
+   [
+    "C",
+    1,
+    5
+   ],
+   1
+  ]
+ ],
+ "cell_order": [
+  {
+   "block": "tcpdump",
+   "arm": "D",
+   "fanout": 1,
+   "T": 5,
+   "episodes": 20
+  },
+  {
+   "block": "tcpdump",
+   "arm": "C",
+   "fanout": 1,
+   "T": 5,
+   "episodes": 20
+  }
+ ],
+ "node_tree": "/home/ubuntu/dib_tnsm/tree-bf272e8",
+ "generator_host": "ubuntu",
+ "generator_is_node": true,
+ "clock": "time.time() = CLOCK_REALTIME of the node (same clock as docker logs -t)",
+ "cluster_recreations": 2,
+ "plog_thresholds": {
+  "profile": "degraded",
+  "calibrated_p95_ms": 2.4263858795166016,
+  "rule": "p95 of the log latency < 10% of the median direct withdrawal of the cell (denominator: prediction (a), n_RTT*R, x10 for the sequential FANOUT 1); the per-cell rule on the OBSERVED median stays in the cell summary",
+  "cells": {
+   "D/1": {
+    "predicted_direct_median_ms": 8000.0,
+    "threshold_ms": 800.0,
+    "accepted": true
+   },
+   "D/10": {
+    "predicted_direct_median_ms": 800.0,
+    "threshold_ms": 80.0,
+    "accepted": true
+   },
+   "C/1": {
+    "predicted_direct_median_ms": 12000.000000000002,
+    "threshold_ms": 1200.0000000000002,
+    "accepted": true
+   },
+   "C/10": {
+    "predicted_direct_median_ms": 1200.0000000000002,
+    "threshold_ms": 120.00000000000003,
+    "accepted": true
+   }
+  }
+ },
+ "measure_rule": "per profile from the thresholds file",
+ "node_service_sha256": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+ "launcher_d_sha256": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+ "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
+ "run_py_sha256": "022d97a6dc76808cf3a866c92f71d6076d0bcafca65a3ebdeab300b423393c02",
+ "discard_rule": {
+  "fixed_before_measuring": "2026-10-10, after the 5-minute no-DIB baseline (experiments_tnsm/node_baseline/baseline_noDIB.json), before any M1/M2 cell",
+  "rule": "a cell is flagged as disturbed if, over the cell window, other_cores > max_other_cores OR steal_pct > max_steal_pct; flagged cells are never dropped: results are reported on all cells and on unflagged cells, with the flagged count",
+  "max_other_cores": 1.0,
+  "max_steal_pct": 2.0,
+  "other_cores_definition": "CPU of user-space processes other than the measuring process (kernel threads excluded, reported as kernel_cores)",
+  "baseline": {
+   "samples": 60,
+   "interval_s": 5,
+   "other_cores": {
+    "median": 0.123,
+    "p95": 0.23,
+    "max": 0.28
+   },
+   "steal_pct": {
+    "median": 0.013,
+    "p95": 0.013,
+    "max": 0.038
+   },
+   "load1": {
+    "median": 0.145,
+    "max": 0.26
+   },
+   "main_process": "k3s-server ~0.10 cores"
+  },
+  "rationale": "1.0 core = 3.6x the baseline maximum and 8x its median: another tenant taking a whole vCPU; 2% steal = 50x the baseline maximum: hypervisor contention"
+ },
+ "disk_start": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.6G  97% /",
+ "cells_summary": [
+  {
+   "cell": 1,
+   "spec": {
+    "block": "tcpdump",
+    "arm": "D",
+    "fanout": 1,
+    "T": 5,
+    "episodes": 20
+   },
+   "profile_timing": {
+    "t_created": 1791712029.9137688,
+    "t_profile_confirmed": 1791712045.2587113,
+    "profile_apply_delay_s": 15.344942808151245,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 400.26125400618184,
+     "1": 400.25580300425645,
+     "2": 400.29078800580464,
+     "3": 400.2925209933892,
+     "4": 400.4231360013364,
+     "5": 400.389925998752,
+     "6": 400.3773410076974,
+     "7": 400.2890660049161,
+     "8": 400.28562999214046,
+     "9": 400.2375709969783
+    },
+    "generator_path_ms": {
+     "reused_ms": 202.3343089967966,
+     "fresh_ms": 402.78165199561045,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": true
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 362,
+    "gen_proc_cores_mean": 0.004609228030520877,
+    "gen_proc_cores_max": 0.0399708674093079,
+    "host_busy_pct_mean": 2.6242225595914834,
+    "host_busy_pct_max": 11.516677155443675,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": {
+    "episodes": 20,
+    "excluded": 0,
+    "client_timeouts": 0,
+    "median_dispute_rtt_s": 12.04037868976593,
+    "median_direct_plog_s": 11.30943238735199,
+    "n_direct": 18,
+    "plog_minus_response_gap_ms": {
+     "median": 402.9005765914917,
+     "max_abs": 2208.765745162964
+    },
+    "plog_rtt_agree_within_ms": 3.0,
+    "plog_rtt_agree": false,
+    "plog_p95_ms_used": 2.4263858795166016,
+    "plog_acceptance_ratio": 0.00021454532786545266,
+    "plog_acceptable_rule_10pct": true,
+    "excluded_by_cause": {},
+    "dispute_rtt_bias_s": 0.4,
+    "dispute_rtt_bias_ratio": 0.03322154645683957,
+    "median_pending_withdrawal_s": 13.872571229934692,
+    "n_pending_episodes": 2,
+    "n_queue_not_clean": 0,
+    "ack_lines_total": 2,
+    "ack_lines_max_per_site_episode": 1,
+    "n_pending_sites_read": 1,
+    "n_pending_sites_log": 2,
+    "read_undercount_sites": 1,
+    "n_pending_unmeasured_episodes": 0,
+    "n_pending_undrained_episodes": 0,
+    "pending_bias_ratio": 0.018021172561042017,
+    "pending_bias_flag_gt10pct": false
+   }
+  },
+  {
+   "cell": 2,
+   "spec": {
+    "block": "tcpdump",
+    "arm": "C",
+    "fanout": 1,
+    "T": 5,
+    "episodes": 20
+   },
+   "profile_timing": {
+    "t_created": 1791712544.074001,
+    "t_profile_confirmed": 1791712576.7666733,
+    "profile_apply_delay_s": 32.69267249107361,
+    "rtt_attempts": 2,
+    "first_rtt_ms": {
+     "0": 400.40559200861026,
+     "1": 400.39287001127377,
+     "2": 400.3481279942207,
+     "3": 400.28626800631173,
+     "4": 400.35961801186204,
+     "5": 400.3291630069725,
+     "6": 400.3498620004393,
+     "7": 1425.3127660049358,
+     "8": 400.3128829936031,
+     "9": 400.3707350057084
+    },
+    "generator_path_ms": {
+     "reused_ms": 203.1844489974901,
+     "fresh_ms": 608.3933479967527,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": null
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 544,
+    "gen_proc_cores_mean": 0.00556445890426075,
+    "gen_proc_cores_max": 0.11955172776637511,
+    "host_busy_pct_mean": 2.4203292575585817,
+    "host_busy_pct_max": 12.751256281407036,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": {
+    "episodes": 20,
+    "excluded": 0,
+    "client_timeouts": 0,
+    "median_dispute_rtt_s": 18.512863993644714,
+    "median_direct_plog_s": 16.858838081359863,
+    "n_direct": 14,
+    "plog_minus_response_gap_ms": {
+     "median": 402.20963954925537,
+     "max_abs": 2209.192991256714
+    },
+    "plog_rtt_agree_within_ms": 3.0,
+    "plog_rtt_agree": false,
+    "plog_p95_ms_used": 2.4263858795166016,
+    "plog_acceptance_ratio": 0.00014392367183355053,
+    "plog_acceptable_rule_10pct": true,
+    "excluded_by_cause": {},
+    "dispute_rtt_bias_s": 0.4,
+    "dispute_rtt_bias_ratio": 0.021606597452307547,
+    "median_pending_withdrawal_s": 21.206093192100525,
+    "n_pending_episodes": 6,
+    "n_queue_not_clean": 0,
+    "ack_lines_total": 6,
+    "ack_lines_max_per_site_episode": 1,
+    "n_pending_sites_read": 3,
+    "n_pending_sites_log": 6,
+    "read_undercount_sites": 3,
+    "n_pending_unmeasured_episodes": 0,
+    "n_pending_undrained_episodes": 0,
+    "pending_bias_ratio": 0.01178906447950193,
+    "pending_bias_flag_gt10pct": false
+   }
+  }
+ ],
+ "profile_events": [],
+ "aborted": false,
+ "finished_utc": "2026-10-11T10:07:59.539709+00:00",
+ "disk_end": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.6G  97% /"
+}
