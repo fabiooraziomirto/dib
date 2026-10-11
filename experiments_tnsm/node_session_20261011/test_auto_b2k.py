@@ -49,7 +49,7 @@ class FakeCtl:
 def make_ctx(tmp_path, poll_s=0.1, ldns_ms=3.4, run_rows=GOOD, run_rc=0):
     sysm = FakeSystem()
     sysm.script("calib_profile.py", CALIB_OK.replace('"p95_ms": 3.4', f'"p95_ms": {ldns_ms}'), rtt="True")
-    sysm.script("run.py", RUN_OK, rows=json.dumps(run_rows), sleep=0, rc=run_rc)
+    sysm.script("run.py", RUN_OK, rows=repr(run_rows), sleep=0, rc=run_rc)
     st = ab.State(tmp_path / "state.json")
     tree = tmp_path / "tree"
     (tree / "experiments_tnsm/m67_retraction").mkdir(parents=True)
