@@ -1,0 +1,2 @@
+{"label": "degraded", "alive": {"n": 50, "p50_ms": 0.14503099373541772, "p95_ms": 0.22541300859302282, "max_ms": 1.6877739981282502, "outcomes": ["True"]},
+ "killed": {"n": 50, "p50_ms": 3.0268749978858978, "p95_ms": 3.4774200030369684, "max_ms": 5.290659988531843, "outcomes": ["gaierror(-3, 'Temporary failure in name resolution')"]}}

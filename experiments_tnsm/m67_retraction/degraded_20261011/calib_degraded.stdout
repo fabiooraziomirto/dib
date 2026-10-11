@@ -1,0 +1,50 @@
+generator path (ms): {'reused_ms': 202.4732230056543, 'fresh_ms': 403.10649799357634, 'n': 5, 'reused_ok': True, 'fresh_ok': True}
+VERIFY_NOW profile=degraded: cluster up, run `sudo bash /home/ubuntu/dib_tnsm/tree-bf272e8/experiments_tnsm/m67_retraction/netem_show.sh` (holding 240 s; 2026-10-11T09:37:47Z)
+{
+ "started": 1791711414.89932,
+ "tree": "/home/ubuntu/dib_tnsm/tree-bf272e8",
+ "profile": "degraded",
+ "healthy_s": 8.789463520050049,
+ "rtt_ms": {
+  "0": 400.2778260037303,
+  "1": 400.22259300167207,
+  "2": 400.2335650002351,
+  "3": 400.2712159999646,
+  "4": 400.29703499749303,
+  "5": 400.20816899777856,
+  "6": 400.2640839898959,
+  "7": 400.25048999814317,
+  "8": 400.26015900366474,
+  "9": 400.22041399788577
+ },
+ "rtt_check_ok": true,
+ "rtt_check_bad": [],
+ "profile_timing": {
+  "t_created": 1791711429.7058961,
+  "t_profile_confirmed": 1791711462.3067968,
+  "profile_apply_delay_s": 32.60090088844299,
+  "rtt_attempts": 2,
+  "first_rtt_ms": {
+   "0": 400.2908710099291,
+   "1": 400.34710700274445,
+   "2": 400.37603200471494,
+   "3": 400.2493650041288,
+   "4": 400.2646650042152,
+   "5": 1407.9530980088748,
+   "6": 400.2391989924945,
+   "7": 400.28698899550363,
+   "8": 400.23280000605155,
+   "9": 400.2345629996853
+  }
+ },
+ "generator_path_ms": {
+  "reused_ms": 202.4732230056543,
+  "fresh_ms": 403.10649799357634,
+  "n": 5,
+  "reused_ok": true,
+  "fresh_ok": true
+ },
+ "calib_ldns_returncode": 0,
+ "dry_run_lines": {},
+ "finished": 1791711801.0832427
+}

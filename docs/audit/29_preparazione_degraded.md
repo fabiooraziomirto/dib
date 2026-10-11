@@ -30,3 +30,12 @@ Stima della durata (dalle previsioni (a) a `degraded`, R = 0,4 s, senza ripetizi
 
 P-a4 (ripetizione, quarta sessione `lan` con C e D): C − D = 19,44 ms [11,96; 31,17], l'IC attraversa il 15 e il 32: non conclusivo, stima puntuale dentro [15, 32]. Serie delle quattro: 38,65 / 27,46 / 22,67 / 19,44 ms. D/1 nelle sessioni: 67,3 / 48,4 / 45,9 / 47,4 / 50,9 ms (09:30).
 Questa sessione è il riferimento `lan` "prima" per (a) a `degraded`; la sessione 09:21 resta disponibile ("dopo" del blocco `wan`), con la regola della mediana più alta.
+
+## 5. Calibrazione `degraded` (`degraded_20261011/calib_degraded`, cluster D, hold 240 s, VERIFY_NOW 09:37:47 UTC, fine 09:43:21 UTC; lanciata dall'utente con watcher `degraded` attivo)
+**Copia e sha256:** fatta da me; i tre sha256 locali coincidono con quelli del nodo (`calib_logs_degraded.json` `0e5196c5…`, `calib_degraded_result.json` `be1488ec…`, `calib_ldns_degraded.txt` `ef0694f9…`). Nessun container né processo residuo a fine calibrazione.
+- `rtt_check_ok` vero; RTT evidence→sito 400,2-400,3 ms a tutti e 10 i siti (banda 320-480). Il primo controllo ha avuto un SYN perso (sito-5: 1407,95 ms): 2 tentativi di verifica, profilo confermato dopo 32,6 s dalla creazione del cluster (a `wan` 5-6 s), come previsto dal rischio dichiarato (un SYN perso allunga a ~1,4 s).
+- `generator_path_ms` riusata 202,47 / nuova 403,11 ms (`reused_ok` e `fresh_ok` veri).
+- **L_dns a `degraded`** (50 campioni, `site-3`): sito vivo p50 0,145 / p95 0,225 / max 1,69 ms; **sito morto p50 3,03 / p95 3,48 / max 5,29 ms**, `gaierror(-3, …)`. Serie del giorno (p95 sito morto): `lan` 3,04-9,87; `wan` 3,33-3,46; `degraded` 3,48 ms. La notte, a `wan`, p95 185-186 ms. Nessuna dichiarazione su profilo o ambiente.
+- Latenza dei log: p95 massimo 2,43 ms (evidence in parallelo; singolo 1,93 ms); il conteggio di site-0 in parallelo è 0 (come a `wan`).
+- **`netem_show.sh` durante il hold: non confermato dall'utente nei file/messaggi finora**: serve il suo OK prima del tcpdump e di B1.
+- **Soglie P-log `degraded`** (`plog_thresholds_degraded.json`, regola di `wan`, p95 calibrato 2,43 ms): D/1 800, D/10 80, C/1 1200, C/10 120 ms, tutte e 4 accettabili. Committate **prima del tcpdump e di qualunque dato di B1** (insieme alla calibrazione).
