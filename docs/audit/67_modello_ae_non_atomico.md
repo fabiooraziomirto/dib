@@ -122,3 +122,17 @@ Aggiunte rispetto a v1:
 | `m3_noverify` | senza seconda lettura: I1_CommitOnUndisputedEvidence violato | nessuna violazione |
 | `m4_noqueryfix` | senza FixQuery: DisputeSuspendsAtReachableSitesV2 violato | nessuna violazione |
 | `f3_two_split` | correzioni su ENTRAMBI i siti, MaxToggles 2: nessuna violazione | qualunque violazione (incompleto oltre 3 h = riportato come tale) |
+
+## 7. Patch candidata su COPIA di service.py — pre-registrazione
+`code/tests/tests/test_distributed_fsm_fix_copy.py`: la correzione verificata nel modello v2 è
+tradotta in sostituzioni di testo applicate a una copia di service.py (`make_source_copy`). Il file
+reale non è toccato: è congelato per hash e serve il tuo OK.
+- **FQ:** riserva `staging`, poi seconda lettura e chiusura.
+- **FC:** commit in due fasi `committing`.
+- **FR:** guardia `last_applied_seq` in local restore.
+- **FV:** local revoke senza evidence (b4).
+- **FQ2:** conferma con quorum 2 da un segnalante fuori dai voti (a10).
+
+Ipotesi H-F1..H-F4 nel docstring del file (le ipotesi originali dei test rossi valgono sulla copia;
+H-b3r-2 corretta in H-F2; i test verdi restano verdi; ciclo base invariato). Ogni ancora compare
+una sola volta nel service.py reale (controllato prima di eseguire).

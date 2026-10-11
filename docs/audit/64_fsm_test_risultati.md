@@ -113,3 +113,12 @@ Conseguenze:
   campi `device_type, endpoint, protocol, port` di `local_decisions` (S:440-442).
 - a10: in S:918 `req.site_id NOT IN (SELECT site_id FROM suspension_reports WHERE score_id=?)`
   quando Q=2.
+
+## 4. Nota di correzione (2026-10-12, notte): H-b3r-2 era formulata male
+H-b3r-2 si aspettava che, dopo la corsa di `/local_restore` e una `/reconcile`, il record fosse
+`disputed`. È sbagliato: un record revocato localmente che riceve una dispute resta revoked/local
+(la guardia di veto avanza solo `last_applied_seq`, S:487-490). Lo stato corretto atteso è quindi
+"revoked/local". La falsificazione osservata (monitor-only, non riparato) resta un difetto: il veto
+è stato tolto durante un episodio aperto. Ma il valore atteso del test era sbagliato.
+Il test resta com'è (`xfail(strict=True)`), senza modifiche. La forma corretta è H-F2 in
+`test_distributed_fsm_fix_copy.py` (audit 67 sez. 7).
