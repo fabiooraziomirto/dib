@@ -149,3 +149,17 @@ scratchpad, non nella repo) che punta `_dist_harness.DIST_SOURCE` alla copia cor
 (ii) test `xfail(strict=True)` del file delle race, che sulla copia passano (XPASS strict = failed);
 (iii) controlli negativi la cui ancora di testo cade in una regione riscritta ("anchor not found").
 Falsificata da un fallimento fuori da queste classi.
+
+Esito 7.1: **127 passed, 12 failed, 1 xfailed in 24,0 s.**
+- 6 fallimenti di classe (i): `test_suspension_quorum_2_two_distinct_sites_suffice_characterization` e
+  le 5 caratterizzazioni `*_observed_*` del file delle race.
+- 5 di classe (ii): gli xfail strict b3q-1, b3c-1, b3r-1, b4-1, a10, che passano sulla copia.
+- Nessuno di classe (iii): nessun controllo negativo ha perso la sua ancora.
+- **1 fuori dalle classi dichiarate: l'ipotesi 7.1 è FALSIFICATA come scritta.**
+  `test_b3q_2_reconcile_repairs_query_race` fallisce perché sulla copia la corsa non crea più alcun
+  record (H-b3q-1 vale), quindi non c'è niente che una reconcile possa portare a disputed. Il
+  fallimento è la conseguenza attesa della correzione, ma non era nell'elenco pre-registrato.
+- L'unico xfail rimasto è b3r-2: sulla copia il record resta revoked/local, come dice la nota
+  dell'audit 64.
+- Tutti gli altri 127 test (D12, D19, trigger, fan-out parallelo, keep-alive, ack, inproc) passano
+  sulla copia corretta.
