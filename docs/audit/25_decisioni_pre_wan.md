@@ -60,3 +60,20 @@ ssh -i ~/.ssh/id_ed25519_lab ubuntu@192.168.100.57 'set -e; export PATH=/snap/bi
 
 ## C.2, lettura dei dati (copia di `pki_check` arrivata in locale, ora file 10:26 locale = 08:26 UTC; copia fatta dall'utente, **sha256 sul nodo non ancora confrontato**: locale `cells.jsonl` `b0eea00b5098c758ceb808458bb5d755c63a2e8ddba10ddf56240345de7df50f`)
 Cella C FANOUT 10, 3 episodi, **prova (non confermativa)**: `status` 200 in tutti e 3, `dispute-rtt` 46,8 / 24,3 / 34,8 ms, 0 esclusi: con la PKI nuova mTLS funziona (nessun errore di certificato, nessun 4xx). Dati in `experiments_tnsm/m67_retraction/lan_20261011/pki_check/`.
+
+## C.3, risultati (`b1_default`, 08:26:46-08:30:09 UTC; copia fatta dall'utente, **sha256 sul nodo non confrontato da me**: locale `cells.jsonl` `7d6003a73ba87162bb41e832011fa558b0bf0188bc0766936259de70b9d0c71e`)
+Quattro celle, 10 episodi, `aborted: false`, ordine D f10, default f1, D f1, default f10. **Pulite**: 0 esclusioni per ogni causa, nessuna cella segnalata (`other_cores` 0,11-0,15, `steal_pct` 0,01-0,32), 0 consegne in pending, 0 righe di ack, `read_undercount_sites` 0, `generator_path_ms` riusata 1,06-1,77 ms con flag falso. Il braccio `default` ha quindi girato dal vivo senza errori. Unico elemento da riportare: **P-log non accettato per D FANOUT 10** (rapporto 0,114 con p95 di default 2,5 ms; era 0,096 nella prima sessione).
+
+| Braccio | FANOUT | `dispute-rtt` ms [IC] | Ultimo sito P-log ms [IC] | Misura |
+|---|---|---|---|---|
+| D | 1 | 50,69 [46,99; 54,10] | 48,41 [45,44; 51,94] | `P-log-apply` |
+| D | 10 | 25,37 [20,54; 45,46] | 21,99 [17,06; 40,88] | `dispute-rtt` (P-log non accettato) |
+| default | 1 | 133,70 [125,11; 148,90] | 128,26 [119,56; 146,67] | `P-log-apply` |
+| default | 10 | 30,32 [27,91; 39,46] | 27,35 [24,95; 35,00] | `P-log-apply` |
+
+**P-a1 e P-a2 (criterio non ambiguo, `analyze_default_vs_d.py`, scritto dopo aver visto le mediane: dichiarato nel docstring):**
+- P-a1 (FANOUT 1, atteso +61,5 ms, [46, 77]): default − D = **79,85 ms [69,60; 96,73]** (P-log), 83,01 [72,46; 96,71] (`dispute-rtt`). L'IC attraversa l'estremo 77: **non conclusivo**; la stima puntuale è sopra l'intervallo.
+- P-a2 (FANOUT 10, atteso fra +6 e +62, [3, 75]): default − D = **5,36 ms [−12,09; 14,24]** (P-log), 4,95 [−11,12; 15,21] (`dispute-rtt`): l'IC attraversa l'estremo 3: **non conclusivo** (D non ha P-log accettato: vale la riga `dispute-rtt`).
+Il file `analysis_b1_default.md` riporta alla fine una riga generica "default − D non valutabile" che è un resto dello script; vale `analysis_default_vs_d.md`.
+
+**Da segnalare per (a) a `wan` (non spiegato):** D è stato misurato a `lan` in **due sessioni di oggi**: D FANOUT 1 `P-log` 67,3 [62,8; 82,1] ms (07:52) e 48,4 [45,4; 51,9] ms (08:27), IC non sovrapposti; D FANOUT 10 25,9 [23,9; 30,3] e 22,0 [17,1; 40,9]. Il riferimento `lan` per la regola (a) ("di oggi") va perciò **scelto prima dell'analisi di `wan`**: ho solo C dalla prima sessione, D dalle due. Decisione tua: quale sessione, o la sessione del blocco `wan` con una nuova misura a `lan` nello stesso giorno.
