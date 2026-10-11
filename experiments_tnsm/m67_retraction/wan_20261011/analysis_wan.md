@@ -41,19 +41,19 @@ cells in file: 4; complete: 4; partial/aborted: 0
 
 (at `lan` d = 0: the +-20% band is replaced by 0-3 ms; `fresh_ok` False/None carries no meaning here, audit 22.)
 
-## Prediction (a) with the adjacent `lan` reference (higher median over: /root/Desktop/DIB_tnsm/experiments_tnsm/m67_retraction/lan_ref_20261011/before)
+## Prediction (a) with the adjacent `lan` reference (higher median over: lan_ref_20261011/before)
 
 | arm | FANOUT | measure | median ms [CI] | 10 x n_RTT x R (FANOUT 1) / n_RTT x R ms | reference lan median ms | threshold ms | excess over threshold ms | verdict |
 |---|---|---|---|---|---|---|---|---|
-| C | 1 | P-log-apply | 4827.72 [4809.59; 5427.32] (n=10) | 4800.0 | 73.31 (/root/Desktop/DIB_tnsm/experiments_tnsm/m67_retraction/lan_ref_20261011/before) | 5019.9 | -192.2 | not falsified |
-| C | 10 | P-log-apply | 429.26 [420.20; 926.43] (n=10) | 480.0 | 20.88 (/root/Desktop/DIB_tnsm/experiments_tnsm/m67_retraction/lan_ref_20261011/before) | 542.6 | -113.4 | not falsified |
-| D | 1 | P-log-apply | 3191.84 [3174.33; 3824.47] (n=10) | 3200.0 | 45.85 (/root/Desktop/DIB_tnsm/experiments_tnsm/m67_retraction/lan_ref_20261011/before) | 3337.5 | -145.7 | not falsified |
-| D | 10 | P-log-apply | 258.97 [256.55; 583.38] (n=10) | 320.0 | 17.82 (/root/Desktop/DIB_tnsm/experiments_tnsm/m67_retraction/lan_ref_20261011/before) | 373.5 | -114.5 | not falsified |
+| C | 1 | P-log-apply | 4827.72 [4809.59; 5427.32] (n=10) | 4800.0 | 73.31 (lan_ref_20261011/before) | 5019.9 | -192.2 | not falsified |
+| C | 10 | P-log-apply | 429.26 [420.20; 926.43] (n=10) | 480.0 | 20.88 (lan_ref_20261011/before) | 542.6 | -113.4 | not falsified |
+| D | 1 | P-log-apply | 3191.84 [3174.33; 3824.47] (n=10) | 3200.0 | 45.85 (lan_ref_20261011/before) | 3337.5 | -145.7 | not falsified |
+| D | 10 | P-log-apply | 258.97 [256.55; 583.38] (n=10) | 320.0 | 17.82 (lan_ref_20261011/before) | 373.5 | -114.5 | not falsified |
 
 ## Differences between arms (median difference, bootstrap CI over episodes)
 
-- FANOUT 1 (P-a4: +23.5 ms, falsified if CI outside [15, 32]), last-site P-log: C - D = 1635.88 ms [998.43; 2235.48] -> CI entirely outside [15, 32]: falsified under the strict reading
-- FANOUT 1 (P-a4: +23.5 ms, falsified if CI outside [15, 32]), dispute-rtt: C - D = 1732.03 ms [1008.30; 2234.39]
+- FANOUT 1 (P-a4 is registered for `lan` only: not applicable here; descriptive), last-site P-log: C - D = 1635.88 ms [998.43; 2235.48]
+- FANOUT 1 (P-a4 is registered for `lan` only: not applicable here; descriptive), dispute-rtt: C - D = 1732.03 ms [1008.30; 2234.39]
 - FANOUT 10 (no registered interval; descriptive), last-site P-log: C - D = 170.29 ms [-152.10; 662.28]
 - FANOUT 10 (no registered interval; descriptive), dispute-rtt: C - D = 340.70 ms [-302.90; 548.01]
 - default - D (P-a1 +61.5 ms at FANOUT 1; P-a2 between +6 and +62 ms at FANOUT 10): **not evaluable**, no `default` cells in this run.

@@ -183,13 +183,13 @@ def main() -> int:
             L.append(f"| {arm} | {fo} | {v['measure']} | {fmt(t)} | {pred:.2f} | {3 * t[0]:.2f} | {ra['threshold_ms']:.2f} | {ra['verdict']} |")
         L += ["", "**Degenerate at `lan`**: the reference is the cell itself, so the threshold always exceeds the median; the verdict carries no information."]
     L += ["", "## Differences between arms (median difference, bootstrap CI over episodes)", ""]
-    for fo, label in ((1, "FANOUT 1 (P-a4: +23.5 ms, falsified if CI outside [15, 32])"), (10, "FANOUT 10 (no registered interval; descriptive)")):
+    for fo, label in ((1, "FANOUT 1 (P-a4: +23.5 ms, falsified if CI outside [15, 32])" if prof == "lan" else "FANOUT 1 (P-a4 is registered for `lan` only: not applicable here; descriptive)"), (10, "FANOUT 10 (no registered interval; descriptive)")):
         for q, name in (("last", "last-site P-log"), ("rtt", "dispute-rtt")):
             cd, dd = by.get(("C", fo)), by.get(("D", fo))
             if cd and dd and cd[q] and dd[q]:
                 x = diff_ci(cd[q], dd[q], rng)
                 verdict = ""
-                if fo == 1 and q == "last":
+                if fo == 1 and q == "last" and prof == "lan":   # P-a4 is registered for `lan` only; at other profiles the difference is descriptive
                     inside = 15 <= x[1] and x[2] <= 32
                     outside = x[2] < 15 or x[1] > 32
                     verdict = " -> " + ("CI entirely inside [15, 32]" if inside else "CI entirely outside [15, 32]: falsified under the strict reading" if outside
