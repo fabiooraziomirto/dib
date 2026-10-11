@@ -8,3 +8,6 @@
 2026-10-11T16:46Z ssh dibnode: scp auto_b2k.py (sha a60be9aa..) + launch_auto_b2k.sh to ~/dib_tnsm/b2k; launch_auto_b2k.sh -> out/b2k_20261011 (waits for auto_block.py of B5, end 2026-10-12T02:00Z)
 2026-10-11T17:25Z ssh dibnode: mkdir ~/dib_tnsm/m8; scp run.py launch_m8.sh files/*.json (sha256 in node listing); launch_m8.sh -> out/m8_20261011 (waits for auto_block/auto_b2k to finish, then measure)
 2026-10-11T18:20Z local: tar copy of out/b5_20261011 (excl pcap) to experiments_tnsm/b5_20261011; DATA.sha256 0 mismatches; B5 finished 18:15:24Z, all blocks done, 4 data cells each
+2026-10-11T18:15Z auto_b2k.py started by its waiter after B5 (lan+fast poll 0.1 s confirmed); finished 21:29:03Z, 3 blocks done (lan 12 cells, degraded 8, wan 8), DATA.sha256 0 mismatches after the tar copy to experiments_tnsm/b2k_20261011 (audit 57)
+2026-10-11T21:30Z m8 run.py measure started by its waiter after B2k, finished 21:30:32Z; copied to experiments_tnsm/m8_mud_sig/run_20261011 (audit 58)
+2026-10-11T21:33Z ssh dibnode: final state read-only: no dibtnsm container, no run.py/auto_* process, watcher v2 alive (poll 0.5 s, profile lan, left running: started by the user), df 3.5G free. Nothing deleted on the node.
