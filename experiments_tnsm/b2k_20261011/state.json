@@ -1,0 +1,493 @@
+{
+ "events": [
+  {
+   "t": "2026-10-11T18:15:49.295269+00:00",
+   "kind": "block_start",
+   "block": "b2k_lan",
+   "profile": "lan"
+  },
+  {
+   "t": "2026-10-11T18:15:50.609032+00:00",
+   "kind": "profile_requested",
+   "block": "b2k_lan",
+   "request": "lan+fast",
+   "poll_s": 0.1
+  },
+  {
+   "t": "2026-10-11T18:16:22.610038+00:00",
+   "kind": "calibration",
+   "block": "b2k_lan",
+   "returncode": 0,
+   "rtt_check_ok": true,
+   "ldns": {
+    "label": "lan",
+    "alive": {
+     "n": 50,
+     "p50_ms": 0.17140299314633012,
+     "p95_ms": 0.2420759992673993,
+     "max_ms": 2.056238998193294,
+     "outcomes": [
+      "True"
+     ]
+    },
+    "killed": {
+     "n": 50,
+     "p50_ms": 3.0000289989402518,
+     "p95_ms": 3.588563995435834,
+     "max_ms": 5.502205996890552,
+     "outcomes": [
+      "gaierror(-3, 'Temporary failure in name resolution')"
+     ]
+    }
+   }
+  },
+  {
+   "t": "2026-10-11T18:16:22.610446+00:00",
+   "kind": "ldns_decision",
+   "block": "b2k_lan",
+   "decision": "run",
+   "reason": "L_dns p95 3.6 ms <= 50 ms and watcher poll 0.1 s <= 0.1 s",
+   "killed": {
+    "n": 50,
+    "p50_ms": 3.0000289989402518,
+    "p95_ms": 3.588563995435834,
+    "max_ms": 5.502205996890552,
+    "outcomes": [
+     "gaierror(-3, 'Temporary failure in name resolution')"
+    ]
+   },
+   "alive": {
+    "n": 50,
+    "p50_ms": 0.17140299314633012,
+    "p95_ms": 0.2420759992673993,
+    "max_ms": 2.056238998193294,
+    "outcomes": [
+     "True"
+    ]
+   },
+   "poll_s": 0.1
+  },
+  {
+   "t": "2026-10-11T18:16:22.610955+00:00",
+   "kind": "b2k_start",
+   "block": "b2k_lan",
+   "arm": "D",
+   "attempt": 1,
+   "cmd": [
+    "/home/ubuntu/dib_tnsm/tree-244f1d0/experiments_tnsm/m67_retraction/run.py",
+    "--block",
+    "b2kill",
+    "--profile",
+    "lan",
+    "--tree",
+    "/home/ubuntu/dib_tnsm/tree-244f1d0",
+    "--out",
+    "/home/ubuntu/dib_tnsm/out/b2k_20261011/b2k_lan/b2kill_D",
+    "--arms",
+    "D",
+    "--seed",
+    "20261014",
+    "--profile-wait",
+    "90",
+    "--l-dns",
+    "0.003588563995435834",
+    "--watch-log",
+    "/home/ubuntu/dib_tnsm/m67/watch2_stdout.log"
+   ]
+  },
+  {
+   "t": "2026-10-11T18:26:17.577571+00:00",
+   "kind": "b2k_end",
+   "block": "b2k_lan",
+   "arm": "D",
+   "attempt": 1,
+   "returncode": 0,
+   "data_cells": 6,
+   "aborted": [],
+   "stop": null
+  },
+  {
+   "t": "2026-10-11T18:26:17.578107+00:00",
+   "kind": "b2k_start",
+   "block": "b2k_lan",
+   "arm": "C",
+   "attempt": 1,
+   "cmd": [
+    "/home/ubuntu/dib_tnsm/tree-244f1d0/experiments_tnsm/m67_retraction/run.py",
+    "--block",
+    "b2kill",
+    "--profile",
+    "lan",
+    "--tree",
+    "/home/ubuntu/dib_tnsm/tree-244f1d0",
+    "--out",
+    "/home/ubuntu/dib_tnsm/out/b2k_20261011/b2k_lan/b2kill_C",
+    "--arms",
+    "C",
+    "--seed",
+    "20261014",
+    "--profile-wait",
+    "90",
+    "--l-dns",
+    "0.003588563995435834",
+    "--watch-log",
+    "/home/ubuntu/dib_tnsm/m67/watch2_stdout.log"
+   ]
+  },
+  {
+   "t": "2026-10-11T18:38:26.284532+00:00",
+   "kind": "b2k_end",
+   "block": "b2k_lan",
+   "arm": "C",
+   "attempt": 1,
+   "returncode": 0,
+   "data_cells": 6,
+   "aborted": [],
+   "stop": null
+  },
+  {
+   "t": "2026-10-11T18:38:26.635401+00:00",
+   "kind": "lan_confirmed",
+   "block": "b2k_lan"
+  },
+  {
+   "t": "2026-10-11T18:38:26.635859+00:00",
+   "kind": "block_end",
+   "block": "b2k_lan",
+   "status": "done",
+   "reason": null
+  },
+  {
+   "t": "2026-10-11T18:38:26.636314+00:00",
+   "kind": "block_start",
+   "block": "b2k_degraded",
+   "profile": "degraded"
+  },
+  {
+   "t": "2026-10-11T18:38:27.664254+00:00",
+   "kind": "profile_requested",
+   "block": "b2k_degraded",
+   "request": "degraded+fast",
+   "poll_s": 0.1
+  },
+  {
+   "t": "2026-10-11T18:40:54.789752+00:00",
+   "kind": "calibration",
+   "block": "b2k_degraded",
+   "returncode": 0,
+   "rtt_check_ok": true,
+   "ldns": {
+    "label": "degraded",
+    "alive": {
+     "n": 50,
+     "p50_ms": 0.13190800382290035,
+     "p95_ms": 0.1553210022393614,
+     "max_ms": 1.75386099726893,
+     "outcomes": [
+      "True"
+     ]
+    },
+    "killed": {
+     "n": 50,
+     "p50_ms": 2.8608789871213958,
+     "p95_ms": 3.27495600504335,
+     "max_ms": 6.0603620077017695,
+     "outcomes": [
+      "gaierror(-3, 'Temporary failure in name resolution')"
+     ]
+    }
+   }
+  },
+  {
+   "t": "2026-10-11T18:40:54.790327+00:00",
+   "kind": "ldns_decision",
+   "block": "b2k_degraded",
+   "decision": "run",
+   "reason": "L_dns p95 3.3 ms <= 50 ms and watcher poll 0.1 s <= 0.1 s",
+   "killed": {
+    "n": 50,
+    "p50_ms": 2.8608789871213958,
+    "p95_ms": 3.27495600504335,
+    "max_ms": 6.0603620077017695,
+    "outcomes": [
+     "gaierror(-3, 'Temporary failure in name resolution')"
+    ]
+   },
+   "alive": {
+    "n": 50,
+    "p50_ms": 0.13190800382290035,
+    "p95_ms": 0.1553210022393614,
+    "max_ms": 1.75386099726893,
+    "outcomes": [
+     "True"
+    ]
+   },
+   "poll_s": 0.1
+  },
+  {
+   "t": "2026-10-11T18:40:54.790794+00:00",
+   "kind": "b2k_start",
+   "block": "b2k_degraded",
+   "arm": "D",
+   "attempt": 1,
+   "cmd": [
+    "/home/ubuntu/dib_tnsm/tree-244f1d0/experiments_tnsm/m67_retraction/run.py",
+    "--block",
+    "b2kill",
+    "--profile",
+    "degraded",
+    "--tree",
+    "/home/ubuntu/dib_tnsm/tree-244f1d0",
+    "--out",
+    "/home/ubuntu/dib_tnsm/out/b2k_20261011/b2k_degraded/b2kill_D",
+    "--arms",
+    "D",
+    "--seed",
+    "20261014",
+    "--profile-wait",
+    "90",
+    "--l-dns",
+    "0.00327495600504335",
+    "--watch-log",
+    "/home/ubuntu/dib_tnsm/m67/watch2_stdout.log"
+   ]
+  },
+  {
+   "t": "2026-10-11T19:32:55.656868+00:00",
+   "kind": "b2k_end",
+   "block": "b2k_degraded",
+   "arm": "D",
+   "attempt": 1,
+   "returncode": 0,
+   "data_cells": 4,
+   "aborted": [],
+   "stop": null
+  },
+  {
+   "t": "2026-10-11T19:32:55.657451+00:00",
+   "kind": "b2k_start",
+   "block": "b2k_degraded",
+   "arm": "C",
+   "attempt": 1,
+   "cmd": [
+    "/home/ubuntu/dib_tnsm/tree-244f1d0/experiments_tnsm/m67_retraction/run.py",
+    "--block",
+    "b2kill",
+    "--profile",
+    "degraded",
+    "--tree",
+    "/home/ubuntu/dib_tnsm/tree-244f1d0",
+    "--out",
+    "/home/ubuntu/dib_tnsm/out/b2k_20261011/b2k_degraded/b2kill_C",
+    "--arms",
+    "C",
+    "--seed",
+    "20261014",
+    "--profile-wait",
+    "90",
+    "--l-dns",
+    "0.00327495600504335",
+    "--watch-log",
+    "/home/ubuntu/dib_tnsm/m67/watch2_stdout.log"
+   ]
+  },
+  {
+   "t": "2026-10-11T20:48:15.779639+00:00",
+   "kind": "b2k_end",
+   "block": "b2k_degraded",
+   "arm": "C",
+   "attempt": 1,
+   "returncode": 0,
+   "data_cells": 4,
+   "aborted": [],
+   "stop": null
+  },
+  {
+   "t": "2026-10-11T20:48:16.156761+00:00",
+   "kind": "lan_confirmed",
+   "block": "b2k_degraded"
+  },
+  {
+   "t": "2026-10-11T20:48:16.157594+00:00",
+   "kind": "block_end",
+   "block": "b2k_degraded",
+   "status": "done",
+   "reason": null
+  },
+  {
+   "t": "2026-10-11T20:48:16.158464+00:00",
+   "kind": "block_start",
+   "block": "b2k_wan",
+   "profile": "wan"
+  },
+  {
+   "t": "2026-10-11T20:48:17.275288+00:00",
+   "kind": "profile_requested",
+   "block": "b2k_wan",
+   "request": "wan+fast",
+   "poll_s": 0.1
+  },
+  {
+   "t": "2026-10-11T20:49:25.278306+00:00",
+   "kind": "calibration",
+   "block": "b2k_wan",
+   "returncode": 0,
+   "rtt_check_ok": true,
+   "ldns": {
+    "label": "wan",
+    "alive": {
+     "n": 50,
+     "p50_ms": 0.15782599803060293,
+     "p95_ms": 0.20448199938982725,
+     "max_ms": 1.7665150080574676,
+     "outcomes": [
+      "True"
+     ]
+    },
+    "killed": {
+     "n": 50,
+     "p50_ms": 2.776513996650465,
+     "p95_ms": 3.4355480020167306,
+     "max_ms": 4.8935950035229325,
+     "outcomes": [
+      "gaierror(-3, 'Temporary failure in name resolution')"
+     ]
+    }
+   }
+  },
+  {
+   "t": "2026-10-11T20:49:25.279093+00:00",
+   "kind": "ldns_decision",
+   "block": "b2k_wan",
+   "decision": "run",
+   "reason": "L_dns p95 3.4 ms <= 50 ms and watcher poll 0.1 s <= 0.1 s",
+   "killed": {
+    "n": 50,
+    "p50_ms": 2.776513996650465,
+    "p95_ms": 3.4355480020167306,
+    "max_ms": 4.8935950035229325,
+    "outcomes": [
+     "gaierror(-3, 'Temporary failure in name resolution')"
+    ]
+   },
+   "alive": {
+    "n": 50,
+    "p50_ms": 0.15782599803060293,
+    "p95_ms": 0.20448199938982725,
+    "max_ms": 1.7665150080574676,
+    "outcomes": [
+     "True"
+    ]
+   },
+   "poll_s": 0.1
+  },
+  {
+   "t": "2026-10-11T20:49:25.279656+00:00",
+   "kind": "b2k_start",
+   "block": "b2k_wan",
+   "arm": "D",
+   "attempt": 1,
+   "cmd": [
+    "/home/ubuntu/dib_tnsm/tree-244f1d0/experiments_tnsm/m67_retraction/run.py",
+    "--block",
+    "b2kill",
+    "--profile",
+    "wan",
+    "--tree",
+    "/home/ubuntu/dib_tnsm/tree-244f1d0",
+    "--out",
+    "/home/ubuntu/dib_tnsm/out/b2k_20261011/b2k_wan/b2kill_D",
+    "--arms",
+    "D",
+    "--seed",
+    "20261014",
+    "--profile-wait",
+    "90",
+    "--l-dns",
+    "0.0034355480020167306",
+    "--watch-log",
+    "/home/ubuntu/dib_tnsm/m67/watch2_stdout.log"
+   ]
+  },
+  {
+   "t": "2026-10-11T21:05:46.748455+00:00",
+   "kind": "b2k_end",
+   "block": "b2k_wan",
+   "arm": "D",
+   "attempt": 1,
+   "returncode": 0,
+   "data_cells": 4,
+   "aborted": [],
+   "stop": null
+  },
+  {
+   "t": "2026-10-11T21:05:46.749096+00:00",
+   "kind": "b2k_start",
+   "block": "b2k_wan",
+   "arm": "C",
+   "attempt": 1,
+   "cmd": [
+    "/home/ubuntu/dib_tnsm/tree-244f1d0/experiments_tnsm/m67_retraction/run.py",
+    "--block",
+    "b2kill",
+    "--profile",
+    "wan",
+    "--tree",
+    "/home/ubuntu/dib_tnsm/tree-244f1d0",
+    "--out",
+    "/home/ubuntu/dib_tnsm/out/b2k_20261011/b2k_wan/b2kill_C",
+    "--arms",
+    "C",
+    "--seed",
+    "20261014",
+    "--profile-wait",
+    "90",
+    "--l-dns",
+    "0.0034355480020167306",
+    "--watch-log",
+    "/home/ubuntu/dib_tnsm/m67/watch2_stdout.log"
+   ]
+  },
+  {
+   "t": "2026-10-11T21:29:03.312760+00:00",
+   "kind": "b2k_end",
+   "block": "b2k_wan",
+   "arm": "C",
+   "attempt": 1,
+   "returncode": 0,
+   "data_cells": 4,
+   "aborted": [],
+   "stop": null
+  },
+  {
+   "t": "2026-10-11T21:29:03.671595+00:00",
+   "kind": "lan_confirmed",
+   "block": "b2k_wan"
+  },
+  {
+   "t": "2026-10-11T21:29:03.672300+00:00",
+   "kind": "block_end",
+   "block": "b2k_wan",
+   "status": "done",
+   "reason": null
+  },
+  {
+   "t": "2026-10-11T21:29:03.673022+00:00",
+   "kind": "done",
+   "results": [
+    [
+     "b2k_lan",
+     "done"
+    ],
+    [
+     "b2k_degraded",
+     "done"
+    ],
+    [
+     "b2k_wan",
+     "done"
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,2151 @@
+2026-10-11T12:48:21.202Z netem_watch: profile.request present at start: stale, ignored
+2026-10-11T12:48:21.209Z netem_watch: watching: dir=/home/ubuntu/dib_tnsm/m67 owner=ubuntu poll=0.5s fast-poll=0.1s max=32400s (STOP file or Ctrl-C to stop and clean)
+2026-10-11T12:49:06.601Z netem_watch: request accepted: lan
+2026-10-11T12:49:06.661Z netem_watch: applied lan (0.027 s)
+2026-10-11T12:49:08.792Z netem_watch: containers changed -> applying lan
+2026-10-11T12:49:09.038Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T12:49:09.043Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T12:49:10.022Z netem_watch: applied lan (0.412 s)
+2026-10-11T12:49:10.586Z netem_watch: containers changed -> applying lan
+2026-10-11T12:49:11.316Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T12:49:11.322Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T12:49:12.875Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T12:49:14.795Z netem_watch: applied lan (1.359 s)
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T12:49:48.074Z netem_watch: containers changed -> applying lan
+2026-10-11T12:49:48.338Z netem_watch: applied lan (0.254 s)
+2026-10-11T12:49:57.961Z netem_watch: containers changed -> applying lan
+2026-10-11T12:49:57.998Z netem_watch: applied lan (0.024 s)
+2026-10-11T12:50:00.643Z netem_watch: containers changed -> applying lan
+2026-10-11T12:50:00.889Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T12:50:00.895Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T12:50:01.907Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T12:50:03.171Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T12:50:04.821Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T12:50:06.656Z netem_watch: applied lan (1.271 s)
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-3-1
+2026-10-11T12:50:30.157Z netem_watch: containers changed -> applying lan
+2026-10-11T12:50:30.189Z netem_watch: applied lan (0.024 s)
+2026-10-11T12:50:31.224Z netem_watch: request accepted: lan
+2026-10-11T12:50:31.272Z netem_watch: applied lan (0.024 s)
+2026-10-11T13:02:29.437Z netem_watch: request accepted: lan
+2026-10-11T13:02:29.504Z netem_watch: applied lan (0.032 s)
+2026-10-11T13:02:31.627Z netem_watch: containers changed -> applying lan
+2026-10-11T13:02:31.858Z netem_watch: applied lan (0.221 s)
+2026-10-11T13:02:32.407Z netem_watch: containers changed -> applying lan
+2026-10-11T13:02:32.826Z netem_watch: applied lan (0.412 s)
+2026-10-11T13:02:33.374Z netem_watch: containers changed -> applying lan
+2026-10-11T13:02:34.045Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T13:02:34.050Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:02:35.639Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T13:02:37.433Z netem_watch: applied lan (1.227 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-5-1
+2026-10-11T13:03:29.082Z netem_watch: containers changed -> applying lan
+2026-10-11T13:03:29.278Z netem_watch: applied lan (0.189 s)
+2026-10-11T13:03:38.998Z netem_watch: containers changed -> applying lan
+2026-10-11T13:03:39.030Z netem_watch: applied lan (0.023 s)
+2026-10-11T13:03:41.685Z netem_watch: containers changed -> applying lan
+2026-10-11T13:03:41.999Z netem_watch: applied lan (0.305 s)
+2026-10-11T13:03:42.548Z netem_watch: containers changed -> applying lan
+2026-10-11T13:03:43.063Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:03:43.069Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:03:44.391Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T13:03:46.119Z netem_watch: the set of containers changed during the application (before: 9, after: 10): profile.applied not written, re-applying
+2026-10-11T13:03:47.905Z netem_watch: applied lan (1.224 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T13:04:28.836Z netem_watch: containers changed -> applying lan
+2026-10-11T13:04:28.868Z netem_watch: applied lan (0.022 s)
+2026-10-11T13:04:31.513Z netem_watch: containers changed -> applying lan
+2026-10-11T13:04:31.746Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T13:04:31.751Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:04:32.749Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:04:34.015Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T13:04:35.634Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T13:04:37.447Z netem_watch: applied lan (1.250 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-8-1
+2026-10-11T13:05:29.501Z netem_watch: containers changed -> applying lan
+2026-10-11T13:05:29.693Z netem_watch: applied lan (0.184 s)
+2026-10-11T13:05:39.354Z netem_watch: containers changed -> applying lan
+2026-10-11T13:05:39.387Z netem_watch: applied lan (0.023 s)
+2026-10-11T13:05:42.048Z netem_watch: containers changed -> applying lan
+2026-10-11T13:05:42.344Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T13:05:42.350Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:05:43.364Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:05:44.657Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T13:05:46.287Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T13:05:48.062Z netem_watch: applied lan (1.218 s)
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-0-1
+2026-10-11T13:06:29.569Z netem_watch: containers changed -> applying lan
+2026-10-11T13:06:29.604Z netem_watch: applied lan (0.026 s)
+2026-10-11T13:06:30.644Z netem_watch: request accepted: lan
+2026-10-11T13:06:30.702Z netem_watch: applied lan (0.024 s)
+2026-10-11T13:17:07.868Z netem_watch: request accepted: degraded
+2026-10-11T13:17:07.913Z netem_watch: applied degraded (0.022 s)
+2026-10-11T13:17:09.511Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:17:09.717Z netem_watch: applied degraded (0.197 s)
+2026-10-11T13:17:10.265Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:17:10.571Z netem_watch: the set of containers changed during the application (before: 2, after: 3): profile.applied not written, re-applying
+2026-10-11T13:17:10.576Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:17:11.739Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T13:17:13.167Z netem_watch: the set of containers changed during the application (before: 7, after: 8): profile.applied not written, re-applying
+2026-10-11T13:17:14.840Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T13:17:16.611Z netem_watch: applied degraded (1.203 s)
+2026-10-11T13:19:06.656Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:19:07.811Z netem_watch: applied degraded (1.145 s)
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T13:19:10.843Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:19:11.157Z netem_watch: applied degraded (0.306 s)
+2026-10-11T13:19:18.500Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:19:18.704Z netem_watch: applied degraded (0.195 s)
+2026-10-11T13:19:21.879Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:19:22.195Z netem_watch: applied degraded (0.307 s)
+2026-10-11T13:19:22.768Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:19:23.294Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:19:23.300Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:19:24.599Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T13:19:26.186Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T13:19:28.055Z netem_watch: applied degraded (1.302 s)
+2026-10-11T13:37:20.539Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:21.681Z netem_watch: applied degraded (1.132 s)
+2026-10-11T13:37:22.243Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:23.281Z netem_watch: applied degraded (1.029 s)
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-0-1
+2026-10-11T13:37:32.618Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:32.857Z netem_watch: applied degraded (0.228 s)
+2026-10-11T13:37:42.516Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:42.551Z netem_watch: applied degraded (0.023 s)
+2026-10-11T13:37:45.204Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:45.453Z netem_watch: applied degraded (0.238 s)
+2026-10-11T13:37:46.003Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:37:46.452Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:37:46.458Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:37:47.713Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T13:37:49.233Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T13:37:51.030Z netem_watch: applied degraded (1.239 s)
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-3-1
+2026-10-11T13:56:42.062Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:56:42.108Z netem_watch: applied degraded (0.032 s)
+2026-10-11T13:56:44.773Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:56:45.106Z netem_watch: applied degraded (0.322 s)
+2026-10-11T13:56:45.659Z netem_watch: containers changed -> applying degraded
+2026-10-11T13:56:46.159Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T13:56:46.164Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T13:56:47.504Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T13:56:49.133Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T13:56:50.877Z netem_watch: applied degraded (1.174 s)
+2026-10-11T14:26:16.868Z netem_watch: containers changed -> applying degraded
+2026-10-11T14:26:17.945Z netem_watch: applied degraded (1.068 s)
+2026-10-11T14:26:18.513Z netem_watch: containers changed -> applying degraded
+2026-10-11T14:26:19.583Z netem_watch: applied degraded (1.062 s)
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-3-1
+2026-10-11T14:26:29.054Z netem_watch: containers changed -> applying degraded
+2026-10-11T14:26:29.243Z netem_watch: applied degraded (0.180 s)
+2026-10-11T14:26:41.696Z netem_watch: containers changed -> applying degraded
+2026-10-11T14:26:41.939Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T14:26:41.946Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T14:26:43.010Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T14:26:44.272Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T14:26:45.863Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T14:26:47.853Z netem_watch: applied degraded (1.410 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+2026-10-11T14:39:14.813Z netem_watch: containers changed -> applying degraded
+2026-10-11T14:39:14.858Z netem_watch: applied degraded (0.033 s)
+2026-10-11T14:39:15.901Z netem_watch: request accepted: lan
+2026-10-11T14:39:15.972Z netem_watch: applied lan (0.033 s)
+2026-10-11T14:39:17.026Z netem_watch: request accepted: lan
+2026-10-11T14:39:17.096Z netem_watch: applied lan (0.032 s)
+2026-10-11T14:39:19.244Z netem_watch: containers changed -> applying lan
+2026-10-11T14:39:19.452Z netem_watch: applied lan (0.199 s)
+2026-10-11T14:39:20.000Z netem_watch: containers changed -> applying lan
+2026-10-11T14:39:20.389Z netem_watch: the set of containers changed during the application (before: 2, after: 3): profile.applied not written, re-applying
+2026-10-11T14:39:20.396Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T14:39:21.593Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T14:39:23.094Z netem_watch: the set of containers changed during the application (before: 7, after: 8): profile.applied not written, re-applying
+2026-10-11T14:39:24.860Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T14:39:26.726Z netem_watch: applied lan (1.288 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T14:40:16.857Z netem_watch: containers changed -> applying lan
+2026-10-11T14:40:17.074Z netem_watch: applied lan (0.206 s)
+2026-10-11T14:40:26.756Z netem_watch: containers changed -> applying lan
+2026-10-11T14:40:26.794Z netem_watch: applied lan (0.025 s)
+2026-10-11T14:40:29.440Z netem_watch: containers changed -> applying lan
+2026-10-11T14:40:29.636Z netem_watch: applied lan (0.187 s)
+2026-10-11T14:40:30.201Z netem_watch: containers changed -> applying lan
+2026-10-11T14:40:30.635Z netem_watch: applied lan (0.423 s)
+2026-10-11T14:40:31.206Z netem_watch: containers changed -> applying lan
+2026-10-11T14:40:31.950Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T14:40:31.957Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T14:40:33.597Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T14:40:35.502Z netem_watch: applied lan (1.342 s)
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T14:41:17.443Z netem_watch: containers changed -> applying lan
+2026-10-11T14:41:17.478Z netem_watch: applied lan (0.025 s)
+2026-10-11T14:41:20.127Z netem_watch: containers changed -> applying lan
+2026-10-11T14:41:20.363Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T14:41:20.369Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T14:41:21.423Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T14:41:22.701Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T14:41:24.281Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T14:41:26.129Z netem_watch: applied lan (1.290 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T14:42:18.370Z netem_watch: containers changed -> applying lan
+2026-10-11T14:42:18.582Z netem_watch: applied lan (0.203 s)
+2026-10-11T14:42:28.249Z netem_watch: containers changed -> applying lan
+2026-10-11T14:42:28.285Z netem_watch: applied lan (0.024 s)
+2026-10-11T14:42:30.945Z netem_watch: containers changed -> applying lan
+2026-10-11T14:42:31.228Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T14:42:31.235Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T14:42:32.304Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T14:42:33.694Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T14:42:35.374Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T14:42:37.285Z netem_watch: applied lan (1.335 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T14:43:18.866Z netem_watch: containers changed -> applying lan
+2026-10-11T14:43:18.900Z netem_watch: applied lan (0.025 s)
+2026-10-11T14:43:19.937Z netem_watch: request accepted: lan
+2026-10-11T14:43:19.985Z netem_watch: applied lan (0.022 s)
+2026-10-11T16:34:48.221Z netem_watch: request accepted: lan
+2026-10-11T16:34:48.291Z netem_watch: applied lan (0.035 s)
+2026-10-11T16:34:50.429Z netem_watch: containers changed -> applying lan
+2026-10-11T16:34:50.674Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:34:50.680Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:34:51.721Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:34:53.018Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:34:54.682Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T16:34:56.576Z netem_watch: applied lan (1.319 s)
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-3-1
+2026-10-11T16:35:29.366Z netem_watch: containers changed -> applying lan
+2026-10-11T16:35:29.580Z netem_watch: applied lan (0.205 s)
+2026-10-11T16:35:39.216Z netem_watch: containers changed -> applying lan
+2026-10-11T16:35:39.251Z netem_watch: applied lan (0.026 s)
+2026-10-11T16:35:41.901Z netem_watch: containers changed -> applying lan
+2026-10-11T16:35:42.144Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:35:42.151Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:35:43.166Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:35:44.438Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:35:46.061Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T16:35:47.921Z netem_watch: applied lan (1.296 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+2026-10-11T16:36:11.105Z netem_watch: containers changed -> applying lan
+2026-10-11T16:36:11.139Z netem_watch: applied lan (0.024 s)
+2026-10-11T16:36:12.180Z netem_watch: request accepted: lan
+2026-10-11T16:36:12.232Z netem_watch: applied lan (0.024 s)
+2026-10-11T16:36:13.277Z netem_watch: request accepted: degraded
+2026-10-11T16:36:13.327Z netem_watch: applied degraded (0.023 s)
+2026-10-11T16:36:15.478Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:36:15.688Z netem_watch: applied degraded (0.196 s)
+2026-10-11T16:36:16.250Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:36:16.690Z netem_watch: applied degraded (0.429 s)
+2026-10-11T16:36:17.247Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:36:17.949Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:36:17.956Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:36:19.552Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T16:36:21.382Z netem_watch: applied degraded (1.265 s)
+2026-10-11T16:38:29.327Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:38:30.540Z netem_watch: applied degraded (1.202 s)
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T16:38:33.655Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:38:34.010Z netem_watch: applied degraded (0.344 s)
+2026-10-11T16:38:41.016Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:38:41.223Z netem_watch: applied degraded (0.194 s)
+2026-10-11T16:38:44.438Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:38:44.678Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:38:44.685Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:38:45.699Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:38:46.923Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:38:48.461Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T16:38:50.246Z netem_watch: applied degraded (1.223 s)
+2026-10-11T16:40:41.138Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:40:42.229Z netem_watch: applied degraded (1.081 s)
+2026-10-11T16:40:42.804Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:40:44.019Z netem_watch: applied degraded (1.205 s)
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T16:40:53.436Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:40:53.647Z netem_watch: applied degraded (0.200 s)
+2026-10-11T16:41:03.271Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:41:03.312Z netem_watch: applied degraded (0.025 s)
+2026-10-11T16:41:05.983Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:41:06.194Z netem_watch: applied degraded (0.202 s)
+2026-10-11T16:41:06.764Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:41:07.210Z netem_watch: applied degraded (0.435 s)
+2026-10-11T16:41:07.772Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:41:08.433Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:41:08.441Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:41:09.892Z netem_watch: the set of containers changed during the application (before: 7, after: 8): profile.applied not written, re-applying
+2026-10-11T16:41:11.613Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T16:41:13.671Z netem_watch: applied degraded (1.476 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-5-1
+2026-10-11T16:42:39.429Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:42:39.679Z netem_watch: applied degraded (0.240 s)
+2026-10-11T16:42:41.251Z netem_watch: request accepted: lan
+2026-10-11T16:42:41.313Z netem_watch: applied lan (0.028 s)
+2026-10-11T16:43:50.061Z netem_watch: request accepted: lan
+2026-10-11T16:43:50.112Z netem_watch: applied lan (0.024 s)
+2026-10-11T16:43:52.256Z netem_watch: containers changed -> applying lan
+2026-10-11T16:43:52.544Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:43:52.552Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:43:53.596Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:43:54.973Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T16:43:56.679Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T16:43:58.549Z netem_watch: applied lan (1.287 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T16:44:49.412Z netem_watch: containers changed -> applying lan
+2026-10-11T16:44:49.618Z netem_watch: applied lan (0.195 s)
+2026-10-11T16:44:59.502Z netem_watch: containers changed -> applying lan
+2026-10-11T16:44:59.544Z netem_watch: applied lan (0.028 s)
+2026-10-11T16:45:02.208Z netem_watch: containers changed -> applying lan
+2026-10-11T16:45:02.409Z netem_watch: applied lan (0.191 s)
+2026-10-11T16:45:02.957Z netem_watch: containers changed -> applying lan
+2026-10-11T16:45:03.373Z netem_watch: applied lan (0.407 s)
+2026-10-11T16:45:03.948Z netem_watch: containers changed -> applying lan
+2026-10-11T16:45:04.627Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:45:04.634Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:45:06.156Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T16:45:07.976Z netem_watch: applied lan (1.252 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T16:45:49.784Z netem_watch: containers changed -> applying lan
+2026-10-11T16:45:49.818Z netem_watch: applied lan (0.023 s)
+2026-10-11T16:45:52.457Z netem_watch: containers changed -> applying lan
+2026-10-11T16:45:52.739Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:45:52.747Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:45:53.774Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:45:55.082Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T16:45:56.668Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T16:45:58.419Z netem_watch: applied lan (1.191 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-2-1
+2026-10-11T16:46:50.110Z netem_watch: containers changed -> applying lan
+2026-10-11T16:46:50.319Z netem_watch: applied lan (0.198 s)
+2026-10-11T16:46:59.997Z netem_watch: containers changed -> applying lan
+2026-10-11T16:47:00.035Z netem_watch: applied lan (0.025 s)
+2026-10-11T16:47:02.722Z netem_watch: containers changed -> applying lan
+2026-10-11T16:47:02.970Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T16:47:02.977Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:47:03.983Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T16:47:05.218Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:47:06.769Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T16:47:08.575Z netem_watch: applied lan (1.238 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T16:47:50.211Z netem_watch: containers changed -> applying lan
+2026-10-11T16:47:50.249Z netem_watch: applied lan (0.025 s)
+2026-10-11T16:47:51.300Z netem_watch: request accepted: lan
+2026-10-11T16:47:51.364Z netem_watch: applied lan (0.030 s)
+2026-10-11T16:47:52.414Z netem_watch: request accepted: degraded
+2026-10-11T16:47:52.480Z netem_watch: applied degraded (0.033 s)
+2026-10-11T16:47:54.625Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:47:54.828Z netem_watch: applied degraded (0.192 s)
+2026-10-11T16:47:55.393Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:47:55.836Z netem_watch: applied degraded (0.431 s)
+2026-10-11T16:47:56.393Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:47:57.050Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:47:57.058Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:47:58.658Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T16:48:00.416Z netem_watch: applied degraded (1.193 s)
+2026-10-11T16:49:49.107Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:49:50.254Z netem_watch: applied degraded (1.138 s)
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T16:49:53.430Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:49:53.750Z netem_watch: applied degraded (0.308 s)
+2026-10-11T16:50:00.919Z netem_watch: containers changed -> applying degraded
+error: no such object: dibtnsm-evidence-1
+netem_apply.sh: inspect failed for dibtnsm-evidence-1
+2026-10-11T16:50:01.448Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:50:04.308Z netem_watch: applied degraded (0.188 s)
+2026-10-11T16:50:04.854Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:50:05.254Z netem_watch: applied degraded (0.388 s)
+2026-10-11T16:50:05.814Z netem_watch: containers changed -> applying degraded
+2026-10-11T16:50:06.466Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T16:50:06.473Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T16:50:07.958Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T16:50:09.651Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T16:50:11.537Z netem_watch: applied degraded (1.320 s)
+2026-10-11T17:07:10.149Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:11.575Z netem_watch: applied degraded (1.416 s)
+2026-10-11T17:07:12.154Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:13.282Z netem_watch: applied degraded (1.118 s)
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T17:07:22.335Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:22.570Z netem_watch: applied degraded (0.222 s)
+2026-10-11T17:07:32.218Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:32.259Z netem_watch: applied degraded (0.030 s)
+2026-10-11T17:07:34.909Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:35.151Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T17:07:35.158Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T17:07:36.112Z netem_watch: applied degraded (0.404 s)
+2026-10-11T17:07:36.672Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:07:37.351Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T17:07:37.359Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T17:07:38.902Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T17:07:40.750Z netem_watch: applied degraded (1.286 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T17:27:44.550Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:27:44.587Z netem_watch: applied degraded (0.027 s)
+2026-10-11T17:27:47.243Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:27:47.470Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T17:27:47.477Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T17:27:48.477Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T17:27:49.888Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T17:27:51.492Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T17:27:53.364Z netem_watch: applied degraded (1.307 s)
+2026-10-11T17:58:05.633Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:06.825Z netem_watch: applied degraded (1.181 s)
+2026-10-11T17:58:07.415Z netem_watch: containers changed -> applying degraded
+error: no such object: dibtnsm-site-5-1
+netem_watch2.sh: inspect failed for dibtnsm-site-5-1
+2026-10-11T17:58:07.928Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+error: no such object: dibtnsm-site-7-1
+2026-10-11T17:58:10.391Z netem_watch: applied degraded (0.537 s)
+2026-10-11T17:58:11.244Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:11.570Z netem_watch: applied degraded (0.311 s)
+2026-10-11T17:58:12.426Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:12.679Z netem_watch: applied degraded (0.239 s)
+2026-10-11T17:58:13.241Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:13.481Z netem_watch: applied degraded (0.228 s)
+2026-10-11T17:58:22.921Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:22.959Z netem_watch: applied degraded (0.023 s)
+2026-10-11T17:58:25.619Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:25.828Z netem_watch: applied degraded (0.197 s)
+2026-10-11T17:58:26.384Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:26.791Z netem_watch: applied degraded (0.397 s)
+2026-10-11T17:58:27.348Z netem_watch: containers changed -> applying degraded
+2026-10-11T17:58:28.062Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T17:58:28.072Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T17:58:29.654Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T17:58:31.452Z netem_watch: applied degraded (1.233 s)
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-5-1
+2026-10-11T18:11:22.033Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:11:22.069Z netem_watch: applied degraded (0.024 s)
+2026-10-11T18:11:23.123Z netem_watch: request accepted: lan
+2026-10-11T18:11:23.183Z netem_watch: applied lan (0.028 s)
+2026-10-11T18:11:24.230Z netem_watch: request accepted: lan
+2026-10-11T18:11:24.299Z netem_watch: applied lan (0.031 s)
+2026-10-11T18:11:26.438Z netem_watch: containers changed -> applying lan
+2026-10-11T18:11:26.644Z netem_watch: applied lan (0.195 s)
+2026-10-11T18:11:27.198Z netem_watch: containers changed -> applying lan
+2026-10-11T18:11:27.652Z netem_watch: applied lan (0.442 s)
+2026-10-11T18:11:28.202Z netem_watch: containers changed -> applying lan
+2026-10-11T18:11:28.889Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T18:11:28.896Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T18:11:30.463Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T18:11:32.319Z netem_watch: applied lan (1.282 s)
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T18:12:23.949Z netem_watch: containers changed -> applying lan
+2026-10-11T18:12:24.159Z netem_watch: applied lan (0.201 s)
+2026-10-11T18:12:33.830Z netem_watch: containers changed -> applying lan
+2026-10-11T18:12:33.869Z netem_watch: applied lan (0.025 s)
+2026-10-11T18:12:36.523Z netem_watch: containers changed -> applying lan
+2026-10-11T18:12:36.778Z netem_watch: the set of containers changed during the application (before: 1, after: 2): profile.applied not written, re-applying
+2026-10-11T18:12:36.785Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T18:12:37.778Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T18:12:39.030Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T18:12:40.679Z netem_watch: the set of containers changed during the application (before: 8, after: 10): profile.applied not written, re-applying
+2026-10-11T18:12:42.563Z netem_watch: applied lan (1.309 s)
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T18:13:23.732Z netem_watch: containers changed -> applying lan
+2026-10-11T18:13:23.771Z netem_watch: applied lan (0.026 s)
+2026-10-11T18:13:26.421Z netem_watch: containers changed -> applying lan
+2026-10-11T18:13:26.621Z netem_watch: applied lan (0.190 s)
+2026-10-11T18:13:27.185Z netem_watch: containers changed -> applying lan
+2026-10-11T18:13:27.628Z netem_watch: applied lan (0.430 s)
+2026-10-11T18:13:28.186Z netem_watch: containers changed -> applying lan
+2026-10-11T18:13:28.854Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T18:13:28.863Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T18:13:30.457Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T18:13:32.260Z netem_watch: applied lan (1.244 s)
+2026-10-11T18:13:32.825Z netem_watch: containers changed -> applying lan
+2026-10-11T18:13:34.204Z netem_watch: applied lan (1.368 s)
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-3-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T18:14:24.280Z netem_watch: containers changed -> applying lan
+2026-10-11T18:14:24.507Z netem_watch: applied lan (0.216 s)
+2026-10-11T18:14:36.365Z netem_watch: containers changed -> applying lan
+2026-10-11T18:14:36.552Z netem_watch: applied lan (0.177 s)
+2026-10-11T18:14:37.104Z netem_watch: containers changed -> applying lan
+2026-10-11T18:14:37.455Z netem_watch: the set of containers changed during the application (before: 2, after: 3): profile.applied not written, re-applying
+2026-10-11T18:14:37.461Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T18:14:38.647Z netem_watch: applied lan (0.631 s)
+2026-10-11T18:14:39.212Z netem_watch: containers changed -> applying lan
+2026-10-11T18:14:40.187Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T18:14:40.194Z netem_watch: apply FAILED (attempt 1), retrying every 0.5s
+2026-10-11T18:14:41.934Z netem_watch: applied lan (1.178 s)
+2026-10-11T18:14:42.510Z netem_watch: containers changed -> applying lan
+2026-10-11T18:14:43.833Z netem_watch: applied lan (1.311 s)
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+2026-10-11T18:15:23.026Z netem_watch: containers changed -> applying lan
+2026-10-11T18:15:23.057Z netem_watch: applied lan (0.021 s)
+2026-10-11T18:15:24.097Z netem_watch: request accepted: lan
+2026-10-11T18:15:24.141Z netem_watch: applied lan (0.020 s)
+2026-10-11T18:15:50.468Z netem_watch: request accepted: lan+fast
+2026-10-11T18:15:50.535Z netem_watch: applied lan (0.031 s)
+2026-10-11T18:15:52.292Z netem_watch: containers changed -> applying lan
+2026-10-11T18:15:52.489Z netem_watch: applied lan (0.188 s)
+2026-10-11T18:15:52.794Z netem_watch: containers changed -> applying lan
+2026-10-11T18:15:53.110Z netem_watch: applied lan (0.305 s)
+2026-10-11T18:15:53.265Z netem_watch: containers changed -> applying lan
+2026-10-11T18:15:53.682Z netem_watch: applied lan (0.404 s)
+2026-10-11T18:15:53.843Z netem_watch: containers changed -> applying lan
+2026-10-11T18:15:54.442Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T18:15:54.449Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:15:55.359Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T18:15:56.530Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T18:15:57.907Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:15:59.378Z netem_watch: applied lan (1.283 s)
+2026-10-11T18:16:15.180Z netem_watch: containers changed -> applying lan
+2026-10-11T18:16:16.406Z netem_watch: applied lan (1.212 s)
+2026-10-11T18:16:16.574Z netem_watch: containers changed -> applying lan
+2026-10-11T18:16:17.747Z netem_watch: applied lan (1.162 s)
+error: no such object: dibtnsm-site-5-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-8-1
+2026-10-11T18:16:21.521Z netem_watch: containers changed -> applying lan
+error: no such object: dibtnsm-evidence-1
+netem_watch2.sh: inspect failed for dibtnsm-evidence-1
+2026-10-11T18:16:21.956Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:16:24.558Z netem_watch: applied lan (0.199 s)
+2026-10-11T18:16:24.845Z netem_watch: containers changed -> applying lan
+2026-10-11T18:16:25.137Z netem_watch: applied lan (0.281 s)
+2026-10-11T18:16:25.292Z netem_watch: containers changed -> applying lan
+2026-10-11T18:16:25.722Z netem_watch: applied lan (0.420 s)
+2026-10-11T18:16:25.885Z netem_watch: containers changed -> applying lan
+2026-10-11T18:16:26.432Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T18:16:26.439Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:16:27.353Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T18:16:28.460Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T18:16:29.869Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:16:31.279Z netem_watch: applied lan (1.247 s)
+2026-10-11T18:16:43.160Z netem_watch: containers changed -> applying lan
+2026-10-11T18:16:44.356Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:16:44.363Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+nsenter: cannot open /proc/327839/ns/net: No such file or directory
+cannot read the qdisc of dibtnsm-site-3-1
+2026-10-11T18:16:47.259Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:16:48.672Z netem_watch: applied lan (1.248 s)
+2026-10-11T18:16:49.716Z netem_watch: containers changed -> applying lan
+2026-10-11T18:16:50.942Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:16:50.950Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:16:52.415Z netem_watch: applied lan (1.289 s)
+2026-10-11T18:16:52.881Z netem_watch: containers changed -> applying lan
+2026-10-11T18:16:54.124Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:16:54.132Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+nsenter: cannot open /proc/335383/ns/net: No such file or directory
+cannot read the qdisc of dibtnsm-site-3-1
+2026-10-11T18:16:56.991Z netem_watch: applied lan (1.086 s)
+2026-10-11T18:16:57.148Z netem_watch: containers changed -> applying lan
+netem_watch2.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:16:58.297Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:16:59.583Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_watch2.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:17:02.421Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:17:05.254Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:17:06.760Z netem_watch: applied lan (1.330 s)
+2026-10-11T18:17:07.537Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:08.748Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:17:08.756Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:17:10.190Z netem_watch: applied lan (1.278 s)
+2026-10-11T18:17:11.346Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:12.424Z netem_watch: applied lan (1.067 s)
+2026-10-11T18:17:12.597Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:13.879Z netem_watch: applied lan (1.270 s)
+2026-10-11T18:17:27.244Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:28.549Z netem_watch: applied lan (1.294 s)
+2026-10-11T18:17:28.723Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:29.956Z netem_watch: applied lan (1.221 s)
+2026-10-11T18:17:30.365Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:31.558Z netem_watch: applied lan (1.180 s)
+2026-10-11T18:17:31.720Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:33.050Z netem_watch: applied lan (1.318 s)
+2026-10-11T18:17:33.220Z netem_watch: containers changed -> applying lan
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:17:34.146Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:17:35.443Z netem_watch: applied lan (1.123 s)
+2026-10-11T18:17:35.625Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:36.997Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:17:37.006Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:17:39.199Z netem_watch: applied lan (1.129 s)
+2026-10-11T18:17:39.363Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:40.631Z netem_watch: applied lan (1.257 s)
+2026-10-11T18:17:41.211Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:42.453Z netem_watch: applied lan (1.230 s)
+2026-10-11T18:17:42.622Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:43.841Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:17:43.851Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:17:46.331Z netem_watch: applied lan (1.231 s)
+2026-10-11T18:17:46.509Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:47.844Z netem_watch: applied lan (1.322 s)
+2026-10-11T18:17:49.552Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:50.724Z netem_watch: applied lan (1.158 s)
+2026-10-11T18:17:50.879Z netem_watch: containers changed -> applying lan
+2026-10-11T18:17:51.948Z netem_watch: applied lan (1.057 s)
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T18:21:00.709Z netem_watch: containers changed -> applying lan
+error: no such object: dibtnsm-evidence-1
+netem_apply.sh: inspect failed for dibtnsm-evidence-1
+2026-10-11T18:21:01.239Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:21:03.580Z netem_watch: applied lan (0.206 s)
+2026-10-11T18:21:03.870Z netem_watch: containers changed -> applying lan
+2026-10-11T18:21:04.184Z netem_watch: applied lan (0.301 s)
+2026-10-11T18:21:04.335Z netem_watch: containers changed -> applying lan
+2026-10-11T18:21:04.735Z netem_watch: applied lan (0.389 s)
+2026-10-11T18:21:04.881Z netem_watch: containers changed -> applying lan
+2026-10-11T18:21:05.394Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T18:21:05.401Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:21:06.322Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T18:21:07.464Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T18:21:08.872Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:21:10.273Z netem_watch: applied lan (1.236 s)
+2026-10-11T18:21:22.184Z netem_watch: containers changed -> applying lan
+2026-10-11T18:21:23.390Z netem_watch: applied lan (1.192 s)
+2026-10-11T18:21:23.555Z netem_watch: containers changed -> applying lan
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:21:24.389Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:21:25.867Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:21:28.481Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:21:30.915Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:21:33.308Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:21:36.008Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_watch2.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:21:38.741Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:21:41.445Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:21:44.071Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:21:46.606Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:21:48.122Z netem_watch: applied lan (1.341 s)
+2026-10-11T18:22:00.617Z netem_watch: containers changed -> applying lan
+2026-10-11T18:22:01.759Z netem_watch: applied lan (1.130 s)
+2026-10-11T18:22:01.919Z netem_watch: containers changed -> applying lan
+2026-10-11T18:22:03.053Z netem_watch: applied lan (1.124 s)
+2026-10-11T18:22:20.020Z netem_watch: containers changed -> applying lan
+2026-10-11T18:22:21.318Z netem_watch: applied lan (1.287 s)
+2026-10-11T18:22:22.371Z netem_watch: containers changed -> applying lan
+2026-10-11T18:22:23.580Z netem_watch: applied lan (1.196 s)
+2026-10-11T18:22:23.739Z netem_watch: containers changed -> applying lan
+2026-10-11T18:22:24.909Z netem_watch: applied lan (1.159 s)
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-4-1
+2026-10-11T18:26:16.263Z netem_watch: containers changed -> applying lan
+2026-10-11T18:26:16.487Z netem_watch: applied lan (0.210 s)
+2026-10-11T18:26:16.921Z netem_watch: containers changed -> applying lan
+2026-10-11T18:26:16.955Z netem_watch: applied lan (0.022 s)
+2026-10-11T18:26:19.347Z netem_watch: containers changed -> applying lan
+2026-10-11T18:26:19.538Z netem_watch: applied lan (0.181 s)
+2026-10-11T18:26:19.824Z netem_watch: containers changed -> applying lan
+2026-10-11T18:26:20.131Z netem_watch: applied lan (0.295 s)
+2026-10-11T18:26:20.284Z netem_watch: containers changed -> applying lan
+2026-10-11T18:26:20.761Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T18:26:20.769Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:26:21.498Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T18:26:22.459Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T18:26:23.578Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T18:26:24.997Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:26:26.566Z netem_watch: applied lan (1.406 s)
+2026-10-11T18:26:38.107Z netem_watch: containers changed -> applying lan
+2026-10-11T18:26:39.324Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:26:39.333Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+nsenter: cannot open /proc/516931/ns/net: No such file or directory
+cannot read the qdisc of dibtnsm-site-3-1
+2026-10-11T18:26:42.324Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_watch2.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:26:45.481Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:26:47.926Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:26:49.377Z netem_watch: applied lan (1.278 s)
+2026-10-11T18:26:50.175Z netem_watch: containers changed -> applying lan
+2026-10-11T18:26:51.335Z netem_watch: applied lan (1.148 s)
+2026-10-11T18:26:51.507Z netem_watch: containers changed -> applying lan
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:26:52.399Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:26:54.029Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:26:56.801Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:26:59.226Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:27:00.618Z netem_watch: applied lan (1.218 s)
+2026-10-11T18:27:01.130Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:02.182Z netem_watch: applied lan (1.041 s)
+2026-10-11T18:27:02.349Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:03.729Z netem_watch: applied lan (1.368 s)
+2026-10-11T18:27:04.262Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:05.442Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:27:05.450Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:27:06.870Z netem_watch: applied lan (1.258 s)
+2026-10-11T18:27:19.837Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:20.924Z netem_watch: applied lan (1.075 s)
+2026-10-11T18:27:21.078Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:22.169Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:27:22.176Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+nsenter: cannot open /proc/542859/ns/net: No such file or directory
+cannot read the qdisc of dibtnsm-site-3-1
+2026-10-11T18:27:24.860Z netem_watch: applied lan (1.042 s)
+2026-10-11T18:27:25.164Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:26.341Z netem_watch: applied lan (1.165 s)
+2026-10-11T18:27:27.043Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:28.171Z netem_watch: applied lan (1.113 s)
+2026-10-11T18:27:28.330Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:29.430Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:27:29.439Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:27:31.793Z netem_watch: applied lan (1.086 s)
+2026-10-11T18:27:32.095Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:33.211Z netem_watch: applied lan (1.105 s)
+2026-10-11T18:27:34.776Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:35.851Z netem_watch: applied lan (1.063 s)
+2026-10-11T18:27:36.002Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:37.094Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:27:37.102Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:27:39.636Z netem_watch: applied lan (1.164 s)
+2026-10-11T18:27:39.952Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:41.258Z netem_watch: applied lan (1.292 s)
+2026-10-11T18:27:42.483Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:43.805Z netem_watch: applied lan (1.307 s)
+2026-10-11T18:27:43.980Z netem_watch: containers changed -> applying lan
+2026-10-11T18:27:45.486Z netem_watch: applied lan (1.490 s)
+2026-10-11T18:28:04.920Z netem_watch: containers changed -> applying lan
+2026-10-11T18:28:06.188Z netem_watch: applied lan (1.256 s)
+2026-10-11T18:28:07.138Z netem_watch: containers changed -> applying lan
+2026-10-11T18:28:08.346Z netem_watch: applied lan (1.195 s)
+2026-10-11T18:28:08.516Z netem_watch: containers changed -> applying lan
+2026-10-11T18:28:09.708Z netem_watch: applied lan (1.181 s)
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-6-1
+2026-10-11T18:31:32.412Z netem_watch: containers changed -> applying lan
+2026-10-11T18:31:32.574Z netem_watch: applied lan (0.151 s)
+2026-10-11T18:31:42.758Z netem_watch: containers changed -> applying lan
+2026-10-11T18:31:42.799Z netem_watch: applied lan (0.024 s)
+2026-10-11T18:31:44.782Z netem_watch: containers changed -> applying lan
+2026-10-11T18:31:44.986Z netem_watch: applied lan (0.191 s)
+2026-10-11T18:31:45.276Z netem_watch: containers changed -> applying lan
+2026-10-11T18:31:45.593Z netem_watch: applied lan (0.306 s)
+2026-10-11T18:31:45.741Z netem_watch: containers changed -> applying lan
+2026-10-11T18:31:46.176Z netem_watch: applied lan (0.424 s)
+2026-10-11T18:31:46.343Z netem_watch: containers changed -> applying lan
+2026-10-11T18:31:46.904Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T18:31:46.912Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:31:47.792Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T18:31:48.801Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T18:31:50.114Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:31:51.402Z netem_watch: applied lan (1.129 s)
+2026-10-11T18:32:03.394Z netem_watch: containers changed -> applying lan
+2026-10-11T18:32:04.662Z netem_watch: applied lan (1.253 s)
+2026-10-11T18:32:04.848Z netem_watch: containers changed -> applying lan
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:32:05.808Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:32:07.132Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_watch2.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:32:09.883Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:32:12.316Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+dibtnsm-site-3-1: cannot verify the qdisc after del
+2026-10-11T18:32:14.853Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:32:17.043Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_watch2.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:32:19.559Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_watch2.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:32:22.390Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:32:25.026Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+netem_apply.sh: bad pid '0' for dibtnsm-site-3-1: nothing applied
+2026-10-11T18:32:27.563Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:32:28.956Z netem_watch: applied lan (1.230 s)
+2026-10-11T18:32:42.004Z netem_watch: containers changed -> applying lan
+2026-10-11T18:32:43.096Z netem_watch: applied lan (1.081 s)
+2026-10-11T18:32:43.263Z netem_watch: containers changed -> applying lan
+2026-10-11T18:32:44.368Z netem_watch: applied lan (1.090 s)
+2026-10-11T18:32:56.694Z netem_watch: containers changed -> applying lan
+2026-10-11T18:32:57.882Z netem_watch: applied lan (1.176 s)
+2026-10-11T18:32:59.374Z netem_watch: containers changed -> applying lan
+2026-10-11T18:33:00.579Z netem_watch: applied lan (1.191 s)
+2026-10-11T18:33:00.742Z netem_watch: containers changed -> applying lan
+2026-10-11T18:33:01.862Z netem_watch: applied lan (1.109 s)
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-1-1
+2026-10-11T18:38:15.314Z netem_watch: containers changed -> applying lan
+2026-10-11T18:38:15.505Z netem_watch: applied lan (0.177 s)
+2026-10-11T18:38:25.608Z netem_watch: containers changed -> applying lan
+2026-10-11T18:38:25.651Z netem_watch: applied lan (0.027 s)
+2026-10-11T18:38:26.490Z netem_watch: request accepted: lan
+2026-10-11T18:38:26.534Z netem_watch: applied lan (0.019 s)
+2026-10-11T18:38:27.568Z netem_watch: request accepted: degraded+fast
+2026-10-11T18:38:27.612Z netem_watch: applied degraded (0.019 s)
+2026-10-11T18:38:29.180Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:38:29.403Z netem_watch: applied degraded (0.211 s)
+2026-10-11T18:38:29.550Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:38:29.834Z netem_watch: applied degraded (0.273 s)
+2026-10-11T18:38:30.132Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:38:30.616Z netem_watch: the set of containers changed during the application (before: 3, after: 4): profile.applied not written, re-applying
+2026-10-11T18:38:30.624Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:38:31.297Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T18:38:32.093Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T18:38:33.108Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T18:38:34.326Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:38:35.571Z netem_watch: applied degraded (1.087 s)
+2026-10-11T18:40:41.761Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:40:42.926Z netem_watch: applied degraded (1.153 s)
+2026-10-11T18:40:43.098Z netem_watch: containers changed -> applying degraded
+netem_watch2.sh: bad pid '0' for dibtnsm-site-2-1: nothing applied
+2026-10-11T18:40:43.909Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-7-1
+2026-10-11T18:40:45.923Z netem_watch: applied degraded (0.323 s)
+2026-10-11T18:40:53.494Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:40:53.682Z netem_watch: applied degraded (0.175 s)
+2026-10-11T18:40:54.111Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:40:54.145Z netem_watch: applied degraded (0.022 s)
+2026-10-11T18:40:56.431Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:40:56.633Z netem_watch: applied degraded (0.190 s)
+2026-10-11T18:40:56.921Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:40:57.225Z netem_watch: applied degraded (0.293 s)
+2026-10-11T18:40:57.387Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:40:57.770Z netem_watch: applied degraded (0.369 s)
+2026-10-11T18:40:57.927Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:40:58.476Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T18:40:58.486Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:40:59.298Z netem_watch: applied degraded (0.658 s)
+2026-10-11T18:40:59.455Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:41:00.329Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T18:41:00.339Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T18:41:01.578Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T18:41:02.834Z netem_watch: applied degraded (1.101 s)
+2026-10-11T18:42:14.403Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:42:15.517Z netem_watch: applied degraded (1.102 s)
+2026-10-11T18:42:15.683Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:42:16.834Z netem_watch: applied degraded (1.136 s)
+2026-10-11T18:43:52.986Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:43:54.194Z netem_watch: applied degraded (1.197 s)
+2026-10-11T18:44:30.300Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:44:31.348Z netem_watch: applied degraded (1.035 s)
+2026-10-11T18:44:31.512Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:44:32.615Z netem_watch: applied degraded (1.093 s)
+2026-10-11T18:46:08.391Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:46:09.588Z netem_watch: applied degraded (1.185 s)
+2026-10-11T18:46:50.595Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:46:51.554Z netem_watch: applied degraded (0.948 s)
+2026-10-11T18:46:51.716Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:46:52.804Z netem_watch: applied degraded (1.077 s)
+2026-10-11T18:48:14.266Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:48:15.327Z netem_watch: applied degraded (1.050 s)
+2026-10-11T18:48:55.257Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:48:56.228Z netem_watch: applied degraded (0.961 s)
+2026-10-11T18:48:56.384Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:48:57.328Z netem_watch: applied degraded (0.933 s)
+2026-10-11T18:50:32.442Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:50:33.557Z netem_watch: applied degraded (1.103 s)
+2026-10-11T18:51:17.567Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:51:18.557Z netem_watch: applied degraded (0.979 s)
+2026-10-11T18:51:18.725Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:51:19.763Z netem_watch: applied degraded (1.027 s)
+2026-10-11T18:52:48.792Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:52:49.805Z netem_watch: applied degraded (1.002 s)
+2026-10-11T18:53:26.876Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:53:27.830Z netem_watch: applied degraded (0.944 s)
+2026-10-11T18:53:27.984Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:53:29.037Z netem_watch: applied degraded (1.042 s)
+2026-10-11T18:54:55.737Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:54:56.781Z netem_watch: applied degraded (1.034 s)
+2026-10-11T18:55:29.659Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:55:30.685Z netem_watch: applied degraded (1.015 s)
+2026-10-11T18:55:30.837Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:55:31.863Z netem_watch: applied degraded (1.016 s)
+2026-10-11T18:57:08.963Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:57:10.146Z netem_watch: applied degraded (1.168 s)
+2026-10-11T18:57:45.639Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:57:46.564Z netem_watch: applied degraded (0.914 s)
+2026-10-11T18:57:46.718Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:57:47.668Z netem_watch: applied degraded (0.939 s)
+2026-10-11T18:59:19.858Z netem_watch: containers changed -> applying degraded
+2026-10-11T18:59:20.947Z netem_watch: applied degraded (1.079 s)
+2026-10-11T19:00:02.406Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:00:03.558Z netem_watch: applied degraded (1.139 s)
+2026-10-11T19:00:03.711Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:00:04.828Z netem_watch: applied degraded (1.105 s)
+2026-10-11T19:01:30.613Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:01:31.873Z netem_watch: applied degraded (1.247 s)
+2026-10-11T19:02:11.722Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:02:12.648Z netem_watch: applied degraded (0.916 s)
+2026-10-11T19:02:12.813Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:02:13.823Z netem_watch: applied degraded (0.999 s)
+2026-10-11T19:03:40.299Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:03:41.556Z netem_watch: applied degraded (1.244 s)
+2026-10-11T19:04:03.149Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:04:04.227Z netem_watch: applied degraded (1.064 s)
+2026-10-11T19:04:04.385Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:04:05.466Z netem_watch: applied degraded (1.069 s)
+2026-10-11T19:04:16.880Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:04:18.102Z netem_watch: applied degraded (1.208 s)
+2026-10-11T19:04:33.778Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:04:34.904Z netem_watch: applied degraded (1.113 s)
+2026-10-11T19:04:35.065Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:04:36.315Z netem_watch: applied degraded (1.237 s)
+2026-10-11T19:04:42.897Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:04:44.174Z netem_watch: applied degraded (1.263 s)
+2026-10-11T19:04:49.962Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:04:51.075Z netem_watch: applied degraded (1.097 s)
+2026-10-11T19:04:51.237Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:04:52.400Z netem_watch: applied degraded (1.149 s)
+2026-10-11T19:04:59.389Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:05:00.530Z netem_watch: applied degraded (1.128 s)
+2026-10-11T19:05:12.005Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:05:13.047Z netem_watch: applied degraded (1.030 s)
+2026-10-11T19:05:13.222Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:05:14.279Z netem_watch: applied degraded (1.043 s)
+2026-10-11T19:05:23.228Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:05:24.314Z netem_watch: applied degraded (1.075 s)
+2026-10-11T19:05:33.058Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:05:34.150Z netem_watch: applied degraded (1.080 s)
+2026-10-11T19:05:34.301Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:05:35.245Z netem_watch: applied degraded (0.934 s)
+2026-10-11T19:05:44.044Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:05:45.208Z netem_watch: applied degraded (1.150 s)
+2026-10-11T19:06:00.676Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:06:01.691Z netem_watch: applied degraded (1.003 s)
+2026-10-11T19:06:01.849Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:06:02.908Z netem_watch: applied degraded (1.048 s)
+2026-10-11T19:06:09.223Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:06:10.392Z netem_watch: applied degraded (1.157 s)
+2026-10-11T19:06:16.915Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:06:18.044Z netem_watch: applied degraded (1.116 s)
+2026-10-11T19:06:18.206Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:06:19.249Z netem_watch: applied degraded (1.031 s)
+2026-10-11T19:06:27.268Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:06:28.391Z netem_watch: applied degraded (1.111 s)
+2026-10-11T19:06:36.178Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:06:37.174Z netem_watch: applied degraded (0.984 s)
+2026-10-11T19:06:37.330Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:06:38.338Z netem_watch: applied degraded (0.998 s)
+2026-10-11T19:06:48.722Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:06:49.926Z netem_watch: applied degraded (1.189 s)
+2026-10-11T19:06:58.430Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:06:59.449Z netem_watch: applied degraded (1.009 s)
+2026-10-11T19:06:59.601Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:00.566Z netem_watch: applied degraded (0.955 s)
+2026-10-11T19:07:06.419Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:07.636Z netem_watch: applied degraded (1.206 s)
+2026-10-11T19:07:12.368Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:13.514Z netem_watch: applied degraded (1.132 s)
+2026-10-11T19:07:13.686Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:14.789Z netem_watch: applied degraded (1.092 s)
+2026-10-11T19:07:23.354Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:24.574Z netem_watch: applied degraded (1.207 s)
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-0-1
+2026-10-11T19:07:28.805Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:29.077Z netem_watch: applied degraded (0.260 s)
+2026-10-11T19:07:29.480Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:29.662Z netem_watch: applied degraded (0.169 s)
+2026-10-11T19:07:30.089Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:30.124Z netem_watch: applied degraded (0.023 s)
+2026-10-11T19:07:31.985Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:32.164Z netem_watch: applied degraded (0.168 s)
+2026-10-11T19:07:32.451Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:32.735Z netem_watch: applied degraded (0.272 s)
+2026-10-11T19:07:32.887Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:33.275Z netem_watch: applied degraded (0.376 s)
+2026-10-11T19:07:33.429Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:07:34.054Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T19:07:34.063Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T19:07:34.934Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T19:07:36.004Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T19:07:37.372Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T19:07:38.576Z netem_watch: applied degraded (1.053 s)
+2026-10-11T19:08:23.832Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:08:24.781Z netem_watch: applied degraded (0.938 s)
+2026-10-11T19:08:24.935Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:08:25.938Z netem_watch: applied degraded (0.992 s)
+2026-10-11T19:08:35.235Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:08:36.319Z netem_watch: applied degraded (1.073 s)
+2026-10-11T19:08:41.848Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:08:42.874Z netem_watch: applied degraded (1.013 s)
+2026-10-11T19:08:43.028Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:08:43.992Z netem_watch: applied degraded (0.953 s)
+2026-10-11T19:08:51.728Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:08:52.888Z netem_watch: applied degraded (1.148 s)
+2026-10-11T19:08:58.221Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:08:59.350Z netem_watch: applied degraded (1.116 s)
+2026-10-11T19:08:59.517Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:09:00.550Z netem_watch: applied degraded (1.021 s)
+2026-10-11T19:09:07.501Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:09:08.563Z netem_watch: applied degraded (1.051 s)
+2026-10-11T19:09:18.337Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:09:19.283Z netem_watch: applied degraded (0.934 s)
+2026-10-11T19:09:19.446Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:09:20.436Z netem_watch: applied degraded (0.979 s)
+2026-10-11T19:09:29.409Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:09:30.606Z netem_watch: applied degraded (1.186 s)
+2026-10-11T19:09:41.491Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:09:42.484Z netem_watch: applied degraded (0.981 s)
+2026-10-11T19:09:42.638Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:09:43.560Z netem_watch: applied degraded (0.910 s)
+2026-10-11T19:09:53.120Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:09:54.207Z netem_watch: applied degraded (1.074 s)
+2026-10-11T19:10:01.234Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:02.258Z netem_watch: applied degraded (1.011 s)
+2026-10-11T19:10:02.434Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:03.560Z netem_watch: applied degraded (1.111 s)
+2026-10-11T19:10:10.331Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:11.436Z netem_watch: applied degraded (1.093 s)
+2026-10-11T19:10:19.476Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:20.535Z netem_watch: applied degraded (1.046 s)
+2026-10-11T19:10:20.688Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:21.850Z netem_watch: applied degraded (1.151 s)
+2026-10-11T19:10:31.053Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:32.169Z netem_watch: applied degraded (1.105 s)
+2026-10-11T19:10:37.912Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:38.893Z netem_watch: applied degraded (0.969 s)
+2026-10-11T19:10:39.052Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:40.187Z netem_watch: applied degraded (1.123 s)
+2026-10-11T19:10:49.841Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:50.834Z netem_watch: applied degraded (0.981 s)
+2026-10-11T19:10:56.515Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:57.524Z netem_watch: applied degraded (0.996 s)
+2026-10-11T19:10:57.685Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:10:58.685Z netem_watch: applied degraded (0.989 s)
+2026-10-11T19:11:05.988Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:11:07.079Z netem_watch: applied degraded (1.078 s)
+2026-10-11T19:11:52.753Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:11:53.738Z netem_watch: applied degraded (0.973 s)
+2026-10-11T19:11:53.895Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:11:54.845Z netem_watch: applied degraded (0.939 s)
+2026-10-11T19:13:18.289Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:13:19.282Z netem_watch: applied degraded (0.982 s)
+2026-10-11T19:13:53.273Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:13:54.166Z netem_watch: applied degraded (0.881 s)
+2026-10-11T19:13:54.329Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:13:55.335Z netem_watch: applied degraded (0.993 s)
+2026-10-11T19:15:25.432Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:15:26.553Z netem_watch: applied degraded (1.109 s)
+2026-10-11T19:16:07.197Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:16:08.275Z netem_watch: applied degraded (1.067 s)
+2026-10-11T19:16:08.435Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:16:09.521Z netem_watch: applied degraded (1.071 s)
+2026-10-11T19:17:43.949Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:17:45.283Z netem_watch: applied degraded (1.317 s)
+2026-10-11T19:18:26.547Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:18:27.630Z netem_watch: applied degraded (1.070 s)
+2026-10-11T19:18:27.796Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:18:28.849Z netem_watch: applied degraded (1.038 s)
+2026-10-11T19:19:55.546Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:19:56.846Z netem_watch: applied degraded (1.286 s)
+2026-10-11T19:20:31.418Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:20:32.431Z netem_watch: applied degraded (1.001 s)
+2026-10-11T19:20:32.587Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:20:33.536Z netem_watch: applied degraded (0.936 s)
+2026-10-11T19:22:00.790Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:22:02.078Z netem_watch: applied degraded (1.274 s)
+2026-10-11T19:22:36.239Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:22:37.441Z netem_watch: applied degraded (1.189 s)
+2026-10-11T19:22:37.610Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:22:38.729Z netem_watch: applied degraded (1.106 s)
+2026-10-11T19:24:12.470Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:24:13.655Z netem_watch: applied degraded (1.172 s)
+2026-10-11T19:24:53.681Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:24:54.671Z netem_watch: applied degraded (0.979 s)
+2026-10-11T19:24:54.825Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:24:55.863Z netem_watch: applied degraded (1.027 s)
+2026-10-11T19:26:24.044Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:26:25.274Z netem_watch: applied degraded (1.212 s)
+2026-10-11T19:27:02.915Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:27:03.930Z netem_watch: applied degraded (1.002 s)
+2026-10-11T19:27:04.094Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:27:05.213Z netem_watch: applied degraded (1.106 s)
+2026-10-11T19:28:32.729Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:28:33.854Z netem_watch: applied degraded (1.113 s)
+2026-10-11T19:29:10.158Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:29:11.260Z netem_watch: applied degraded (1.090 s)
+2026-10-11T19:29:11.419Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:29:12.533Z netem_watch: applied degraded (1.102 s)
+2026-10-11T19:30:37.537Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:30:38.796Z netem_watch: applied degraded (1.244 s)
+2026-10-11T19:31:15.735Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:31:16.854Z netem_watch: applied degraded (1.107 s)
+2026-10-11T19:31:17.010Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:31:18.043Z netem_watch: applied degraded (1.020 s)
+2026-10-11T19:32:45.332Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:32:46.373Z netem_watch: applied degraded (1.029 s)
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-3-1
+2026-10-11T19:32:54.403Z netem_watch: containers changed -> applying degraded
+netem_watch2.sh: bad pid '0' for dibtnsm-evidence-1: nothing applied
+2026-10-11T19:32:54.852Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T19:32:57.382Z netem_watch: applied degraded (0.192 s)
+2026-10-11T19:32:57.675Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:32:57.950Z netem_watch: applied degraded (0.262 s)
+2026-10-11T19:32:58.107Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:32:58.485Z netem_watch: applied degraded (0.364 s)
+2026-10-11T19:32:58.641Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:32:59.113Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T19:32:59.122Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T19:32:59.977Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T19:33:00.993Z netem_watch: the set of containers changed during the application (before: 7, after: 9): profile.applied not written, re-applying
+2026-10-11T19:33:02.193Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T19:33:03.450Z netem_watch: applied degraded (1.094 s)
+2026-10-11T19:34:33.114Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:34:34.084Z netem_watch: applied degraded (0.959 s)
+2026-10-11T19:34:34.242Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:34:35.206Z netem_watch: applied degraded (0.950 s)
+2026-10-11T19:36:51.209Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:36:52.505Z netem_watch: applied degraded (1.282 s)
+2026-10-11T19:37:49.513Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:37:50.639Z netem_watch: applied degraded (1.111 s)
+2026-10-11T19:37:50.803Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:37:51.827Z netem_watch: applied degraded (1.011 s)
+2026-10-11T19:40:27.724Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:40:28.883Z netem_watch: applied degraded (1.147 s)
+2026-10-11T19:41:29.204Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:41:30.520Z netem_watch: applied degraded (1.301 s)
+2026-10-11T19:41:30.685Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:41:31.786Z netem_watch: applied degraded (1.087 s)
+2026-10-11T19:44:00.255Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:44:01.317Z netem_watch: applied degraded (1.050 s)
+2026-10-11T19:45:12.520Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:45:13.483Z netem_watch: applied degraded (0.951 s)
+2026-10-11T19:45:13.639Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:45:14.662Z netem_watch: applied degraded (1.011 s)
+2026-10-11T19:47:46.782Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:47:47.824Z netem_watch: applied degraded (1.030 s)
+2026-10-11T19:48:53.631Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:48:54.541Z netem_watch: applied degraded (0.898 s)
+2026-10-11T19:48:54.695Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:48:55.587Z netem_watch: applied degraded (0.879 s)
+2026-10-11T19:51:06.375Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:51:07.425Z netem_watch: applied degraded (1.038 s)
+2026-10-11T19:52:19.360Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:52:20.325Z netem_watch: applied degraded (0.949 s)
+2026-10-11T19:52:20.479Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:52:21.427Z netem_watch: applied degraded (0.936 s)
+2026-10-11T19:54:39.077Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:54:40.096Z netem_watch: applied degraded (1.007 s)
+2026-10-11T19:55:47.337Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:55:48.379Z netem_watch: applied degraded (1.029 s)
+2026-10-11T19:55:48.534Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:55:49.710Z netem_watch: applied degraded (1.163 s)
+2026-10-11T19:58:15.991Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:58:17.026Z netem_watch: applied degraded (1.023 s)
+2026-10-11T19:59:11.315Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:59:12.223Z netem_watch: applied degraded (0.896 s)
+2026-10-11T19:59:12.376Z netem_watch: containers changed -> applying degraded
+2026-10-11T19:59:13.274Z netem_watch: applied degraded (0.887 s)
+2026-10-11T20:01:36.366Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:01:37.353Z netem_watch: applied degraded (0.976 s)
+2026-10-11T20:02:29.680Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:02:30.601Z netem_watch: applied degraded (0.910 s)
+2026-10-11T20:02:30.757Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:02:31.651Z netem_watch: applied degraded (0.882 s)
+2026-10-11T20:05:03.133Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:05:04.332Z netem_watch: applied degraded (1.187 s)
+2026-10-11T20:05:29.829Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:05:30.935Z netem_watch: applied degraded (1.093 s)
+2026-10-11T20:05:31.107Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:05:32.279Z netem_watch: applied degraded (1.157 s)
+2026-10-11T20:05:48.859Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:05:49.991Z netem_watch: applied degraded (1.118 s)
+2026-10-11T20:05:59.975Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:06:01.130Z netem_watch: applied degraded (1.140 s)
+2026-10-11T20:06:01.306Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:06:02.302Z netem_watch: applied degraded (0.979 s)
+2026-10-11T20:06:18.080Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:06:19.084Z netem_watch: applied degraded (0.992 s)
+2026-10-11T20:06:29.662Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:06:30.788Z netem_watch: applied degraded (1.115 s)
+2026-10-11T20:06:30.938Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:06:31.861Z netem_watch: applied degraded (0.911 s)
+2026-10-11T20:06:45.932Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:06:46.929Z netem_watch: applied degraded (0.985 s)
+2026-10-11T20:06:58.715Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:06:59.622Z netem_watch: applied degraded (0.895 s)
+2026-10-11T20:06:59.774Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:07:00.692Z netem_watch: applied degraded (0.906 s)
+2026-10-11T20:07:18.218Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:07:19.215Z netem_watch: applied degraded (0.984 s)
+2026-10-11T20:07:33.419Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:07:34.332Z netem_watch: applied degraded (0.901 s)
+2026-10-11T20:07:34.483Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:07:35.474Z netem_watch: applied degraded (0.979 s)
+2026-10-11T20:07:52.361Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:07:53.571Z netem_watch: applied degraded (1.197 s)
+2026-10-11T20:08:03.950Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:08:04.849Z netem_watch: applied degraded (0.887 s)
+2026-10-11T20:08:04.996Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:08:05.895Z netem_watch: applied degraded (0.888 s)
+2026-10-11T20:08:19.149Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:08:20.213Z netem_watch: applied degraded (1.053 s)
+2026-10-11T20:08:32.198Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:08:33.280Z netem_watch: applied degraded (1.070 s)
+2026-10-11T20:08:33.438Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:08:34.372Z netem_watch: applied degraded (0.921 s)
+2026-10-11T20:08:44.835Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:08:46.089Z netem_watch: applied degraded (1.240 s)
+2026-10-11T20:09:01.016Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:09:01.978Z netem_watch: applied degraded (0.948 s)
+2026-10-11T20:09:02.157Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:09:03.347Z netem_watch: applied degraded (1.176 s)
+2026-10-11T20:09:17.681Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:09:18.802Z netem_watch: applied degraded (1.108 s)
+2026-10-11T20:09:29.040Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:09:30.123Z netem_watch: applied degraded (1.070 s)
+2026-10-11T20:09:30.280Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:09:31.231Z netem_watch: applied degraded (0.938 s)
+2026-10-11T20:09:46.620Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:09:47.686Z netem_watch: applied degraded (1.053 s)
+2026-10-11T20:09:57.926Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:09:58.940Z netem_watch: applied degraded (1.002 s)
+2026-10-11T20:09:59.119Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:00.307Z netem_watch: applied degraded (1.172 s)
+2026-10-11T20:10:13.273Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:14.307Z netem_watch: applied degraded (1.021 s)
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-4-1
+2026-10-11T20:10:22.104Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:22.395Z netem_watch: applied degraded (0.278 s)
+2026-10-11T20:10:22.557Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:22.831Z netem_watch: applied degraded (0.259 s)
+2026-10-11T20:10:30.144Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:30.312Z netem_watch: applied degraded (0.156 s)
+2026-10-11T20:10:30.458Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:30.626Z netem_watch: applied degraded (0.156 s)
+2026-10-11T20:10:40.541Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:40.573Z netem_watch: applied degraded (0.020 s)
+2026-10-11T20:10:42.385Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:42.581Z netem_watch: applied degraded (0.183 s)
+2026-10-11T20:10:42.865Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:43.140Z netem_watch: applied degraded (0.263 s)
+2026-10-11T20:10:43.287Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:43.648Z netem_watch: applied degraded (0.348 s)
+2026-10-11T20:10:43.798Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:10:44.280Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T20:10:44.290Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T20:10:45.173Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T20:10:46.300Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T20:10:47.470Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T20:10:48.894Z netem_watch: applied degraded (1.260 s)
+2026-10-11T20:11:41.741Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:11:42.693Z netem_watch: applied degraded (0.940 s)
+2026-10-11T20:11:42.846Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:11:43.956Z netem_watch: applied degraded (1.096 s)
+2026-10-11T20:11:57.954Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:11:59.101Z netem_watch: applied degraded (1.135 s)
+2026-10-11T20:12:10.701Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:12:11.642Z netem_watch: applied degraded (0.929 s)
+2026-10-11T20:12:11.799Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:12:12.748Z netem_watch: applied degraded (0.937 s)
+2026-10-11T20:12:29.036Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:12:30.087Z netem_watch: applied degraded (1.037 s)
+2026-10-11T20:12:46.786Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:12:47.733Z netem_watch: applied degraded (0.935 s)
+2026-10-11T20:12:47.887Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:12:48.842Z netem_watch: applied degraded (0.942 s)
+2026-10-11T20:13:04.340Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:13:05.364Z netem_watch: applied degraded (1.012 s)
+2026-10-11T20:13:19.984Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:13:20.951Z netem_watch: applied degraded (0.954 s)
+2026-10-11T20:13:21.109Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:13:22.061Z netem_watch: applied degraded (0.940 s)
+2026-10-11T20:13:36.580Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:13:37.725Z netem_watch: applied degraded (1.130 s)
+2026-10-11T20:13:48.777Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:13:49.708Z netem_watch: applied degraded (0.920 s)
+2026-10-11T20:13:49.867Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:13:50.887Z netem_watch: applied degraded (1.008 s)
+2026-10-11T20:14:06.250Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:14:07.272Z netem_watch: applied degraded (1.010 s)
+2026-10-11T20:14:16.484Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:14:17.544Z netem_watch: applied degraded (1.047 s)
+2026-10-11T20:14:17.701Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:14:18.656Z netem_watch: applied degraded (0.943 s)
+2026-10-11T20:14:31.803Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:14:32.852Z netem_watch: applied degraded (1.033 s)
+2026-10-11T20:14:39.573Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:14:40.614Z netem_watch: applied degraded (1.027 s)
+2026-10-11T20:14:40.765Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:14:41.713Z netem_watch: applied degraded (0.935 s)
+2026-10-11T20:14:59.612Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:15:00.645Z netem_watch: applied degraded (1.020 s)
+2026-10-11T20:15:09.980Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:15:10.973Z netem_watch: applied degraded (0.980 s)
+2026-10-11T20:15:11.127Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:15:12.051Z netem_watch: applied degraded (0.912 s)
+2026-10-11T20:15:27.354Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:15:28.572Z netem_watch: applied degraded (1.202 s)
+2026-10-11T20:15:39.171Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:15:40.232Z netem_watch: applied degraded (1.049 s)
+2026-10-11T20:15:40.386Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:15:41.349Z netem_watch: applied degraded (0.950 s)
+2026-10-11T20:15:57.265Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:15:58.358Z netem_watch: applied degraded (1.079 s)
+2026-10-11T20:16:06.609Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:16:07.562Z netem_watch: applied degraded (0.941 s)
+2026-10-11T20:16:07.714Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:16:08.823Z netem_watch: applied degraded (1.097 s)
+2026-10-11T20:16:20.300Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:16:21.389Z netem_watch: applied degraded (1.076 s)
+2026-10-11T20:17:31.229Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:17:32.224Z netem_watch: applied degraded (0.980 s)
+2026-10-11T20:17:32.380Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:17:33.341Z netem_watch: applied degraded (0.947 s)
+2026-10-11T20:20:07.570Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:20:08.778Z netem_watch: applied degraded (1.192 s)
+2026-10-11T20:20:53.036Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:20:53.998Z netem_watch: applied degraded (0.948 s)
+2026-10-11T20:20:54.167Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:20:55.142Z netem_watch: applied degraded (0.963 s)
+2026-10-11T20:23:19.967Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:23:21.038Z netem_watch: applied degraded (1.059 s)
+2026-10-11T20:24:19.834Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:24:20.947Z netem_watch: applied degraded (1.100 s)
+2026-10-11T20:24:21.118Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:24:22.187Z netem_watch: applied degraded (1.055 s)
+2026-10-11T20:26:44.049Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:26:45.060Z netem_watch: applied degraded (0.997 s)
+2026-10-11T20:27:37.557Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:27:38.582Z netem_watch: applied degraded (1.011 s)
+2026-10-11T20:27:38.736Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:27:39.781Z netem_watch: applied degraded (1.032 s)
+2026-10-11T20:30:13.982Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:30:15.019Z netem_watch: applied degraded (1.023 s)
+2026-10-11T20:31:14.087Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:31:15.131Z netem_watch: applied degraded (1.027 s)
+2026-10-11T20:31:15.294Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:31:16.242Z netem_watch: applied degraded (0.935 s)
+2026-10-11T20:33:46.543Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:33:47.656Z netem_watch: applied degraded (1.100 s)
+2026-10-11T20:34:39.258Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:34:40.201Z netem_watch: applied degraded (0.931 s)
+2026-10-11T20:34:40.359Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:34:41.366Z netem_watch: applied degraded (0.993 s)
+2026-10-11T20:37:03.447Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:37:04.583Z netem_watch: applied degraded (1.122 s)
+2026-10-11T20:38:15.395Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:38:16.350Z netem_watch: applied degraded (0.940 s)
+2026-10-11T20:38:16.508Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:38:17.433Z netem_watch: applied degraded (0.912 s)
+2026-10-11T20:40:55.300Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:40:56.327Z netem_watch: applied degraded (1.014 s)
+2026-10-11T20:41:50.357Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:41:51.389Z netem_watch: applied degraded (1.017 s)
+2026-10-11T20:41:51.542Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:41:52.483Z netem_watch: applied degraded (0.929 s)
+2026-10-11T20:44:18.546Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:44:19.612Z netem_watch: applied degraded (1.052 s)
+2026-10-11T20:45:13.832Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:45:14.860Z netem_watch: applied degraded (1.015 s)
+2026-10-11T20:45:15.017Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:45:16.064Z netem_watch: applied degraded (1.034 s)
+2026-10-11T20:47:48.943Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:47:50.000Z netem_watch: applied degraded (1.045 s)
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-4-1
+2026-10-11T20:47:56.436Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:47:56.774Z netem_watch: applied degraded (0.326 s)
+2026-10-11T20:47:57.255Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:47:57.539Z netem_watch: applied degraded (0.269 s)
+2026-10-11T20:47:57.686Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:47:57.948Z netem_watch: applied degraded (0.248 s)
+2026-10-11T20:48:04.595Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:48:04.779Z netem_watch: applied degraded (0.169 s)
+2026-10-11T20:48:04.929Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:48:05.139Z netem_watch: applied degraded (0.195 s)
+2026-10-11T20:48:15.007Z netem_watch: containers changed -> applying degraded
+2026-10-11T20:48:15.043Z netem_watch: applied degraded (0.021 s)
+2026-10-11T20:48:15.985Z netem_watch: request accepted: lan
+2026-10-11T20:48:16.035Z netem_watch: applied lan (0.021 s)
+2026-10-11T20:48:17.078Z netem_watch: request accepted: wan+fast
+2026-10-11T20:48:17.128Z netem_watch: applied wan (0.021 s)
+2026-10-11T20:48:18.812Z netem_watch: containers changed -> applying wan
+2026-10-11T20:48:18.988Z netem_watch: applied wan (0.160 s)
+2026-10-11T20:48:19.139Z netem_watch: containers changed -> applying wan
+2026-10-11T20:48:19.414Z netem_watch: applied wan (0.262 s)
+2026-10-11T20:48:19.566Z netem_watch: containers changed -> applying wan
+2026-10-11T20:48:19.960Z netem_watch: applied wan (0.380 s)
+2026-10-11T20:48:20.128Z netem_watch: containers changed -> applying wan
+2026-10-11T20:48:20.596Z netem_watch: applied wan (0.453 s)
+2026-10-11T20:48:20.747Z netem_watch: containers changed -> applying wan
+2026-10-11T20:48:21.328Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T20:48:21.339Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T20:48:22.229Z netem_watch: the set of containers changed during the application (before: 7, after: 8): profile.applied not written, re-applying
+2026-10-11T20:48:23.329Z netem_watch: the set of containers changed during the application (before: 9, after: 10): profile.applied not written, re-applying
+2026-10-11T20:48:24.458Z netem_watch: applied wan (0.975 s)
+2026-10-11T20:49:12.273Z netem_watch: containers changed -> applying wan
+2026-10-11T20:49:13.243Z netem_watch: applied wan (0.956 s)
+2026-10-11T20:49:13.406Z netem_watch: containers changed -> applying wan
+error: no such object: dibtnsm-site-0-1
+netem_apply.sh: inspect failed for dibtnsm-site-0-1
+2026-10-11T20:49:15.344Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T20:49:16.416Z netem_watch: applied wan (0.299 s)
+2026-10-11T20:49:24.029Z netem_watch: containers changed -> applying wan
+2026-10-11T20:49:24.208Z netem_watch: applied wan (0.163 s)
+2026-10-11T20:49:24.642Z netem_watch: containers changed -> applying wan
+2026-10-11T20:49:24.676Z netem_watch: applied wan (0.021 s)
+2026-10-11T20:49:26.880Z netem_watch: containers changed -> applying wan
+2026-10-11T20:49:27.072Z netem_watch: applied wan (0.177 s)
+2026-10-11T20:49:27.367Z netem_watch: containers changed -> applying wan
+2026-10-11T20:49:27.628Z netem_watch: applied wan (0.247 s)
+2026-10-11T20:49:27.774Z netem_watch: containers changed -> applying wan
+2026-10-11T20:49:28.126Z netem_watch: applied wan (0.337 s)
+2026-10-11T20:49:28.274Z netem_watch: containers changed -> applying wan
+2026-10-11T20:49:28.775Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T20:49:28.785Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T20:49:29.585Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T20:49:30.656Z netem_watch: the set of containers changed during the application (before: 7, after: 8): profile.applied not written, re-applying
+2026-10-11T20:49:31.886Z netem_watch: the set of containers changed during the application (before: 9, after: 11): profile.applied not written, re-applying
+2026-10-11T20:49:33.068Z netem_watch: applied wan (1.023 s)
+2026-10-11T20:50:04.452Z netem_watch: containers changed -> applying wan
+2026-10-11T20:50:05.520Z netem_watch: applied wan (1.054 s)
+2026-10-11T20:50:05.680Z netem_watch: containers changed -> applying wan
+2026-10-11T20:50:06.681Z netem_watch: applied wan (0.985 s)
+2026-10-11T20:50:26.773Z netem_watch: containers changed -> applying wan
+2026-10-11T20:50:27.885Z netem_watch: applied wan (1.094 s)
+2026-10-11T20:50:39.957Z netem_watch: containers changed -> applying wan
+2026-10-11T20:50:40.943Z netem_watch: applied wan (0.969 s)
+2026-10-11T20:50:41.100Z netem_watch: containers changed -> applying wan
+2026-10-11T20:50:42.073Z netem_watch: applied wan (0.959 s)
+2026-10-11T20:51:04.927Z netem_watch: containers changed -> applying wan
+2026-10-11T20:51:06.082Z netem_watch: applied wan (1.142 s)
+2026-10-11T20:51:17.801Z netem_watch: containers changed -> applying wan
+2026-10-11T20:51:18.762Z netem_watch: applied wan (0.948 s)
+2026-10-11T20:51:18.922Z netem_watch: containers changed -> applying wan
+2026-10-11T20:51:19.931Z netem_watch: applied wan (0.996 s)
+2026-10-11T20:51:42.987Z netem_watch: containers changed -> applying wan
+2026-10-11T20:51:44.038Z netem_watch: applied wan (1.038 s)
+2026-10-11T20:51:55.104Z netem_watch: containers changed -> applying wan
+2026-10-11T20:51:56.174Z netem_watch: applied wan (1.054 s)
+2026-10-11T20:51:56.344Z netem_watch: containers changed -> applying wan
+2026-10-11T20:51:57.377Z netem_watch: applied wan (1.017 s)
+2026-10-11T20:52:20.578Z netem_watch: containers changed -> applying wan
+2026-10-11T20:52:21.765Z netem_watch: applied wan (1.170 s)
+2026-10-11T20:52:33.964Z netem_watch: containers changed -> applying wan
+2026-10-11T20:52:34.891Z netem_watch: applied wan (0.913 s)
+2026-10-11T20:52:35.058Z netem_watch: containers changed -> applying wan
+2026-10-11T20:52:36.185Z netem_watch: applied wan (1.112 s)
+2026-10-11T20:52:59.075Z netem_watch: containers changed -> applying wan
+2026-10-11T20:53:00.204Z netem_watch: applied wan (1.114 s)
+2026-10-11T20:53:13.198Z netem_watch: containers changed -> applying wan
+2026-10-11T20:53:14.182Z netem_watch: applied wan (0.968 s)
+2026-10-11T20:53:14.338Z netem_watch: containers changed -> applying wan
+2026-10-11T20:53:15.439Z netem_watch: applied wan (1.088 s)
+2026-10-11T20:53:32.507Z netem_watch: containers changed -> applying wan
+2026-10-11T20:53:33.585Z netem_watch: applied wan (1.063 s)
+2026-10-11T20:53:44.660Z netem_watch: containers changed -> applying wan
+2026-10-11T20:53:45.619Z netem_watch: applied wan (0.944 s)
+2026-10-11T20:53:45.772Z netem_watch: containers changed -> applying wan
+2026-10-11T20:53:46.808Z netem_watch: applied wan (1.022 s)
+2026-10-11T20:54:08.111Z netem_watch: containers changed -> applying wan
+2026-10-11T20:54:09.343Z netem_watch: applied wan (1.216 s)
+2026-10-11T20:54:20.864Z netem_watch: containers changed -> applying wan
+2026-10-11T20:54:21.986Z netem_watch: applied wan (1.107 s)
+2026-10-11T20:54:22.151Z netem_watch: containers changed -> applying wan
+2026-10-11T20:54:23.227Z netem_watch: applied wan (1.061 s)
+2026-10-11T20:54:42.238Z netem_watch: containers changed -> applying wan
+2026-10-11T20:54:43.483Z netem_watch: applied wan (1.228 s)
+2026-10-11T20:54:55.751Z netem_watch: containers changed -> applying wan
+2026-10-11T20:54:56.769Z netem_watch: applied wan (1.005 s)
+2026-10-11T20:54:56.929Z netem_watch: containers changed -> applying wan
+2026-10-11T20:54:57.989Z netem_watch: applied wan (1.044 s)
+2026-10-11T20:55:24.198Z netem_watch: containers changed -> applying wan
+2026-10-11T20:55:25.342Z netem_watch: applied wan (1.130 s)
+2026-10-11T20:55:37.629Z netem_watch: containers changed -> applying wan
+2026-10-11T20:55:38.612Z netem_watch: applied wan (0.968 s)
+2026-10-11T20:55:38.770Z netem_watch: containers changed -> applying wan
+2026-10-11T20:55:39.791Z netem_watch: applied wan (1.006 s)
+2026-10-11T20:56:00.305Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:01.414Z netem_watch: applied wan (1.096 s)
+2026-10-11T20:56:18.245Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:19.330Z netem_watch: applied wan (1.071 s)
+2026-10-11T20:56:19.498Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:20.581Z netem_watch: applied wan (1.069 s)
+2026-10-11T20:56:21.601Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:22.605Z netem_watch: applied wan (0.989 s)
+2026-10-11T20:56:26.149Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:27.105Z netem_watch: applied wan (0.941 s)
+2026-10-11T20:56:27.258Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:28.208Z netem_watch: applied wan (0.936 s)
+2026-10-11T20:56:29.504Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:30.555Z netem_watch: applied wan (1.036 s)
+2026-10-11T20:56:32.179Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:33.170Z netem_watch: applied wan (0.978 s)
+2026-10-11T20:56:33.330Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:34.284Z netem_watch: applied wan (0.938 s)
+2026-10-11T20:56:35.738Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:36.770Z netem_watch: applied wan (1.018 s)
+2026-10-11T20:56:39.701Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:40.721Z netem_watch: applied wan (1.005 s)
+2026-10-11T20:56:40.873Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:41.849Z netem_watch: applied wan (0.962 s)
+2026-10-11T20:56:42.742Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:43.791Z netem_watch: applied wan (1.033 s)
+2026-10-11T20:56:45.818Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:46.836Z netem_watch: applied wan (1.003 s)
+2026-10-11T20:56:46.995Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:47.938Z netem_watch: applied wan (0.930 s)
+2026-10-11T20:56:49.438Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:50.504Z netem_watch: applied wan (1.052 s)
+2026-10-11T20:56:53.906Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:54.943Z netem_watch: applied wan (1.019 s)
+2026-10-11T20:56:55.099Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:56.082Z netem_watch: applied wan (0.970 s)
+2026-10-11T20:56:57.238Z netem_watch: containers changed -> applying wan
+2026-10-11T20:56:58.344Z netem_watch: applied wan (1.092 s)
+2026-10-11T20:57:02.402Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:03.479Z netem_watch: applied wan (1.061 s)
+2026-10-11T20:57:03.642Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:04.730Z netem_watch: applied wan (1.074 s)
+2026-10-11T20:57:06.364Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:07.375Z netem_watch: applied wan (0.997 s)
+2026-10-11T20:57:11.437Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:12.428Z netem_watch: applied wan (0.976 s)
+2026-10-11T20:57:12.584Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:13.590Z netem_watch: applied wan (0.992 s)
+2026-10-11T20:57:13.892Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:14.927Z netem_watch: applied wan (1.021 s)
+2026-10-11T20:57:18.314Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:19.363Z netem_watch: applied wan (1.033 s)
+2026-10-11T20:57:19.530Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:20.631Z netem_watch: applied wan (1.086 s)
+2026-10-11T20:57:21.652Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:22.739Z netem_watch: applied wan (1.073 s)
+2026-10-11T20:57:26.473Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:27.431Z netem_watch: applied wan (0.945 s)
+2026-10-11T20:57:27.604Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:28.623Z netem_watch: applied wan (1.004 s)
+2026-10-11T20:57:29.911Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:30.938Z netem_watch: applied wan (1.013 s)
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-7-1
+error: no such object: dibtnsm-site-1-1
+2026-10-11T20:57:34.332Z netem_watch: containers changed -> applying wan
+error: no such object: dibtnsm-evidence-1
+netem_watch2.sh: inspect failed for dibtnsm-evidence-1
+2026-10-11T20:57:34.756Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T20:57:36.851Z netem_watch: applied wan (0.166 s)
+2026-10-11T20:57:37.139Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:37.430Z netem_watch: applied wan (0.274 s)
+2026-10-11T20:57:37.581Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:37.942Z netem_watch: applied wan (0.347 s)
+2026-10-11T20:57:38.094Z netem_watch: containers changed -> applying wan
+2026-10-11T20:57:38.562Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T20:57:38.574Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T20:57:39.318Z netem_watch: the set of containers changed during the application (before: 5, after: 6): profile.applied not written, re-applying
+2026-10-11T20:57:40.246Z netem_watch: the set of containers changed during the application (before: 7, after: 8): profile.applied not written, re-applying
+2026-10-11T20:57:41.376Z netem_watch: the set of containers changed during the application (before: 9, after: 11): profile.applied not written, re-applying
+2026-10-11T20:57:42.562Z netem_watch: applied wan (1.031 s)
+2026-10-11T20:58:05.664Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:06.646Z netem_watch: applied wan (0.969 s)
+2026-10-11T20:58:06.804Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:07.704Z netem_watch: applied wan (0.887 s)
+2026-10-11T20:58:08.576Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:09.650Z netem_watch: applied wan (1.059 s)
+2026-10-11T20:58:12.159Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:13.238Z netem_watch: applied wan (1.064 s)
+2026-10-11T20:58:13.404Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:14.462Z netem_watch: applied wan (1.044 s)
+2026-10-11T20:58:14.616Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:15.649Z netem_watch: applied wan (1.019 s)
+2026-10-11T20:58:18.259Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:19.270Z netem_watch: applied wan (0.995 s)
+2026-10-11T20:58:19.429Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:20.394Z netem_watch: applied wan (0.950 s)
+2026-10-11T20:58:21.995Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:23.228Z netem_watch: applied wan (1.215 s)
+2026-10-11T20:58:25.955Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:26.934Z netem_watch: applied wan (0.964 s)
+2026-10-11T20:58:27.090Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:28.097Z netem_watch: applied wan (0.994 s)
+2026-10-11T20:58:29.400Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:30.431Z netem_watch: applied wan (1.017 s)
+2026-10-11T20:58:33.543Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:34.590Z netem_watch: applied wan (1.032 s)
+2026-10-11T20:58:34.740Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:35.695Z netem_watch: applied wan (0.941 s)
+2026-10-11T20:58:37.127Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:38.162Z netem_watch: applied wan (1.018 s)
+2026-10-11T20:58:40.452Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:41.459Z netem_watch: applied wan (0.992 s)
+2026-10-11T20:58:41.618Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:42.570Z netem_watch: applied wan (0.937 s)
+2026-10-11T20:58:43.429Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:44.489Z netem_watch: applied wan (1.046 s)
+2026-10-11T20:58:46.651Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:47.633Z netem_watch: applied wan (0.968 s)
+2026-10-11T20:58:47.799Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:48.944Z netem_watch: applied wan (1.127 s)
+2026-10-11T20:58:49.984Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:51.027Z netem_watch: applied wan (1.026 s)
+2026-10-11T20:58:52.832Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:53.791Z netem_watch: applied wan (0.941 s)
+2026-10-11T20:58:53.950Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:54.887Z netem_watch: applied wan (0.923 s)
+2026-10-11T20:58:55.330Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:56.362Z netem_watch: applied wan (1.017 s)
+2026-10-11T20:58:58.736Z netem_watch: containers changed -> applying wan
+2026-10-11T20:58:59.718Z netem_watch: applied wan (0.967 s)
+2026-10-11T20:58:59.874Z netem_watch: containers changed -> applying wan
+2026-10-11T20:59:00.848Z netem_watch: applied wan (0.959 s)
+2026-10-11T20:59:03.305Z netem_watch: containers changed -> applying wan
+2026-10-11T20:59:04.344Z netem_watch: applied wan (1.025 s)
+2026-10-11T20:59:06.062Z netem_watch: containers changed -> applying wan
+2026-10-11T20:59:07.032Z netem_watch: applied wan (0.956 s)
+2026-10-11T20:59:07.202Z netem_watch: containers changed -> applying wan
+2026-10-11T20:59:08.247Z netem_watch: applied wan (1.027 s)
+2026-10-11T20:59:08.973Z netem_watch: containers changed -> applying wan
+2026-10-11T20:59:10.118Z netem_watch: applied wan (1.130 s)
+2026-10-11T20:59:33.228Z netem_watch: containers changed -> applying wan
+2026-10-11T20:59:34.258Z netem_watch: applied wan (1.015 s)
+2026-10-11T20:59:34.417Z netem_watch: containers changed -> applying wan
+2026-10-11T20:59:35.392Z netem_watch: applied wan (0.960 s)
+2026-10-11T21:00:00.568Z netem_watch: containers changed -> applying wan
+2026-10-11T21:00:01.634Z netem_watch: applied wan (1.052 s)
+2026-10-11T21:00:13.458Z netem_watch: containers changed -> applying wan
+2026-10-11T21:00:14.442Z netem_watch: applied wan (0.966 s)
+2026-10-11T21:00:14.603Z netem_watch: containers changed -> applying wan
+2026-10-11T21:00:15.551Z netem_watch: applied wan (0.933 s)
+2026-10-11T21:00:40.416Z netem_watch: containers changed -> applying wan
+2026-10-11T21:00:41.542Z netem_watch: applied wan (1.111 s)
+2026-10-11T21:00:52.835Z netem_watch: containers changed -> applying wan
+2026-10-11T21:00:53.794Z netem_watch: applied wan (0.944 s)
+2026-10-11T21:00:53.947Z netem_watch: containers changed -> applying wan
+2026-10-11T21:00:54.889Z netem_watch: applied wan (0.928 s)
+2026-10-11T21:01:15.032Z netem_watch: containers changed -> applying wan
+2026-10-11T21:01:16.115Z netem_watch: applied wan (1.067 s)
+2026-10-11T21:01:28.395Z netem_watch: containers changed -> applying wan
+2026-10-11T21:01:29.346Z netem_watch: applied wan (0.935 s)
+2026-10-11T21:01:29.499Z netem_watch: containers changed -> applying wan
+2026-10-11T21:01:30.460Z netem_watch: applied wan (0.946 s)
+2026-10-11T21:01:56.712Z netem_watch: containers changed -> applying wan
+2026-10-11T21:01:57.856Z netem_watch: applied wan (1.128 s)
+2026-10-11T21:02:08.905Z netem_watch: containers changed -> applying wan
+2026-10-11T21:02:09.905Z netem_watch: applied wan (0.983 s)
+2026-10-11T21:02:10.068Z netem_watch: containers changed -> applying wan
+2026-10-11T21:02:11.024Z netem_watch: applied wan (0.942 s)
+2026-10-11T21:02:34.580Z netem_watch: containers changed -> applying wan
+2026-10-11T21:02:35.603Z netem_watch: applied wan (1.006 s)
+2026-10-11T21:02:47.150Z netem_watch: containers changed -> applying wan
+2026-10-11T21:02:48.185Z netem_watch: applied wan (1.022 s)
+2026-10-11T21:02:48.344Z netem_watch: containers changed -> applying wan
+2026-10-11T21:02:49.424Z netem_watch: applied wan (1.064 s)
+2026-10-11T21:03:11.768Z netem_watch: containers changed -> applying wan
+2026-10-11T21:03:12.832Z netem_watch: applied wan (1.051 s)
+2026-10-11T21:03:23.849Z netem_watch: containers changed -> applying wan
+2026-10-11T21:03:24.785Z netem_watch: applied wan (0.921 s)
+2026-10-11T21:03:24.942Z netem_watch: containers changed -> applying wan
+2026-10-11T21:03:25.857Z netem_watch: applied wan (0.902 s)
+2026-10-11T21:03:49.350Z netem_watch: containers changed -> applying wan
+2026-10-11T21:03:50.392Z netem_watch: applied wan (1.028 s)
+2026-10-11T21:04:01.592Z netem_watch: containers changed -> applying wan
+2026-10-11T21:04:02.565Z netem_watch: applied wan (0.958 s)
+2026-10-11T21:04:02.722Z netem_watch: containers changed -> applying wan
+2026-10-11T21:04:03.680Z netem_watch: applied wan (0.943 s)
+2026-10-11T21:04:26.007Z netem_watch: containers changed -> applying wan
+2026-10-11T21:04:27.058Z netem_watch: applied wan (1.038 s)
+2026-10-11T21:04:39.010Z netem_watch: containers changed -> applying wan
+2026-10-11T21:04:40.006Z netem_watch: applied wan (0.980 s)
+2026-10-11T21:04:40.171Z netem_watch: containers changed -> applying wan
+2026-10-11T21:04:41.097Z netem_watch: applied wan (0.912 s)
+2026-10-11T21:05:03.042Z netem_watch: containers changed -> applying wan
+2026-10-11T21:05:04.055Z netem_watch: applied wan (1.000 s)
+2026-10-11T21:05:16.391Z netem_watch: containers changed -> applying wan
+2026-10-11T21:05:17.329Z netem_watch: applied wan (0.922 s)
+2026-10-11T21:05:17.487Z netem_watch: containers changed -> applying wan
+2026-10-11T21:05:18.435Z netem_watch: applied wan (0.935 s)
+2026-10-11T21:05:40.332Z netem_watch: containers changed -> applying wan
+2026-10-11T21:05:41.334Z netem_watch: applied wan (0.988 s)
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-8-1
+2026-10-11T21:05:45.663Z netem_watch: containers changed -> applying wan
+netem_apply.sh: bad pid '0' for dibtnsm-evidence-1: nothing applied
+2026-10-11T21:05:46.111Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T21:05:48.441Z netem_watch: applied wan (0.164 s)
+2026-10-11T21:05:48.737Z netem_watch: containers changed -> applying wan
+2026-10-11T21:05:49.021Z netem_watch: applied wan (0.268 s)
+2026-10-11T21:05:49.179Z netem_watch: containers changed -> applying wan
+2026-10-11T21:05:49.550Z netem_watch: applied wan (0.356 s)
+2026-10-11T21:05:49.698Z netem_watch: containers changed -> applying wan
+2026-10-11T21:05:50.180Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T21:05:50.195Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T21:05:51.025Z netem_watch: applied wan (0.673 s)
+2026-10-11T21:05:51.180Z netem_watch: containers changed -> applying wan
+2026-10-11T21:05:51.950Z netem_watch: the set of containers changed during the application (before: 7, after: 8): profile.applied not written, re-applying
+2026-10-11T21:05:51.962Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T21:05:53.111Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T21:05:54.273Z netem_watch: applied wan (1.002 s)
+2026-10-11T21:06:31.064Z netem_watch: containers changed -> applying wan
+2026-10-11T21:06:32.110Z netem_watch: applied wan (1.031 s)
+2026-10-11T21:06:32.280Z netem_watch: containers changed -> applying wan
+2026-10-11T21:06:33.260Z netem_watch: applied wan (0.959 s)
+2026-10-11T21:07:02.387Z netem_watch: containers changed -> applying wan
+2026-10-11T21:07:03.485Z netem_watch: applied wan (1.081 s)
+2026-10-11T21:07:20.956Z netem_watch: containers changed -> applying wan
+2026-10-11T21:07:21.864Z netem_watch: applied wan (0.894 s)
+2026-10-11T21:07:22.017Z netem_watch: containers changed -> applying wan
+2026-10-11T21:07:22.962Z netem_watch: applied wan (0.930 s)
+2026-10-11T21:07:53.139Z netem_watch: containers changed -> applying wan
+2026-10-11T21:07:54.136Z netem_watch: applied wan (0.982 s)
+2026-10-11T21:08:11.091Z netem_watch: containers changed -> applying wan
+2026-10-11T21:08:12.077Z netem_watch: applied wan (0.970 s)
+2026-10-11T21:08:12.237Z netem_watch: containers changed -> applying wan
+2026-10-11T21:08:13.286Z netem_watch: applied wan (1.032 s)
+2026-10-11T21:08:49.516Z netem_watch: containers changed -> applying wan
+2026-10-11T21:08:50.678Z netem_watch: applied wan (1.144 s)
+2026-10-11T21:09:05.504Z netem_watch: containers changed -> applying wan
+2026-10-11T21:09:06.435Z netem_watch: applied wan (0.916 s)
+2026-10-11T21:09:06.593Z netem_watch: containers changed -> applying wan
+2026-10-11T21:09:07.510Z netem_watch: applied wan (0.902 s)
+2026-10-11T21:09:38.653Z netem_watch: containers changed -> applying wan
+2026-10-11T21:09:39.633Z netem_watch: applied wan (0.965 s)
+2026-10-11T21:09:55.232Z netem_watch: containers changed -> applying wan
+2026-10-11T21:09:56.260Z netem_watch: applied wan (1.010 s)
+2026-10-11T21:09:56.417Z netem_watch: containers changed -> applying wan
+2026-10-11T21:09:57.374Z netem_watch: applied wan (0.942 s)
+2026-10-11T21:10:31.989Z netem_watch: containers changed -> applying wan
+2026-10-11T21:10:33.103Z netem_watch: applied wan (1.097 s)
+2026-10-11T21:10:54.752Z netem_watch: containers changed -> applying wan
+2026-10-11T21:10:55.687Z netem_watch: applied wan (0.919 s)
+2026-10-11T21:10:55.845Z netem_watch: containers changed -> applying wan
+2026-10-11T21:10:56.800Z netem_watch: applied wan (0.938 s)
+2026-10-11T21:11:35.924Z netem_watch: containers changed -> applying wan
+2026-10-11T21:11:37.020Z netem_watch: applied wan (1.079 s)
+2026-10-11T21:11:52.483Z netem_watch: containers changed -> applying wan
+2026-10-11T21:11:53.493Z netem_watch: applied wan (0.994 s)
+2026-10-11T21:11:53.659Z netem_watch: containers changed -> applying wan
+2026-10-11T21:11:54.649Z netem_watch: applied wan (0.976 s)
+2026-10-11T21:12:32.975Z netem_watch: containers changed -> applying wan
+2026-10-11T21:12:34.033Z netem_watch: applied wan (1.043 s)
+2026-10-11T21:12:49.511Z netem_watch: containers changed -> applying wan
+2026-10-11T21:12:50.564Z netem_watch: applied wan (1.038 s)
+2026-10-11T21:12:50.732Z netem_watch: containers changed -> applying wan
+2026-10-11T21:12:51.775Z netem_watch: applied wan (1.026 s)
+2026-10-11T21:13:23.938Z netem_watch: containers changed -> applying wan
+2026-10-11T21:13:24.992Z netem_watch: applied wan (1.038 s)
+2026-10-11T21:13:42.279Z netem_watch: containers changed -> applying wan
+2026-10-11T21:13:43.401Z netem_watch: applied wan (1.106 s)
+2026-10-11T21:13:43.559Z netem_watch: containers changed -> applying wan
+2026-10-11T21:13:44.627Z netem_watch: applied wan (1.053 s)
+2026-10-11T21:14:21.090Z netem_watch: containers changed -> applying wan
+2026-10-11T21:14:22.231Z netem_watch: applied wan (1.125 s)
+2026-10-11T21:14:38.825Z netem_watch: containers changed -> applying wan
+2026-10-11T21:14:39.829Z netem_watch: applied wan (0.986 s)
+2026-10-11T21:14:39.996Z netem_watch: containers changed -> applying wan
+2026-10-11T21:14:40.952Z netem_watch: applied wan (0.938 s)
+2026-10-11T21:15:18.774Z netem_watch: containers changed -> applying wan
+2026-10-11T21:15:19.922Z netem_watch: applied wan (1.131 s)
+2026-10-11T21:15:37.080Z netem_watch: containers changed -> applying wan
+2026-10-11T21:15:38.045Z netem_watch: applied wan (0.950 s)
+2026-10-11T21:15:38.205Z netem_watch: containers changed -> applying wan
+2026-10-11T21:15:39.261Z netem_watch: applied wan (1.039 s)
+2026-10-11T21:15:42.282Z netem_watch: containers changed -> applying wan
+2026-10-11T21:15:43.395Z netem_watch: applied wan (1.097 s)
+2026-10-11T21:15:47.306Z netem_watch: containers changed -> applying wan
+2026-10-11T21:15:48.266Z netem_watch: applied wan (0.943 s)
+2026-10-11T21:15:48.426Z netem_watch: containers changed -> applying wan
+2026-10-11T21:15:49.434Z netem_watch: applied wan (0.990 s)
+2026-10-11T21:15:52.347Z netem_watch: containers changed -> applying wan
+2026-10-11T21:15:53.552Z netem_watch: applied wan (1.189 s)
+2026-10-11T21:15:56.849Z netem_watch: containers changed -> applying wan
+2026-10-11T21:15:57.862Z netem_watch: applied wan (0.998 s)
+2026-10-11T21:15:58.016Z netem_watch: containers changed -> applying wan
+2026-10-11T21:15:59.049Z netem_watch: applied wan (1.017 s)
+2026-10-11T21:16:01.665Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:02.846Z netem_watch: applied wan (1.165 s)
+2026-10-11T21:16:05.279Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:06.383Z netem_watch: applied wan (1.085 s)
+2026-10-11T21:16:06.548Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:07.633Z netem_watch: applied wan (1.068 s)
+2026-10-11T21:16:09.415Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:10.510Z netem_watch: applied wan (1.080 s)
+2026-10-11T21:16:13.276Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:14.335Z netem_watch: applied wan (1.042 s)
+2026-10-11T21:16:14.499Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:15.530Z netem_watch: applied wan (1.015 s)
+2026-10-11T21:16:18.304Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:19.432Z netem_watch: applied wan (1.112 s)
+2026-10-11T21:16:23.664Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:24.802Z netem_watch: applied wan (1.119 s)
+2026-10-11T21:16:24.968Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:26.065Z netem_watch: applied wan (1.079 s)
+2026-10-11T21:16:29.502Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:30.667Z netem_watch: applied wan (1.149 s)
+2026-10-11T21:16:32.861Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:33.926Z netem_watch: applied wan (1.048 s)
+2026-10-11T21:16:34.087Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:35.010Z netem_watch: applied wan (0.907 s)
+2026-10-11T21:16:38.349Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:39.550Z netem_watch: applied wan (1.180 s)
+2026-10-11T21:16:45.091Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:46.111Z netem_watch: applied wan (1.004 s)
+2026-10-11T21:16:46.282Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:47.277Z netem_watch: applied wan (0.980 s)
+2026-10-11T21:16:50.312Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:51.415Z netem_watch: applied wan (1.089 s)
+2026-10-11T21:16:55.957Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:57.066Z netem_watch: applied wan (1.092 s)
+2026-10-11T21:16:57.247Z netem_watch: containers changed -> applying wan
+2026-10-11T21:16:58.321Z netem_watch: applied wan (1.058 s)
+2026-10-11T21:17:01.562Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:02.745Z netem_watch: applied wan (1.163 s)
+2026-10-11T21:17:05.321Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:06.417Z netem_watch: applied wan (1.080 s)
+2026-10-11T21:17:06.579Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:07.652Z netem_watch: applied wan (1.058 s)
+2026-10-11T21:17:09.857Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:11.130Z netem_watch: applied wan (1.258 s)
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-0-1
+error: no such object: dibtnsm-site-9-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-5-1
+2026-10-11T21:17:15.064Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:15.336Z netem_watch: applied wan (0.256 s)
+2026-10-11T21:17:22.947Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:23.161Z netem_watch: applied wan (0.194 s)
+2026-10-11T21:17:23.315Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:23.510Z netem_watch: applied wan (0.178 s)
+2026-10-11T21:17:33.363Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:33.401Z netem_watch: applied wan (0.021 s)
+2026-10-11T21:17:35.352Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:35.534Z netem_watch: applied wan (0.167 s)
+2026-10-11T21:17:35.821Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:36.089Z netem_watch: applied wan (0.252 s)
+2026-10-11T21:17:36.247Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:36.666Z netem_watch: applied wan (0.402 s)
+2026-10-11T21:17:36.826Z netem_watch: containers changed -> applying wan
+2026-10-11T21:17:37.329Z netem_watch: the set of containers changed during the application (before: 4, after: 5): profile.applied not written, re-applying
+2026-10-11T21:17:37.341Z netem_watch: apply FAILED (attempt 1), retrying every 0.1s
+2026-10-11T21:17:38.198Z netem_watch: the set of containers changed during the application (before: 6, after: 7): profile.applied not written, re-applying
+2026-10-11T21:17:39.189Z netem_watch: the set of containers changed during the application (before: 8, after: 9): profile.applied not written, re-applying
+2026-10-11T21:17:40.376Z netem_watch: the set of containers changed during the application (before: 10, after: 11): profile.applied not written, re-applying
+2026-10-11T21:17:41.528Z netem_watch: applied wan (0.989 s)
+2026-10-11T21:18:06.942Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:07.983Z netem_watch: applied wan (1.025 s)
+2026-10-11T21:18:08.144Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:09.177Z netem_watch: applied wan (1.016 s)
+2026-10-11T21:18:12.298Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:13.443Z netem_watch: applied wan (1.127 s)
+2026-10-11T21:18:17.382Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:18.446Z netem_watch: applied wan (1.047 s)
+2026-10-11T21:18:18.609Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:19.682Z netem_watch: applied wan (1.057 s)
+2026-10-11T21:18:21.417Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:22.480Z netem_watch: applied wan (1.044 s)
+2026-10-11T21:18:26.095Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:27.061Z netem_watch: applied wan (0.950 s)
+2026-10-11T21:18:27.219Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:28.163Z netem_watch: applied wan (0.929 s)
+2026-10-11T21:18:29.601Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:30.640Z netem_watch: applied wan (1.023 s)
+2026-10-11T21:18:33.616Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:34.633Z netem_watch: applied wan (1.000 s)
+2026-10-11T21:18:34.788Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:35.744Z netem_watch: applied wan (0.941 s)
+2026-10-11T21:18:39.886Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:40.953Z netem_watch: applied wan (1.050 s)
+2026-10-11T21:18:44.138Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:45.105Z netem_watch: applied wan (0.952 s)
+2026-10-11T21:18:45.266Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:46.173Z netem_watch: applied wan (0.892 s)
+2026-10-11T21:18:48.891Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:49.978Z netem_watch: applied wan (1.070 s)
+2026-10-11T21:18:53.008Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:54.090Z netem_watch: applied wan (1.065 s)
+2026-10-11T21:18:54.252Z netem_watch: containers changed -> applying wan
+2026-10-11T21:18:55.294Z netem_watch: applied wan (1.025 s)
+2026-10-11T21:18:59.035Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:00.189Z netem_watch: applied wan (1.138 s)
+2026-10-11T21:19:02.848Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:03.825Z netem_watch: applied wan (0.961 s)
+2026-10-11T21:19:03.978Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:04.910Z netem_watch: applied wan (0.913 s)
+2026-10-11T21:19:07.939Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:09.014Z netem_watch: applied wan (1.059 s)
+2026-10-11T21:19:12.081Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:13.057Z netem_watch: applied wan (0.961 s)
+2026-10-11T21:19:13.216Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:14.158Z netem_watch: applied wan (0.926 s)
+2026-10-11T21:19:17.586Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:18.614Z netem_watch: applied wan (1.012 s)
+2026-10-11T21:19:21.171Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:22.133Z netem_watch: applied wan (0.945 s)
+2026-10-11T21:19:22.290Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:23.318Z netem_watch: applied wan (1.012 s)
+2026-10-11T21:19:25.633Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:26.764Z netem_watch: applied wan (1.115 s)
+2026-10-11T21:19:31.022Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:31.999Z netem_watch: applied wan (0.961 s)
+2026-10-11T21:19:32.156Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:33.116Z netem_watch: applied wan (0.944 s)
+2026-10-11T21:19:36.813Z netem_watch: containers changed -> applying wan
+2026-10-11T21:19:37.856Z netem_watch: applied wan (1.027 s)
+2026-10-11T21:20:06.353Z netem_watch: containers changed -> applying wan
+2026-10-11T21:20:07.335Z netem_watch: applied wan (0.966 s)
+2026-10-11T21:20:07.492Z netem_watch: containers changed -> applying wan
+2026-10-11T21:20:08.583Z netem_watch: applied wan (1.074 s)
+2026-10-11T21:20:40.237Z netem_watch: containers changed -> applying wan
+2026-10-11T21:20:41.307Z netem_watch: applied wan (1.056 s)
+2026-10-11T21:20:56.460Z netem_watch: containers changed -> applying wan
+2026-10-11T21:20:57.457Z netem_watch: applied wan (0.982 s)
+2026-10-11T21:20:57.615Z netem_watch: containers changed -> applying wan
+2026-10-11T21:20:58.626Z netem_watch: applied wan (0.995 s)
+2026-10-11T21:21:36.520Z netem_watch: containers changed -> applying wan
+2026-10-11T21:21:37.547Z netem_watch: applied wan (1.012 s)
+2026-10-11T21:21:55.142Z netem_watch: containers changed -> applying wan
+2026-10-11T21:21:56.179Z netem_watch: applied wan (1.020 s)
+2026-10-11T21:21:56.344Z netem_watch: containers changed -> applying wan
+2026-10-11T21:21:57.345Z netem_watch: applied wan (0.983 s)
+2026-10-11T21:22:33.208Z netem_watch: containers changed -> applying wan
+2026-10-11T21:22:34.332Z netem_watch: applied wan (1.107 s)
+2026-10-11T21:22:51.625Z netem_watch: containers changed -> applying wan
+2026-10-11T21:22:52.646Z netem_watch: applied wan (1.003 s)
+2026-10-11T21:22:52.805Z netem_watch: containers changed -> applying wan
+2026-10-11T21:22:53.764Z netem_watch: applied wan (0.944 s)
+2026-10-11T21:23:26.547Z netem_watch: containers changed -> applying wan
+2026-10-11T21:23:27.596Z netem_watch: applied wan (1.033 s)
+2026-10-11T21:23:43.751Z netem_watch: containers changed -> applying wan
+2026-10-11T21:23:44.743Z netem_watch: applied wan (0.976 s)
+2026-10-11T21:23:44.903Z netem_watch: containers changed -> applying wan
+2026-10-11T21:23:45.828Z netem_watch: applied wan (0.910 s)
+2026-10-11T21:24:22.585Z netem_watch: containers changed -> applying wan
+2026-10-11T21:24:23.684Z netem_watch: applied wan (1.081 s)
+2026-10-11T21:24:42.688Z netem_watch: containers changed -> applying wan
+2026-10-11T21:24:43.667Z netem_watch: applied wan (0.964 s)
+2026-10-11T21:24:43.822Z netem_watch: containers changed -> applying wan
+2026-10-11T21:24:44.797Z netem_watch: applied wan (0.959 s)
+2026-10-11T21:25:14.440Z netem_watch: containers changed -> applying wan
+2026-10-11T21:25:15.488Z netem_watch: applied wan (1.030 s)
+2026-10-11T21:25:32.463Z netem_watch: containers changed -> applying wan
+2026-10-11T21:25:33.442Z netem_watch: applied wan (0.962 s)
+2026-10-11T21:25:33.597Z netem_watch: containers changed -> applying wan
+2026-10-11T21:25:34.557Z netem_watch: applied wan (0.944 s)
+2026-10-11T21:26:11.154Z netem_watch: containers changed -> applying wan
+2026-10-11T21:26:12.216Z netem_watch: applied wan (1.044 s)
+2026-10-11T21:26:29.099Z netem_watch: containers changed -> applying wan
+2026-10-11T21:26:30.267Z netem_watch: applied wan (1.147 s)
+2026-10-11T21:26:30.449Z netem_watch: containers changed -> applying wan
+2026-10-11T21:26:31.538Z netem_watch: applied wan (1.071 s)
+2026-10-11T21:27:03.408Z netem_watch: containers changed -> applying wan
+2026-10-11T21:27:04.495Z netem_watch: applied wan (1.069 s)
+2026-10-11T21:27:19.225Z netem_watch: containers changed -> applying wan
+2026-10-11T21:27:20.276Z netem_watch: applied wan (1.035 s)
+2026-10-11T21:27:20.440Z netem_watch: containers changed -> applying wan
+2026-10-11T21:27:21.380Z netem_watch: applied wan (0.925 s)
+2026-10-11T21:27:54.292Z netem_watch: containers changed -> applying wan
+2026-10-11T21:27:55.307Z netem_watch: applied wan (0.999 s)
+2026-10-11T21:28:11.179Z netem_watch: containers changed -> applying wan
+2026-10-11T21:28:12.204Z netem_watch: applied wan (1.008 s)
+2026-10-11T21:28:12.362Z netem_watch: containers changed -> applying wan
+2026-10-11T21:28:13.315Z netem_watch: applied wan (0.937 s)
+2026-10-11T21:28:39.357Z netem_watch: containers changed -> applying wan
+2026-10-11T21:28:40.417Z netem_watch: applied wan (1.040 s)
+error: no such object: dibtnsm-site-4-1
+error: no such object: dibtnsm-site-6-1
+error: no such object: dibtnsm-site-1-1
+error: no such object: dibtnsm-site-8-1
+error: no such object: dibtnsm-site-2-1
+error: no such object: dibtnsm-site-9-1
+2026-10-11T21:28:44.304Z netem_watch: containers changed -> applying wan
+2026-10-11T21:28:44.562Z netem_watch: applied wan (0.243 s)
+2026-10-11T21:28:52.222Z netem_watch: containers changed -> applying wan
+2026-10-11T21:28:52.398Z netem_watch: applied wan (0.159 s)
+2026-10-11T21:28:52.551Z netem_watch: containers changed -> applying wan
+2026-10-11T21:28:52.730Z netem_watch: applied wan (0.162 s)
+2026-10-11T21:29:02.629Z netem_watch: containers changed -> applying wan
+2026-10-11T21:29:02.668Z netem_watch: applied wan (0.021 s)
+2026-10-11T21:29:03.503Z netem_watch: request accepted: lan
+2026-10-11T21:29:03.555Z netem_watch: applied lan (0.023 s)

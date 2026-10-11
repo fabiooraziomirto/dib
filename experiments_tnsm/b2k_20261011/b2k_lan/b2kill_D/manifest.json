@@ -1,0 +1,652 @@
+{
+ "started_utc": "2026-10-11T18:16:22.662083+00:00",
+ "argv": [
+  "/home/ubuntu/dib_tnsm/tree-244f1d0/experiments_tnsm/m67_retraction/run.py",
+  "--block",
+  "b2kill",
+  "--profile",
+  "lan",
+  "--tree",
+  "/home/ubuntu/dib_tnsm/tree-244f1d0",
+  "--out",
+  "/home/ubuntu/dib_tnsm/out/b2k_20261011/b2k_lan/b2kill_D",
+  "--arms",
+  "D",
+  "--seed",
+  "20261014",
+  "--profile-wait",
+  "90",
+  "--l-dns",
+  "0.003588563995435834",
+  "--watch-log",
+  "/home/ubuntu/dib_tnsm/m67/watch2_stdout.log"
+ ],
+ "profile": "lan",
+ "blocks": "b2kill",
+ "seed": 20261014,
+ "group_order": [
+  [
+   [
+    "D",
+    10,
+    15
+   ],
+   3
+  ],
+  [
+   [
+    "D",
+    10,
+    5
+   ],
+   3
+  ]
+ ],
+ "cell_order": [
+  {
+   "block": "b2kill",
+   "arm": "D",
+   "fanout": 10,
+   "T": 15,
+   "k": 1,
+   "trials": 10
+  },
+  {
+   "block": "b2kill",
+   "arm": "D",
+   "fanout": 10,
+   "T": 15,
+   "k": 10,
+   "trials": 10
+  },
+  {
+   "block": "b2kill",
+   "arm": "D",
+   "fanout": 10,
+   "T": 15,
+   "k": 50,
+   "trials": 10
+  },
+  {
+   "block": "b2kill",
+   "arm": "D",
+   "fanout": 10,
+   "T": 5,
+   "k": 1,
+   "trials": 10
+  },
+  {
+   "block": "b2kill",
+   "arm": "D",
+   "fanout": 10,
+   "T": 5,
+   "k": 50,
+   "trials": 10
+  },
+  {
+   "block": "b2kill",
+   "arm": "D",
+   "fanout": 10,
+   "T": 5,
+   "k": 10,
+   "trials": 10
+  }
+ ],
+ "node_tree": "/home/ubuntu/dib_tnsm/tree-244f1d0",
+ "generator_host": "ubuntu",
+ "generator_is_node": true,
+ "clock": "time.time() = CLOCK_REALTIME of the node (same clock as docker logs -t)",
+ "cluster_recreations": 2,
+ "plog_thresholds": null,
+ "measure_rule": "dispute-rtt (no P-log calibration applied)",
+ "node_service_sha256": "3186304363ed309241134752689423088dda98b9d8fe3bcdf9669749264398fd",
+ "launcher_d_sha256": "1fe421850d720bc98197b69f2fa4cbf393765ac71fba48cd56593f292f47392e",
+ "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
+ "run_py_sha256": "022d97a6dc76808cf3a866c92f71d6076d0bcafca65a3ebdeab300b423393c02",
+ "discard_rule": {
+  "fixed_before_measuring": "2026-10-10, after the 5-minute no-DIB baseline (experiments_tnsm/node_baseline/baseline_noDIB.json), before any M1/M2 cell",
+  "rule": "a cell is flagged as disturbed if, over the cell window, other_cores > max_other_cores OR steal_pct > max_steal_pct; flagged cells are never dropped: results are reported on all cells and on unflagged cells, with the flagged count",
+  "max_other_cores": 1.0,
+  "max_steal_pct": 2.0,
+  "other_cores_definition": "CPU of user-space processes other than the measuring process (kernel threads excluded, reported as kernel_cores)",
+  "baseline": {
+   "samples": 60,
+   "interval_s": 5,
+   "other_cores": {
+    "median": 0.123,
+    "p95": 0.23,
+    "max": 0.28
+   },
+   "steal_pct": {
+    "median": 0.013,
+    "p95": 0.013,
+    "max": 0.038
+   },
+   "load1": {
+    "median": 0.145,
+    "max": 0.26
+   },
+   "main_process": "k3s-server ~0.10 cores"
+  },
+  "rationale": "1.0 core = 3.6x the baseline maximum and 8x its median: another tenant taking a whole vCPU; 2% steal = 50x the baseline maximum: hypervisor contention"
+ },
+ "disk_start": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.5G  97% /",
+ "cells_summary": [
+  {
+   "cell": 1,
+   "spec": {
+    "block": "b2kill",
+    "arm": "D",
+    "fanout": 10,
+    "T": 15,
+    "k": 1,
+    "trials": 10
+   },
+   "profile_timing": {
+    "t_created": 1791742589.7102487,
+    "t_profile_confirmed": 1791742589.950709,
+    "profile_apply_delay_s": 0.24046063423156738,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.0666350097162649,
+     "1": 0.09984700591303408,
+     "2": 0.05742799839936197,
+     "3": 0.08950800111051649,
+     "4": 0.06017299892846495,
+     "5": 0.09684200631454587,
+     "6": 0.061816012021154165,
+     "7": 0.06381999992299825,
+     "8": 0.0587599934078753,
+     "9": 0.0737590016797185
+    },
+    "generator_path_ms": {
+     "reused_ms": 1.1408610007492825,
+     "fresh_ms": 2.041311003267765,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": true
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 31,
+    "gen_proc_cores_mean": 0.019977690609935123,
+    "gen_proc_cores_max": 0.029979893341071977,
+    "host_busy_pct_mean": 14.053107649786227,
+    "host_busy_pct_max": 18.08917197452229,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": null
+  },
+  {
+   "cell": 2,
+   "spec": {
+    "block": "b2kill",
+    "arm": "D",
+    "fanout": 10,
+    "T": 15,
+    "k": 10,
+    "trials": 10
+   },
+   "profile_timing": {
+    "t_created": 1791742589.7102487,
+    "t_profile_confirmed": 1791742589.950709,
+    "profile_apply_delay_s": 0.24046063423156738,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.0666350097162649,
+     "1": 0.09984700591303408,
+     "2": 0.05742799839936197,
+     "3": 0.08950800111051649,
+     "4": 0.06017299892846495,
+     "5": 0.09684200631454587,
+     "6": 0.061816012021154165,
+     "7": 0.06381999992299825,
+     "8": 0.0587599934078753,
+     "9": 0.0737590016797185
+    },
+    "generator_path_ms": {
+     "reused_ms": 1.1408610007492825,
+     "fresh_ms": 2.041311003267765,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": true
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 4,
+   "generator_load": {
+    "samples": 87,
+    "gen_proc_cores_mean": 0.024338957362162773,
+    "gen_proc_cores_max": 0.06995220112599682,
+    "host_busy_pct_mean": 7.848761168777493,
+    "host_busy_pct_max": 22.875399361022364,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": null
+  },
+  {
+   "cell": 3,
+   "spec": {
+    "block": "b2kill",
+    "arm": "D",
+    "fanout": 10,
+    "T": 15,
+    "k": 50,
+    "trials": 10
+   },
+   "profile_timing": {
+    "t_created": 1791742589.7102487,
+    "t_profile_confirmed": 1791742589.950709,
+    "profile_apply_delay_s": 0.24046063423156738,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.0666350097162649,
+     "1": 0.09984700591303408,
+     "2": 0.05742799839936197,
+     "3": 0.08950800111051649,
+     "4": 0.06017299892846495,
+     "5": 0.09684200631454587,
+     "6": 0.061816012021154165,
+     "7": 0.06381999992299825,
+     "8": 0.0587599934078753,
+     "9": 0.0737590016797185
+    },
+    "generator_path_ms": {
+     "reused_ms": 1.1408610007492825,
+     "fresh_ms": 2.041311003267765,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": true
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 10,
+   "generator_load": {
+    "samples": 111,
+    "gen_proc_cores_mean": 0.03626861182475057,
+    "gen_proc_cores_max": 0.06994765146304549,
+    "host_busy_pct_mean": 4.8094027827837715,
+    "host_busy_pct_max": 8.411801632140616,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": null
+  },
+  {
+   "cell": 4,
+   "spec": {
+    "block": "b2kill",
+    "arm": "D",
+    "fanout": 10,
+    "T": 5,
+    "k": 1,
+    "trials": 10
+   },
+   "profile_timing": {
+    "t_created": 1791742868.7018468,
+    "t_profile_confirmed": 1791742868.961999,
+    "profile_apply_delay_s": 0.26015233993530273,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.09199300257023424,
+     "1": 0.09859500278253108,
+     "2": 0.068098001065664,
+     "3": 0.07902800280135125,
+     "4": 0.13632600894197822,
+     "5": 0.06349998875521123,
+     "6": 0.07292701047845185,
+     "7": 0.0649819994578138,
+     "8": 0.06159499753266573,
+     "9": 0.061664992244914174
+    },
+    "generator_path_ms": {
+     "reused_ms": 0.9858099947450683,
+     "fresh_ms": 2.241244990727864,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": true
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 0,
+   "generator_load": {
+    "samples": 25,
+    "gen_proc_cores_mean": 0.018779463844272978,
+    "gen_proc_cores_max": 0.03996622079545977,
+    "host_busy_pct_mean": 15.029500604447252,
+    "host_busy_pct_max": 17.402269861286253,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": null
+  },
+  {
+   "cell": 5,
+   "spec": {
+    "block": "b2kill",
+    "arm": "D",
+    "fanout": 10,
+    "T": 5,
+    "k": 50,
+    "trials": 10
+   },
+   "profile_timing": {
+    "t_created": 1791742868.7018468,
+    "t_profile_confirmed": 1791742868.961999,
+    "profile_apply_delay_s": 0.26015233993530273,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.09199300257023424,
+     "1": 0.09859500278253108,
+     "2": 0.068098001065664,
+     "3": 0.07902800280135125,
+     "4": 0.13632600894197822,
+     "5": 0.06349998875521123,
+     "6": 0.07292701047845185,
+     "7": 0.0649819994578138,
+     "8": 0.06159499753266573,
+     "9": 0.061664992244914174
+    },
+    "generator_path_ms": {
+     "reused_ms": 0.9858099947450683,
+     "fresh_ms": 2.241244990727864,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": true
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 9,
+   "generator_load": {
+    "samples": 138,
+    "gen_proc_cores_mean": 0.02663738231181749,
+    "gen_proc_cores_max": 0.11990223273373857,
+    "host_busy_pct_mean": 5.733863564331684,
+    "host_busy_pct_max": 24.98398462524023,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": null
+  },
+  {
+   "cell": 6,
+   "spec": {
+    "block": "b2kill",
+    "arm": "D",
+    "fanout": 10,
+    "T": 5,
+    "k": 10,
+    "trials": 10
+   },
+   "profile_timing": {
+    "t_created": 1791742868.7018468,
+    "t_profile_confirmed": 1791742868.961999,
+    "profile_apply_delay_s": 0.26015233993530273,
+    "rtt_attempts": 1,
+    "first_rtt_ms": {
+     "0": 0.09199300257023424,
+     "1": 0.09859500278253108,
+     "2": 0.068098001065664,
+     "3": 0.07902800280135125,
+     "4": 0.13632600894197822,
+     "5": 0.06349998875521123,
+     "6": 0.07292701047845185,
+     "7": 0.0649819994578138,
+     "8": 0.06159499753266573,
+     "9": 0.061664992244914174
+    },
+    "generator_path_ms": {
+     "reused_ms": 0.9858099947450683,
+     "fresh_ms": 2.241244990727864,
+     "n": 5,
+     "reused_ok": true,
+     "fresh_ok": true
+    }
+   },
+   "flagged_pre": false,
+   "excluded": 10,
+   "generator_load": {
+    "samples": 102,
+    "gen_proc_cores_mean": 0.03682787125482801,
+    "gen_proc_cores_max": 0.049967846103517205,
+    "host_busy_pct_mean": 4.878116468570022,
+    "host_busy_pct_max": 9.388783868935098,
+    "near_saturation": false
+   },
+   "generator_path_flag": false,
+   "summary": null
+  }
+ ],
+ "watch_log": {
+  "path": "/home/ubuntu/dib_tnsm/m67/watch2_stdout.log",
+  "sha256": "85ebb88ecd9eb1a5fd1c2ad549d5ee648cd8f7a9c0d930bbfba11cac0b56b4bb",
+  "events": 170
+ },
+ "site_restarts": [
+  {
+   "cell": 1,
+   "trial": 0,
+   "t_start": 1791742603.9622061,
+   "netem_applied_after_start_s": 4.70979380607605,
+   "first_reconcile_after_start_s": 0.9455554485321045,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 1,
+   "trial": 1,
+   "t_start": 1791742606.8434262,
+   "netem_applied_after_start_s": 1.8285737037658691,
+   "first_reconcile_after_start_s": 1.8580889701843262,
+   "first_reconcile_before_netem": false
+  },
+  {
+   "cell": 1,
+   "trial": 2,
+   "t_start": 1791742610.5362325,
+   "netem_applied_after_start_s": 1.878767490386963,
+   "first_reconcile_after_start_s": 1.220534324645996,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 1,
+   "trial": 3,
+   "t_start": 1791742613.7266064,
+   "netem_applied_after_start_s": 3.2643935680389404,
+   "first_reconcile_after_start_s": 1.125140905380249,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 1,
+   "trial": 4,
+   "t_start": 1791742616.6646361,
+   "netem_applied_after_start_s": 0.32636380195617676,
+   "first_reconcile_after_start_s": 0.5645935535430908,
+   "first_reconcile_before_netem": false
+  },
+  {
+   "cell": 1,
+   "trial": 5,
+   "t_start": 1791742619.0470142,
+   "netem_applied_after_start_s": 7.7129857540130615,
+   "first_reconcile_after_start_s": 0.8874714374542236,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 1,
+   "trial": 6,
+   "t_start": 1791742621.8534846,
+   "netem_applied_after_start_s": 4.90651535987854,
+   "first_reconcile_after_start_s": 0.7687206268310547,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 1,
+   "trial": 7,
+   "t_start": 1791742624.658477,
+   "netem_applied_after_start_s": 2.101522922515869,
+   "first_reconcile_after_start_s": 1.733273983001709,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 1,
+   "trial": 8,
+   "t_start": 1791742628.3558018,
+   "netem_applied_after_start_s": 1.834198236465454,
+   "first_reconcile_after_start_s": 1.9019019603729248,
+   "first_reconcile_before_netem": false
+  },
+  {
+   "cell": 1,
+   "trial": 9,
+   "t_start": 1791742632.1014142,
+   "netem_applied_after_start_s": 0.3225858211517334,
+   "first_reconcile_after_start_s": 1.577230453491211,
+   "first_reconcile_before_netem": false
+  },
+  {
+   "cell": 2,
+   "trial": 0,
+   "t_start": 1791742648.7229693,
+   "netem_applied_after_start_s": 1.2330307960510254,
+   "first_reconcile_after_start_s": 0.48181629180908203,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 2,
+   "trial": 1,
+   "t_start": 1791742651.7670043,
+   "netem_applied_after_start_s": 1.2829957008361816,
+   "first_reconcile_after_start_s": 1.293262243270874,
+   "first_reconcile_before_netem": false
+  },
+  {
+   "cell": 2,
+   "trial": 2,
+   "t_start": 1791742655.7516057,
+   "netem_applied_after_start_s": 3.4473941326141357,
+   "first_reconcile_after_start_s": 0.8622472286224365,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 2,
+   "trial": 3,
+   "t_start": 1791742659.3060534,
+   "netem_applied_after_start_s": 1.324946641921997,
+   "first_reconcile_after_start_s": 0.6428768634796143,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 2,
+   "trial": 4,
+   "t_start": 1791742662.7022495,
+   "netem_applied_after_start_s": 3.6287505626678467,
+   "first_reconcile_after_start_s": 0.8799583911895752,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 2,
+   "trial": 5,
+   "t_start": 1791742666.4086528,
+   "netem_applied_after_start_s": 1.435347318649292,
+   "first_reconcile_after_start_s": 1.7949929237365723,
+   "first_reconcile_before_netem": false
+  },
+  {
+   "cell": 4,
+   "trial": 0,
+   "t_start": 1791742883.0119538,
+   "netem_applied_after_start_s": 0.37804627418518066,
+   "first_reconcile_after_start_s": 0.46491503715515137,
+   "first_reconcile_before_netem": false
+  },
+  {
+   "cell": 4,
+   "trial": 1,
+   "t_start": 1791742885.3346193,
+   "netem_applied_after_start_s": 22.787380695343018,
+   "first_reconcile_after_start_s": 0.714785099029541,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 4,
+   "trial": 2,
+   "t_start": 1791742887.9331021,
+   "netem_applied_after_start_s": 20.188897848129272,
+   "first_reconcile_after_start_s": 0.5457541942596436,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 4,
+   "trial": 3,
+   "t_start": 1791742890.3573918,
+   "netem_applied_after_start_s": 17.764608144760132,
+   "first_reconcile_after_start_s": 0.45783329010009766,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 4,
+   "trial": 4,
+   "t_start": 1791742892.7814624,
+   "netem_applied_after_start_s": 15.340537548065186,
+   "first_reconcile_after_start_s": 0.8507113456726074,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 4,
+   "trial": 5,
+   "t_start": 1791742895.4912317,
+   "netem_applied_after_start_s": 12.630768299102783,
+   "first_reconcile_after_start_s": 0.8289861679077148,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 4,
+   "trial": 6,
+   "t_start": 1791742898.188904,
+   "netem_applied_after_start_s": 9.933095932006836,
+   "first_reconcile_after_start_s": 0.7799866199493408,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 4,
+   "trial": 7,
+   "t_start": 1791742900.874457,
+   "netem_applied_after_start_s": 7.247543096542358,
+   "first_reconcile_after_start_s": 0.5863618850708008,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 4,
+   "trial": 8,
+   "t_start": 1791742903.3642662,
+   "netem_applied_after_start_s": 4.7577338218688965,
+   "first_reconcile_after_start_s": 0.6290676593780518,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 4,
+   "trial": 9,
+   "t_start": 1791742905.9262643,
+   "netem_applied_after_start_s": 2.1957356929779053,
+   "first_reconcile_after_start_s": 0.7019908428192139,
+   "first_reconcile_before_netem": true
+  },
+  {
+   "cell": 5,
+   "trial": 0,
+   "t_start": 1791742939.8982713,
+   "netem_applied_after_start_s": 1.4197287559509277,
+   "first_reconcile_after_start_s": 0.5219345092773438,
+   "first_reconcile_before_netem": true
+  }
+ ],
+ "restart_bias_note": "the first reconcile pull of a restarted site (U(0, 0.1T) + ~0.45 s after start) may leave before the watcher re-applies netem: rows with first_reconcile_before_netem=true carry this bias",
+ "profile_events": [],
+ "aborted": false,
+ "finished_utc": "2026-10-11T18:26:17.350584+00:00",
+ "disk_end": "/dev/mapper/ubuntu--vg-ubuntu--lv   98G   90G  3.5G  97% /"
+}

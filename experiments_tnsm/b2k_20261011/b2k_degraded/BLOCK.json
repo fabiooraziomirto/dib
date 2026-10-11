@@ -1,0 +1,12 @@
+{
+ "block": "b2k_degraded",
+ "profile": "degraded",
+ "status": "done",
+ "reason": null,
+ "lan_confirmed": true,
+ "b2k_data_cells": 8,
+ "groups": {
+  "D": "ok",
+  "C": "ok"
+ }
+}

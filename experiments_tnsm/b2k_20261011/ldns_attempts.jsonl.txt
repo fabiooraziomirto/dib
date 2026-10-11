@@ -1,0 +1,3 @@
+{"profile": "lan", "utc_date": "2026-10-11", "utc": "2026-10-11T18:16:22.610840+00:00", "killed_p95_ms": 3.588563995435834, "poll_s": 0.1, "passed": true}
+{"profile": "degraded", "utc_date": "2026-10-11", "utc": "2026-10-11T18:40:54.790733+00:00", "killed_p95_ms": 3.27495600504335, "poll_s": 0.1, "passed": true}
+{"profile": "wan", "utc_date": "2026-10-11", "utc": "2026-10-11T20:49:25.279594+00:00", "killed_p95_ms": 3.4355480020167306, "poll_s": 0.1, "passed": true}

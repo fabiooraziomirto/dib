@@ -1,0 +1,12 @@
+{
+ "block": "b2k_lan",
+ "profile": "lan",
+ "status": "done",
+ "reason": null,
+ "lan_confirmed": true,
+ "b2k_data_cells": 12,
+ "groups": {
+  "D": "ok",
+  "C": "ok"
+ }
+}

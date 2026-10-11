@@ -1,0 +1,23 @@
+netem_apply: profile=mixed, 11 of 11 expected containers of project dibtnsm
+dibtnsm-evidence-1 (pid 300677): no qdisc
++ nsenter -t 300677 -n tc qdisc del dev eth0 root
+dibtnsm-site-0-1 (pid 305728): no qdisc
++ nsenter -t 305728 -n tc qdisc del dev eth0 root
+dibtnsm-site-1-1 (pid 304618): no qdisc
++ nsenter -t 304618 -n tc qdisc del dev eth0 root
+dibtnsm-site-2-1 (pid 301013): no qdisc
++ nsenter -t 301013 -n tc qdisc del dev eth0 root
+dibtnsm-site-3-1 (pid 312029): no qdisc
++ nsenter -t 312029 -n tc qdisc del dev eth0 root
+dibtnsm-site-4-1 (pid 301461): no qdisc
++ nsenter -t 301461 -n tc qdisc del dev eth0 root
+dibtnsm-site-5-1 (pid 305175): delay 80ms loss 1%
++ nsenter -t 305175 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-6-1 (pid 303484): delay 80ms loss 1%
++ nsenter -t 303484 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-7-1 (pid 301975): delay 80ms loss 1%
++ nsenter -t 301975 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-8-1 (pid 302996): delay 80ms loss 1%
++ nsenter -t 302996 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
+dibtnsm-site-9-1 (pid 304107): delay 80ms loss 1%
++ nsenter -t 304107 -n tc qdisc replace dev eth0 root netem delay 80ms loss 1%
