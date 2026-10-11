@@ -81,3 +81,10 @@ Nessuna esclusione per nessuna causa, nessuna cella segnalata, 0 consegne in pen
 3. **W3 — B1** (un'invocazione, i quattro gruppi, seme 20261014, 10 episodi, `--plog-thresholds` il file nuovo, `--plog-p95-ms` il p95 nuovo), solo dopo l'OK dell'utente sulla verifica di `netem_show.sh`.
 4. **W4 — copia di B1 con sha256 e analisi** con `analyze_b1.py --lan-ref lan_ref_20261011/before` (più, se fatta, la sessione "dopo").
 `make_plog_thresholds.py` e il suo test (riproduce esattamente il file della notte) sono committati prima di `wan`.
+
+## W1 eseguito dall'utente (2026-10-11 08:54:18-08:56:27 UTC, watcher attivo `wan`, guard con blocco)
+Output incollato dall'utente (il file `calib_wan_result.json` non è ancora in locale: W2 da autorizzare). Il primo tentativo (08:48:56, watcher assente) è fallito per costruzione, uscita conservata in `calib_wan_fallita_0848.stdout`.
+- rc 0; `generator_path_ms` (dalla coda del file): riusata 82,11 ms, nuova 163,54 ms, `reused_ok` e `fresh_ok` veri (bande `wan`: ~d e ~2d), cioè il netem era applicato durante la calibrazione; `rtt_check_ok` da leggere nel file.
+- **L_dns a `wan` oggi:** sito vivo p50 0,164 / p95 0,198 / max 1,98 ms; **sito morto p50 3,06 / p95 3,46 / max 7,45 ms**, `gaierror(-3, 'Temporary failure in name resolution')`.
+- Valori adiacenti (nessuna etichetta, nessuna conclusione): `lan` 08:45 sito morto p50 3,05 / p95 4,02 / max 7,84 ms; `wan` 08:54-08:56 p50 3,06 / p95 3,46 / max 7,45 ms. Il valore della notte a `wan` (p50 179,0-179,8 / p95 185,2-186,0 ms, max ~4,0 s) non si è riprodotto in questa misura.
+- **Verifica con `netem_show.sh` non effettuata durante il hold:** l'utente l'ha lanciato dopo lo smontaggio del cluster ("no running container in project dibtnsm"). Restano le prove indirette (RTT evidence→sito nella banda, percorso del generatore 82/164 ms). Il log del watcher (08:56:14-26) mostra le applicazioni e, a smontaggio, un `apply FAILED (attempt 1)` transitorio (nessun container) come la notte.
