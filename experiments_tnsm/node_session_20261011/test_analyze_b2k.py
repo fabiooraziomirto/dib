@@ -27,10 +27,10 @@ def trial(conv, viol=False, monitor_only=True, excluded=False, cause=None):
 def test_cell_verdict_three_cases():
     far = [trial(5.0 + i * 0.01) for i in range(10)]
     near = [trial(1.0 + i * 0.01) for i in range(10)]
-    mixed = [trial(1.0 if i % 2 else 3.0) for i in range(10)]
+    mixed = [trial(1.0 if i < 5 else 3.0) for i in range(10)]   # median 2.0 > bound 1.5 but the CI reaches 1.0
     assert k2.cell_summary(far, 2.0)["d_kill"] == "falsified"
     assert k2.cell_summary(near, 2.0)["d_kill"] == "not falsified"
-    assert k2.cell_summary(mixed, 2.0)["d_kill"] in ("inconclusive", "not falsified")
+    assert k2.cell_summary(mixed, 1.5)["d_kill"] == "inconclusive"
 
 
 def test_never_converged_counted_not_dropped():
