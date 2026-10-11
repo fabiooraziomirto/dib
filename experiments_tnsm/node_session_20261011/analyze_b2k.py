@@ -39,6 +39,8 @@ def t_difference(rows15: list, rows5: list, rng: random.Random | None = None) ->
     rng = rng or random.Random(b1.SEED)
     a = [r["convergence_s"] for r in rows15 if not r.get("excluded") and r.get("convergence_s") is not None]
     b = [r["convergence_s"] for r in rows5 if not r.get("excluded") and r.get("convergence_s") is not None]
+    if not a or not b:
+        return None
     d, lo, hi = b1.diff_ci(a, b, rng)
     return {"diff_s": d, "lo": lo, "hi": hi, "n15": len(a), "n5": len(b)}
 
@@ -75,6 +77,9 @@ def main() -> int:
     for (prof, arm, k, T), rows in sorted(by.items()):
         if T == 15 and (prof, arm, k, 5) in by:
             d = t_difference(rows, by[(prof, arm, k, 5)], rng)
+            if d is None:
+                L.append(f"- {prof}/{arm}/k={k}: not evaluable (a side has no converged trial)")
+                continue
             L.append(f"- {prof}/{arm}/k={k}: {d['diff_s']:.3f} s [{d['lo']:.3f}; {d['hi']:.3f}] (n15={d['n15']}, n5={d['n5']}); reference interval [0; 1.5] s (a14:254-257), not a criterion")
     text = "\n".join(L) + "\n"
     print(text)

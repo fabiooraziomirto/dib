@@ -7,3 +7,4 @@
 2026-10-11T16:43Z ssh dibnode: smoke_pki336 done (lan+degraded, returncode 0, L_dns degraded killed p95 5.01 ms n=50); launch_auto_block.sh default blocks (lan_before,degraded,lan_after) -> out/b5_20261011 (B5, audit 46)
 2026-10-11T16:46Z ssh dibnode: scp auto_b2k.py (sha a60be9aa..) + launch_auto_b2k.sh to ~/dib_tnsm/b2k; launch_auto_b2k.sh -> out/b2k_20261011 (waits for auto_block.py of B5, end 2026-10-12T02:00Z)
 2026-10-11T17:25Z ssh dibnode: mkdir ~/dib_tnsm/m8; scp run.py launch_m8.sh files/*.json (sha256 in node listing); launch_m8.sh -> out/m8_20261011 (waits for auto_block/auto_b2k to finish, then measure)
+2026-10-11T18:20Z local: tar copy of out/b5_20261011 (excl pcap) to experiments_tnsm/b5_20261011; DATA.sha256 0 mismatches; B5 finished 18:15:24Z, all blocks done, 4 data cells each

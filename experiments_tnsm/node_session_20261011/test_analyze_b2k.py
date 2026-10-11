@@ -58,3 +58,12 @@ def test_t_difference_is_descriptive():
     t15 = [trial(2.0 + 0.01 * i) for i in range(10)]
     d = k2.t_difference(t15, t5)
     assert d["diff_s"] == pytest.approx(1.0, abs=0.02) and "verdict" not in d and d["lo"] <= d["diff_s"] <= d["hi"]
+
+
+def test_t_difference_with_an_empty_side_is_not_evaluable():
+    """Found by the real B2k data (lan, k = 10 / 50: whole cells excluded by queues_not_empty_at_start): a side with no converged trial must not crash."""
+    ok = [trial(1.0 + 0.01 * i) for i in range(10)]
+    none = [trial(None, excluded=True, cause="queues_not_empty_at_start")] * 10
+    assert k2.t_difference(ok, none) is None
+    assert k2.t_difference(none, ok) is None
+    assert k2.cell_summary(none, 7.0)["d_kill"] == "not evaluable"
