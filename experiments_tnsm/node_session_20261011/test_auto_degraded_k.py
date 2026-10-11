@@ -108,3 +108,14 @@ def test_q6_deadline_and_preflight(tmp_path):
     ctx2.system.containers_ = ["dibtnsm-x"]
     res2 = dk.run_sequence(ab, ctx2, deadline=time.time() + 3600, watch_log="w.log")
     assert res2["status"] == "stopped" and "preflight" in res2["reason"] and ctx2.ctl.requests == []
+
+
+def test_q7_deadline_between_arms(tmp_path):
+    """The deadline passes while the first child runs: no further child starts (guards the per-arm deadline check)."""
+    ctx2 = make_ctx(tmp_path / "d")
+    (tmp_path / "d").mkdir(exist_ok=True)
+    ctx2.system.scripts["run.py"] = [("import time\n" + RUN_ENV + "\ntime.sleep(1.5)\n", {})]
+    t_end = time.time() + 2.5
+    res2 = dk.run_sequence(ab, ctx2, deadline=t_end, watch_log="w.log")
+    assert res2["status"] == "stopped" and "deadline" in res2["reason"]
+    assert 1 <= len(run_cmds(ctx2)) < 6
