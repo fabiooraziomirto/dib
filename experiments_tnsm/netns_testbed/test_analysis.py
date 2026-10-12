@@ -65,3 +65,23 @@ def test_b6_validity():
     off = [ep({str(i): 0.45 for i in range(10)}) for _ in range(5)]
     assert an.t0_valid(off, R=R, warm=False)["valid"] is False
     assert an.t0_valid([ep({str(i): 0.05 + 0.002 * i for i in range(10)})], R=0.2, warm=True)["valid"] is True
+
+
+def _eps(late_sites, n_eps=40, warm=False, R=0.2):
+    """n_eps episodes of 10 sites; `late_sites` of the 10 are late in every episode."""
+    nom = an.nominal(R, warm)
+    return [ep({str(i): (nom + 1.0 if i < late_sites else nom) for i in range(10)}) for _ in range(n_eps)]
+
+
+def test_b7_bootstrap_difference_of_late_shares():
+    a, b = _eps(0), _eps(2)
+    lo, hi = an.boot_diff_late_share(a, b, R=0.2, warm_a=False, warm_b=False, seed=3)
+    assert hi < 0 and lo <= hi
+    lo2, hi2 = an.boot_diff_late_share(b, b, R=0.2, warm_a=False, warm_b=False, seed=3)
+    assert lo2 <= 0 <= hi2
+    assert an.boot_diff_late_share([], b, R=0.2, warm_a=False, warm_b=False, seed=3) is None
+
+
+def test_b8_median_per_site():
+    assert an.median_site_ms(_eps(0)) == pytest.approx(300.0)
+    assert an.median_site_ms([]) is None

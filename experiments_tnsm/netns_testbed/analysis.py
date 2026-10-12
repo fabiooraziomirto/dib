@@ -69,3 +69,33 @@ def t0_valid(episodes: list[dict], R: float, warm: bool, tol_s: float = 0.05) ->
     med = statistics.median(sites)
     late = sum(1 for v in sites if is_late(v, R, warm))
     return {"valid": abs(med - nominal(R, warm)) <= tol_s and late == 0, "median_s": med, "nominal_s": nominal(R, warm), "late": late, "n": len(sites)}
+
+
+def _late_counts(eps: list[dict], R: float, warm: bool) -> list[tuple[int, int]]:
+    out = []
+    for e in eps:
+        if not e["setup_ok"]:
+            continue
+        v = [x for x in e["applies"].values() if x is not None]
+        out.append((sum(1 for x in v if is_late(x, R, warm)), len(v)))
+    return out
+
+
+def boot_diff_late_share(eps_a, eps_b, R: float, warm_a: bool, warm_b: bool, seed: int = 20261012, res: int = 4000):
+    """Percentile 95% CI of (late share of A) - (late share of B), resampling EPISODES independently in each group (per-site shares are not independent within an episode)."""
+    ca, cb = _late_counts(eps_a, R, warm_a), _late_counts(eps_b, R, warm_b)
+    if not ca or not cb:
+        return None
+    rng = random.Random(seed)
+    diffs = []
+    for _ in range(res):
+        sa = rng.choices(ca, k=len(ca))
+        sb = rng.choices(cb, k=len(cb))
+        diffs.append(sum(x for x, _ in sa) / max(sum(n for _, n in sa), 1) - sum(x for x, _ in sb) / max(sum(n for _, n in sb), 1))
+    diffs.sort()
+    return diffs[int(0.025 * res)], diffs[int(0.975 * res) - 1]
+
+
+def median_site_ms(eps: list[dict]):
+    v = [1000 * x for e in eps if e["setup_ok"] for x in e["applies"].values() if x is not None]
+    return statistics.median(v) if v else None
