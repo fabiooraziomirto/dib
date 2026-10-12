@@ -1,0 +1,15 @@
+# Audit 71 — Risultati del controllo funzionale a `lan` delle connessioni persistenti (audit 70, H-L1..L4)
+
+Data: 2026-10-12 (00:07-01:35Z a nodo). Dati: `experiments_tnsm/keepalive_lan_20261012/` (tree `50c4335`, `DIB_M67_KEEPALIVE=1` ⇒ `DIB_DIST_FANOUT_KEEPALIVE=1` e warmer a 2 s nel container evidence; `lan`, nessun watcher; seme 20261014; `DATA_on.sha256` e `DATA_off.sha256` verificati dopo la copia: 0 discordanze; nessun pcap). Controllo OFF: stesso tree, stessa sessione, B1 FANOUT 10 (`off/`). Script: `lan_keepalive_check.sh`, `lan_b1_off.sh`, `ka_sampler.sh` (campionatore ogni 60 s). Ipotesi: audit 70 (committato prima dei dati). **Non misura l'effetto del keep-alive sotto perdita** (a `lan` non c'è perdita): controlla che l'opt-in non rompa nulla.
+
+## Verdetti
+- **H-L1 (connessione stantia dopo riavvio): non falsificata.** B2k con keep-alive acceso: 0 prove con `violation_over_bound` e 0 con `final_all_monitor_only` falso su 101 prove utilizzabili (120 eseguite); (d-kill) non falsificata in tutte le celle con n ≥ 5 (10 celle su 12; le due con n = 3, arm D k = 50, sono solo puntuali). Mediane 0,62-1,38 s contro bound 7,0-8,0 s (`analysis_b2k.md`).
+- **H-L2 (nessun costo a `lan`): rispettata (descrittiva, n = 10, una sessione).** Ultimo sito a FANOUT 10, mediana P-log [IC 95%]: D ON 21,4 [18,4; 25,8] ms contro OFF 21,3 [18,7; 27,8] ms; **C ON 23,2 [20,9; 26,8] ms contro OFF 30,0 [26,1; 33,3] ms** (−7 ms con il keep-alive: handshake TLS risparmiato). Nessun episodio con pending, nessuna esclusione in B1. Nessun verdetto di falsificazione (audit 70).
+- **H-L3 (mTLS): non falsificata.** Arm C: 1 sola esclusione in tutto il B2k (un `client_timeout`, k = 10, T = 15) contro il limite di 3 per cella.
+- **H-L4 (warmer): non falsificata.** 76 campioni (uno al minuto) del container evidence: `DIB_DIST_FANOUT_KEEPALIVE=1` presente in tutti e 0 righe `connection warmer failed`. **Limite:** il campionatore non è riuscito a contare le connessioni TCP stabilite (campo vuoto, errore di quoting nel mio script): non ho verificato direttamente che le connessioni siano rimaste aperte, solo che il warmer non produce errori.
+
+## Arm D: timeout a k ≥ 10 indipendenti dal keep-alive
+Con keep-alive ON l'arm D ha avuto 16 `client_timeout` e 2 `transport_error` (celle k = 10 e 50), con OFF (audit 69) 12 timeout e 6 `transport_error`: stesso schema, quindi **non attribuibile al keep-alive**. Le esclusioni sono quelle delle regole dell'audit 45 §6, non sostituite. L'arm C non mostra il problema in nessuna delle due esecuzioni. **Causa non determinata** (non si registra la latenza per chiamata): ipotesi non testata, da non attribuire a D o a mTLS.
+
+## Cosa si può dire
+L'opt-in non introduce regressioni funzionali osservabili a `lan`, neanche con mTLS né dopo il riavvio di un sito, e non costa latenza. **L'effetto sotto perdita è ancora da misurare** (H-K1..K4, audit 62): richiede il watcher v2, scaduto alle 21:48Z; la coda `auto_degraded_k.py` parte da sola al suo ritorno, fino alle 07:00Z.
