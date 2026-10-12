@@ -77,6 +77,12 @@ siti raggiungibili senza nulla in volo, I1, I2, la conservazione del veto, il re
    - i file toccati qui non si sovrappongono ai suoi;
    - `docs/audit/62` è suo, 63-68 sono miei;
    - da verificare al merge.
+3b. **Numerazione degli audit in collisione.** Su `tnsm-driver-retry` l'altra sessione ha creato
+   `63_b2k_lan_rerun_driver_fix.md` e `64_prereg_keepalive_lan.md`; qui ci sono `63_fsm_specifica.md`
+   e `64_fsm_test_risultati.md`. Nessun conflitto git (nomi diversi), ma "audit 63/64" diventa
+   ambiguo nei riferimenti: docstring dei test, `% SRC:` del paper, audit 65-68. Proposta: al merge
+   rinumerare i miei 63-68 in un blocco libero e aggiornare i riferimenti con un solo commit. Non
+   l'ho fatto ora perché l'altra sessione continua a numerare.
 4. **Il differenziale** (`test_distributed_fsm_differential.py`) gira solo con `DIB_FSM_DIFF=1`
    (~5 min): scelta mia, da confermare.
 5. **Lease o epoch** (audit 65): da scegliere.
