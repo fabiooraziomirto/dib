@@ -3,7 +3,8 @@
 (Docker's embedded DNS answers NXDOMAIN for the vanished name, possibly after asking the upstream resolver). Pre-registered hypothesis (before running): in a burst
 of 2000 resolutions at the rate of a k = 50 B2k trial (~45 per second) some calls stall for >= 1 s, with durations clustered near multiples of ~4-5 s (the 4.02 /
 8.03 / 16.03 / 24.03 s calls of diag_dead_site_latency.py k = 50); at 4 Hz (diag_arp_probe.py, 589 calls, max 0.024 s) there is no stall. Falsified if no call
-among the 2000 takes >= 1 s. Usage: python3 diag_dns_burst.py --tree <tree> --out <file.json>"""
+among the 2000 takes >= 1 s. Variant --nosearch: the compose gets an override with `dns_search: .` for every service (no search domains). Pre-registered (before running the variant): with the override the burst has NO call >= 1 s among 2000 and the wall time drops below 20 s; falsified by any call >= 1 s.
+Usage: python3 diag_dns_burst.py --tree <tree> --out <file.json> [--nosearch]"""
 import argparse
 import json
 import sys
@@ -28,12 +29,18 @@ def main():
     ap.add_argument("--tree", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--n", type=int, default=2000)
+    ap.add_argument("--nosearch", action="store_true")
     a = ap.parse_args()
     tree = Path(a.tree)
     sys.path.insert(0, str(tree / "experiments_tnsm" / "m67_retraction"))
     sys.path.insert(0, str(tree / "experiments_tnsm" / "common"))
     import run as r
     env = r.Env(str(tree), "D", 10, 5.0, Path.home() / "dib_tnsm" / "pki")
+    if a.nosearch:
+        ov = Path.home() / "dib_tnsm" / "m67" / "dns_nosearch.yml"
+        ov.write_text("services:\n" + "".join(f"  {s}:\n    dns_search: .\n" for s in ["evidence"] + [f"site-{i}" for i in range(10)]))
+        orig = env.compose
+        env.compose = lambda: orig().replace(" up", " up") .rstrip() + f" -f {ov} " if False else orig().replace("docker compose -p dibtnsm ", f"docker compose -p dibtnsm -f {ov} ")
     env.up()
     out = {}
     try:
