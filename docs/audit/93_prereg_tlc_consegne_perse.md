@@ -186,3 +186,46 @@ residuo, metadir rimossa). Gli altri run (L1a_e3_np, L2_m6, L1a_e2_p, L3_live_e2
   lo faccio senza l'assenso dell'utente.
 - Le parti di safety con le perdite (H-L1a) **non sono state verificate**: i run non sono partiti o
   sono stati interrotti.
+
+## 9. Pre-registrazione aggiuntiva (scritta dopo i risultati della sez. 8, prima di ogni nuovo run)
+**Decisione dell'utente (2026-10-12):** procedere con entrambe:
+1. rilanciare la safety con perdite (H-L1a);
+2. riformulare la vivacità sulle sole righe che rappresentano una decisione.
+
+**Modello v7** (`experiments_tnsm/tla_fsm/v7live/DIB_AE_NA.tla`) = v6 più 14 righe di sole definizioni
+(`diff` contro v6: 14 righe aggiunte, 0 tolte; SANY senza errori; eseguito):
+- `DecisionRow(t, f)`: stato non in {Absent, Staging, Committing};
+- `ConvergedDecisions`: per ogni sito raggiungibile e fatto, o non è una riga di decisione, o
+  `last_applied = eseq`;
+- `ConvergedDecisionsEventually == <>[] ConvergedDecisions`.
+
+`ExposureEnds` resta invariata. **È un cambio di formulazione della proprietà, deciso dopo aver visto
+il controesempio, e lo dichiaro come tale.** Motivo:
+- `Staging` e `Committing` sono transitori per invariante e non vengono mai esportati;
+- la proprietà vecchia falliva per un operatore che rilancia la query all'infinito, senza alcun
+  evento perso (sez. 8).
+
+**Limite della nuova proprietà:** non dice nulla su una query o un commit che restano pendenti per
+sempre. Nel modello le operazioni dell'operatore non hanno equità: è un'assunzione sull'operatore,
+non sul protocollo.
+
+| cfg (cartella `v7live/`) | Ipotesi | Falsificata se |
+|---|---|---|
+| `Lv_e1` (SpecL, MaxEvents 1, MaxLoss 1, MaxToggles 0) | `ConvergedDecisionsEventually` ed `ExposureEnds` valgono | qualunque violazione |
+| `Lv_noae_e1` (idem, `AntiEntropy = FALSE`) | `ConvergedDecisionsEventually` violata **e** la traccia contiene `Lose` | nessuna violazione, o traccia senza `Lose` |
+| `Lv_e2` (MaxEvents 2) | come `Lv_e1` | qualunque violazione; fermato dal watchdog = incompleto, nessuna affermazione |
+
+## 10. Rilancio di H-L1a e della non vacuità di m6
+Si rilanciano le cfg della sez. 2, invariate: `L1a_e2_np`, `L1a_e3_np`, `L2_m6_nolock`, `L1a_e2_p`.
+Il log del run interrotto di `L1a_e2_np` resta committato com'è (`177358f`). Il nuovo run lo
+sovrascrive nella worktree: la copia vecchia è nella storia git.
+
+Correzioni al lanciatore:
+- la regola di arresto cerca "violated", che copre sia "is violated" sia "was violated";
+- **nessun tetto di tempo** (decisione dell'utente, sez. 7);
+- restano il watchdog del disco e l'heap a 28 GB.
+
+**Ordine:** `Lv_e1`, `Lv_noae_e1`, `L1a_e2_np`, `L1a_e3_np`, `L2_m6_nolock`, `L1a_e2_p`, `Lv_e2`.
+
+**Arresto:** se `Lv_e1`, `Lv_e2` o un `L1a_*` trovano una violazione, ci si ferma e si riporta la
+traccia minima.
