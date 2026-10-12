@@ -35,12 +35,14 @@ SVC_DIR = REPO / "code" / "src" / "dib" / "registry" / "distributed"
 N = 10
 EV_PORT, SITE_PORT0 = 18100, 18110
 HOST, DRIVER_IP = "127.0.0.1", "127.0.0.2"
-EV_URL = f"http://{HOST}:{EV_PORT}"
+PKI = os.environ.get("DIB_TESTBED_MTLS_PKI")       # audit 95: mTLS mode (arm C): the production mTLS entry point and a private PKI (keys outside the repo)
+SCHEME = "https" if PKI else "http"
+EV_URL = f"{SCHEME}://{HOST}:{EV_PORT}"
 SEED = 20261012
 
 
 def site_url(i: int) -> str:
-    return f"http://{HOST}:{SITE_PORT0 + i}"
+    return f"{SCHEME}://{HOST}:{SITE_PORT0 + i}"
 
 
 def tc_cmd(c: list[str]) -> list[str]:
@@ -58,6 +60,47 @@ def tc(cmds: list[list[str]]) -> None:
         subprocess.run(tc_cmd(c), check=True, capture_output=True)
 
 
+def launcher_cmd(port: int) -> list[str]:
+    """Plain mode (arm D): the testbed launcher; mTLS mode (arm C): the PRODUCTION entry point `python -m dib.registry.distributed.mtls` (mtls.py:146-158, service:app)."""
+    if PKI:
+        return [sys.executable, "-m", "dib.registry.distributed.mtls", "--host", HOST, "--port", str(port)]
+    return [sys.executable, str(HERE / "launch_service.py")]
+
+
+def identity_for(url: str) -> str:
+    """Client identity of the node driver (m67_retraction/run.py:632-633, 658): site calls as op-site-<i>, the dispute as op-site-1, everything else as admin."""
+    for i in range(N):
+        if url.startswith(site_url(i)):
+            return f"op-site-{i}"
+    if url == EV_URL + "/dispute":
+        return "op-site-1"
+    return "admin"
+
+
+class MtlsClient:
+    """httpx wrapper for the driver in mTLS mode: one pre-built context per identity (client certificate), requests from 127.0.0.2 (exempt from netem)."""
+
+    def __init__(self, pki: str, timeout: float = 30):
+        import ssl
+
+        self._clients = {}
+        for name in ["admin", "op-site-1"] + [f"op-site-{i}" for i in range(N)]:
+            ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=f"{pki}/ca.crt")
+            ctx.load_cert_chain(f"{pki}/{name}.crt", f"{pki}/{name}.key")
+            self._clients[name] = httpx.Client(transport=httpx.HTTPTransport(local_address=DRIVER_IP, verify=ctx), timeout=timeout)
+
+    def post(self, url: str, **kw):
+        return self._clients[identity_for(url)].post(url, **kw)
+
+    def get(self, url: str, **kw):
+        return self._clients[identity_for(url)].get(url, **kw)
+
+
+def cell_needs_restart(cell: dict) -> bool:
+    """A cell with "fresh": true gets a freshly started cluster (independent blocks, audit 95)."""
+    return bool(cell.get("fresh"))
+
+
 class Cluster:
     def __init__(self, workdir: Path):
         self.workdir = workdir
@@ -72,6 +115,10 @@ class Cluster:
                   "DIB_DIST_RECONCILE_INTERVAL": "5", "DIB_DIST_RECONCILE_JITTER": "0.5", "DIB_DIST_RECONCILE_TIMEOUT": "5.0"})
         for i in range(N):
             e[f"DIB_DIST_SITE_URL_{i}"] = site_url(i)
+        if PKI:
+            name = "evidence" if role == "evidence" else f"site-{idx}"
+            e.update({"DIB_DIST_MTLS": "1", "DIB_DIST_IDENTITIES": f"{PKI}/identities.json", "DIB_DIST_TLS_CA": f"{PKI}/ca.crt",
+                      "DIB_DIST_TLS_CERT": f"{PKI}/{name}.crt", "DIB_DIST_TLS_KEY": f"{PKI}/{name}.key"})
         if role == "evidence":
             e["DIB_DIST_FANOUT_CONCURRENCY"] = str(getattr(self, "concurrency", 10))
             if keepalive:
@@ -85,7 +132,7 @@ class Cluster:
         env = self._env(role, idx, keepalive)
         env["DIB_TESTBED_PORT"] = str(port)
         env["PYTHONPATH"] = str(SVC_DIR) + os.pathsep + env["PYTHONPATH"]
-        self.procs[name] = subprocess.Popen([sys.executable, str(HERE / "launch_service.py")], env=env, stdout=log, stderr=log, stdin=subprocess.DEVNULL)
+        self.procs[name] = subprocess.Popen(launcher_cmd(port), env=env, stdout=log, stderr=log, stdin=subprocess.DEVNULL)
 
     def start_sites(self) -> None:
         for i in range(N):
@@ -222,7 +269,7 @@ def worker(cells: list[dict], episodes: int, warmup: int, out_path: Path, workdi
     if needs_ip_link():
         subprocess.run(["ip", "link", "set", "lo", "up"], check=True)
     cl = Cluster(workdir)
-    client = httpx.Client(transport=httpx.HTTPTransport(local_address=DRIVER_IP), timeout=30)
+    client = MtlsClient(PKI) if PKI else httpx.Client(transport=httpx.HTTPTransport(local_address=DRIVER_IP), timeout=30)
     first = cells[0]
     tc(an.netem_cmds(first["d_ms"], first["loss_pct"], initial=True))
     cl.start_sites()
@@ -232,6 +279,10 @@ def worker(cells: list[dict], episodes: int, warmup: int, out_path: Path, workdi
         for ci, cell in enumerate(cells):
             warm = cell["policy"] == "P1"
             tc(an.netem_cmds(cell["d_ms"], cell["loss_pct"], initial=False))
+            if cell_needs_restart(cell) and ci > 0:
+                cl.stop_all()
+                cl.start_sites()
+                current_policy = None
             if current_policy != cell["policy"]:
                 cl.stop("evidence")
                 cl.start_evidence(warm, concurrency=1 if cell["policy"] == "S1" else 10)
@@ -282,12 +333,59 @@ def build_cells_v4() -> list[dict]:
     return cells
 
 
-def launch(out_dir: Path, workers: int, episodes: int, suite: str = "grid") -> None:
+def build_cells_mtls_eq() -> list[dict]:
+    """Audit 95 H-V3: equivalence control at `degraded` (d = 200 ms one way, p = 5 %): 5 fresh blocks of 20 episodes + a lossless T-0 cell."""
+    cells = [{"d_ms": 200, "loss_pct": 0, "policy": "P0", "episodes": 20, "kind": "T0"}]
+    cells += [{"d_ms": 200, "loss_pct": 5, "policy": "P0", "episodes": 20, "kind": "eq", "cond": "EQ", "fresh": True, "block": b} for b in range(5)]
+    return cells
+
+
+XCOND = {"X1": (60, 6), "X2": (100, 4), "X3": (150, 6), "X4": (150, 8)}
+
+
+def build_cells_mtls_oos() -> list[dict]:
+    """Audit 95 out-of-sample conditions X1-X4: 10 fresh blocks of 20 episodes (parallel fan-out), T-0 cells per delay, and 3 sequential blocks of 20 for X1 and X2."""
+    cells = [{"d_ms": d, "loss_pct": 0, "policy": "P0", "episodes": 20, "kind": "T0"} for d in (60, 100, 150)]
+    for x, (d, p) in XCOND.items():
+        cells += [{"d_ms": d, "loss_pct": p, "policy": "P0", "episodes": 20, "kind": "oos", "cond": x, "fresh": True, "block": b} for b in range(10)]
+    for x in ("X1", "X2"):
+        d, p = XCOND[x]
+        cells += [{"d_ms": d, "loss_pct": p, "policy": "S1", "episodes": 20, "kind": "oos", "cond": x, "fresh": True, "block": b, "max_wait_s": 120} for b in range(3)]
+    return cells
+
+
+def guard_load(cmdlines: list[str], load1: float) -> str | None:
+    """Audit 95: timing runs only on a quiet machine: refuse while TLC runs or the 1-minute load average is >= 4."""
+    if any("tlc2.TLC" in c for c in cmdlines):
+        return "a tlc2.TLC process is running"
+    if load1 >= 4:
+        return f"load average {load1:.1f} >= 4"
+    return None
+
+
+def _machine_state() -> tuple[list[str], float]:
+    cmds = []
+    for d in Path("/proc").iterdir():
+        if d.name.isdigit():
+            try:
+                cmds.append((d / "cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace"))
+            except OSError:
+                pass
+    return cmds, os.getloadavg()[0]
+
+
+def launch(out_dir: Path, workers: int, episodes: int, suite: str = "grid", pki: str | None = None) -> None:
     avail = int([l for l in open("/proc/meminfo") if l.startswith("MemAvailable")][0].split()[1]) / 1e6
     if avail < 16:
         raise SystemExit(f"refusing to start: MemAvailable {avail:.1f} GB < 16 GB")
+    if suite.startswith("mtls"):
+        why = guard_load(*_machine_state())
+        if why:
+            raise SystemExit(f"refusing to start (audit 95): {why}")
     out_dir.mkdir(parents=True, exist_ok=True)
-    cells = build_cells(episodes, SEED) if suite == "grid" else (build_cells_s1(episodes) if suite == "s1" else (build_cells_v3() if suite == "v3" else build_cells_v4()))
+    builders = {"grid": lambda: build_cells(episodes, SEED), "s1": lambda: build_cells_s1(episodes), "v3": build_cells_v3, "v4": build_cells_v4,
+                "mtls_eq": build_cells_mtls_eq, "mtls_oos": build_cells_mtls_oos}
+    cells = builders[suite]()
     random.Random(SEED).shuffle(cells)
     parts = [cells[i::workers] for i in range(workers)]
     procs = []
@@ -299,14 +397,14 @@ def launch(out_dir: Path, workers: int, episodes: int, suite: str = "grid") -> N
         spec.write_text(json.dumps(part))
         procs.append((subprocess.Popen(["unshare", "-n", sys.executable, str(HERE / "testbed.py"), "worker", "--cells", str(spec), "--episodes", str(episodes),
                                         "--out", str(out_dir / f"episodes_{i}.jsonl"), "--workdir", str(wd)], stdout=open(out_dir / f"worker{i}.log", "ab"),
-                                       stderr=subprocess.STDOUT), wd))
+                                       stderr=subprocess.STDOUT, env={**os.environ, **({"DIB_TESTBED_MTLS_PKI": pki} if pki else {})}), wd))
     for p, wd in procs:
         p.wait()
         shutil.rmtree(wd, ignore_errors=True)
     svc = SVC_DIR / "service.py"
     (out_dir / "manifest.json").write_text(json.dumps({
         "audit": "docs/audit/75_prereg_banco_netns_modello_v2.md (suite grid) / 77 (suite s1)", "suite": suite, "python": sys.version, "kernel": platform.release(), "host": platform.node(), "seed": SEED,
-        "workers": workers, "episodes_per_cell": episodes, "cells": cells, "service_py_sha256": hashlib.sha256(svc.read_bytes()).hexdigest(),
+        "workers": workers, "episodes_per_cell": episodes, "cells": cells, "mtls_pki": pki, "load_avg_start": os.getloadavg(), "tlc_running": bool(guard_load(_machine_state()[0], 0)), "service_py_sha256": hashlib.sha256(svc.read_bytes()).hexdigest(),
         "testbed_py_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), "finished_utc": time.strftime("%FT%TZ", time.gmtime())}, indent=1))
 
 
@@ -317,7 +415,8 @@ def main() -> None:
     l.add_argument("--out", required=True)
     l.add_argument("--workers", type=int, default=4)
     l.add_argument("--episodes", type=int, default=60)
-    l.add_argument("--suite", choices=("grid", "s1", "v3", "v4"), default="grid")
+    l.add_argument("--suite", choices=("grid", "s1", "v3", "v4", "mtls_eq", "mtls_oos"), default="grid")
+    l.add_argument("--pki", default=None, help="mTLS mode: directory of a PKI made by code/scripts/make_dist_pki.py (--extra-san-ip 127.0.0.1)")
     w = sub.add_parser("worker")
     w.add_argument("--cells", required=True)
     w.add_argument("--episodes", type=int, default=60)
@@ -327,7 +426,7 @@ def main() -> None:
     sub.add_parser("smoke")
     a = ap.parse_args()
     if a.cmd == "launch":
-        launch(Path(a.out), a.workers, a.episodes, a.suite)
+        launch(Path(a.out), a.workers, a.episodes, a.suite, a.pki)
     elif a.cmd == "worker":
         worker(json.loads(Path(a.cells).read_text()), a.episodes, a.warmup, Path(a.out), Path(a.workdir))
     else:
@@ -337,7 +436,8 @@ def main() -> None:
         subprocess.run(["unshare", "-n", sys.executable, str(HERE / "testbed.py"), "worker", "--cells", str(spec), "--out", str(d / "ep.jsonl"), "--workdir", str(d / "wd"),
                         "--warmup", "1"], check=True)
         eps = [json.loads(l) for l in (d / "ep.jsonl").read_text().splitlines()]
-        print(json.dumps(an.t0_valid(eps, 0.1, False)), json.dumps(an.cell_summary(eps, 0.1, False)))
+        arm = "C" if PKI else "D"
+        print(json.dumps(an.t0_valid(eps, 0.1, False, arm=arm)), json.dumps(an.cell_summary(eps, 0.1, False, arm=arm)))
         shutil.rmtree(d, ignore_errors=True)
 
 
