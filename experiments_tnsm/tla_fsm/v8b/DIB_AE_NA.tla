@@ -908,6 +908,16 @@ DisputeSuspendsAtReachableSitesV4 ==
             \/ (sstate[t][f] \in {"Staging", "MonitorOnly"} /\ PendingQuery(t, f))
             \/ (sstate[t][f] = "MonitorOnly" /\ lastApplied[t][f] < eseq[f])
 
+\* v8b, addendum 8.6: V5 = V3 plus the "site behind the evidence" window, but ONLY after a failure or a crash has
+\* happened (failCount + crashCount > 0). With no failure V5 = V3 exactly, so the v6 correction "the query finish applies
+\* its read" stays necessary (V4 was vacuous against MutNoFinishApply: the mutant yields exactly the 'behind' state).
+DisputeSuspendsAtReachableSitesV5 ==
+    \A t \in Sites \ unreachable, f \in Facts :
+        (estatus[f] # "Active" /\ NoInFlight(t, f)) =>
+            \/ sstate[t][f] \in {"Absent", "Disputed", "Revoked"}
+            \/ (sstate[t][f] \in {"Staging", "MonitorOnly"} /\ PendingQuery(t, f))
+            \/ (failCount + crashCount > 0 /\ sstate[t][f] = "MonitorOnly" /\ lastApplied[t][f] < eseq[f])
+
 StagingIsTransient ==
     \A t \in Sites, f \in Facts : sstate[t][f] = "Staging" => PendingQuery(t, f)
 

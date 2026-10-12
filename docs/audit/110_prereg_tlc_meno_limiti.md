@@ -223,3 +223,39 @@ Regole di arresto invariate (sez. 5): un controesempio ferma la sequenza e si ri
 
 ### 8.5 Limiti già noti di questa lettura
 La riparazione di quel caso con 3 eventi + fallimenti è coperta dalla sola convergenza a 1 e 2 eventi. Una verifica di vivacità `SpecL` con 3 eventi e F1 C1 non è nel piano (costo; `Lv_e2` ha richiesto 2 h 08 min a 2 eventi): da decidere.
+
+## 9. Addendum 8.6 (2026-10-12): esiti parziali di v8b, V4 vacua contro `MutNoFinishApply`, V5; committato prima di ogni nuovo run
+
+### 9.1 Esiti ottenuti (v8b, modello v8 + definizione V4, `run_tlc.sh <cfg> 28 8`)
+| cfg | Previsione | Esito | Stati distinti | Prof. | Durata | Log (righe) |
+|---|---|---|---|---|---|---|
+| `H0_regress` (v8b) | nessuna violazione, 19.415.620 stati | **confermata** | 19.415.620 | 42 | ~6 min | `v8b/logs/H0_regress.log` (stessa riga finale del run v8; guardia: la definizione aggiunta non cambia lo spazio) |
+| `X4a_V4` | nessuna violazione | **confermata** | 154.363.430 | 43 | 1 h 06 min | r. 95, 100, 101, 103 |
+| `Xm3_nofinish` (V4) | violazione | **INCOMPLETO**: fermato da me a 27.075.405 stati distinti dopo ~8,5 min (`exit=143`), nessuna affermazione | — | — | — | `v8b/logs/Xm3_nofinish.log` (parziale) |
+| `Xm4_noseq` (V4) | violazione | **non eseguito** | — | — | — | — |
+
+### 9.2 Perché ho fermato `Xm3` e cosa è emerso
+`MutNoFinishApply` (`DIB_AE_NA.tla:461`) lascia la riga mossa da un fan-out, senza applicare la lettura. In audit 92 l'unica proprietà che violava era V3
+(`e3m_nofinishapply_noparts.log`, 113.182 stati, profondità 11). Il suo stato violante (`MonitorOnly`, evidence non Active, nessuna query pendente) ha `lastApplied < eseq`: è **esattamente** quello che
+la clausola aggiunta in V4 ammette. Le altre proprietà non lo vedono (`MonitorOnly` non è esportabile, `/commit` richiede evidence `Active`, `service.py:522-523`; l'anti-entropia ripara, `:582`).
+Quindi **V4 è vacua contro quel mutante per costruzione**: con V4 la correzione "la chiusura di `/query` applica la propria lettura" non risulta più necessaria per la sicurezza. La frase del paper
+"ognuna delle parti è necessaria" resta vera per V3 senza fallimenti (audit 92, `MaxFails = MaxCrashes = 0`), non per V4.
+Errore mio di pre-registrazione: non avevo previsto questo effetto di V4 sulla non vacuità.
+
+### 9.3 Nuova proprietà V5 (`v8b/DIB_AE_NA.tla`, definizione aggiunta; azioni e stato invariati)
+V5 = V3 più la clausola "sito indietro" **solo se** `failCount + crashCount > 0`. Senza fallimenti né crash V5 coincide con V3 (le parti restano necessarie); dopo un fallimento o un crash ammette
+il solo stato che quel fallimento può produrre (traccia di sez. 7.2). V4 e le cfg `X4a_V4`, `Xm3_nofinish`, `Xm4_noseq` restano come storia, superate da questa sezione.
+
+### 9.4 Configurazioni (nuove, in `v8b/`, un TLC alla volta, `-Xmx28g`, 8 worker)
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `Xm3b_nofinish_V5` | `MutNoFinishApply` sui limiti di X4: violazione di V5 (o di altra elencata) da una traccia **senza fallimenti** | nessuna violazione: V5 vacua contro il mutante |
+| `Xm4b_noseq_V5` | `MutNoSeqGuard`: violazione di una proprietà elencata | nessuna violazione |
+| `X4b_V5` | limiti di X4 (e3, F1, C1, senza partizioni né perdite) con V5: nessuna violazione (la traccia di 7.2 ha `failCount = 1`) | qualunque violazione |
+Poi, in `v8/` con il modello originale, invariate: `Q1_quorum2_e3`, `Q2_quorum2_e2_p`, `L2a_loss2`, `L2b_loss2_p`, `F2_two_facts`, `S3_three_sites`, `S2e3_both_split`.
+`X4b_V5` (più forte) include `X4a_V4`. Stima `X4b_V5`: ~1 h 10 min come `X4a_V4`. Regole di arresto invariate.
+**Stato: non lanciato, su richiesta dell'utente (ripartenza al suo via).** SANY su V5 non ancora eseguito: da fare prima del lancio.
+
+### 9.5 Cosa va nel paper (provvisorio)
+- `X4b_V5` e `Xm3b` come previsto: "con fallimenti e crash, durante un episodio nessun sito esporta o può confermare, e un sito resta indietro solo dopo un fallimento ed è riparato dall'anti-entropia; senza fallimenti vale la forma stretta con le cinque parti necessarie".
+- `Xm3b` non viola: si dichiara che con fallimenti la necessità della quarta parte non è dimostrata (limite).
