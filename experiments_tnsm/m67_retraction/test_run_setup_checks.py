@@ -159,3 +159,19 @@ def test_d5_9_episode_row_counts_retries(monkeypatch):
     env = E({(0, "commit"): [Resp(503, {})]})
     row = r.episode_b1(env, "lan", "t", 0)
     assert row.get("setup_retries") == 1
+
+
+def test_d5_10_commit_409_evidence_changed_is_retried_other_409_not(monkeypatch):
+    """Review 2026-10-12: /commit answers 409 'the evidence changed during the commit' when its SECOND evidence read fails (the record is back to monitor-only: a retry is safe). Only that text,
+    only on /commit; 'cannot commit: state is ...' and any 409 on /query are not retried."""
+    monkeypatch.setattr(r.time, "sleep", lambda s: None)
+    env = Seq({(1, "commit"): [Resp(409, {"detail": "the evidence changed during the commit"})]})
+    assert r.setup_fact(env, "x.example", [0, 1], 30.0) == 7 and env.n[(1, "commit")] == 2 and env.setup_retries == 1
+    env = Seq({(1, "commit"): [Resp(409, {"detail": "cannot commit: state is 'active'"})] * 3})
+    with pytest.raises(r.SetupFailed):
+        r.setup_fact(env, "x.example", [0, 1], 30.0)
+    assert env.n[(1, "commit")] == 1
+    env = Seq({(1, "query"): [Resp(409, {"detail": "the evidence changed during the commit"})] * 3})
+    with pytest.raises(r.SetupFailed):
+        r.setup_fact(env, "x.example", [0, 1], 30.0)
+    assert env.n[(1, "query")] == 1

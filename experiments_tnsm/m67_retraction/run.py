@@ -699,12 +699,25 @@ class Env:
 SETUP_ATTEMPTS = 3   # audit 102: attempts per setup step on a clean 503
 
 
+def _retriable_setup_answer(resp, step: str) -> bool:
+    """503 (nothing changed), or the 409 of /commit when its second evidence read failed: 'the evidence changed during the commit' (the record is back to monitor-only, a retry is safe)."""
+    if resp.status_code == 503:
+        return True
+    if resp.status_code == 409 and step == "commit":
+        try:
+            detail = str(resp.json().get("detail", ""))
+        except (ValueError, AttributeError):
+            detail = str(getattr(resp, "text", ""))
+        return "the evidence changed during the commit" in detail
+    return False
+
+
 def setup_step(env, method: str, url: str, identity: str, timeout: float, site: int, step: str, body: dict) -> None:
     """One /query or /commit of the setup, checked (D5). A 503 is a clean refusal (evidence unreachable or reconcile lock busy: nothing changed), so it is retried up to
     SETUP_ATTEMPTS times in total (the node testbed does the same); 409/500/applied=false are NOT retried. Retries are counted in env.setup_retries."""
     for attempt in range(SETUP_ATTEMPTS):
         resp = env.req(method, url, identity, timeout, json=body)
-        if resp.status_code == 503 and attempt + 1 < SETUP_ATTEMPTS:
+        if _retriable_setup_answer(resp, step) and attempt + 1 < SETUP_ATTEMPTS:
             env.setup_retries = getattr(env, "setup_retries", 0) + 1
             time.sleep(0.2)
             continue

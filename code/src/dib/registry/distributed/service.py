@@ -474,10 +474,17 @@ if ROLE == "site":
             if resp.status_code == 404:
                 return None
             resp.raise_for_status()
-        except httpx.HTTPError as exc:
-            # audit 102: a timeout, a refused connection or a failing evidence is a clean 503, never an unhandled 500 (7 of 50 mTLS setups at 5 % loss on the node)
+            return resp.json()
+        except httpx.HTTPStatusError as exc:
+            # audit 102: a transport error or a failing (5xx) evidence is a clean 503, never an unhandled 500 (7 of 50 mTLS setups at 5 % loss on the node); a REFUSAL by the
+            # evidence (4xx other than 404: an unauthorized identity, a malformed request) is a 502, so that it is neither reported as a network problem nor retried as one
+            if exc.response.status_code >= 500:
+                raise HTTPException(503, "evidence unreachable") from exc
+            raise HTTPException(502, f"evidence refused the request ({exc.response.status_code})") from exc
+        except httpx.HTTPError as exc:   # transport errors: timeout, connection refused, TLS handshake
             raise HTTPException(503, "evidence unreachable") from exc
-        return resp.json()
+        except ValueError as exc:   # a 200 whose body is not JSON
+            raise HTTPException(502, "evidence answered with a body that is not JSON") from exc
 
     def _apply_fanout_row(con, score_id: int, seq: int, event_type: str, target_state: str) -> None:
         row = con.execute(

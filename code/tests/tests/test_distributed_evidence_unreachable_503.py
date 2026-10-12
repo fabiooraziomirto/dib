@@ -66,3 +66,46 @@ def test_e5_normal_path_unchanged(make_cluster):
     assert c.stage(0).json()["applied"] is True and c.commit(0).status_code == 200
     assert c.state(0, sid)["state"] == "active"
     assert _post(c, "query", ep="unknown.example").status_code in (200, 404)
+
+
+# ---- review of 2026-10-12: only transport errors and 5xx are "unreachable" (503); a refusal by the evidence (4xx other than 404) or a body that is not JSON is a 502, so that a
+# ---- misconfigured identity (403) is not reported as a network problem and not retried by the driver as one.
+import httpx  # noqa: E402
+
+
+def _evidence_answers(monkeypatch, status, content=b'{"id": 1}'):
+    def get(url, **kw):
+        return httpx.Response(status, content=content, request=httpx.Request("GET", url))
+    monkeypatch.setattr(httpx, "get", get)
+
+
+def test_e6_evidence_5xx_is_503(make_cluster, monkeypatch):
+    c = make_cluster(n_sites=N)
+    c.seed()
+    _evidence_answers(monkeypatch, 500, b"boom")
+    assert _post(c, "query").status_code == 503
+
+
+def test_e7_evidence_4xx_is_502_not_503(make_cluster, monkeypatch):
+    c = make_cluster(n_sites=N)
+    c.seed()
+    for status in (400, 401, 403, 429):
+        _evidence_answers(monkeypatch, status, b"nope")
+        r = _post(c, "query")
+        assert r.status_code == 502, (status, r.status_code)
+    assert _rows(c) == []
+
+
+def test_e8_non_json_200_is_502(make_cluster, monkeypatch):
+    c = make_cluster(n_sites=N)
+    c.seed()
+    _evidence_answers(monkeypatch, 200, b"<html>not json</html>")
+    assert _post(c, "query").status_code == 502
+
+
+def test_e9_404_unchanged(make_cluster, monkeypatch):
+    c = make_cluster(n_sites=N)
+    c.seed()
+    _evidence_answers(monkeypatch, 404, b"{}")
+    r = _post(c, "query")
+    assert r.status_code == 200 and r.json() == {"applied": False}
