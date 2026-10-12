@@ -51,3 +51,18 @@ def test_s5_stopped_processes_do_not_count():
     assert tb.proc_is_stopped("1234 (java) T 1 1 1 0 -1 4194304") is True
     assert tb.proc_is_stopped("1234 (java) S 1 1 1 0 -1 4194304") is False
     assert tb.proc_is_stopped("1234 (my (weird) name) T 1 1") is True
+
+
+def test_s6_quiet_guard_uses_cpu_idle_not_load():
+    """Audit 95 addendum: the 1-minute load average of this machine never drops below 4 even at 90% idle (unrelated Erlang schedulers wake up 10^5 times/s), so it does not measure CPU contention.
+    The guard refuses while a TLC runs or the CPU idle fraction over a 10 s sample is below 0.80."""
+    assert tb.guard_quiet(["python3 x.py"], 0.90) is None
+    assert "TLC" in tb.guard_quiet(["java -cp x tlc2.TLC"], 0.95)
+    assert "idle" in tb.guard_quiet([], 0.55)
+    assert tb.guard_quiet([], 0.80) is None
+
+
+def test_s7_idle_fraction_from_proc_stat_lines():
+    a = "cpu  100 0 100 800 0 0 0 0 0 0"
+    b = "cpu  110 0 110 880 0 0 0 0 0 0"
+    assert abs(tb.idle_fraction(a, b) - 0.8) < 1e-9

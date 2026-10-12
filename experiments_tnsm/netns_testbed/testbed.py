@@ -363,6 +363,30 @@ def guard_load(cmdlines: list[str], load1: float) -> str | None:
     return None
 
 
+def guard_quiet(cmdlines: list[str], idle: float) -> str | None:
+    """Audit 95 addendum: quiet = no TLC running and CPU idle >= 0.80 over a 10 s sample (the load average is NOT used: on this machine unrelated Erlang schedulers keep it above 10 at 90% idle)."""
+    if any("tlc2.TLC" in c for c in cmdlines):
+        return "a tlc2.TLC process is running"
+    if idle < 0.80:
+        return f"CPU idle {idle:.2f} < 0.80"
+    return None
+
+
+def idle_fraction(stat_a: str, stat_b: str) -> float:
+    """Idle fraction between two first lines of /proc/stat (idle + iowait over the total)."""
+    fa = [int(x) for x in stat_a.split()[1:]]
+    fb = [int(x) for x in stat_b.split()[1:]]
+    d = [y - x for x, y in zip(fa, fb)]
+    total = sum(d[:8])
+    return (d[3] + d[4]) / total if total else 1.0
+
+
+def _cpu_idle(sample_s: float = 10.0) -> float:
+    a = Path("/proc/stat").read_text().splitlines()[0]
+    time.sleep(sample_s)
+    return idle_fraction(a, Path("/proc/stat").read_text().splitlines()[0])
+
+
 def proc_is_stopped(stat_line: str) -> bool:
     """State field of /proc/<pid>/stat (after the last ')' because the command name may contain spaces and parentheses): T = stopped (SIGSTOP), which uses no CPU."""
     return stat_line.rsplit(")", 1)[1].split()[0] == "T"
@@ -386,7 +410,7 @@ def launch(out_dir: Path, workers: int, episodes: int, suite: str = "grid", pki:
     if avail < 16:
         raise SystemExit(f"refusing to start: MemAvailable {avail:.1f} GB < 16 GB")
     if suite.startswith("mtls"):
-        why = guard_load(*_machine_state())
+        why = guard_quiet(_machine_state()[0], _cpu_idle())
         if why:
             raise SystemExit(f"refusing to start (audit 95): {why}")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -411,7 +435,7 @@ def launch(out_dir: Path, workers: int, episodes: int, suite: str = "grid", pki:
     svc = SVC_DIR / "service.py"
     (out_dir / "manifest.json").write_text(json.dumps({
         "audit": "docs/audit/75_prereg_banco_netns_modello_v2.md (suite grid) / 77 (suite s1)", "suite": suite, "python": sys.version, "kernel": platform.release(), "host": platform.node(), "seed": SEED,
-        "workers": workers, "episodes_per_cell": episodes, "cells": cells, "mtls_pki": pki, "load_avg_start": os.getloadavg(), "tlc_running": bool(guard_load(_machine_state()[0], 0)), "service_py_sha256": hashlib.sha256(svc.read_bytes()).hexdigest(),
+        "workers": workers, "episodes_per_cell": episodes, "cells": cells, "mtls_pki": pki, "load_avg_start": os.getloadavg(), "cpu_idle_start": _cpu_idle(2.0), "quiet_rule": "no TLC and CPU idle >= 0.80 over 10 s (audit 95 addendum)", "tlc_running": bool(guard_load(_machine_state()[0], 0)), "service_py_sha256": hashlib.sha256(svc.read_bytes()).hexdigest(),
         "testbed_py_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), "finished_utc": time.strftime("%FT%TZ", time.gmtime())}, indent=1))
 
 
