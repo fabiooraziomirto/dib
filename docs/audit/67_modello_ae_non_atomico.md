@@ -379,3 +379,13 @@ Ipotesi:
 
 Ciascuna è falsificata se non c'è violazione. (La necessità dell'applicazione della lettura è
 `v6_m5`, con MaxEvents 3.)
+
+Esito 14.1 (heap 6 GB, 4 worker, in parallelo con v6_f4_e3): **tutte e quattro confermate**.
+| cfg | stati alla violazione |
+|---|---|
+| `v6m_m2_nolrguard` | 132.075 |
+| `v6m_m3_noverify` | 16.310 |
+| `v6m_m4_noqueryfix` | 1.024 |
+| `v6m_m6_nolock` | 674.006 |
+
+Con `v6_m5` (624.874), **ognuna delle cinque parti della correzione v6 è necessaria**.
