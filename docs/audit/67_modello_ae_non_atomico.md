@@ -281,3 +281,15 @@ modo (H-F5, pre-registrata nel docstring prima di rieseguire).
 | `v5_witness_mo` | la query divisa raggiunge ancora MonitorOnly | nessuna violazione |
 | `v5_f2_fix_all` | correzioni con riserva serializzata: nessuna violazione di nessuna proprietà | qualunque violazione |
 | `v5_f3_two_split` | idem su entrambi i siti, MaxToggles 2 | qualunque violazione; incompleto oltre 3 h = riportato come tale |
+
+## 13. Risultati del batch 5
+| cfg | Previsione | Esito | Stati distinti | Nota |
+|---|---|---|---|---|
+| `v4_n7_export_nofix` | nessuna violazione | **confermata** | **55.063.707**, profondità 38, 12 min 56 s | semantica del PROTOTIPO: export sicuro ai siti raggiungibili, I1, I2, I3_ConservativeRestore, I3_VetoPreserved, isolamento, monotonia, nessuna regressione |
+| `v5_witness_mo` | violazione | **confermata** | 324 | la riserva serializzata non blocca la query |
+| `v5_f2_fix_all` | nessuna violazione | (in corso) | | |
+| `v5_f3_two_split` | nessuna violazione | (in coda) | | |
+
+Patch su copia con la riserva sotto `_reconcile_lock` (H-F5): `test_distributed_fsm_fix_copy.py` +
+`test_distributed_fsm_stale_commit.py`, **13 passed, 1 xfailed** (l'xfail è H-S1 sul prototipo);
+**H-F5 confermata**.
