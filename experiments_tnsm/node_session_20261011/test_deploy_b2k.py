@@ -26,4 +26,5 @@ def test_trials_and_seed_are_parameters_with_the_old_defaults():
 def test_night_queue_syntax_and_order():
     q = (Path(__file__).resolve().parent / "night_queue.sh").read_text()
     assert subprocess.run(["bash", "-n", str(Path(__file__).resolve().parent / "night_queue.sh")]).returncode == 0
-    assert q.index("TRIALS=20 SEED=20261016") < q.index("deploy_run.sh") and "$FIRST/DONE" in q and "sudo" not in q.replace("no sudo", "") and "pkill" not in q
+    body = q.split("mkdir -p", 1)[1]   # the header comments also name deploy_run.sh
+    assert body.index("TRIALS=20 SEED=20261016") < body.index("deploy_run.sh") and "$FIRST/DONE" in q and "sudo" not in q.replace("no sudo", "") and "pkill" not in q
