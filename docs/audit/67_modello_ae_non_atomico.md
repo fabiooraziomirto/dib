@@ -293,3 +293,12 @@ modo (H-F5, pre-registrata nel docstring prima di rieseguire).
 Patch su copia con la riserva sotto `_reconcile_lock` (H-F5): `test_distributed_fsm_fix_copy.py` +
 `test_distributed_fsm_stale_commit.py`, **13 passed, 1 xfailed** (l'xfail è H-S1 sul prototipo);
 **H-F5 confermata**.
+
+Regressione della copia v5 (riserva sotto lock) su tutti i test distribuiti più `test_distributed_fsm_stale_commit.py`:
+**127 passed, 15 failed, 1 xfailed in 32,0 s**.
+- I 12 fallimenti della sez. 7.1 si ripetono identici: 11 nelle classi dichiarate, b3q-2 fuori classe
+  come prima.
+- 3 nuovi, tutti in classe:
+  - `s1` passa sulla copia (XPASS strict, ii);
+  - `s1_observed` caratterizza il vecchio comportamento (riceve 409 invece di 200, i);
+  - `s2` riapplica le FIXES a una sorgente già corretta: "anchor not found", iii.
