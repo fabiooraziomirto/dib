@@ -1,7 +1,7 @@
-# Audit 92 — Cattura dell'handshake mTLS e della richiesta /apply_fanout (passo 1, misura locale)
+# Audit 94 — Cattura dell'handshake mTLS e della richiesta /apply_fanout (passo 1, misura locale)
 
 Data 2026-10-12. Locale (nessun accesso al nodo), rete privata `unshare -n`, nessuna perdita. **Non è una misura di tempo** e **non è una validazione**: osserva quali pacchetti e quanti byte compongono una connessione mTLS fredda, perché il modello v4 li assumeva senza averli visti.
-Codice: `experiments_tnsm/mtls_model/capture/capture_handshake.py`. Dati: `experiments_tnsm/mtls_model/capture/run1.json` (sha256 `4d…` vedi `sha256sum`). Python 3.10.13, uvicorn 0.51.0, httpx 0.28.1.
+Codice: `experiments_tnsm/mtls_model/capture/capture_handshake.py`. Dati: `experiments_tnsm/mtls_model/capture/run1.json` (sha256 `7bd6e295f4979e03…`). Python 3.10.13, uvicorn 0.51.0, httpx 0.28.1.
 
 ## Cosa è e cosa non è fedele al servizio
 - Server: `dib.registry.distributed.mtls.server_config` (`mtls.py:88-95`, `ssl_cert_reqs=CERT_REQUIRED`), cioè la configurazione di produzione, con certificati di `make_dist_pki.py` (ECDSA P-256, 491 byte DER per foglia, CA 353 byte; sul nodo i PEM sono 692-721 byte, coerenti).
@@ -44,7 +44,7 @@ Previsioni del v5 alla condizione `degraded` (R=0,4 s, perdita 5 %, seed del mod
 | C/10 quota in ritardo | 0,251 | 0,280 | 0,310 (B5), 0,282 (86), 0,335 (89) |
 | C/1 mediana (ms) | 16 400 | 17 200 | 16 126 (86), 17 806 (89) |
 
-Letto onestamente: il v5 chiude la parte più grande della sottostima ma non tutta (media delle tre repliche 0,309 contro 0,280: restano ~3 punti, e il v5 coincide con la replica più bassa). La dispersione fra repliche (0,282-0,335, intervalli bootstrap larghi ±0,04-0,06 a 50 episodi) non permette di dire se il resto sia rumore o un altro elemento non modellato. Per questo il v5 va valutato FUORI CAMPIONE (audit 93, da scrivere prima di ogni dato nuovo).
+Letto onestamente: il v5 chiude la parte più grande della sottostima ma non tutta (media delle tre repliche 0,309 contro 0,280: restano ~3 punti, e il v5 coincide con la replica più bassa). La dispersione fra repliche (0,282-0,335, intervalli bootstrap larghi ±0,04-0,06 a 50 episodi) non permette di dire se il resto sia rumore o un altro elemento non modellato. Per questo il v5 va valutato FUORI CAMPIONE (audit 95, da scrivere prima di ogni dato nuovo).
 
 ## Differenza rispetto all'audit 91
 L'audit 91 ipotizzava un volo del client da 1-3 segmenti sommato in sequenza prima della richiesta (0,281/0,310/0,334). La cattura dice: 1 segmento (non 2 o 3), **spedito nello stesso lotto della richiesta**, non in sequenza prima. L'ipotesi "3 segmenti" che riproduceva 0,334 è esclusa dalla cattura (nei limiti di MSS e catena); resta il valore a 1 segmento, 0,280 (burst) contro 0,281 (sequenza): praticamente lo stesso numero.
