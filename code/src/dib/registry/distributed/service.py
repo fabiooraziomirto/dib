@@ -465,14 +465,18 @@ if ROLE == "site":
         return f"site-{SITE_INDEX}"
 
     def _evidence_get_score(device_type: str, endpoint: str, protocol: str = "https", port: int = 443) -> dict | None:
-        resp = httpx.get(
-            f"{EVIDENCE_URL}/scores",
-            params={"device_type": device_type, "endpoint": endpoint, "protocol": protocol, "port": port},
-            timeout=5.0, **_HTTP_TLS,
-        )
-        if resp.status_code == 404:
-            return None
-        resp.raise_for_status()
+        try:
+            resp = httpx.get(
+                f"{EVIDENCE_URL}/scores",
+                params={"device_type": device_type, "endpoint": endpoint, "protocol": protocol, "port": port},
+                timeout=5.0, **_HTTP_TLS,
+            )
+            if resp.status_code == 404:
+                return None
+            resp.raise_for_status()
+        except httpx.HTTPError as exc:
+            # audit 102: a timeout, a refused connection or a failing evidence is a clean 503, never an unhandled 500 (7 of 50 mTLS setups at 5 % loss on the node)
+            raise HTTPException(503, "evidence unreachable") from exc
         return resp.json()
 
     def _apply_fanout_row(con, score_id: int, seq: int, event_type: str, target_state: str) -> None:
