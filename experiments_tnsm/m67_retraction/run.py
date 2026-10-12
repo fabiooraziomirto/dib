@@ -430,6 +430,11 @@ def group_cells(cells: list[dict], rng: random.Random) -> list[tuple[tuple, list
     return out
 
 
+def dns_nosearch_enabled() -> bool:
+    """True only when DIB_M67_DNS_NOSEARCH=1 in the driver's environment (docs/audit/72): the cluster gets `dns_search: .` (no search domains)."""
+    return os.environ.get("DIB_M67_DNS_NOSEARCH", "0") == "1"
+
+
 def keepalive_enabled() -> bool:
     """True only when DIB_M67_KEEPALIVE=1 in the driver's environment (docs/audit/62)."""
     return os.environ.get("DIB_M67_KEEPALIVE", "0") == "1"
@@ -474,6 +479,11 @@ class Env:
         if keepalive_enabled():   # docs/audit/62: opt-in persistent fan-out connections, switched on from the DRIVER's environment
             env += " DIB_DIST_FANOUT_KEEPALIVE=1 DIB_DIST_FANOUT_WARM_INTERVAL=2"
         files = f"-f {gen}" + (f" -f {self.home}/dib_tnsm/m67/override_d.yml" if self.arm == "D" else "")
+        if dns_nosearch_enabled():   # docs/audit/72: the node's search domains stall the resolution of a killed site's name (1-8 s in bursts)
+            ov = Path(self.home) / "dib_tnsm" / "m67" / "dns_nosearch.yml"
+            ov.parent.mkdir(parents=True, exist_ok=True)
+            ov.write_text("services:\n" + "".join(f"  {n}:\n    dns_search: .\n" for n in ["evidence"] + [f"site-{i}" for i in range(N_SITES)]))
+            files += f" -f {ov}"
         return (f"export PATH=/snap/bin:$PATH && cd {dist} && mkdir -p {self.home}/dib_tnsm/m67 && {env} "
                 f"python3 generate_compose.py > {gen} && docker compose -p dibtnsm {files} --project-directory {dist} ")
 
@@ -803,7 +813,7 @@ def live(a, cells, rng) -> int:
                 "generator_is_node": True, "clock": "time.time() = CLOCK_REALTIME of the node (same clock as docker logs -t)",
                 "cluster_recreations": len(groups), "plog_thresholds": thresholds,
                 "measure_rule": "per profile from the thresholds file" if thresholds else "dispute-rtt (no P-log calibration applied)",
-                "node_service_sha256": sha(Path(f"{tree}/code/src/dib/registry/distributed/service.py")), "fanout_keepalive": keepalive_enabled(),
+                "node_service_sha256": sha(Path(f"{tree}/code/src/dib/registry/distributed/service.py")), "fanout_keepalive": keepalive_enabled(), "dns_nosearch": dns_nosearch_enabled(),
                 "launcher_d_sha256": sha(Path(f"{tree}/experiments_tnsm/m3_distributed/launcher_d.py")),
                 "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
                 "run_py_sha256": sha(Path(__file__)), "discard_rule": rule,
