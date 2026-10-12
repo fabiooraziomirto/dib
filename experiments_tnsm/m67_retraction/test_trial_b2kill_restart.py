@@ -18,7 +18,7 @@ import run as r  # noqa: E402
 
 class _Resp:
     def json(self):
-        return {"id": 7, "pending": []}
+        return {"id": 7, "pending": [], "applied": True}   # D5: the setup checks "applied"; the fixture answered nothing about it before
 
     status_code = 200
 
@@ -102,7 +102,7 @@ def test_f5_no_second_start_after_a_normal_start(monkeypatch):
     class _Ok(_Resp):
         status_code = 200
         def json(self):
-            return {"id": 7, "pending": [], "mud": {}}
+            return {"id": 7, "pending": [], "mud": {}, "applied": True}   # D5
     env.req = lambda method, url, identity, timeout, **kw: _Ok()
     row = r.trial_b2kill(env, "lan", 1, 0, None)
     assert len(starts(env)) == 1 and row["excluded"] and "site3_restarted_after_exception" not in row

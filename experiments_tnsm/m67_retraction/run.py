@@ -449,6 +449,21 @@ class ClientTimeout(Exception):
     """A client-side timeout: the episode/trial is EXCLUDED from the statistics, never counted as a service failure."""
 
 
+class SetupFailed(Exception):
+    """D5 (audit 90): a /query or /commit of the episode setup was refused (status != 200 or applied != true): the episode/trial is EXCLUDED with the step, the site and
+    the answer, it is not a service failure of the measured operation and it must not start with sites that are not Active."""
+
+    def __init__(self, site: int, step: str, status, body):
+        super().__init__(f"setup {step} at site-{site}: status {status}, body {str(body)[:120]}")
+        self.site, self.step, self.status, self.body = site, step, status, body
+
+
+def check_step(resp, site: int, step: str) -> None:
+    body = resp.json()
+    if resp.status_code != 200 or not isinstance(body, dict) or body.get("applied") is not True:
+        raise SetupFailed(site, step, resp.status_code, body)
+
+
 class TransportFailure(Exception):
     """A non-timeout transport error (e.g. httpx.RemoteProtocolError on a connection the server closed): the episode/trial is
     EXCLUDED with the cause and the exception type, the invocation goes on."""
@@ -629,8 +644,8 @@ def setup_fact(env: Env, ep: str, sites: list[int], timeout: float) -> int:
 
     def one(i):
         body = {"device_type": "cam-a", "endpoint": ep}
-        env.req("POST", f"{env.site(i)}/query", f"op-site-{i}", timeout, json=body)
-        env.req("POST", f"{env.site(i)}/commit", f"op-site-{i}", timeout, json=body)
+        check_step(env.req("POST", f"{env.site(i)}/query", f"op-site-{i}", timeout, json=body), i, "query")
+        check_step(env.req("POST", f"{env.site(i)}/commit", f"op-site-{i}", timeout, json=body), i, "commit")
 
     with ThreadPoolExecutor(max_workers=10) as ex:
         list(ex.map(one, sites))
@@ -677,6 +692,8 @@ def episode_b1(env: Env, profile: str, tag: str, e: int, setup: bool = True) -> 
         row["plog_apply_ts"], row["plog_ack_ts"] = applied, acked
         row["plog_ack_count"] = {i: sum(1 for x in evlog if x[1] == f"/pending/site-{i}/ack" and x[0] >= t0 and x[2] == 200) for i in range(N_SITES)}
         row["withdrawn_plog_s"] = {i: (None if t is None else t - t0) for i, t in applied.items()}
+    except SetupFailed as exc:
+        row.update(excluded=True, excluded_reason="setup_failed", setup_failed=str(exc)[:200])
     except ClientTimeout as exc:
         row.update(excluded=True, client_timeout=str(exc)[:200])
     except TransportFailure as exc:
@@ -709,8 +726,8 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
             sid = env.req("POST", f"{env.ev}/seed", "admin", 30.0, json={"device_type": "cam-a", "endpoint": ep}).json()["id"]
             ids.append(sid)
             body = {"device_type": "cam-a", "endpoint": ep}
-            env.req("POST", f"{env.site(3)}/query", "op-site-3", 30.0, json=body)
-            env.req("POST", f"{env.site(3)}/commit", "op-site-3", 30.0, json=body)
+            check_step(env.req("POST", f"{env.site(3)}/query", "op-site-3", 30.0, json=body), 3, "query")
+            check_step(env.req("POST", f"{env.site(3)}/commit", "op-site-3", 30.0, json=body), 3, "commit")
         env.sh(env.compose() + "kill site-3")
         killed = True
         t_kill = time.time()
@@ -757,6 +774,8 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
             states = [env.req("GET", f"{env.site(3)}/state/{sid}", "op-site-3", 5.0).json()["state"] for sid in ids]
             row["final_states"] = {s: states.count(s) for s in set(states)}
             row["final_all_monitor_only"] = all(s == "monitor-only" for s in states)
+    except SetupFailed as exc:
+        row.update(excluded=True, excluded_reason="setup_failed", setup_failed=str(exc)[:200])
     except ClientTimeout as exc:
         row.update(excluded=True, client_timeout=str(exc)[:200])
     except TransportFailure as exc:

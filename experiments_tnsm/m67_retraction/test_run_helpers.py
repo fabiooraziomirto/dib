@@ -281,7 +281,7 @@ class _FakeResp:
     status_code = 200
 
     def json(self):
-        return {"id": 1}
+        return {"id": 1, "applied": True}   # D5: the setup checks "applied"
 
 
 class _FakeEnv:
