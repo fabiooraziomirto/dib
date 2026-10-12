@@ -39,7 +39,7 @@ def rng_lost(rng: random.Random, p: float):
     return lambda kind: rng.random() < p
 
 
-def attempt(arm: str, lost, warm: bool = False, timeout: float = TIMEOUT, hedge_s: float | None = None, R_: float = R, rto: bool = False) -> dict:
+def attempt(arm: str, lost, warm: bool = False, timeout: float = TIMEOUT, hedge_s: float | None = None, R_: float = R, rto: bool = False, req_segments: int = 1) -> dict:
     """One attempt. Returns dur (time until it returns or fails), ok (response received), apply (request arrival time or None)."""
     t = 0.0
     if not warm:
@@ -67,7 +67,7 @@ def attempt(arm: str, lost, warm: bool = False, timeout: float = TIMEOUT, hedge_
             if R_ + extra >= timeout:
                 return {"dur": t + timeout, "ok": False, "apply": None}
             t += R_ + extra
-        er = _extra(lost, "request", R_)
+        er = max(_extra(lost, "request", R_) for _ in range(req_segments))   # v4: the request arrives when the LATER of its segments arrives
         if er + R_ / 2 >= timeout:
             return {"dur": t + timeout, "ok": False, "apply": None}
         apply = t + er + R_ / 2
