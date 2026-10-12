@@ -1,0 +1,22 @@
+2026-10-12T16:43:34Z applier pid 1358672 poll 0.1 s
+2026-10-12T16:43:34Z profile lan: calibration (L_dns)
+2026-10-12T16:44:12Z calib lan rc=0
+2026-10-12T16:44:12Z L_dns decision lan: run (L_dns_p95_1.4_ms_<=_50_ms_and_watcher_poll_0.1_s_<=_0.1_s)
+2026-10-12T16:44:12Z b2kill lan arm D
+2026-10-12T16:51:25Z lan arm D rc=0
+2026-10-12T16:51:25Z b2kill lan arm C
+2026-10-12T16:59:44Z lan arm C rc=0
+2026-10-12T16:59:44Z profile degraded: calibration (L_dns)
+2026-10-12T17:02:17Z calib degraded rc=0
+2026-10-12T17:02:18Z L_dns decision degraded: run (L_dns_p95_1.3_ms_<=_50_ms_and_watcher_poll_0.1_s_<=_0.1_s)
+2026-10-12T17:02:18Z b2kill degraded arm D
+2026-10-12T18:03:16Z degraded arm D rc=0
+2026-10-12T18:03:16Z b2kill degraded arm C
+2026-10-12T19:24:32Z degraded arm C rc=0
+2026-10-12T19:24:32Z profile wan: calibration (L_dns)
+2026-10-12T19:25:51Z calib wan rc=0
+2026-10-12T19:25:51Z L_dns decision wan: run (L_dns_p95_1.6_ms_<=_50_ms_and_watcher_poll_0.1_s_<=_0.1_s)
+2026-10-12T19:25:51Z b2kill wan arm D
+2026-10-12T19:45:59Z wan arm D rc=0
+2026-10-12T19:45:59Z b2kill wan arm C
+2026-10-12T20:15:27Z wan arm C rc=0

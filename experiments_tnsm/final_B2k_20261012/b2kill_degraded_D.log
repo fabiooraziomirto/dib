@@ -1,0 +1,6 @@
+generator path (ms): {'reused_ms': 203.2109799911268, 'fresh_ms': 403.65706401644275, 'n': 5, 'reused_ok': True, 'fresh_ok': True}
+[1/4] b2kill D f=10 T=15 rows=10 excluded=0 flagged=True bg_other=2.0537 steal=0.06 gen_proc=0.00
+[2/4] b2kill D f=10 T=15 rows=10 excluded=0 flagged=True bg_other=1.4175 steal=0.05 gen_proc=0.00
+generator path (ms): {'reused_ms': 203.5870569816325, 'fresh_ms': 403.8920699968003, 'n': 5, 'reused_ok': True, 'fresh_ok': True}
+[3/4] b2kill D f=10 T=5 rows=10 excluded=0 flagged=True bg_other=1.4432 steal=0.061 gen_proc=0.00
+[4/4] b2kill D f=10 T=5 rows=10 excluded=0 flagged=True bg_other=1.9753 steal=0.039 gen_proc=0.00
