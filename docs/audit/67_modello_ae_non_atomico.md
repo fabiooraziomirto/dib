@@ -358,3 +358,12 @@ modo (H-F6; lo scenario fuori ordine non ha un test Python: NON VERIFICATO sul c
 | `v6_m5_nofinishapply` | MaxEvents 3, senza l'applicazione: V3 violato (traccia di v5_f4_e3) | nessuna violazione |
 | `v6_f2_fix_all` | MaxEvents 2, con la V2 stretta: nessuna violazione | qualunque violazione |
 | `v6_f4_e3` | MaxEvents 3, MaxToggles 2, con V3: nessuna violazione | qualunque violazione; incompleto = nessuna affermazione |
+
+Esito parziale del batch 6:
+- `v6_m5_nofinishapply`: violazione **confermata** (624.874 stati);
+- `v6_f2_fix_all`: **confermata**, nessuna violazione con la V2 stretta su **100.746.547** stati,
+  profondità 43, 26 min 44 s.
+
+Pre-registrazione 6b: `v6_f3_two_split` (correzione v6 su entrambi i siti, MaxEvents 2,
+MaxToggles 2, V2 stretta): nessuna violazione. Incompleto = nessuna affermazione. Parte dopo
+`v6_f4_e3`.
