@@ -143,3 +143,12 @@ controesempio già trovato **esiste ancora**, se la sua proprietà è nell'insie
   sulla finestra.
 - **H-L2 falsificata** (un mutante separabile non trovato): il controllo con le perdite è vacuo per
   quella parte, e lo si dice.
+
+## 7. Decisioni dell'utente (prima di ogni run, 2026-10-12T10:46:43Z)
+- **H-L1 come pre-registrato:** H-L1a senza ExportSafe/V2/V3; H-L1b come violazione attesa con
+  controllo atomico; H-L3 vivacità; m4 e m5 dichiarati non separabili.
+- **Nessun tetto di tempo per nessun run.** Restano il watchdog del disco (< 8 GB liberi → TLC
+  fermato, esito "incompleto") e l'heap limitato a 28 GB. La sez. 5 è superata per la parte sui tetti.
+- **Regola di arresto:** se  o  trovano un controesempio, la sequenza si ferma e si
+  riporta la traccia minima. Gli altri run (, ) prevedono una violazione: la sequenza
+  prosegue.
