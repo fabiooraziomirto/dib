@@ -1,0 +1,864 @@
+{
+ "k": 10,
+ "reps": 2,
+ "arms": {
+  "D": {
+   "calls": [
+    {
+     "rep": 0,
+     "idx": 0,
+     "path": "/dispute",
+     "s": 0.05271091900067404,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 1,
+     "path": "/dispute",
+     "s": 0.02330769199761562,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 2,
+     "path": "/restore",
+     "s": 0.02356059399608057,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 3,
+     "path": "/dispute",
+     "s": 0.023226289005833678,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 4,
+     "path": "/dispute",
+     "s": 0.021961407008348033,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 5,
+     "path": "/restore",
+     "s": 0.022995706007350236,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 6,
+     "path": "/dispute",
+     "s": 0.02600289401016198,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 7,
+     "path": "/dispute",
+     "s": 0.024430586010566913,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 8,
+     "path": "/restore",
+     "s": 0.02540514299471397,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 9,
+     "path": "/dispute",
+     "s": 0.025681762999738567,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 10,
+     "path": "/dispute",
+     "s": 0.024078798000118695,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 11,
+     "path": "/restore",
+     "s": 0.03120548601145856,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 12,
+     "path": "/dispute",
+     "s": 0.028322320998995565,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 13,
+     "path": "/dispute",
+     "s": 0.031182582999463193,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 14,
+     "path": "/restore",
+     "s": 0.027264919990557246,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 15,
+     "path": "/dispute",
+     "s": 0.02677632399718277,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 16,
+     "path": "/dispute",
+     "s": 0.030755232000956312,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 17,
+     "path": "/restore",
+     "s": 0.030448356992565095,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 18,
+     "path": "/dispute",
+     "s": 0.02623695098736789,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 19,
+     "path": "/dispute",
+     "s": 0.023779063994879834,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 20,
+     "path": "/restore",
+     "s": 0.023017857005470432,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 21,
+     "path": "/dispute",
+     "s": 0.024513470998499542,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 22,
+     "path": "/dispute",
+     "s": 0.022617237002123147,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 23,
+     "path": "/restore",
+     "s": 0.022316183007205836,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 24,
+     "path": "/dispute",
+     "s": 0.019463356002233922,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 25,
+     "path": "/dispute",
+     "s": 0.024168875999748707,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 26,
+     "path": "/restore",
+     "s": 0.024695862986845896,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 27,
+     "path": "/dispute",
+     "s": 0.02513383400219027,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 28,
+     "path": "/dispute",
+     "s": 0.02663768400088884,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 29,
+     "path": "/restore",
+     "s": 0.020755746998474933,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 0,
+     "path": "/dispute",
+     "s": 0.023605730006238446,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 1,
+     "path": "/dispute",
+     "s": 0.02261843999440316,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 2,
+     "path": "/restore",
+     "s": 0.020040817995322868,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 3,
+     "path": "/dispute",
+     "s": 0.018757882993668318,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 4,
+     "path": "/dispute",
+     "s": 0.026146602991502732,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 5,
+     "path": "/restore",
+     "s": 0.023100855003576726,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 6,
+     "path": "/dispute",
+     "s": 0.022762749998946674,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 7,
+     "path": "/dispute",
+     "s": 0.025214976994902827,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 8,
+     "path": "/restore",
+     "s": 0.023057603000779636,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 9,
+     "path": "/dispute",
+     "s": 0.028774489008355886,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 10,
+     "path": "/dispute",
+     "s": 0.02545522699074354,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 11,
+     "path": "/restore",
+     "s": 0.025023597991093993,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 12,
+     "path": "/dispute",
+     "s": 0.031991370997275226,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 13,
+     "path": "/dispute",
+     "s": 0.02419720900070388,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 14,
+     "path": "/restore",
+     "s": 0.034592094001709484,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 15,
+     "path": "/dispute",
+     "s": 0.03246093999769073,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 16,
+     "path": "/dispute",
+     "s": 0.032295450000674464,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 17,
+     "path": "/restore",
+     "s": 0.024398937996011227,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 18,
+     "path": "/dispute",
+     "s": 0.03417861099296715,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 19,
+     "path": "/dispute",
+     "s": 0.03542107901012059,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 20,
+     "path": "/restore",
+     "s": 0.03158970701042563,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 21,
+     "path": "/dispute",
+     "s": 0.02449913499003742,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 22,
+     "path": "/dispute",
+     "s": 0.03792904999863822,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 23,
+     "path": "/restore",
+     "s": 0.04096960999595467,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 24,
+     "path": "/dispute",
+     "s": 0.02568298499681987,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 25,
+     "path": "/dispute",
+     "s": 0.04097835700667929,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 26,
+     "path": "/restore",
+     "s": 0.03818707400932908,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 27,
+     "path": "/dispute",
+     "s": 0.036671322988695465,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 28,
+     "path": "/dispute",
+     "s": 0.030708574995514937,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 29,
+     "path": "/restore",
+     "s": 0.04861936099769082,
+     "err": null
+    }
+   ],
+   "n": 60,
+   "errors": 0,
+   "median_s": 0.025430184992728755,
+   "max_s": 0.05271091900067404,
+   "p95_s": 0.04096960999595467
+  },
+  "C": {
+   "calls": [
+    {
+     "rep": 0,
+     "idx": 0,
+     "path": "/dispute",
+     "s": 0.06887998100137338,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 1,
+     "path": "/dispute",
+     "s": 0.026855324002099223,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 2,
+     "path": "/restore",
+     "s": 0.029896052001276985,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 3,
+     "path": "/dispute",
+     "s": 0.023653521013329737,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 4,
+     "path": "/dispute",
+     "s": 0.029496174000087194,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 5,
+     "path": "/restore",
+     "s": 0.027704475010978058,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 6,
+     "path": "/dispute",
+     "s": 0.029257846006657928,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 7,
+     "path": "/dispute",
+     "s": 0.024834704003296793,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 8,
+     "path": "/restore",
+     "s": 0.04147927698795684,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 9,
+     "path": "/dispute",
+     "s": 0.05722404198604636,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 10,
+     "path": "/dispute",
+     "s": 0.046123272011755034,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 11,
+     "path": "/restore",
+     "s": 0.04828209000697825,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 12,
+     "path": "/dispute",
+     "s": 0.02806884699384682,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 13,
+     "path": "/dispute",
+     "s": 0.02842986400355585,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 14,
+     "path": "/restore",
+     "s": 0.025677826008177362,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 15,
+     "path": "/dispute",
+     "s": 0.025796426998567767,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 16,
+     "path": "/dispute",
+     "s": 0.02875411200511735,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 17,
+     "path": "/restore",
+     "s": 0.027130158006912097,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 18,
+     "path": "/dispute",
+     "s": 0.025901904999045655,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 19,
+     "path": "/dispute",
+     "s": 0.020995658007450402,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 20,
+     "path": "/restore",
+     "s": 0.02954003500053659,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 21,
+     "path": "/dispute",
+     "s": 0.040391818998614326,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 22,
+     "path": "/dispute",
+     "s": 0.0305500599934021,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 23,
+     "path": "/restore",
+     "s": 0.02840137100429274,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 24,
+     "path": "/dispute",
+     "s": 0.031077848994755186,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 25,
+     "path": "/dispute",
+     "s": 0.03128039799048565,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 26,
+     "path": "/restore",
+     "s": 0.02752527900156565,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 27,
+     "path": "/dispute",
+     "s": 0.025495513997157104,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 28,
+     "path": "/dispute",
+     "s": 0.029546359000960365,
+     "err": null
+    },
+    {
+     "rep": 0,
+     "idx": 29,
+     "path": "/restore",
+     "s": 0.02676467300625518,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 0,
+     "path": "/dispute",
+     "s": 0.05110168601095211,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 1,
+     "path": "/dispute",
+     "s": 0.03044064500136301,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 2,
+     "path": "/restore",
+     "s": 0.027911593992030248,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 3,
+     "path": "/dispute",
+     "s": 0.024393808998866007,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 4,
+     "path": "/dispute",
+     "s": 0.030520733998855576,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 5,
+     "path": "/restore",
+     "s": 0.03509539099468384,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 6,
+     "path": "/dispute",
+     "s": 0.030446214994299226,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 7,
+     "path": "/dispute",
+     "s": 0.025200451011187397,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 8,
+     "path": "/restore",
+     "s": 0.027690439004800282,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 9,
+     "path": "/dispute",
+     "s": 0.030731218997971155,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 10,
+     "path": "/dispute",
+     "s": 0.03271010900789406,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 11,
+     "path": "/restore",
+     "s": 0.030109543004073203,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 12,
+     "path": "/dispute",
+     "s": 0.02727168399724178,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 13,
+     "path": "/dispute",
+     "s": 0.037224672007141635,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 14,
+     "path": "/restore",
+     "s": 0.037955662002786994,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 15,
+     "path": "/dispute",
+     "s": 0.03384761099005118,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 16,
+     "path": "/dispute",
+     "s": 0.033493256007204764,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 17,
+     "path": "/restore",
+     "s": 0.03492237599857617,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 18,
+     "path": "/dispute",
+     "s": 0.03151516799698584,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 19,
+     "path": "/dispute",
+     "s": 0.02875860099447891,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 20,
+     "path": "/restore",
+     "s": 0.0360111570043955,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 21,
+     "path": "/dispute",
+     "s": 0.0337788820033893,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 22,
+     "path": "/dispute",
+     "s": 0.03260431099624839,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 23,
+     "path": "/restore",
+     "s": 0.03122960300242994,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 24,
+     "path": "/dispute",
+     "s": 0.041064510005526245,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 25,
+     "path": "/dispute",
+     "s": 0.035318708993145265,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 26,
+     "path": "/restore",
+     "s": 0.03095564000250306,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 27,
+     "path": "/dispute",
+     "s": 0.04243933700490743,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 28,
+     "path": "/dispute",
+     "s": 0.04616062300920021,
+     "err": null
+    },
+    {
+     "rep": 1,
+     "idx": 29,
+     "path": "/restore",
+     "s": 0.03664431300421711,
+     "err": null
+    }
+   ],
+   "n": 60,
+   "errors": 0,
+   "median_s": 0.0304834744965774,
+   "max_s": 0.06887998100137338,
+   "p95_s": 0.04828209000697825
+  }
+ }
+}
