@@ -1,0 +1,38 @@
+{
+ "single": {
+  "sent": 100,
+  "logged": 100,
+  "n": 100,
+  "p50_ms": 1.617431640625,
+  "p95_ms": 2.9549598693847656,
+  "max_ms": 4.816770553588867,
+  "min_ms": 1.0924339294433594
+ },
+ "parallel": {
+  "dibtnsm-evidence-1": {
+   "sent": 100,
+   "logged": 100,
+   "n": 100,
+   "p50_ms": 1.6202926635742188,
+   "p95_ms": 2.6082992553710938,
+   "max_ms": 3.302335739135742,
+   "min_ms": 0.9918212890625
+  },
+  "dibtnsm-site-0-1": {
+   "sent": 0,
+   "logged": 0,
+   "n": 0
+  }
+ },
+ "parallel_order_mismatch_positions": 0,
+ "parallel_offset_p50_ms": -1.6202926635742188,
+ "fresh_connection_diagnostic": {
+  "sent": 30,
+  "logged": 30,
+  "n": 30,
+  "p50_ms": 2.292156219482422,
+  "p95_ms": 3.0875205993652344,
+  "max_ms": 4.0187835693359375,
+  "min_ms": 1.82342529296875
+ }
+}
