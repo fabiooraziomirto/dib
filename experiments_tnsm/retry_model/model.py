@@ -123,10 +123,13 @@ def simulate(arm: str, fanout: int, episodes: int = 20000, seed: int = SEED, p_l
                     late += a > nominal + 0.75 * Rr
         if ep["apply_last"] is not None:
             lasts.append(ep["apply_last"])
+    Rr = kw.get("R_", R)
+    nominal_last = (0.5 if kw.get("warm_first") else (1.5 if arm == "D" else 2.5)) * Rr
+    slow = sum(1 for x in lasts if x > nominal_last + 0.75 * Rr) / len(lasts) if lasts and fanout == 10 else None   # episodes slower than the lossless time + 0.75 R
     lasts.sort()
     q = lambda p: 1000 * lasts[int(p * (len(lasts) - 1))] if lasts else None  # noqa: E731
     return {"arm": arm, "fanout": fanout, "episodes": episodes, "pending_fraction": pend / episodes, "median_ms": q(0.5), "p95_ms": q(0.95),
-            "late_share": (late / tot) if tot else 0.0}
+            "late_share": (late / tot) if tot else 0.0, "slow_episode_fraction": slow}
 
 
 POLICIES = {"P0 current": {}, "P1 warm connection": {"warm_first": True}, "P2 phase timeout 0.6 s": {"timeout": 0.6}, "P3 hedged connect 0.5 s": {"hedge_s": 0.5}}

@@ -78,3 +78,11 @@ def test_r9_v2_matches_v1_at_degraded():
         b = m.simulate(arm, 10, episodes=8000, seed=3, rto=True)
         assert abs(a["median_ms"] - b["median_ms"]) <= 0.05 * a["median_ms"]
         assert abs(a["late_share"] - b["late_share"]) <= 0.02
+
+
+def test_r10_slow_episode_fraction():
+    z = m.simulate("D", fanout=10, episodes=100, seed=1, p_loss=0.0, R_=0.2, rto=True)
+    assert z["slow_episode_fraction"] == 0.0
+    h = m.simulate("D", fanout=10, episodes=3000, seed=1, p_loss=0.2, R_=0.2, rto=True)
+    assert 0.5 < h["slow_episode_fraction"] <= 1.0
+    assert m.simulate("D", fanout=1, episodes=50, seed=1, R_=0.2, rto=True)["slow_episode_fraction"] is None
