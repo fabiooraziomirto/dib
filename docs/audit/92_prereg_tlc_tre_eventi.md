@@ -44,3 +44,16 @@ Valgono ancora i limiti dell'audit 90 sez. 1:
 - 2 siti, 1 fatto, MaxLoss 0;
 - evidence irraggiungibile, crash e concorrenza nello stesso sito non modellati;
 - quorum 2 non combinato con le operazioni divise.
+
+## Risultati (eseguiti, 2026-10-12)
+| cfg | Previsione | Esito | Stati distinti | Log:riga |
+|---|---|---|---|---|
+| `e3a_view_check` | nessuna violazione, ≤ 100.746.547 | **confermata** | 19.415.620, profondità 42, 5 min 46 s (VIEW: circa 5,2× meno stati) | `v6e3/logs/e3a_view_check.log:31,36` |
+| `e3m_nofinishapply_noparts` | violazione | **confermata** | 113.182 | `v6e3/logs/e3m_nofinishapply_noparts.log` (righe "is violated" e "distinct states") |
+| `e3b_noparts` | nessuna violazione | **confermata** | **37.775.741**, profondità 43, 13 min 32 s | `v6e3/logs/e3b_noparts.log:39,44` |
+| `e3c_parts` | nessuna violazione | (in corso) | | |
+
+Lettura:
+- con 3 eventi dell'evidence e senza partizioni, la correzione v6 regge;
+- la riduzione VIEW non nasconde la classe di difetto trovata con 3 eventi (e3m);
+- resta da vedere il caso con le partizioni (e3c).
