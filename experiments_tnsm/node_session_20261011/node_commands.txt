@@ -13,3 +13,4 @@
 2026-10-11T21:33Z ssh dibnode: final state read-only: no dibtnsm container, no run.py/auto_* process, watcher v2 alive (poll 0.5 s, profile lan, left running: started by the user), df 3.5G free. Nothing deleted on the node.
 2026-10-12T22:58Z ssh dibnode: tree-50c4335 created from git archive of 50c4335 (code + experiments_tnsm/{common,m1,m2,m3,m67} without data dirs); frozen_hashes_50c4335.txt copied, sha256sum -c 0 mismatches. FOUND: watcher v2 expired at 21:48Z (9h timeout); sudo needs a password: no netem profile can be applied until the user restarts it
 2026-10-12T02:0xZ node: tree-3a45868 created (hash check 0 mismatches), old degraded waiter stopped (KeyboardInterrupt), lan_b2k_dnsfix.sh launched (audit 72 H-N1)
+04:51:44 node replica launched (3 containers, 4g each)
