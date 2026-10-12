@@ -317,3 +317,11 @@ v4_f2 (stesso modello senza la guardia).
 | `v5_m2_nolrguard` | senza guardia in LRWrite: NoMonitorOnlyCaughtUpDuringEpisode violato | nessuna violazione |
 | `v5_m3_noverify` | senza seconda lettura: I1_CommitOnUndisputedEvidence violato | nessuna violazione |
 | `v5_m4_noqueryfix` | senza riserva: DisputeSuspendsAtReachableSitesV2 violato | nessuna violazione |
+
+Esito 13.1 (heap 4 GB, 4 worker, in parallelo con v5_f3): **tutte e tre confermate**.
+- `v5_m2_nolrguard`: violato a 144.842 stati;
+- `v5_m3_noverify`: violato a 9.668 stati;
+- `v5_m4_noqueryfix`: violato a 3.108 stati.
+
+Con v4_f2 (senza lock: OutboxNeverDropsUnapplied violata a 543.257 stati), **ognuna delle quattro
+parti della correzione è necessaria** nella configurazione verificata.
