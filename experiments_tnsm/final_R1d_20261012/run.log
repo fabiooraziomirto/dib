@@ -1,0 +1,8 @@
+generator path (ms): {'reused_ms': 202.86703101010062, 'fresh_ms': 606.6066720231902, 'n': 5, 'reused_ok': True, 'fresh_ok': None}
+[1/4] b1 C f=1 T=5 rows=50 excluded=7 flagged=True bg_other=1.4125 steal=0.055 gen_proc=0.01
+generator path (ms): {'reused_ms': 203.4604920190759, 'fresh_ms': 403.852146002464, 'n': 5, 'reused_ok': True, 'fresh_ok': True}
+[2/4] b1 D f=10 T=5 rows=50 excluded=0 flagged=True bg_other=1.3159 steal=0.049 gen_proc=0.01
+generator path (ms): {'reused_ms': 202.94192599249072, 'fresh_ms': 609.942412993405, 'n': 5, 'reused_ok': True, 'fresh_ok': None}
+[3/4] b1 C f=10 T=5 rows=50 excluded=7 flagged=True bg_other=2.0938 steal=0.11 gen_proc=0.01
+generator path (ms): {'reused_ms': 202.72681198548526, 'fresh_ms': 403.07947900146246, 'n': 5, 'reused_ok': True, 'fresh_ok': True}
+[4/4] b1 D f=1 T=5 rows=50 excluded=3 flagged=True bg_other=2.1996 steal=0.115 gen_proc=0.01
