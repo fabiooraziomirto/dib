@@ -507,6 +507,13 @@ def invariants_row(env, ep: str, sid: int, sites: list[int]) -> dict:
         return {"invariants_error": repr(exc)[:200]}
 
 
+def reconcile_trace(ev_logs: str, t_start: float) -> dict:
+    """Times (relative to t_start, rounded to 1 ms) and statuses of every evidence access-log line GET /pending/site-3 and POST /pending/site-3/ack after t_start (audit 99 addendum 3): measurement only."""
+    pulls = [[round(t - t_start, 3), st] for t, _p, st in parse_access_lines(ev_logs, "GET", "/pending/site-3") if t >= t_start]
+    acks = [[round(t - t_start, 3), st] for t, _p, st in parse_access_lines(ev_logs, "POST", "/pending/site-3/ack") if t >= t_start]
+    return {"pulls": sorted(pulls), "acks": sorted(acks)}
+
+
 def service_settings(groups) -> dict:
     """Settings of the cluster that decide how an experiment must be read (audit 90 sez. 4): the reconcile interval(s) T of the cells and the suspension quorum the containers get.
     run.py never passes DIB_DIST_SUSPENSION_QUORUM to the containers, so they run the service default (1) whatever the generator's own environment says."""
@@ -879,6 +886,7 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
         ev_logs = env.logs("dibtnsm-evidence-1", t_start)
         pulls = [t for t, _p, st in parse_access_lines(ev_logs, "GET", "/pending/site-3") if t >= t_start and st == 200]
         row["t_first_reconcile_pull"] = min(pulls) if pulls else None   # evidence access log, same clock as t_start
+        row["reconcile_trace"] = reconcile_trace(ev_logs, t_start)
         row["site3_started_at"] = env.sh("/snap/bin/docker inspect -f '{{.State.StartedAt}}' dibtnsm-site-3-1", check=False, timeout=30).strip()
         row.update(t_up=t_up, t_withdrawn=t_withdrawn, bound_s=bound,
                    up_after_start_s=None if t_up is None else t_up - t_start,
