@@ -325,3 +325,9 @@ Esito 13.1 (heap 4 GB, 4 worker, in parallelo con v5_f3): **tutte e tre conferma
 
 Con v4_f2 (senza lock: OutboxNeverDropsUnapplied violata a 543.257 stati), **ognuna delle quattro
 parti della correzione è necessaria** nella configurazione verificata.
+
+### 13.2 Batch 5c — pre-registrazione
+`v5_f4_e3`: correzione su s1, **MaxEvents 3** (una seconda dispute dopo un restore è raggiungibile),
+MaxToggles 2. Ipotesi: nessuna violazione di nessuna proprietà. Falsificata da qualunque violazione.
+Se lo fermano il limite di 3 h o il watchdog del disco: incompleto, nessuna affermazione. Parte
+dopo `v5_f3_two_split`, un TLC alla volta.
