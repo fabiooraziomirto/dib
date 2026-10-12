@@ -1,0 +1,89 @@
+{
+ "audit": "docs/audit/75_prereg_banco_netns_modello_v2.md (suite grid) / 77 (suite s1)",
+ "suite": "v3",
+ "python": "3.10.13 (main, Sep 11 2023, 13:44:35) [GCC 11.2.0]",
+ "kernel": "6.8.12-18-pve",
+ "host": "Mirto-LLM-vnet170",
+ "seed": 20261012,
+ "workers": 4,
+ "episodes_per_cell": 60,
+ "cells": [
+  {
+   "d_ms": 75,
+   "loss_pct": 3,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "v3"
+  },
+  {
+   "d_ms": 150,
+   "loss_pct": 0,
+   "policy": "P0",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 75,
+   "loss_pct": 7,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "v3"
+  },
+  {
+   "d_ms": 150,
+   "loss_pct": 7,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "v3"
+  },
+  {
+   "d_ms": 150,
+   "loss_pct": 3,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "v3"
+  },
+  {
+   "d_ms": 150,
+   "loss_pct": 7,
+   "policy": "S1",
+   "episodes": 40,
+   "kind": "v3",
+   "max_wait_s": 120
+  },
+  {
+   "d_ms": 75,
+   "loss_pct": 7,
+   "policy": "S1",
+   "episodes": 40,
+   "kind": "v3",
+   "max_wait_s": 120
+  },
+  {
+   "d_ms": 150,
+   "loss_pct": 3,
+   "policy": "S1",
+   "episodes": 40,
+   "kind": "v3",
+   "max_wait_s": 120
+  },
+  {
+   "d_ms": 75,
+   "loss_pct": 0,
+   "policy": "P0",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 75,
+   "loss_pct": 3,
+   "policy": "S1",
+   "episodes": 40,
+   "kind": "v3",
+   "max_wait_s": 120
+  }
+ ],
+ "service_py_sha256": "a6bb1d220e727250d5237a31fea5008befc065f42b85040cc4b8b623ac548de0",
+ "testbed_py_sha256": "7df6e676780aa873a2bbc5b1887375f0ada03f5198ea4fe63fd9c621d72529d6",
+ "finished_utc": "2026-10-12T04:29:47Z"
+}
