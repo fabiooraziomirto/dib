@@ -44,10 +44,14 @@ siti raggiungibili senza nulla in volo, I1, I2, la conservazione del veto, il re
   - in più, nella copia: local revoke senza evidence; conferma con quorum 2 da un segnalante
     esterno ai voti.
 - **Nel modello:**
-  - `v5_f2_fix_all`: nessuna violazione di alcuna proprietà su 98.945.568 stati;
-  - `v5_f3_two_split`: con le correzioni su entrambi i siti, nessuna violazione su 466.601.973 stati
-    (profondità 53, 2 h 24 min);
-  - ogni parte è necessaria (4 mutanti, tutti rilevati);
+  - progetto finale **v6**: alla chiusura la query applica anche la propria lettura se un fan-out
+    ha già spostato la riserva. Serve con 3 eventi: `v5_f4_e3` ha trovato una dispute persa e un
+    restore più vecchio consegnato fuori ordine sulla riserva;
+  - `v6_f2_fix_all`: nessuna violazione di alcuna proprietà su 100.746.547 stati (MaxEvents 2);
+  - ognuna delle cinque parti è necessaria (5 mutanti v6, tutti rilevati);
+  - versione v5 su entrambi i siti: 466.601.973 stati senza violazioni, ma è la v5;
+    `v6_f3_two_split` è in corso;
+  - con MaxEvents 3 la v6 è **incompleta** (fermata da me a 202 M stati: nessuna affermazione);
   - quorum 2 con la regola outsider: 64.458.470 stati, nessuna violazione.
 - **Sulla copia:**
   - test delle race e del commit stantio verdi;
