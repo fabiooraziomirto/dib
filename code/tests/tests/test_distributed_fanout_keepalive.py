@@ -179,3 +179,31 @@ def test_k8_same_final_states(make_cluster):
     off = _final_states(make_cluster, False)
     on = _final_states(make_cluster, True)
     assert on == off and "disputed" in on[0]
+
+
+# ---- K-9, K-10 (added 2026-10-12 after docs/audit/76 run 1: the warm connection was often cold) --------------------------------------------------------------
+def test_k9_pool_keeps_two_connections():
+    """A ping in flight must not force a delivery to open a new connection: the real httpx client keeps up to 2 idle connections per site."""
+    import importlib.util
+    import sys
+    from pathlib import Path
+    src = Path(__file__).resolve().parents[2] / "src" / "dib" / "registry" / "distributed" / "service.py"
+    # the module reads its role from the environment at import; use the harness-less path: read the limits from the source text of _new_site_client
+    text = src.read_text()
+    block = text[text.index("def _new_site_client"):text.index("def _site_client(")]
+    assert "max_keepalive_connections=2" in block
+
+
+def test_k10_ping_timeout_is_longer_than_the_delivery_timeout(make_cluster):
+    """A ping delayed by a TCP retransmission (RTO ~1.2 s at RTT 0.4 s) must not drop a good connection: the ping timeout exceeds the 1 s delivery timeout."""
+    c = _cluster(make_cluster, keepalive=True)
+    seen = {}
+
+    class Rec(FakeClient):
+        def get(self, url, **kw):
+            seen["timeout"] = kw.get("timeout")
+            return super().get(url, **kw)
+
+    c.evidence_mod._new_site_client = lambda: Rec(c.net, 0)
+    c.evidence_mod._warm_once(1)
+    assert seen["timeout"] is not None and seen["timeout"] > c.evidence_mod._FANOUT_TIMEOUT_S
