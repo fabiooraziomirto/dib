@@ -242,3 +242,42 @@ Controllo di non vacuità: `v4_mut_ack` (ack "cancella tutto", D12) deve violare
 | `v4_n6_export_nofix` | semantica del PROTOTIPO, senza NoStaleActiveAfterEpisode: export sicuro ai siti raggiungibili e tutte le proprietà d'azione originali | qualunque violazione |
 | `v4_f2_fix_all` | correzioni su s1: nessuna violazione di nessuna proprietà | qualunque violazione |
 | `v4_f3_two_split` | correzioni su entrambi i siti, MaxToggles 2: nessuna violazione | qualunque violazione; incompleto oltre 3 h = riportato come tale |
+
+## 12. Risultati del batch 4 e pre-registrazione del batch 5
+| cfg | Previsione | Esito | Stati distinti | Nota |
+|---|---|---|---|---|
+| `v4_mut_ack` | violazione | **confermata** | 94.381 | la proprietà v4 non è vuota |
+| `v4_n6_export_nofix` | nessuna violazione | **FALSIFICATA (reale)** | 83.959 | `OutboxNeverDropsUnapplied` (vedi sotto) |
+| `v4_f2_fix_all` | nessuna violazione | **FALSIFICATA (reale, nel progetto della correzione)** | 543.257 | stessa proprietà (vedi sotto) |
+| `v4_f3_two_split` | nessuna violazione | **FALSIFICATA (stessa causa)** | 814.195 | |
+
+**Traccia di v4_n6, prototipo (b3q × outbox):**
+1. la dispute (seq 1) è messa in outbox mentre s1 è Absent;
+2. la reconcile la applica come no-op;
+3. un QueryWrite in sospeso crea un MonitorOnly con last_applied 0;
+4. l'ack cancella la riga della dispute.
+
+Il record non ha ricevuto l'evento. L'anti-entropia lo recupera nello stesso giro di reconcile
+(RepairStart legge last_applied dopo l'ack) o in quello successivo, ma la proprietà D12 del modello
+pubblicato non vale per il prototipo.
+
+**Traccia di v4_f2, correzione v4:**
+1. s1 è irraggiungibile; l'outbox contiene la revoke (seq 2);
+2. la reconcile la applica come no-op su Absent;
+3. QueryReserve crea Staging nel mezzo del giro;
+4. arriva in ritardo la consegna diretta della dispute (seq 1): Staging → Disputed, last_applied 1;
+5. l'ack cancella la revoke.
+
+L'argomento della sez. 11 non copriva una consegna *diversa* arrivata dopo la riserva: era incompleto.
+
+**Batch 5 (v5 = v4 + `QueryReserve` solo con il giro di reconcile del sito fermo).** Nel codice
+questo significa prendere `_reconcile_lock` attorno alla transazione di riserva. Così una riserva
+non può cadere fra un'applicazione no-op e il suo ack. La patch su copia è aggiornata allo stesso
+modo (H-F5, pre-registrata nel docstring prima di rieseguire).
+
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `v4_n7_export_nofix` (modello v4) | semantica del PROTOTIPO senza le due proprietà già violate (NoStaleActiveAfterEpisode, OutboxNeverDropsUnapplied): ExportSafeAtReachableSites e le altre proprietà d'azione originali reggono | qualunque violazione |
+| `v5_witness_mo` | la query divisa raggiunge ancora MonitorOnly | nessuna violazione |
+| `v5_f2_fix_all` | correzioni con riserva serializzata: nessuna violazione di nessuna proprietà | qualunque violazione |
+| `v5_f3_two_split` | idem su entrambi i siti, MaxToggles 2 | qualunque violazione; incompleto oltre 3 h = riportato come tale |

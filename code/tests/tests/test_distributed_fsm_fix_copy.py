@@ -28,6 +28,9 @@ H-F3  Sulla copia valgono anche tutte le ipotesi verdi di quel file (H-b3q-2, H-
       attesa (indicato nel test).
 H-F4  Senza corsa la copia si comporta come l'originale sul ciclo base: stage, commit (200, active, 1
       ACE), dispute (disputed, 0 ACE), restore (monitor-only), nuovo commit (active).
+H-F5  (aggiunta 2026-10-12 dopo il modello v5, prima di rieseguire) con la riserva presa sotto
+      _reconcile_lock (come QueryReserve con rc idle nel modello v5) tutti i test di questo file
+      restano verdi.
 Falsificazione complessiva: un qualunque test di questo file rosso.
 """
 from __future__ import annotations
@@ -74,7 +77,9 @@ FQ = (
             )
             return True
 
-        if not _site_db.run(reserve):
+        with _reconcile_lock:  # v5: no reservation between a reconcile apply and its ack
+            reserved = _site_db.run(reserve)
+        if not reserved:
             return {"applied": True, "score_id": sid}
         try:
             again = _evidence_get_score(req.device_type, req.endpoint, req.protocol, req.port)
