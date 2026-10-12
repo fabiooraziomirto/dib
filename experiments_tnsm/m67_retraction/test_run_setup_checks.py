@@ -175,3 +175,39 @@ def test_d5_10_commit_409_evidence_changed_is_retried_other_409_not(monkeypatch)
     with pytest.raises(r.SetupFailed):
         r.setup_fact(env, "x.example", [0, 1], 30.0)
     assert env.n[(1, "query")] == 1
+
+
+# ---- audit 99 addendum 4: the B2-kill setup (site-3, k facts) uses the same retry as the B1 setup (found on the node: 5 of 40 trials of degraded/C excluded by a 503 or the commit 409)
+def test_d5_11_b2kill_setup_retries_503(monkeypatch):
+    import test_trial_b2kill_restart as tk
+
+    monkeypatch.setattr(r.time, "sleep", lambda s: None)
+
+    class E(tk.FakeEnv):
+        def __init__(self):
+            super().__init__()
+            self.seen = 0
+
+        def logs(self, container, since):   # the FakeEnv of the restart tests has no logs(); the trial reads the evidence and site-3 logs after the withdrawal
+            return ""
+
+        def req(self, method, url, identity, timeout, **kw):
+            if url.endswith("/query") and "site-3" in url:
+                self.seen += 1
+                if self.seen == 1:
+                    return Resp(503, {"detail": "evidence unreachable"})
+            if "/state/" in url:
+                return Resp(200, {"state": "monitor-only"})
+            return super().req(method, url, identity, timeout, **kw)
+
+    env = E()
+    row = r.trial_b2kill(env, "lan", 1, 0, None)
+    assert row.get("excluded_reason") != "setup_failed" and not row.get("setup_failed")
+    assert row.get("setup_retries") == 1
+
+
+def test_d5_12_site3_reconcile_log_is_captured(monkeypatch):
+    lines = "2026-10-12T19:00:01.0Z WARNING dib.distributed: reconcile pull failed: ConnectTimeout\n2026-10-12T19:00:02.0Z INFO other\n2026-10-12T19:00:08.0Z reconcile pull ok"
+    assert r.site3_reconcile_lines(lines) == ["2026-10-12T19:00:01.0Z WARNING dib.distributed: reconcile pull failed: ConnectTimeout", "2026-10-12T19:00:08.0Z reconcile pull ok"]
+    assert r.site3_reconcile_lines("x\n" * 100 + "reconcile y") == ["reconcile y"]
+    assert len(r.site3_reconcile_lines("\n".join(f"reconcile {i}" for i in range(100)))) == 30

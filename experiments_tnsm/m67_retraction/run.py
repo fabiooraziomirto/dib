@@ -523,6 +523,11 @@ def reconcile_trace(ev_logs: str, t_start: float) -> dict:
     return {"pulls": sorted(pulls), "acks": sorted(acks)}
 
 
+def site3_reconcile_lines(text: str, limit: int = 30) -> list[str]:
+    """Lines of the site-3 container log that mention the reconcile (failed pulls and errors that never reach the evidence's access log), at most `limit` (audit 99 addendum 4): measurement only."""
+    return [l.strip()[:300] for l in text.splitlines() if "reconcile" in l.lower()][:limit]
+
+
 def service_settings(groups) -> dict:
     """Settings of the cluster that decide how an experiment must be read (audit 90 sez. 4): the reconcile interval(s) T of the cells and the suspension quorum the containers get.
     run.py never passes DIB_DIST_SUSPENSION_QUORUM to the containers, so they run the service default (1) whatever the generator's own environment says."""
@@ -852,12 +857,15 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
             row.update(excluded=True, excluded_reason="queues_not_empty_at_start")
             return row
         eps, ids = [f"m67-b2-{env.arm}-T{int(env.T)}-k{k}-t{trial}-{j}.example" for j in range(k)], []
+        env.setup_retries = 0
         for ep in eps:
             sid = env.req("POST", f"{env.ev}/seed", "admin", 30.0, json={"device_type": "cam-a", "endpoint": ep}).json()["id"]
             ids.append(sid)
             body = {"device_type": "cam-a", "endpoint": ep}
-            check_step(env.req("POST", f"{env.site(3)}/query", "op-site-3", 30.0, json=body), 3, "query")
-            check_step(env.req("POST", f"{env.site(3)}/commit", "op-site-3", 30.0, json=body), 3, "commit")
+            setup_step(env, "POST", f"{env.site(3)}/query", "op-site-3", 30.0, 3, "query", body)
+            setup_step(env, "POST", f"{env.site(3)}/commit", "op-site-3", 30.0, 3, "commit", body)
+        if env.setup_retries:
+            row["setup_retries"] = env.setup_retries
         env.sh(env.compose() + "kill site-3")
         killed = True
         t_kill = time.time()
@@ -896,6 +904,7 @@ def trial_b2kill(env: Env, profile: str, k: int, trial: int, l_dns: float | None
         pulls = [t for t, _p, st in parse_access_lines(ev_logs, "GET", "/pending/site-3") if t >= t_start and st == 200]
         row["t_first_reconcile_pull"] = min(pulls) if pulls else None   # evidence access log, same clock as t_start
         row["reconcile_trace"] = reconcile_trace(ev_logs, t_start)
+        row["site3_reconcile_log"] = site3_reconcile_lines(env.logs("dibtnsm-site-3-1", t_start))
         row["site3_started_at"] = env.sh("/snap/bin/docker inspect -f '{{.State.StartedAt}}' dibtnsm-site-3-1", check=False, timeout=30).strip()
         row.update(t_up=t_up, t_withdrawn=t_withdrawn, bound_s=bound,
                    up_after_start_s=None if t_up is None else t_up - t_start,
