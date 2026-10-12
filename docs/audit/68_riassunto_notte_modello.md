@@ -76,7 +76,7 @@ siti raggiungibili senza nulla in volo, I1, I2, la conservazione del veto, il re
      `tnsm-driver-retry`;
    - i file toccati qui non si sovrappongono ai suoi;
    - `docs/audit/62` è suo, 63-68 sono miei;
-   - da verificare al merge.
+   - prova di merge in sola lettura (`git merge-tree`, 2026-10-12 ~03:00) contro `tnsm-driver-retry` a `f904de4`: 0 conflitti per `tnsm-fsm` e `tnsm-fsm-paper`; dall`'`altra parte nessuna modifica a `code/`, `formal/`, `main_wip.tex` dalla base `6e6d352`.
 3b. **Numerazione degli audit in collisione.** Su `tnsm-driver-retry` l'altra sessione ha creato
    `63_b2k_lan_rerun_driver_fix.md` e `64_prereg_keepalive_lan.md`; qui ci sono `63_fsm_specifica.md`
    e `64_fsm_test_risultati.md`. Nessun conflitto git (nomi diversi), ma "audit 63/64" diventa
