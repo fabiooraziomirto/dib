@@ -21,3 +21,9 @@ def test_rules_present():
 
 def test_trials_and_seed_are_parameters_with_the_old_defaults():
     assert "TRIALS=${TRIALS:-10}" in T and "SEED=${SEED:-20261014}" in T and "--seed $SEED --trials $TRIALS" in T
+
+
+def test_night_queue_syntax_and_order():
+    q = (Path(__file__).resolve().parent / "night_queue.sh").read_text()
+    assert subprocess.run(["bash", "-n", str(Path(__file__).resolve().parent / "night_queue.sh")]).returncode == 0
+    assert q.index("TRIALS=20 SEED=20261016") < q.index("deploy_run.sh") and "$FIRST/DONE" in q and "sudo" not in q.replace("no sudo", "") and "pkill" not in q
