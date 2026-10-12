@@ -23,3 +23,7 @@ Prova in un worktree temporaneo (branch `tnsm-merge-preview`, nessun branch altr
 ## Aggiunta 2026-10-12 (audit 86)
 
 Una frase aggiunta in `docs/main_wip.tex` nel paragrafo del modello di consegna (dopo "inferred, not captured"): sul deployment completo il modello prevede la quota di consegne in ritardo entro 0,7 punti senza mTLS e 3,1 con mTLS, e la mediana dell'ultimo sito a fan-out sequenziale entro il 2 %. Numeri da `docs/audit/86_distribuzione_completa_risultati.md` (D/10 0,186 contro 0,179; C/10 0,282 contro 0,251; F1 10 670 contro 10 600 ms e 16 126 contro 16 400 ms). Una prima formulazione più lunga portava il paper a 14 pagine: accorciata, compila a 13 pagine. La frase riguarda codice PRE-correzione (albero `467a711`); va riconfermata dopo il rerun sul codice di `tnsm-fixes` (audit 87).
+
+## Correzione 2026-10-12 (audit 89)
+
+La frase descritta sopra (0,7 e 3,1 punti, "entro il 2 %") è stata SOSTITUITA in `docs/main_wip.tex` dopo il rerun sul codice corretto (commit ab23ea3): ora dice che su due repliche il modello prevede la quota in ritardo entro 1,5 punti senza mTLS, la sottostima con mTLS di 3,1 e 8,4 punti e la mediana a fan-out sequenziale entro il 9 %. Numeri: `docs/audit/89_rerun_R1_risultati.md`. L'"entro 8 punti" non regge (H-N2 falsificata su C/10).
