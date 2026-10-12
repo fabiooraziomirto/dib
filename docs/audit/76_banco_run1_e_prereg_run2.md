@@ -19,3 +19,12 @@ Stesso banco, stesse 18 celle e gli stessi criteri, seme di mescolamento invaria
 - **T-2′ (effetto):** come T-2: P1 riduce le consegne in ritardo (IC95 della differenza interamente < 0 **e** mediana per sito minore) in **almeno 7 condizioni su 9**; **falsificata** se la riduzione manca in ≥ 3 condizioni (stessa soglia del run 1, che ha dato 0/9).
 - **T-3′ (sicurezza):** pending(P1) − pending(P0) ≤ 3 punti ovunque.
 **Cosa non si fa:** nessun cambiamento di criteri dopo i dati; se T-2′ è falsificata, l'opt-in non entra nel paper e si riporta la falsificazione.
+
+## Risultati del run 2 (`run_20261012b/`, P1 corretto dal commit `75836c8`; 1 200 episodi; `analysis.md`)
+- **T-0′: FALLITO.** P1 a p = 0, consegne in ritardo: 6/200 (3 %) a 50 ms, 2/200 (1 %) a 100 ms, 12/200 (6 %) a 200 ms; criterio ≤ 2 % per ciascun ritardo. P0 valido (156/304/607 ms contro 150/300/600; 0 in ritardo). Le mediane di P1 sono giuste (55/104/207 ms contro 50/100/200): il difetto è una quota di consegne fredde, non il valore tipico.
+- **T-2′: FALSIFICATA.** P1 riduce le consegne in ritardo (IC95 della differenza interamente < 0 e mediana minore) in **2 condizioni su 9** ((50 ms, 5 %) e (50 ms, 10 %)); nelle altre 7 non riduce, e a 200 ms con perdita 2 %, 5 % e 10 % l'IC è interamente > 0. La mediana per sito P1 resta molto più bassa di P0 (es. 207 contro 609 ms).
+- **T-3′: non falsificata** (pending 0 ovunque).
+- **Modello v2 (P0, solo descrittivo qui):** 4/9 celle entro i criteri, 2 oltre il doppio (a (50 ms, 10 %) e (200 ms, 10 %): late +0,10 e +0,09 oltre la previsione): non validato, come nel run 1.
+
+## Conclusione (per la regola scritta prima)
+**Le connessioni persistenti come implementate non migliorano la coda e non sono affidabili nemmeno senza perdita (due run, due criteri falsificati): non si propongono per il paper.** Il codice resta nel repo come opt-in spento, documentato come esperimento con esito negativo. Cosa il banco ha mostrato comunque: il valore tipico per sito con connessione calda è 3× più basso (0,5 R contro 1,5 R) ma la coda dipende da come la connessione si perde e si ricrea sotto perdita, che l'implementazione attuale non gestisce. Una soluzione richiederebbe un'analisi dei pacchetti (cattura con `tcpdump` nel namespace) che non è stata fatta.
