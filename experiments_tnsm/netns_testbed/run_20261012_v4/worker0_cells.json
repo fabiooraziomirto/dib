@@ -1,0 +1,1 @@
+[{"d_ms": 120, "loss_pct": 0, "policy": "P0", "episodes": 20, "kind": "T0"}, {"d_ms": 120, "loss_pct": 4, "policy": "P0", "episodes": 60, "kind": "v4"}, {"d_ms": 120, "loss_pct": 8, "policy": "P0", "episodes": 60, "kind": "v4"}]

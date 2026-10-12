@@ -1,0 +1,16 @@
+# Audit 81 — Il modello di consegna v4 è validato fuori campione (audit 80): risultati, limiti e cosa dire nel paper
+
+Data: 2026-10-12 (04:32-04:45Z). Dati: `experiments_tnsm/netns_testbed/run_20261012_v4/` (420 episodi; banco netns come audit 75, `service.py` invariato dal commit `75836c8`; `manifest.json` con sha256 di `service.py` e `testbed.py`); analisi `analyze_v4.py` (`analysis.md`). Ipotesi, previsioni e criteri: audit 80 (committati prima dei dati, **condizioni mai usate prima**: ritardi 60/120/180 ms, perdite 4/8 %).
+
+## Verdetti pre-registrati
+- **T-W0 (validità): superato.** P0 a p = 0: mediana per sito 185/366/545 ms contro 180/360/540 nominali, 0 consegne in ritardo su 200 per ritardo.
+- **T-W1 (modello v4): VALIDATO fuori campione, 6/6 celle.** Consegne in ritardo per sito, misurate (previste): 0,143 (0,150); 0,290 (0,282); 0,157 (0,149); 0,268 (0,281); 0,130 (0,147); 0,275 (0,277): scarti 0,7-1,7 punti (tolleranza 3). Episodi lenti: 0,800 (0,801); 0,983 (0,966); 0,850 (0,800); 0,933 (0,963); 0,733 (0,796); 0,967 (0,962): scarti ≤ 6,3 punti (tolleranza 10). Episodi con un sito non aggiornato entro 30 s: **0 in tutte le celle** (previsto 0). Nessuna cella oltre il doppio delle tolleranze.
+- **T-W2 (descrittivo):** il modello v3 (richiesta in un solo segmento) avrebbe superato **2 celle su 6** con le stesse tolleranze (sottostima 3-6 punti).
+
+## Limiti dichiarati (valutazione di mediana e p95, non nei criteri)
+La mediana dell'ultimo sito è prevista entro il 6 % a 60 e 120 ms, ma **sovrastimata del 12-18 % a 180 ms** (1 547 contro 1 764 e 1 556 contro 1 900 ms) e il **p95 sovrastimato fino al 60 %** a 180 ms con perdita 8 % (2 997 contro 4 977 ms; a 60-120 ms entro il 25 %): il modello è pessimista sulla coda quando R è grande (il recupero rapido TCP e il tetto della riconciliazione la accorciano). Il numero di segmenti della richiesta (2) è **un'ipotesi coerente con i dati, non verificata con una cattura di pacchetti**. Un solo ambiente (banco netns, stessa macchina, HTTP semplice, arm D; nessun mTLS, nessun Docker), 60 episodi per cella.
+
+## Cosa si può dire nel paper (con i limiti)
+1. **Modello di costo della consegna del fan-out sotto perdita (v4): ogni tentativo è un handshake + una richiesta in due segmenti; un pacchetto perso si ritrasmette dopo l'RTO TCP e supera il timeout httpx da 1 s se RTT ≥ 0,2 s; la riconciliazione periodica (T = 5 s) porta comunque ogni sito allo stato corretto.** Validato fuori campione su 6 condizioni nuove (quota di consegne in ritardo entro 1,7 punti, nessun episodio con siti non aggiornati) dopo due modelli precedenti non validati (v2: 4/9 e 5/9; v3: 2/4). Spiega inoltre perché il modello (a′) di audit 46 falsificava a `degraded` (audit 56): la probabilità di fallimento è per pacchetti e un tentativo fallito costa 1,0-1,8 s.
+2. **Il fan-out parallelo riduce il tempo di ritiro effettivo di ≥ 3× rispetto al sequenziale** (audit 79, 9 condizioni) e la riconciliazione limita la coda a circa T + 2R (0 episodi incompleti su 3 280 episodi validi con perdita 2-10 %, 5 run; audit 79 e questo).
+3. **Da non dire:** nessun risultato sul nodo con il watcher v2 per le connessioni persistenti (audit 74, 76: non si propongono); il modello non è validato per mediana e p95 a RTT alto, né per mTLS (arm C) né per k > 1 fatti per episodio.

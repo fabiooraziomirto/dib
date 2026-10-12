@@ -1,0 +1,78 @@
+{
+ "audit": "docs/audit/75_prereg_banco_netns_modello_v2.md (suite grid) / 77 (suite s1)",
+ "suite": "v4",
+ "python": "3.10.13 (main, Sep 11 2023, 13:44:35) [GCC 11.2.0]",
+ "kernel": "6.8.12-18-pve",
+ "host": "Mirto-LLM-vnet170",
+ "seed": 20261012,
+ "workers": 4,
+ "episodes_per_cell": 60,
+ "cells": [
+  {
+   "d_ms": 120,
+   "loss_pct": 0,
+   "policy": "P0",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 60,
+   "loss_pct": 4,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "v4"
+  },
+  {
+   "d_ms": 180,
+   "loss_pct": 0,
+   "policy": "P0",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 60,
+   "loss_pct": 8,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "v4"
+  },
+  {
+   "d_ms": 120,
+   "loss_pct": 4,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "v4"
+  },
+  {
+   "d_ms": 180,
+   "loss_pct": 4,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "v4"
+  },
+  {
+   "d_ms": 180,
+   "loss_pct": 8,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "v4"
+  },
+  {
+   "d_ms": 60,
+   "loss_pct": 0,
+   "policy": "P0",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 120,
+   "loss_pct": 8,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "v4"
+  }
+ ],
+ "service_py_sha256": "a6bb1d220e727250d5237a31fea5008befc065f42b85040cc4b8b623ac548de0",
+ "testbed_py_sha256": "dcd05518efbea557668e5a044e2159a3c52f6ba789c651e6312d3d206e9a329a",
+ "finished_utc": "2026-10-12T04:44:07Z"
+}

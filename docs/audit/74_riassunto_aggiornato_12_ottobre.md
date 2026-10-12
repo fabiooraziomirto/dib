@@ -25,3 +25,9 @@ Sul nodo, in tmux: `sudo timeout 9h bash /usr/local/lib/dib-netem/netem_watch2.s
 - Le connessioni persistenti diventano default solo se H-K1..K4 reggono; oggi sono opt-in.
 - Il modello di guasto dei test B2k è "sito ucciso con nome non risolvibile"; un sito "muto" (silenzio di rete) non è misurato.
 - Q14 e Q2/Q4+Q5 dell'audit 59 restano aperte.
+
+## Addendum (04:50Z): il modello di consegna è validato fuori campione; il resto resta com'è
+- **Modello v4 validato** (audit 80-81): 6/6 condizioni nuove, consegne in ritardo entro 1,7 punti, 0 siti non aggiornati; è la sintesi di quattro iterazioni (v2 4/9 e 5/9, v3 2/4, v4 6/6) con criteri e previsioni sempre scritti prima dei dati (audit 75, 77, 78, 80). Limite: mediana e p95 a RTT alto sovrastimati; ipotesi dei due segmenti non verificata con una cattura.
+- **Fan-out parallelo ≥ 3× più veloce del sequenziale** su 9 condizioni (audit 79); riconciliazione: 0 episodi incompleti su 3 280.
+- **Connessioni persistenti: non proposte** (audit 76, due run falsificati). Il codice resta opt-in spento.
+- **Invariato:** `degraded` sul nodo (watcher scaduto) non è misurato; la coda `auto_degraded_k.py` resta in attesa (fino alle 07:00Z) e misurerebbe un'opzione che il banco ha già falsificato: **conviene fermarla** (`kill $(cat ~/dib_tnsm/out/degraded_k2_20261012/auto_degraded_k.pid)`), e riavviare il watcher solo se si vuole misurare qualcos'altro sul nodo (per esempio B1 `degraded` con il default parallelo contro B5, per confermare sul nodo i risultati del banco).
