@@ -79,6 +79,18 @@ siti raggiungibili senza nulla in volo, I1, I2, la conservazione del veto, il re
    - i file toccati qui non si sovrappongono ai suoi;
    - `docs/audit/62` è suo, 63-68 sono miei;
    - prova di merge in sola lettura (`git merge-tree`, 2026-10-12 ~03:00) contro `tnsm-driver-retry` a `f904de4`: 0 conflitti per `tnsm-fsm` e `tnsm-fsm-paper`; dall`'`altra parte nessuna modifica a `code/`, `formal/`, `main_wip.tex` dalla base `6e6d352`.
+2b. **Versione corta (proposta, non applicata), se serve tornare a 13 pagine.** Sostituisce i due
+   paragrafi nuovi di Sec. lifecycle-results:
+   > A third model follows the prototype's reconciliation protocol (sequence numbers, collapsed
+   > pending records, per-pair acknowledgement, anti-entropy, asymmetric partitions) and explores
+   > 14,947,820 states without violations when site operations are atomic. In the prototype,
+   > query, commit, and local restore read the evidence service before a separate local
+   > transaction; modeling this split yields four counterexamples, all reproduced by registry
+   > tests, the most severe being a commit read before a dispute and restoration episode that
+   > becomes Active afterwards without fresh approval. Export during an open dispute remains safe
+   > (55,063,707 states). A corrected design (reservation under the reconciliation lock, sequence
+   > checks, and a two-phase commit) removes all four within two evidence events (100,746,547
+   > states); it is not part of the evaluated prototype.
 3b. **Numerazione degli audit in collisione.** Su `tnsm-driver-retry` l'altra sessione ha creato
    `63_b2k_lan_rerun_driver_fix.md` e `64_prereg_keepalive_lan.md`; qui ci sono `63_fsm_specifica.md`
    e `64_fsm_test_risultati.md`. Nessun conflitto git (nomi diversi), ma "audit 63/64" diventa

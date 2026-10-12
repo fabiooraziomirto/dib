@@ -22,3 +22,4 @@ Linting of module DIB_AE_NA
 Starting... (2026-10-12 06:26:04)
 Computing initial states...
 Finished computing initial states: 1 distinct state generated at 2026-10-12 06:26:04.
+Progress(11) at 2026-10-12 06:26:07: 592,754 states generated (592,754 s/min), 231,438 distinct states found (231,438 ds/min), 152,506 states left on queue.
