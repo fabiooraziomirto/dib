@@ -1,0 +1,12 @@
+# Audit 83 — Pre-registrazione: replica sul nodo (hardware del paper) della validazione del modello v4, in container con `NET_ADMIN`
+
+Data: 2026-10-12. Contesto: il modello v4 è validato nel banco locale (audit 80-81), ma non sul nodo: il watcher v2 è scaduto (sudo con password) e i namespace non privilegiati sono bloccati (`unshare -Urn`: `uid_map` non permesso). Docker però è usabile senza sudo, e un container con `--cap-add NET_ADMIN` può applicare `tc netem` al proprio namespace, usando il `tc` dell'host tramite il loader dinamico dell'host (verificato: `qdisc netem` creato; Python 3.12.15 con fastapi, uvicorn, httpx). Ogni container è un banco: evidence + 10 siti = il vero `service.py` (tree `50c4335`: per P0 il percorso è lo stesso del repo), HTTP semplice (arm D).
+
+## Cosa cambia rispetto al banco locale (limiti dichiarati)
+Hardware e kernel del nodo (CPU QEMU generica, altri carichi di fondo: k3s, `wasmbed-registry`), Docker come runtime; **non** è il cluster a 11 container con bridge Docker e watcher, **non** ha mTLS. Limiti di risorse per container: `--memory 4g --cpus 4`, 3 container in parallelo (RAM libera sul nodo ≈ 8 GB: tetto 12 GB); nessun container si avvia se `MemAvailable` < 6 GB.
+
+## Ipotesi e criteri: **identici all'audit 80** (previsioni v4 già committate, nessuna ricalcolata)
+Stesse 9 celle (P0 a p = 0 per 60/120/180 ms con 20 episodi; 60/120/180 ms × 4/8 % con 60 episodi), stesse previsioni (tabella dell'audit 80), stessa analisi `analyze_v4.py`: **T-W0** (validità a p = 0, ±50 ms di 1,5 R e 0 in ritardo) e **T-W1** (≥ 5/6 celle entro ±3 punti sulle consegne in ritardo, ±10 sugli episodi lenti, pending ≤ 2 %, nessuna oltre il doppio). **Il modello è "validato sul nodo" solo se T-W0 e T-W1 reggono**; se il nodo è più lento e T-W0 fallisce, nulla si riporta. Dati in `run_node_v4/`.
+
+## Controllo retrospettivo sui dati del nodo già visti (ESPLORATIVO, non una validazione)
+Il modello v4 applicato senza modifiche ai dati B5 del nodo (Docker, mTLS, `degraded`: R = 0,4 s, perdita 5 %; grandezza = tempo del fan-out nel P-log, quindi senza riconciliazione): consegne in ritardo per sito (soglia nominale + 0,75 R) **D misurata 0,178, v4 0,179** (v3 a un segmento 0,139); **C misurata 0,310, v4 0,251** (a un segmento 0,216): il modello sottostima C di 6 punti (la handshake TLS ha più segmenti, non modellati). Mediane dell'ultimo sito, misurata (v4): D FANOUT 10 1 639 (2 000), D FANOUT 1 10 512 (10 600), C FANOUT 10 2 826 (2 800), C FANOUT 1 19 069 (16 400).
