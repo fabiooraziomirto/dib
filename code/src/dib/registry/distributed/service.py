@@ -443,6 +443,11 @@ if ROLE == "site":
             " device_type TEXT, endpoint TEXT, protocol TEXT, port INTEGER)",
         ],
     )
+    # D1 (audit 90): a crash between the two phases of /query or /commit leaves a transient row that no event would ever move (a `staging` row of a fact with
+    # fanout_seq 0 is permanent). Nothing is in flight at startup, so: a reservation that was never closed is dropped (a new /query reserves again), a commit that was
+    # never completed goes back to monitor-only (the abort path of /commit). Other states are untouched.
+    _site_db.run(lambda con: (con.execute("DELETE FROM local_decisions WHERE state='staging'"),
+                              con.execute("UPDATE local_decisions SET state=? WHERE state='committing'", (DECISION_MONITOR_ONLY,))))
 
     class ApplyFanout(BaseModel):
         score_id: int
@@ -514,8 +519,12 @@ if ROLE == "site":
             )
             return True
 
-        with _reconcile_lock:  # v5: no reservation between a reconcile apply and its ack
+        if not _reconcile_lock.acquire(timeout=RECONCILE_LOCK_TIMEOUT):  # D2 (audit 90): like /reconcile, a bounded wait, never an unbounded one
+            raise HTTPException(503, "a reconcile is in progress")
+        try:  # v5: no reservation between a reconcile apply and its ack
             reserved = _site_db.run(reserve)
+        finally:
+            _reconcile_lock.release()
         if not reserved:
             return {"applied": True, "score_id": sid}
         try:
