@@ -57,3 +57,15 @@ Lettura:
 - con 3 eventi dell'evidence e senza partizioni, la correzione v6 regge;
 - la riduzione VIEW non nasconde la classe di difetto trovata con 3 eventi (e3m);
 - resta da vedere il caso con le partizioni (e3c).
+
+## Deviazione dalla pre-registrazione (dichiarata prima dell'esito)
+Alle 2026-10-12T08:41:57Z, con `e3c_parts` in corso e **senza esito noto**, l'utente ha deciso di completarlo
+invece di fermarlo al tetto di 3 h. Il tetto era una regola di protezione delle risorse, non un
+criterio scientifico. Ipotesi, proprietà e criterio di falsificazione restano invariati.
+
+Restano le protezioni:
+- heap limitato a 28 GB;
+- watchdog del disco (< 8 GB liberi → TLC fermato, esito "incompleto").
+
+Tecnica: viene terminato **solo** il processo `timeout 10800` che avvolge `run_tlc.sh` (per PID).
+Lo script, con il suo watchdog e la scrittura del manifest, continua; TLC non viene toccato.
