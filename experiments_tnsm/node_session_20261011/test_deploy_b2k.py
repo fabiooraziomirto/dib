@@ -28,3 +28,12 @@ def test_night_queue_syntax_and_order():
     assert subprocess.run(["bash", "-n", str(Path(__file__).resolve().parent / "night_queue.sh")]).returncode == 0
     body = q.split("mkdir -p", 1)[1]   # the header comments also name deploy_run.sh
     assert body.index("TRIALS=20 SEED=20261016") < body.index("deploy_run.sh") and "$FIRST/DONE" in q and "sudo" not in q.replace("no sudo", "") and "pkill" not in q
+
+
+def test_night_queue2():
+    p = Path(__file__).resolve().parent / "night_queue2.sh"
+    q = p.read_text()
+    assert subprocess.run(["bash", "-n", str(p)]).returncode == 0
+    body = q.split("mkdir -p", 1)[1]
+    assert "QUEUE_DONE" in body and "for X in x1 x2 x3 x4" in body and "deploy_run.sh $T $ROOT/node_oos_$X $X default D,C 10" in body
+    assert "sudo" not in q.replace("no sudo", "") and "pkill" not in q
