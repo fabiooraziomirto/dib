@@ -1,0 +1,353 @@
+{
+ "status": 200,
+ "response_body_bytes": 17,
+ "request_json_bytes": 78,
+ "events": [
+  {
+   "t_ms": 365.8,
+   "dir": "C->S",
+   "flags": 2,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": 65495
+  },
+  {
+   "t_ms": 365.82,
+   "dir": "C->S",
+   "flags": 2,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": 65495
+  },
+  {
+   "t_ms": 365.83,
+   "dir": "S->C",
+   "flags": 18,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": 65495
+  },
+  {
+   "t_ms": 365.84,
+   "dir": "S->C",
+   "flags": 18,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": 65495
+  },
+  {
+   "t_ms": 365.85,
+   "dir": "C->S",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 365.85,
+   "dir": "C->S",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 365.86,
+   "dir": "C->S",
+   "flags": 24,
+   "payload": 517,
+   "tls": [
+    "Handshake:ClientHello[512]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 365.87,
+   "dir": "C->S",
+   "flags": 24,
+   "payload": 517,
+   "tls": [
+    "Handshake:ClientHello[512]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 365.88,
+   "dir": "S->C",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 365.89,
+   "dir": "S->C",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 366.85,
+   "dir": "S->C",
+   "flags": 24,
+   "payload": 1288,
+   "tls": [
+    "Handshake:ServerHello[122]",
+    "ChangeCipherSpec[1]",
+    "ApplicationData[23]",
+    "ApplicationData[62]",
+    "ApplicationData[879]",
+    "ApplicationData[97]",
+    "ApplicationData[69]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 366.88,
+   "dir": "S->C",
+   "flags": 24,
+   "payload": 1288,
+   "tls": [
+    "Handshake:ServerHello[122]",
+    "ChangeCipherSpec[1]",
+    "ApplicationData[23]",
+    "ApplicationData[62]",
+    "ApplicationData[879]",
+    "ApplicationData[97]",
+    "ApplicationData[69]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 366.89,
+   "dir": "C->S",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 366.9,
+   "dir": "C->S",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 369.07,
+   "dir": "C->S",
+   "flags": 24,
+   "payload": 1066,
+   "tls": [
+    "ChangeCipherSpec[1]",
+    "ApplicationData[879]",
+    "ApplicationData[97]",
+    "ApplicationData[69]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 369.14,
+   "dir": "C->S",
+   "flags": 24,
+   "payload": 1066,
+   "tls": [
+    "ChangeCipherSpec[1]",
+    "ApplicationData[879]",
+    "ApplicationData[97]",
+    "ApplicationData[69]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 369.16,
+   "dir": "S->C",
+   "flags": 24,
+   "payload": 1502,
+   "tls": [
+    "ApplicationData[746]",
+    "ApplicationData[746]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 369.19,
+   "dir": "S->C",
+   "flags": 24,
+   "payload": 1502,
+   "tls": [
+    "ApplicationData[746]",
+    "ApplicationData[746]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 369.39,
+   "dir": "C->S",
+   "flags": 24,
+   "payload": 240,
+   "tls": [
+    "ApplicationData[235]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 369.46,
+   "dir": "C->S",
+   "flags": 24,
+   "payload": 240,
+   "tls": [
+    "ApplicationData[235]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 370.29,
+   "dir": "C->S",
+   "flags": 24,
+   "payload": 93,
+   "tls": [
+    "ApplicationData[88]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 370.33,
+   "dir": "C->S",
+   "flags": 24,
+   "payload": 93,
+   "tls": [
+    "ApplicationData[88]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 370.36,
+   "dir": "S->C",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 370.37,
+   "dir": "S->C",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 370.4,
+   "dir": "S->C",
+   "flags": 24,
+   "payload": 147,
+   "tls": [
+    "ApplicationData[142]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 370.42,
+   "dir": "S->C",
+   "flags": 24,
+   "payload": 147,
+   "tls": [
+    "ApplicationData[142]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 371.58,
+   "dir": "S->C",
+   "flags": 24,
+   "payload": 39,
+   "tls": [
+    "ApplicationData[34]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 371.6,
+   "dir": "S->C",
+   "flags": 24,
+   "payload": 39,
+   "tls": [
+    "ApplicationData[34]"
+   ],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 371.61,
+   "dir": "C->S",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 371.62,
+   "dir": "C->S",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 371.63,
+   "dir": "C->S",
+   "flags": 17,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 371.64,
+   "dir": "C->S",
+   "flags": 17,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 371.7,
+   "dir": "S->C",
+   "flags": 17,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 371.71,
+   "dir": "S->C",
+   "flags": 17,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 371.72,
+   "dir": "C->S",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  },
+  {
+   "t_ms": 371.72,
+   "dir": "C->S",
+   "flags": 16,
+   "payload": 0,
+   "tls": [],
+   "mss_opt": null
+  }
+ ],
+ "python": "3.10.13",
+ "uvicorn": "0.51.0",
+ "httpx": "0.28.1",
+ "client_cert_der_bytes": 491,
+ "server_cert_der_bytes": 491,
+ "ca_cert_der_bytes": 353
+}
