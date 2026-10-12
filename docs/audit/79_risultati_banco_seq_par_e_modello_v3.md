@@ -15,7 +15,7 @@ Data: 2026-10-12 (03:49-04:30Z). Dati: `experiments_tnsm/netns_testbed/run_20261
 
 ## Cosa si può dire nel paper
 1. **Il fan-out parallelo riduce il tempo di ritiro effettivo di ≥ 3× (3,1-7,1×) rispetto al sequenziale su 9 condizioni di rete** (banco netns) e di ~6× sul nodo a 200 ms e 5 % (B5, P-log del fan-out). **Solido** (due ambienti, criterio pre-registrato non falsificato).
-2. **La riconciliazione periodica limita la coda del ritiro a circa T + 2R anche con consegne in ritardo o fallite:** nessun episodio è rimasto con un sito non aggiornato nei 30-120 s in 800 episodi con perdita 2-10 %. **Solido nel banco**, e coerente con la regola "ritiro limitato per i siti raggiungibili".
+2. **La riconciliazione periodica limita la coda del ritiro a circa T + 2R anche con consegne in ritardo o fallite:** nessun episodio è rimasto con un sito non aggiornato nei 30-120 s in 2 920 episodi validi con perdita 2-10 % (4 run, parallelo e sequenziale, P0 e P1), 0 incompleti e 0 fallimenti di setup. **Solido nel banco**, e coerente con la regola "ritiro limitato per i siti raggiungibili".
 3. **Il modello di costo della consegna** (audit 62, 75-78): riproduce B5 e il ramo sequenziale entro il 2-9 % su condizioni nuove, **non** la coda del parallelo (sottostima di 1-6 punti di consegne in ritardo). Dirlo così, senza chiamarlo validato.
 ## Cosa non si può dire
 Nessun risultato sul nodo con il watcher v2 (scaduto): effetto del keep-alive sul nodo non misurato; le connessioni persistenti non si propongono (audit 76: due run falsificati). Il banco gira sulla stessa macchina per tutti i processi, senza bridge Docker né mTLS; un solo ambiente; 40-60 episodi per cella.
