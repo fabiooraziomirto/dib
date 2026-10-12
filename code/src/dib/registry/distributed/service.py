@@ -339,6 +339,7 @@ def _shutdown_fanout_executor() -> None:
         executor.shutdown(wait=True)
 
 
+_WARM_TIMEOUT_S = 5.0   # longer than a delivery attempt: a ping delayed by one TCP retransmission must not drop a good connection (docs/audit/76)
 _site_clients: dict = {}
 _site_clients_lock = threading.Lock()
 _warmer_threads: list = []
@@ -346,7 +347,7 @@ _warmer_stop = threading.Event()
 
 
 def _new_site_client() -> httpx.Client:
-    return httpx.Client(timeout=_FANOUT_TIMEOUT_S, limits=httpx.Limits(max_keepalive_connections=1, keepalive_expiry=max(30.0, 3 * WARM_INTERVAL)), **_HTTP_TLS)
+    return httpx.Client(timeout=_FANOUT_TIMEOUT_S, limits=httpx.Limits(max_keepalive_connections=2, keepalive_expiry=max(30.0, 3 * WARM_INTERVAL)), **_HTTP_TLS)
 
 
 def _site_client(i: int):
@@ -379,7 +380,7 @@ def _close_site_clients() -> None:
 def _warm_once(i: int) -> None:
     client = _site_client(i)
     try:
-        client.get(f"{_site_url(i)}/health", timeout=_FANOUT_TIMEOUT_S)
+        client.get(f"{_site_url(i)}/health", timeout=_WARM_TIMEOUT_S)
     except httpx.HTTPError:
         _drop_site_client(i, client)
 
