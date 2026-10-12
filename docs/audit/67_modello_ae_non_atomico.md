@@ -367,3 +367,15 @@ Esito parziale del batch 6:
 Pre-registrazione 6b: `v6_f3_two_split` (correzione v6 su entrambi i siti, MaxEvents 2,
 MaxToggles 2, V2 stretta): nessuna violazione. Incompleto = nessuna affermazione. Parte dopo
 `v6_f4_e3`.
+
+### 14.1 Batch 6m — pre-registrazione: necessità di ogni parte sulla v6
+`experiments_tnsm/tla_fsm/v6m/` = v6 più il flag `MutNoLock` (FALSE di default). È una cartella
+separata per non cambiare il modello copiato dai run in coda. Limiti di v6_f2 (MaxEvents 2).
+Ipotesi:
+- `v6m_m2_nolrguard`: NoMonitorOnlyCaughtUpDuringEpisode violato;
+- `v6m_m3_noverify`: I1_CommitOnUndisputedEvidence violato;
+- `v6m_m4_noqueryfix`: V2 violato;
+- `v6m_m6_nolock`: OutboxNeverDropsUnapplied violato.
+
+Ciascuna è falsificata se non c'è violazione. (La necessità dell'applicazione della lettura è
+`v6_m5`, con MaxEvents 3.)
