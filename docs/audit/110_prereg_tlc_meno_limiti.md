@@ -183,3 +183,43 @@ Decisione per l'utente: se `V3` va letta come invariante da correggere (modello 
 - Tutto ciò che richiede 3 eventi con letture fallite e crash: il controesempio di `X4` vale per ALL3 (V3); `X1`, `X2`, `X3`, `X5` reggono solo con **2 eventi** (X5: 1 evento).
 - Estensione 7 (richieste pendenti multiple per sito): non iniziata.
 - Lettura del controesempio sul codice (`service.py`): non fatta.
+
+## 8. Addendum (2026-10-12, dopo il controesempio di `X4_e3_fc`; committato prima di ogni nuovo run)
+**Decisione dell'utente:** correggere il caso `X4` nel modo migliore per il paper, poi rieseguire e riprendere le 7 configurazioni fermate.
+
+### 8.1 Il controesempio sul codice (`service.py` sha256 `0501b383…`, sola lettura)
+Ogni passo della traccia di sez. 7.2 corrisponde al codice, non è un artefatto del modello:
+- un `dispute` consegnato a un sito senza riga locale è scartato e `last_applied_seq` non avanza (`service.py:476-479`);
+- un `restore` con seq maggiore dell'ultimo applicato aggiorna **qualunque** riga, anche `staging` (`:480-481`, `:495-498`);
+- la seconda lettura fallita di `/query` cancella solo le righe ancora `staging` (audit 110 sez. 1; modello `QueryRead2Fail`, `DIB_AE_NA.tla:544-554`): una riga già `monitor-only` resta.
+Esito: un sito `monitor-only` mentre l'evidence è `Disputed`, senza query pendente, con `last_applied_seq < seq` dell'evidence.
+- **Esposizione:** nessuna. `monitor-only` non è esportabile e `/commit` richiede evidence `Active` (`:522-523`).
+- **Riparazione:** l'anti-entropia riapplica lo stato corrente se `item["seq"] > last` (`_repair_from_snapshot`, `:582-` ; nel modello `rc` con `aseq`).
+- **Conclusione:** V3 (`DIB_AE_NA.tla:894-898`) era troppo forte: ignora la finestra "sito indietro rispetto all'evidence", che a 2 eventi non si raggiunge (servono dispute scartato, restore tardivo e dispute successivo = 3 eventi).
+
+### 8.2 Scelta: raffinare la proprietà, non il codice
+Il codice non cambia (cambiarlo rifarebbe i blocchi sul nodo, sez. 6; nessuna esposizione da evitare). Nuova proprietà **V4** (`experiments_tnsm/tla_fsm/v8b/DIB_AE_NA.tla`),
+= V3 più la clausola `sstate[t][f] = "MonitorOnly" ∧ lastApplied[t][f] < eseq[f]` ("sito indietro, riparabile"). Il modello (azioni, stato, VIEW) **non cambia**:
+`diff` contro v8 = solo la definizione aggiunta (11 righe); SANY senza errori. Il modello originale resta in `v8/`.
+Per il paper, la proprietà vera è l'insieme: **sicurezza** (V4 + `ExportSafeAtReachableSites` + `I1_CommitOnUndisputedEvidence`: durante un episodio un sito non esporta e non può
+confermare) **più convergenza** (`ConvergedDecisionsEventually`, verificata solo con 1 evento + fallimenti e crash in `X5`, e con 2 eventi + 1 perdita in `Lv_e2`, audit 93:
+**non** con 3 eventi + fallimenti: dichiarato come limite, sez. 8.5).
+
+### 8.3 Configurazioni (in `v8b/`, hash del modello diverso da `v8/`)
+Un TLC alla volta, `-Xmx28g`, 8 worker, ordine:
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `H0_regress` (v8b) | guardia: la definizione aggiunta non cambia lo spazio: nessuna violazione di ALL2 e **19.415.620** stati | altro conteggio o violazione |
+| `X4a_V4` (= X4 con V3→V4) | nessuna violazione di nessuna proprietà elencata | qualunque violazione |
+| `Xm3_nofinish` (X4a + `MutNoFinishApply`) | violazione (V4 o altra elencata) | nessuna violazione: V4 vacua contro questo mutante |
+| `Xm4_noseq` (X4a + `MutNoSeqGuard`) | violazione di una proprietà elencata | nessuna violazione: i limiti non esercitano la guardia |
+Poi, in `v8/` con il modello originale (nessuna modifica; `Q1` e `S2e3` hanno `MaxFails = MaxCrashes = 0`, quindi non possono produrre la traccia di X4 e **restano con V3**):
+`Q1_quorum2_e3`, `Q2_quorum2_e2_p`, `L2a_loss2`, `L2b_loss2_p`, `F2_two_facts`, `S3_three_sites`, `S2e3_both_split`, con le ipotesi della sez. 3 invariate.
+Regole di arresto invariate (sez. 5): un controesempio ferma la sequenza e si riporta senza proporre codice. Se `X4a_V4` viene violata, la sequenza si ferma lì.
+
+### 8.4 Cosa va nel paper
+- `X4a_V4` confermata: "con 3 eventi, un fallimento e un crash, durante un episodio nessun sito esporta o può confermare, e un sito resta fermo in `monitor-only` solo se è indietro rispetto all'evidence (riparato dall'anti-entropia)". Si dichiara che V3 nella sua forma stretta **non** vale (traccia di sez. 7.2).
+- Violata: ci si ferma.
+
+### 8.5 Limiti già noti di questa lettura
+La riparazione di quel caso con 3 eventi + fallimenti è coperta dalla sola convergenza a 1 e 2 eventi. Una verifica di vivacità `SpecL` con 3 eventi e F1 C1 non è nel piano (costo; `Lv_e2` ha richiesto 2 h 08 min a 2 eventi): da decidere.
