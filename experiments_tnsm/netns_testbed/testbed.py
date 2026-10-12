@@ -264,12 +264,19 @@ def build_cells_v3() -> list[dict]:
     return cells
 
 
+def build_cells_v4() -> list[dict]:
+    """Audit 80: new conditions (60/120/180 ms x 4/8 % loss, P0) + p = 0 validity cells."""
+    cells = [{"d_ms": d, "loss_pct": 0, "policy": "P0", "episodes": 20, "kind": "T0"} for d in (60, 120, 180)]
+    cells += [{"d_ms": d, "loss_pct": p, "policy": "P0", "episodes": 60, "kind": "v4"} for d in (60, 120, 180) for p in (4, 8)]
+    return cells
+
+
 def launch(out_dir: Path, workers: int, episodes: int, suite: str = "grid") -> None:
     avail = int([l for l in open("/proc/meminfo") if l.startswith("MemAvailable")][0].split()[1]) / 1e6
     if avail < 16:
         raise SystemExit(f"refusing to start: MemAvailable {avail:.1f} GB < 16 GB")
     out_dir.mkdir(parents=True, exist_ok=True)
-    cells = build_cells(episodes, SEED) if suite == "grid" else (build_cells_s1(episodes) if suite == "s1" else build_cells_v3())
+    cells = build_cells(episodes, SEED) if suite == "grid" else (build_cells_s1(episodes) if suite == "s1" else (build_cells_v3() if suite == "v3" else build_cells_v4()))
     random.Random(SEED).shuffle(cells)
     parts = [cells[i::workers] for i in range(workers)]
     procs = []
@@ -299,7 +306,7 @@ def main() -> None:
     l.add_argument("--out", required=True)
     l.add_argument("--workers", type=int, default=4)
     l.add_argument("--episodes", type=int, default=60)
-    l.add_argument("--suite", choices=("grid", "s1", "v3"), default="grid")
+    l.add_argument("--suite", choices=("grid", "s1", "v3", "v4"), default="grid")
     w = sub.add_parser("worker")
     w.add_argument("--cells", required=True)
     w.add_argument("--episodes", type=int, default=60)
