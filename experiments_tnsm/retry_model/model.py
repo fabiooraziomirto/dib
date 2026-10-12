@@ -95,24 +95,34 @@ def deliver(arm: str, lost, warm_first: bool = False, **kw) -> dict:
     return {"first_apply": first_apply, "ret": start, "pending": True}
 
 
-def episode(arm: str, fanout: int, lost_by_site: dict, **kw) -> dict:
+def episode(arm: str, fanout: int, lost_by_site: dict, reconcile: bool = False, phases: dict | None = None, **kw) -> dict:
+    """v3: with reconcile=True each site also applies at phi_i + 2R (its next periodic pull, phase phi_i after the evidence commit): apply = min(fan-out, pull)."""
     n = len(lost_by_site)
+    Rr = kw.get("R_", R)
     applies, pending, t0 = [], False, 0.0
     for i in range(n):
         d = deliver(arm, lost_by_site[i], **kw)
-        applies.append(t0 + d["first_apply"] if d["first_apply"] is not None else None)
-        pending |= d["pending"]
+        a = t0 + d["first_apply"] if d["first_apply"] is not None else None
+        if reconcile:
+            pull = max(0.0, (phases or {}).get(i, 0.0)) + 2 * Rr
+            a = pull if a is None else min(a, pull)
+        else:
+            pending |= d["pending"]
+        applies.append(a)
         if fanout == 1:
             t0 += d["ret"]
     done = [a for a in applies if a is not None]
     return {"apply_last": max(done) if done and not pending else None, "pending": pending, "applies": applies}
 
 
-def simulate(arm: str, fanout: int, episodes: int = 20000, seed: int = SEED, p_loss: float = P_LOSS, n_sites: int = 10, **kw) -> dict:
+def simulate(arm: str, fanout: int, episodes: int = 20000, seed: int = SEED, p_loss: float = P_LOSS, n_sites: int = 10, T_reconcile: float = 5.0,
+             J_reconcile: float = 0.5, **kw) -> dict:
     rng = random.Random(seed)
+    phase_rng = random.Random(seed + 1)       # separate stream: the loss draws of v2 are unchanged when reconcile is off
     lasts, pend, late, tot = [], 0, 0, 0
     for _ in range(episodes):
-        ep = episode(arm, fanout, {i: rng_lost(rng, p_loss) for i in range(n_sites)}, **kw)
+        ph = {i: phase_rng.uniform(0.0, T_reconcile + J_reconcile) for i in range(n_sites)} if kw.get("reconcile") else None
+        ep = episode(arm, fanout, {i: rng_lost(rng, p_loss) for i in range(n_sites)}, phases=ph, **kw)
         pend += ep["pending"]
         if fanout == 10:                                       # per-site lateness only where all sites start at 0 (comparable to the measured late share)
             for a in ep["applies"]:
