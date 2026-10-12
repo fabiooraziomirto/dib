@@ -229,3 +229,33 @@ Correzioni al lanciatore:
 
 **Arresto:** se `Lv_e1`, `Lv_e2` o un `L1a_*` trovano una violazione, ci si ferma e si riporta la
 traccia minima.
+
+## 11. Risultati della sez. 9-10 (eseguiti, 2026-10-12 10:54-11:52Z)
+| cfg | Previsione | Esito | Stati distinti | Profondità | Durata | Log:riga |
+|---|---|---|---|---|---|---|
+| `Lv_e1` (v7, SpecL, 1 evento, MaxLoss 1) | `ConvergedDecisionsEventually` ed `ExposureEnds` valgono | **confermata** | 247.317 | 25 | 42 s | `v7live/logs/Lv_e1.log:32,37` |
+| `Lv_noae_e1` (`AntiEntropy = FALSE`) | violata, con `Lose` nella traccia | **confermata** | (violazione) | 14 | 3 s | `v7live/logs/Lv_noae_e1.log:27` |
+| `L1a_e2_np` (2 eventi, MaxLoss 1, senza partizioni) | nessuna violazione dell'insieme S | **confermata** | 4.831.051 | 39 | 1 min 37 s | `v6loss/logs/L1a_e2_np.log:27,32` |
+| `L1a_e3_np` (3 eventi, MaxLoss 1, senza partizioni) | idem | **confermata** | 119.425.107 | 44 | 44 min | `v6loss/logs/L1a_e3_np.log:71,76` |
+| `L2_m6_nolock` (MaxLoss 1, MaxToggles 3) | `OutboxNeverDropsUnapplied` violata | **confermata** | 496.278 al momento della violazione | 12 | 5 s | `v6loss_m/logs/L2_m6_nolock.log:26` |
+| `L1a_e2_p` (2 eventi, MaxLoss 1, MaxToggles 2) | nessuna violazione dell'insieme S | **confermata** | 32.885.070 | 42 | 9 min 58 s | `v6loss/logs/L1a_e2_p.log:35,40` |
+| `Lv_e2` (v7, 2 eventi) | come `Lv_e1` | (in corso) | | | | |
+
+**Traccia di `Lv_noae_e1`** (verificata a mano):
+1. Query(s2), EvDispute;
+2. Deliver a s1, che è Absent: no-op;
+3. **Lose** della consegna a s2;
+4. LocalRevoke(s2): Revoked/Local con last_applied 0;
+5. ciclo di reconcile senza riparazione: la riga di s2 resta a last_applied 0 contro eseq 1 per
+   sempre.
+
+Il mutante è rivelato **per la ragione giusta**, a differenza della formulazione vecchia della
+sez. 8.
+
+**H-L1a: CONFERMATA** in tutte e tre le configurazioni pre-registrate (2 eventi senza e con
+partizioni, 3 eventi senza partizioni). **H-L2:** i mutanti separabili m2, m3 e m6 sono ancora
+trovati con MaxLoss 1; m4 e m5 non sono separabili (sez. 4). **H-L3 (v7, 1 evento): confermata**;
+`Lv_e2` in corso.
+
+Risorse: picco di RAM di sistema ~22 GB su 64 nei controlli; disco libero ≥ 33 GB; nessun intervento
+del watchdog; nessun OOM.
