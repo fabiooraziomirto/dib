@@ -23,3 +23,4 @@
 2026-10-12T11:55:36Z ssh dibnode: deploy_run.sh tree-3cc41c5 -> out/final_R1b_20261012 (degraded, D,C x 10,1, default episodes) launched (audit 97 addendum)
 2026-10-12T13:18:42Z ssh dibnode: scp diag_setup500.py deploy_diag.sh userspace_netem.py to ~/dib_tnsm/b2k/; deploy_diag.sh tree-3cc41c5 -> out/diag500_20261012 (arm C, degraded, 50 facts) launched (audit 101)
 2026-10-12T13:33:14Z ssh dibnode: tree-c29c544 created (service 503 fix + driver setup retry), frozen_hashes_c29c544.txt 0 mismatches; deploy_run.sh tree-c29c544 -> out/final_R1c_20261012 launched (audit 97 addendum 2)
+2026-10-12T13:39:49Z ssh dibnode: R1c (tree-c29c544) interrupted with SIGINT at 8 episodes (rc=130), no container left; tree-864101f created (502/503 split + 409 retry), frozen_hashes_864101f.txt 0 mismatches; deploy_run.sh tree-864101f -> out/final_R1d_20261012 launched (audit 97 addendum 3)
