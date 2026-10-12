@@ -80,3 +80,12 @@ Non è la sicurezza di TLS (handshake, validità, scadenza: fuori ambito del des
 della CA, i tempi, il contenuto delle operazioni. Non verifica che il codice **realizzi** le regole nelle parti non lette come tabella
 (corpo degli handler, `_reporter` oltre la riga del controllo): sono lette a mano e citate sopra. Mtime con granularità insufficiente
 (modifica del file nello stesso `mtime_ns`) non modellata. Revoca = solo aggiunta alla denylist (nessun "un-revoke").
+
+## 8. Addendum prima dei run (2026-10-12, committato prima di ogni run completato)
+Un primo tentativo di `b_P1L` con `MaxRevokes=2` (copie asincrone) è stato **fermato** dopo ~9 minuti, a 816.143 stati distinti e
+494.763 in coda, con ~24.000 stati/min (`nice 19`, 2 worker, in parallelo alla v8; load average ~18 su 16 core): stima ~2·10⁶ stati per cfg,
+quindi ~1 giorno per 18 cfg. Non ha prodotto alcun esito (log parziale conservato come
+`logs/b_P1L_r2_ABORTED_partial.log`, nessuna affermazione). Modifica, prima di qualunque esito:
+- tutte le cfg di base, esplorative e mutanti passano a **`MaxRevokes = 1`** (le proprietà P2-P6 non dipendono dalle revoche; P1 vede una revoca e i suoi effetti per servizio);
+- nuova cfg **`b_P1L_r2`** = `b_P1L` con `MaxRevokes = 2` (interazione fra due revoche, copie asincrone), lanciata per ultima, ipotesi invariata: nessuna violazione.
+Il resto della pre-registrazione (proprietà, mutanti, ipotesi) non cambia.
