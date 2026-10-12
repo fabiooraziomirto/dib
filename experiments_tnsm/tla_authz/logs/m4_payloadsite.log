@@ -1,0 +1,78 @@
+TLC2 Version 2026.05.26.235334 (rev: 4ba7d88)
+Running breadth-first search Model-Checking with fp 120 and seed 3594837848440614023 with 2 workers on 16 cores with 1963MB heap and 64MB offheap memory [pid: 3858604] (Linux 6.8.12-18-pve amd64, Ubuntu 17.0.19 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /tmp/dib_authz_scratch/tlc_m4_payloadsite_w9C0/AuthZ.tla
+Parsing file /tmp/tlc-3851042590798753537/Naturals.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-3851042590798753537/Sequences.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-3851042590798753537/FiniteSets.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/dib_authz_scratch/tlc_m4_payloadsite_w9C0/Rules.tla
+Parsing file /tmp/tlc-3851042590798753537/_TLCTrace.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-3851042590798753537/TLC.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-3851042590798753537/TLCExt.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-3851042590798753537/Integers.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module Rules
+Semantic processing of module TLC
+Semantic processing of module Integers
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module AuthZ
+Linting of module Rules
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module AuthZ
+Starting... (2026-10-12 16:34:05)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-10-12 16:34:05.
+Error: Invariant P5_Dispute is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ loc = [s1 |-> {}, s2 |-> {}, s3 |-> {}, E |-> {}]
+/\ last = [ ep |-> "none",
+  cert |-> <<"gh">>,
+  den |-> {},
+  tgt |-> "none",
+  arg |-> "none",
+  ok |-> FALSE,
+  ent |-> [role |-> "-", site |-> "none", san |-> "-"],
+  actor |-> "none",
+  mst |-> {},
+  dok |-> FALSE ]
+/\ revokes = 0
+/\ master = {}
+
+State 2: <Revoke("m1") line 76, col 14 to line 79, col 54 of module AuthZ>
+/\ loc = [s1 |-> {}, s2 |-> {}, s3 |-> {}, E |-> {}]
+/\ last = [ ep |-> "none",
+  cert |-> <<"gh">>,
+  den |-> {},
+  tgt |-> "none",
+  arg |-> "none",
+  ok |-> FALSE,
+  ent |-> [role |-> "-", site |-> "none", san |-> "-"],
+  actor |-> "none",
+  mst |-> {},
+  dok |-> FALSE ]
+/\ revokes = 1
+/\ master = {"m1"}
+
+State 3: <Call(<<"m1">>,"evidence.attest","E","s2") line 90, col 6 to line 94, col 94 of module AuthZ>
+/\ loc = [s1 |-> {}, s2 |-> {}, s3 |-> {}, E |-> {}]
+/\ last = [ ep |-> "evidence.attest",
+  cert |-> <<"m1">>,
+  den |-> {},
+  tgt |-> "E",
+  arg |-> "s2",
+  ok |-> TRUE,
+  ent |-> [role |-> "member", site |-> "s1", san |-> "m1"],
+  actor |-> "s2",
+  mst |-> {"m1"},
+  dok |-> FALSE ]
+/\ revokes = 1
+/\ master = {"m1"}
+
+79 states generated, 79 distinct states found, 75 states left on queue.
+The depth of the complete state graph search is 3.
+Finished in 00s at (2026-10-12 16:34:05)
+Trace exploration spec path: ./AuthZ_TTrace_1791815644.tla
