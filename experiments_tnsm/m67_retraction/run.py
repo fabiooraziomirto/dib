@@ -458,6 +458,47 @@ class SetupFailed(Exception):
         self.site, self.step, self.status, self.body = site, step, status, body
 
 
+def invariants_enabled() -> bool:
+    """True only when DIB_M67_INVARIANTS=1 in the driver's environment (audit 90 sez. 5): off by default, rows and timing unchanged."""
+    return os.environ.get("DIB_M67_INVARIANTS", "0") == "1"
+
+
+def manifest_flags() -> dict:
+    return {"invariants": invariants_enabled()}
+
+
+def end_state_invariants(env, ep: str, sid: int, sites: list[int]) -> dict:
+    """End-of-episode check of the FSM invariants of common/invariants.py on the B1 episode (a 200 commit per site, one 200 dispute, no restore, no local operation).
+    Reads GET /state/<sid> of each site (a 404 = absent row, a transport error = unreadable), GET /scores of the fact and the pending counts. AFTER the measurement."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
+    import invariants as inv
+
+    rows, unreadable = {}, []
+    for i in sites:
+        try:
+            resp = env.req("GET", f"{env.site(i)}/state/{sid}", "admin", 5.0)
+        except (TransportFailure, ClientTimeout):
+            unreadable.append(i)
+            continue
+        if resp.status_code == 200:
+            rows[(i, sid)] = resp.json()
+    sc = env.req("GET", f"{env.ev}/scores", "admin", 5.0, params={"device_type": "cam-a", "endpoint": ep}).json()
+    scores = {sid: {"status": sc["status"], "fanout_seq": sc["fanout_seq"]}}
+    pending = {(i, sid): sum(1 for it in items if it["score_id"] == sid) for i, items in env.read_pending(sites).items()}
+    events = [{"t": -1.0, "op": "commit", "site": i, "score_id": sid, "status": 200} for i in sites] + [{"t": 0.0, "op": "dispute", "site": None, "score_id": sid, "status": 200}]
+    return {"violations": inv.all_checks(rows, scores, pending, events), "unreadable_sites": unreadable}
+
+
+def invariants_row(env, ep: str, sid: int, sites: list[int]) -> dict:
+    """Fields to merge into an episode row: {} when the check is off; {"invariants": ...} or {"invariants_error": ...} when on (a failure of the CHECK never excludes the episode)."""
+    if not invariants_enabled():
+        return {}
+    try:
+        return {"invariants": end_state_invariants(env, ep, sid, sites)}
+    except Exception as exc:  # noqa: BLE001 -- the check must never change the measured episode
+        return {"invariants_error": repr(exc)[:200]}
+
+
 def service_settings(groups) -> dict:
     """Settings of the cluster that decide how an experiment must be read (audit 90 sez. 4): the reconcile interval(s) T of the cells and the suspension quorum the containers get.
     run.py never passes DIB_DIST_SUSPENSION_QUORUM to the containers, so they run the service default (1) whatever the generator's own environment says."""
@@ -700,6 +741,8 @@ def episode_b1(env: Env, profile: str, tag: str, e: int, setup: bool = True) -> 
         row["plog_apply_ts"], row["plog_ack_ts"] = applied, acked
         row["plog_ack_count"] = {i: sum(1 for x in evlog if x[1] == f"/pending/site-{i}/ack" and x[0] >= t0 and x[2] == 200) for i in range(N_SITES)}
         row["withdrawn_plog_s"] = {i: (None if t is None else t - t0) for i, t in applied.items()}
+        if setup:
+            row.update(invariants_row(env, ep, sid, list(range(N_SITES))))
     except SetupFailed as exc:
         row.update(excluded=True, excluded_reason="setup_failed", setup_failed=str(exc)[:200])
     except ClientTimeout as exc:
@@ -847,7 +890,7 @@ def live(a, cells, rng) -> int:
                 "generator_is_node": True, "clock": "time.time() = CLOCK_REALTIME of the node (same clock as docker logs -t)",
                 "cluster_recreations": len(groups), "plog_thresholds": thresholds,
                 "measure_rule": "per profile from the thresholds file" if thresholds else "dispute-rtt (no P-log calibration applied)",
-                "node_service_sha256": sha(Path(f"{tree}/code/src/dib/registry/distributed/service.py")), "fanout_keepalive": keepalive_enabled(), "dns_nosearch": dns_nosearch_enabled(), "extra_compose": extra_compose(), "service_settings": service_settings(groups),
+                "node_service_sha256": sha(Path(f"{tree}/code/src/dib/registry/distributed/service.py")), "fanout_keepalive": keepalive_enabled(), **manifest_flags(), "dns_nosearch": dns_nosearch_enabled(), "extra_compose": extra_compose(), "service_settings": service_settings(groups),
                 "launcher_d_sha256": sha(Path(f"{tree}/experiments_tnsm/m3_distributed/launcher_d.py")),
                 "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
                 "run_py_sha256": sha(Path(__file__)), "discard_rule": rule,
