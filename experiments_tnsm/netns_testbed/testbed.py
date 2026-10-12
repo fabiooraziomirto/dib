@@ -43,9 +43,19 @@ def site_url(i: int) -> str:
     return f"http://{HOST}:{SITE_PORT0 + i}"
 
 
+def tc_cmd(c: list[str]) -> list[str]:
+    """Container mode (audit 83): the host's tc is run through the host's dynamic loader (DIB_TESTBED_TC_PREFIX); only tc commands are rewritten."""
+    prefix = os.environ.get("DIB_TESTBED_TC_PREFIX")
+    return prefix.split() + c[1:] if (prefix and c and c[0] == "tc") else c
+
+
+def needs_ip_link() -> bool:
+    return os.environ.get("DIB_TESTBED_CONTAINER") != "1"
+
+
 def tc(cmds: list[list[str]]) -> None:
     for c in cmds:
-        subprocess.run(c, check=True, capture_output=True)
+        subprocess.run(tc_cmd(c), check=True, capture_output=True)
 
 
 class Cluster:
@@ -209,7 +219,8 @@ def run_episode(cl: Cluster, client: httpx.Client, tag: str, k: int, max_wait: f
 
 
 def worker(cells: list[dict], episodes: int, warmup: int, out_path: Path, workdir: Path) -> None:
-    subprocess.run(["ip", "link", "set", "lo", "up"], check=True)
+    if needs_ip_link():
+        subprocess.run(["ip", "link", "set", "lo", "up"], check=True)
     cl = Cluster(workdir)
     client = httpx.Client(transport=httpx.HTTPTransport(local_address=DRIVER_IP), timeout=30)
     first = cells[0]
