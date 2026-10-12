@@ -399,3 +399,7 @@ limite di 3 h sia la soglia del watchdog. L'ho fermato (exit 143) per lasciare l
 Per la regola pre-registrata: **incompleto, nessuna affermazione**. Nella porzione esplorata non è
 stata trovata alcuna violazione, ma questo non verifica la correzione con 3 eventi.
 Il paper dichiara "up to two evidence events".
+
+Regressione della copia **v6** (chiusura della query con applicazione della lettura) su tutti i test
+distribuiti più stale_commit: **127 passed, 15 failed, 1 xfailed in 31,4 s**. Gli stessi 15
+fallimenti della copia v5 (sez. 13), tutti nelle classi dichiarate salvo il noto b3q-2.
