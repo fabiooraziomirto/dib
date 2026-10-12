@@ -123,3 +123,63 @@ aggiuntiva committata prima del suo lancio.
   vanno rifatti (decisione dell'utente).
 - **Incompleti:** si dichiarano tali, e la configurazione verificata nel paper si ferma all'ultimo
   run completo.
+
+## 7. Risultati (eseguiti)
+
+Esecuzione del 2026-10-12, 14:02-14:42 UTC (i `Progress` nei log sono in ora locale, CEST = UTC+2), worktree `DIB_tnsm_v8`
+(branch `tnsm-fsm-v8`, da 7a4a9d5), `run_tlc.sh <cfg> 28 8`, un TLC alla volta, jar sha256 `237332bd…`, Java OpenJDK 17.0.19.
+Log in `experiments_tnsm/tla_fsm/v8/logs/<cfg>.log`, riga per run in `logs_v8.out`, manifest (hash di modello e cfg) in `logs/manifest.tsv`.
+Righe citate: "r. A/B/C" = riga di `No error has been found` / `distinct states found` / `depth` (o `is violated`) del log.
+
+| cfg | Previsione | Esito | Stati distinti | Profondità | Durata | Log (righe) |
+|---|---|---|---|---|---|---|
+| `H0_regress` | nessuna violazione, esattamente 19.415.620 stati | **confermata** | 19.415.620 | 42 | 6 min 00 s | r. 31, 36, 37 |
+| `Xm1_noD1` | `StagingIsTransient` violato | **confermata** (violazione prevista) | 179 (al momento della violazione) | 6 | 15 s | r. 25, 177, 178 |
+| `Xm2_failnoclean` | `StagingIsTransient` violato | **confermata** (violazione prevista) | 229 | 7 | 15 s | r. 25, 287, 288 |
+| `X1_e2_fc` | nessuna violazione di ALL2 | **confermata** | 7.370.542 | 38 | 3 min 00 s | r. 28, 33, 34 |
+| `X5_live_e1` | `ConvergedDecisionsEventually` ed `ExposureEnds` valgono | **confermata** | 1.087.027 | 25 | 3 min 45 s | r. 36, 41, 42 |
+| `X3_e2_loss_fc` | nessuna violazione di SLOSS | **confermata** | 19.485.890 | 39 | 7 min 15 s | r. 32, 37, 38 |
+| `X2_e2_p_fc` | nessuna violazione di ALL2 | **confermata** | 54.623.202 | 42 | 19 min 31 s | r. 45, 50, 51 |
+| `X4_e3_fc` | nessuna violazione di ALL3 | **FALSIFICATA** | 88.535 (al momento della violazione) | 10 | 15 s | r. 25 (`DisputeSuspendsAtReachableSitesV3 is violated`), 500, 501 |
+| `Q1_quorum2_e3`, `Q2_quorum2_e2_p`, `L2a_loss2`, `L2b_loss2_p`, `F2_two_facts`, `S3_three_sites`, `S2e3_both_split` | — | **NON ESEGUITE**: regola di arresto (sez. 5), la sequenza si è fermata a `X4_e3_fc` | — | — | — | `logs_v8.out`: `STOP: X4_e3_fc found a counterexample` |
+
+Risorse: picco di RAM usata a livello di sistema 24,6 GB (campionata ogni 60 s, include altri processi; heap TLC 28 GB su 64 GB, mai OOM);
+disco libero minimo osservato 33 GB (soglia del watchdog 8 GB, mai scattato). Nessun run incompleto: tutti terminati con `exit=0` o `exit=12` (violazione).
+
+### 7.1 Violazioni previste (non vacuità delle due mutazioni)
+- **`Xm1_noD1`** (riavvio senza pulizia D1), `StagingIsTransient`: (1) `QueryReserve(s1,f1)` → `sstate[s1][f1]="Staging"` con operazione pendente; (2) `Crash(s1)` →
+  l'operazione pendente si perde, la riga resta `Staging`. Violato: `Staging` senza query pendente (r. 98-169).
+- **`Xm2_failnoclean`** (lettura fallita che lascia la riserva), `StagingIsTransient`: (1) `Dispute(r1,f1)`; (2) `Dispute(r2,f1)` (revoca, `EvRevoke`);
+  (3) `QueryReserve(s1,f1)` → `Staging`; (4) `QueryRead2Fail(s1)` senza pulizia → la riga resta `Staging`, operazione terminata (r. 77-276).
+Le due mutazioni sono quindi non vacue: i due rami di D1 (`Crash`) e della pulizia nella lettura fallita (`QueryRead2Fail`) sono necessari a `StagingIsTransient`.
+
+### 7.2 Falsificazione: `X4_e3_fc` (3 eventi, letture fallite e crash, nessuna perdita né partizione, ALL3)
+Proprietà violata: `DisputeSuspendsAtReachableSitesV3` (`DIB_AE_NA.tla:894-898`: con stato dell'evidence ≠ Active e nessuna operazione in volo, un sito
+raggiungibile deve essere `Absent`/`Disputed`/`Revoked`, oppure `Staging`/`MonitorOnly` **con una query pendente**). Traccia minima (9 stati, `lastOp` fra parentesi):
+
+| # | Azione | Evidence | Sito s1 per f1 | `lastApplied[s1]` |
+|---|---|---|---|---|
+| 1 | Init | Active, seq 0 | Absent | 0 |
+| 2 | `Dispute(r1,f1)` (`EvDispute`, seq 1) | Disputed | Absent | 0 |
+| 3 | `Restore(f1)` (`EvRestore`, seq 2) | Active | Absent | 0 |
+| 4 | `Dispute(r1,f1)` (`EvDispute`, seq 3) | Disputed | Absent | 0 |
+| 5 | `Deliver` a s1 del seq 1 dispute (`Deliver`) | Disputed | Absent | 0 |
+| 6 | `Deliver` a s1 del seq 3 dispute (`Deliver`) | Disputed | Absent | 0 |
+| 7 | `QueryReserve(s1,f1)` (`QueryReserve`) | Disputed | **Staging**, query pendente `qreserved` | 0 |
+| 8 | `Deliver` a s1 del **seq 2 restore** (`Deliver`), arrivato dopo il seq 3 | Disputed | **MonitorOnly**, query ancora pendente | **2** |
+| 9 | `QueryRead2Fail(s1)` (`QueryFail`, `failCount=1`) | Disputed | **MonitorOnly**, **nessuna query pendente** | 2 |
+
+Lettura: i due `dispute` (seq 1 e 3) consegnati a un sito dove il fatto è `Absent` non cambiano lo stato né `lastApplied` (resta 0); il `restore` (seq 2),
+vecchio rispetto al seq 3, viene consegnato dopo e, con la query in corso, porta la riga a `MonitorOnly` con `lastApplied=2`. Il fallimento della seconda lettura chiude
+l'operazione ma, avendo la riga già lasciato `Staging`, non la cancella: resta un `MonitorOnly` con l'evidence `Disputed`, senza query che lo giustifichi.
+`MonitorOnly` non è esportabile (commento a `DIB_AE_NA.tla:893`): il controesempio è a `V3` e **non** dice che un fatto disputato venga esportato; non ho verificato
+(non è nel modello) come il codice si comporti nello stesso scenario e non propongo correzioni.
+Con 3 eventi senza fallimenti né crash `V3` regge (audit 92), quindi il controesempio dipende dalla sola azione `QueryRead2Fail` di v8 (`F1`).
+Decisione per l'utente: se `V3` va letta come invariante da correggere (modello o codice) oppure ridotta (ammettere `MonitorOnly` anche dopo una lettura fallita), e se
+`lastApplied` non avanzato per un `dispute` su fatto `Absent` sia voluto. Nessuna correzione proposta in questa sede.
+
+### 7.3 NON VERIFICATO
+- Le 7 configurazioni non eseguite (quorum 2 con 3 eventi e con partizioni; `MaxLoss 2` senza e con partizioni; due fatti; tre siti; due siti divisi con 3 eventi): fermate dalla regola di arresto. Nessuna affermazione su di esse.
+- Tutto ciò che richiede 3 eventi con letture fallite e crash: il controesempio di `X4` vale per ALL3 (V3); `X1`, `X2`, `X3`, `X5` reggono solo con **2 eventi** (X5: 1 evento).
+- Estensione 7 (richieste pendenti multiple per sito): non iniziata.
+- Lettura del controesempio sul codice (`service.py`): non fatta.
