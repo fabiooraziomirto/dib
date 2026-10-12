@@ -45,6 +45,8 @@ siti raggiungibili senza nulla in volo, I1, I2, la conservazione del veto, il re
     esterno ai voti.
 - **Nel modello:**
   - `v5_f2_fix_all`: nessuna violazione di alcuna proprietà su 98.945.568 stati;
+  - `v5_f3_two_split`: con le correzioni su entrambi i siti, nessuna violazione su 466.601.973 stati
+    (profondità 53, 2 h 24 min);
   - ogni parte è necessaria (4 mutanti, tutti rilevati);
   - quorum 2 con la regola outsider: 64.458.470 stati, nessuna violazione.
 - **Sulla copia:**
