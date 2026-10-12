@@ -163,3 +163,31 @@ Esito 7.1: **127 passed, 12 failed, 1 xfailed in 24,0 s.**
   dell'audit 64.
 - Tutti gli altri 127 test (D12, D19, trigger, fan-out parallelo, keep-alive, ack, inproc) passano
   sulla copia corretta.
+
+## 8. Risultati del batch 2 (modello v2, 2026-10-11 23:57Z - 2026-10-12 00:03Z)
+| cfg | Previsione | Esito | Stati distinti | Nota |
+|---|---|---|---|---|
+| `f2_witness_mo` | violazione | **confermata** | 435 | con FixQuery la query divisa arriva a MonitorOnly |
+| `f2_witness_active` | violazione | **confermata** | 54.231 | con le correzioni il commit diviso arriva ad Active |
+| `m2_nolrguard` | violazione | **confermata** | 143.253 | senza guardia in LRWrite torna b3r |
+| `m3_noverify` | violazione | **confermata** | 16.735 | senza seconda lettura torna b3c |
+| `m4_noqueryfix` | violazione | **confermata** | 857 | senza FixQuery torna b3q |
+| `f2_orig_strict` | violazione SOLO da Staging | **confermata** | 425 | ultimo stato: s1 `Staging` dopo QueryReserve con la dispute già consegnata (Absent → no-op) |
+| `r1_regress_v2` | nessuna violazione, 14.947.820 | **confermata** | **14.947.820**, profondità 32, 3 min 48 s | |
+| `n5_export_nofix` | nessuna violazione | **FALSIFICATA (errore mio nella proprietà)** | 2.946 | `I3_VetoPreserved` esentava solo `LocalRestore`; la traccia è una local restore legittima del sito (LRRead, LRWrite, nessuna dispute) |
+| `f2_fix_all` | nessuna violazione | **FALSIFICATA (stessa causa)** | 18.022 | idem |
+| `f3_two_split` | nessuna violazione | **FALSIFICATA (stessa causa)** | 18.504 | idem; il run è finito in 1 s, prima che lo fermassi |
+
+Le tre falsificazioni non dicono nulla sul sistema: dicono che la proprietà non era stata estesa
+all'azione divisa (ho esteso I1, I2 e l'isolamento, ma non I3_VetoPreserved). Restano registrate così.
+Il batch 3 ripete i tre run con la proprietà corretta.
+
+## 9. Batch 3 — pre-registrazione (modello v3 = v2 + `I3_VetoPreserved` che esenta anche `LRWrite`)
+`experiments_tnsm/tla_fsm/v3/`. Corpo delle cfg identico a quello di v2, salvo `v3_mut_veto`.
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `v3_mut_veto` | la proprietà corretta non è vuota: con le correzioni e `MutIgnoreOrigin` è violata | nessuna violazione |
+| `v3_n5_export_nofix` | come H-n5 (semantica del prototipo, export sicuro, proprietà d'azione originali) | qualunque violazione |
+| `v3_f2_fix_all` | come H-f2 (correzioni: nessuna violazione) | qualunque violazione |
+| `v3_r1_regress_v2` | nessuna violazione, 14.947.820 stati | violazione o altro conteggio |
+| `v3_f3_two_split` | come H-f3 (correzioni su entrambi i siti, MaxToggles 2) | qualunque violazione; incompleto oltre 3 h = riportato come tale |
