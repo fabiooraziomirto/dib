@@ -331,3 +331,30 @@ parti della correzione è necessaria** nella configurazione verificata.
 MaxToggles 2. Ipotesi: nessuna violazione di nessuna proprietà. Falsificata da qualunque violazione.
 Se lo fermano il limite di 3 h o il watchdog del disco: incompleto, nessuna affermazione. Parte
 dopo `v5_f3_two_split`, un TLC alla volta.
+
+### 13.3 Esito di `v5_f4_e3`: FALSIFICATA (reale per la correzione v5)
+50.914 stati. Traccia:
+1. Dispute (1), Restore (2), Dispute (3);
+2. a s1, ancora Absent, arrivano la dispute 1 e la dispute 3 (no-op);
+3. QueryReserve crea Staging;
+4. il restore 2 arriva in ritardo e sposta la riga a MonitorOnly con last_applied 2.
+
+s1 resta MonitorOnly mentre l'evidence è Disputed (seq 3), senza nulla in volo: viola
+`DisputeSuspendsAtReachableSitesV2`. La correzione v5 è quindi verificata **solo con MaxEvents 2**.
+Con 3 eventi ha un buco: una dispute arrivata quando la riga non esisteva, seguita da un evento più
+vecchio consegnato fuori ordine sulla riserva. L'anti-entropia lo ripara alla reconcile successiva
+(current seq 3 > 2).
+
+## 14. Batch 6 — pre-registrazione (v6 = v5 + `QueryFinish` che applica la propria lettura a una riga già spostata)
+La correzione v6 applica la seconda lettura della query (seq, stato) con la stessa guardia di
+sequenza (`ApplyEffect`). `DisputeSuspendsAtReachableSitesV3` ammette anche MonitorOnly durante
+una query pendente del sito su quel fatto. Motivo: la chiusura applicherà la lettura;
+MonitorOnly non è esportabile; nessun commit può partire, perché c'è una sola operazione pendente
+per sito. Mutazione `MutNoFinishApply` = comportamento v5. Patch su copia aggiornata allo stesso
+modo (H-F6; lo scenario fuori ordine non ha un test Python: NON VERIFICATO sul codice).
+
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `v6_m5_nofinishapply` | MaxEvents 3, senza l'applicazione: V3 violato (traccia di v5_f4_e3) | nessuna violazione |
+| `v6_f2_fix_all` | MaxEvents 2, con la V2 stretta: nessuna violazione | qualunque violazione |
+| `v6_f4_e3` | MaxEvents 3, MaxToggles 2, con V3: nessuna violazione | qualunque violazione; incompleto = nessuna affermazione |
