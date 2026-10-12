@@ -1,0 +1,182 @@
+{
+ "audit": "docs/audit/75_prereg_banco_netns_modello_v2.md",
+ "python": "3.10.13 (main, Sep 11 2023, 13:44:35) [GCC 11.2.0]",
+ "kernel": "6.8.12-18-pve",
+ "host": "Mirto-LLM-vnet170",
+ "seed": 20261012,
+ "workers": 4,
+ "episodes_per_cell": 60,
+ "cells": [
+  {
+   "d_ms": 100,
+   "loss_pct": 10,
+   "policy": "P1",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 50,
+   "loss_pct": 2,
+   "policy": "P1",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 200,
+   "loss_pct": 10,
+   "policy": "P1",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 100,
+   "loss_pct": 2,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 100,
+   "loss_pct": 0,
+   "policy": "P1",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 100,
+   "loss_pct": 5,
+   "policy": "P1",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 50,
+   "loss_pct": 0,
+   "policy": "P1",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 200,
+   "loss_pct": 10,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 100,
+   "loss_pct": 10,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 100,
+   "loss_pct": 5,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 100,
+   "loss_pct": 0,
+   "policy": "P0",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 50,
+   "loss_pct": 10,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 200,
+   "loss_pct": 5,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 200,
+   "loss_pct": 0,
+   "policy": "P1",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 50,
+   "loss_pct": 5,
+   "policy": "P1",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 50,
+   "loss_pct": 10,
+   "policy": "P1",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 50,
+   "loss_pct": 5,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 200,
+   "loss_pct": 0,
+   "policy": "P0",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 200,
+   "loss_pct": 2,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 200,
+   "loss_pct": 2,
+   "policy": "P1",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 200,
+   "loss_pct": 5,
+   "policy": "P1",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 50,
+   "loss_pct": 2,
+   "policy": "P0",
+   "episodes": 60,
+   "kind": "grid"
+  },
+  {
+   "d_ms": 50,
+   "loss_pct": 0,
+   "policy": "P0",
+   "episodes": 20,
+   "kind": "T0"
+  },
+  {
+   "d_ms": 100,
+   "loss_pct": 2,
+   "policy": "P1",
+   "episodes": 60,
+   "kind": "grid"
+  }
+ ],
+ "service_py_sha256": "0501b383043a44d4be2f9e0ac2dd9ce2db6ae585b04838a0f54bb1fba3d42a64",
+ "testbed_py_sha256": "97812cba1cd4fdfdfa06eda223e22b4605aaee007e27478dbb0e37cf2e39fb25",
+ "finished_utc": "2026-10-12T03:11:22Z"
+}
