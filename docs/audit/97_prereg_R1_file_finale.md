@@ -1,0 +1,13 @@
+# Audit 97 — Pre-registrazione: deployment completo (B1 `degraded`) sul `service.py` finale (`tree-54521aa`)
+
+Scritta e committata PRIMA del lancio (2026-10-12). Codice: commit `54521aa` di `tnsm-fixes`, `service.py` sha256 `f7987d9599d37ffa21b9a21b7cf7c66dd7572d9b2f48cf5c6a6317768f047ef2` (correzioni FSM di `dc3dd20` + D1 + D2); albero `~/dib_tnsm/tree-54521aa`, `frozen_hashes_54521aa.txt` (24 file, 0 differenze). Run identico ad audit 85/86/88: `deploy_run.sh`, `run.py b1 degraded`, arms D e C × FANOUT 10 e 1, 50 episodi, seed 20261014, applicatore netem in user space, soglie P-log di B5, keep-alive e DNS-nosearch spenti, quorum 1, T = 5, invarianti OFF (per restare confrontabile con 86 e 89). Con questo albero `run.py` controlla il setup (D5): un episodio con `/query` o `/commit` rifiutati è escluso come `setup_failed` e il numero è riportato.
+Riferimenti (stessi dati, stessi criteri di analisi): audit 86 (`experiments_tnsm/deploy_run_20261012`, albero 467a711) e audit 89 (`experiments_tnsm/rerun_R1_20261012`, `dc3dd20`).
+
+## Ipotesi (soglie fissate ora)
+- **H-F1 (D e mediane):** D/10 quota in ritardo per sito entro ±0,04 da 0,176 (media delle due repliche precedenti); mediana dell'ultimo sito a FANOUT 1 entro ±25 % da 10 600 (D) e da 16 400 (C), come H-N2 di audit 85.
+- **H-F2 (nessuna regressione di C/10):** C/10 entro ±0,06 da 0,309 (media delle tre repliche del nodo 0,310, 0,282, 0,335). La soglia è più larga di ±0,04 di audit 88 **perché la dispersione fra repliche è già nota** (0,282-0,335, audit 89): dichiarato qui, prima dei dati. Non c'è criterio sulla distanza dal v4 (0,251, sottostima nota).
+- **H-F3 (D5 e D1/D2 non cambiano il percorso misurato):** il numero di episodi esclusi per `setup_failed` è ≤ 2 per cella; nessun episodio escluso per `queues_not_empty_at_start` in più del solito (≤ 2 per cella). Falsificata se una cella supera la soglia: si riporta il motivo (D2 introduce 503 di setup possibili; D5 li rende visibili).
+- **Falsificazione:** una qualunque delle tre cade → si riporta com'è, si indaga prima di proseguire con B2k, nessuna soglia ritoccata.
+
+## Cosa si fa dei risultati
+Verdetti con `analyze_deploy.py` (H-N1/H-N2) e `compare_deploy.py` (confronto con 86 e 89); `analyze_b5.py` per i criteri dell'audit 46 sugli stessi dati (stessa cella di B5). Audit dei risultati: 98.
