@@ -63,7 +63,7 @@ class Cluster:
         for i in range(N):
             e[f"DIB_DIST_SITE_URL_{i}"] = site_url(i)
         if role == "evidence":
-            e["DIB_DIST_FANOUT_CONCURRENCY"] = "10"
+            e["DIB_DIST_FANOUT_CONCURRENCY"] = str(getattr(self, "concurrency", 10))
             if keepalive:
                 e["DIB_DIST_FANOUT_KEEPALIVE"] = "1"
                 e["DIB_DIST_FANOUT_WARM_INTERVAL"] = "2"
@@ -81,7 +81,8 @@ class Cluster:
         for i in range(N):
             self._start(f"site{i}", "site", i, SITE_PORT0 + i, False)
 
-    def start_evidence(self, keepalive: bool) -> None:
+    def start_evidence(self, keepalive: bool, concurrency: int = 10) -> None:
+        self.concurrency = concurrency
         self._start("evidence", "evidence", 0, EV_PORT, keepalive)
 
     def stop(self, name: str) -> None:
@@ -119,7 +120,7 @@ def ro(path: Path) -> sqlite3.Connection:
     return sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=1.0)
 
 
-def run_episode(cl: Cluster, client: httpx.Client, tag: str, k: int) -> dict:
+def run_episode(cl: Cluster, client: httpx.Client, tag: str, k: int, max_wait: float = 30.0) -> dict:
     out = {"episode": k, "setup_ok": False, "applies": {}, "t0": None}
     ep = f"{tag}-{k}.example"
     body = {"device_type": "cam-a", "endpoint": ep}
@@ -181,9 +182,9 @@ def run_episode(cl: Cluster, client: httpx.Client, tag: str, k: int) -> dict:
     while True:
         if len(state["applied"]) == N:
             break
-        if state["t0"] is not None and time.time() - state["t0"] > 30:
+        if state["t0"] is not None and time.time() - state["t0"] > max_wait:
             break
-        if time.time() - t_send > 130:
+        if time.time() - t_send > max_wait + 100:
             break
         time.sleep(0.01)
     stop.set()
@@ -222,14 +223,14 @@ def worker(cells: list[dict], episodes: int, warmup: int, out_path: Path, workdi
             tc(an.netem_cmds(cell["d_ms"], cell["loss_pct"], initial=False))
             if current_policy != cell["policy"]:
                 cl.stop("evidence")
-                cl.start_evidence(warm)
+                cl.start_evidence(warm, concurrency=1 if cell["policy"] == "S1" else 10)
                 current_policy = cell["policy"]
                 cl.wait_healthy(client)
                 time.sleep(8 if warm else 3)       # let the warmers open their connections
             n_ep = cell.get("episodes", episodes)
             tag = f"c{ci}-{cell['d_ms']}-{cell['loss_pct']}-{cell['policy']}"
             for k in range(-warmup, n_ep):
-                e = run_episode(cl, client, tag, k)
+                e = run_episode(cl, client, tag, k, max_wait=cell.get("max_wait_s", 30.0))
                 if k < 0:
                     continue
                 fh.write(json.dumps({"cell": cell, **e}) + "\n")
@@ -250,12 +251,18 @@ def build_cells(episodes: int, seed: int) -> list[dict]:
     return cells
 
 
-def launch(out_dir: Path, workers: int, episodes: int) -> None:
+def build_cells_s1(episodes: int) -> list[dict]:
+    """Audit 77: sequential fan-out (DIB_DIST_FANOUT_CONCURRENCY=1) on the 9 conditions; long episodes need a longer wait cap."""
+    return [{"d_ms": d, "loss_pct": p, "policy": "S1", "episodes": episodes, "kind": "s1", "max_wait_s": 120} for d in (50, 100, 200) for p in (2, 5, 10)]
+
+
+def launch(out_dir: Path, workers: int, episodes: int, suite: str = "grid") -> None:
     avail = int([l for l in open("/proc/meminfo") if l.startswith("MemAvailable")][0].split()[1]) / 1e6
     if avail < 16:
         raise SystemExit(f"refusing to start: MemAvailable {avail:.1f} GB < 16 GB")
     out_dir.mkdir(parents=True, exist_ok=True)
-    cells = build_cells(episodes, SEED)
+    cells = build_cells(episodes, SEED) if suite == "grid" else build_cells_s1(episodes)
+    random.Random(SEED).shuffle(cells)
     parts = [cells[i::workers] for i in range(workers)]
     procs = []
     for i, part in enumerate(parts):
@@ -272,7 +279,7 @@ def launch(out_dir: Path, workers: int, episodes: int) -> None:
         shutil.rmtree(wd, ignore_errors=True)
     svc = SVC_DIR / "service.py"
     (out_dir / "manifest.json").write_text(json.dumps({
-        "audit": "docs/audit/75_prereg_banco_netns_modello_v2.md", "python": sys.version, "kernel": platform.release(), "host": platform.node(), "seed": SEED,
+        "audit": "docs/audit/75_prereg_banco_netns_modello_v2.md (suite grid) / 77 (suite s1)", "suite": suite, "python": sys.version, "kernel": platform.release(), "host": platform.node(), "seed": SEED,
         "workers": workers, "episodes_per_cell": episodes, "cells": cells, "service_py_sha256": hashlib.sha256(svc.read_bytes()).hexdigest(),
         "testbed_py_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), "finished_utc": time.strftime("%FT%TZ", time.gmtime())}, indent=1))
 
@@ -284,6 +291,7 @@ def main() -> None:
     l.add_argument("--out", required=True)
     l.add_argument("--workers", type=int, default=4)
     l.add_argument("--episodes", type=int, default=60)
+    l.add_argument("--suite", choices=("grid", "s1"), default="grid")
     w = sub.add_parser("worker")
     w.add_argument("--cells", required=True)
     w.add_argument("--episodes", type=int, default=60)
@@ -293,7 +301,7 @@ def main() -> None:
     sub.add_parser("smoke")
     a = ap.parse_args()
     if a.cmd == "launch":
-        launch(Path(a.out), a.workers, a.episodes)
+        launch(Path(a.out), a.workers, a.episodes, a.suite)
     elif a.cmd == "worker":
         worker(json.loads(Path(a.cells).read_text()), a.episodes, a.warmup, Path(a.out), Path(a.workdir))
     else:
