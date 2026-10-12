@@ -149,6 +149,8 @@ controesempio già trovato **esiste ancora**, se la sua proprietà è nell'insie
   controllo atomico; H-L3 vivacità; m4 e m5 dichiarati non separabili.
 - **Nessun tetto di tempo per nessun run.** Restano il watchdog del disco (< 8 GB liberi → TLC
   fermato, esito "incompleto") e l'heap limitato a 28 GB. La sez. 5 è superata per la parte sui tetti.
-- **Regola di arresto:** se  o  trovano un controesempio, la sequenza si ferma e si
-  riporta la traccia minima. Gli altri run (, ) prevedono una violazione: la sequenza
+- **Regola di arresto:** se `L1a_*` o `L3_*` trovano un controesempio, la sequenza si ferma e si
+  riporta la traccia minima. Gli altri run (`L1b_*`, `L2_*`) prevedono una violazione: la sequenza
   prosegue.
+  (Il testo di questa riga è stato ripristinato dopo il commit `25b19b7`: un heredoc senza virgolette
+  aveva cancellato i nomi fra backtick. Il contenuto è quello deciso prima del lancio.)
