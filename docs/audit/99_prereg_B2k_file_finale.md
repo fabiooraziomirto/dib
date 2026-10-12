@@ -20,3 +20,6 @@ Per ogni profilo: p95 della latenza del sito morto ≤ 50 ms con applicatore a p
 ## Limiti dichiarati prima
 Una macchina, 10 prove per cella (n = vincolo di tempo), nodo con CPU QEMU senza AVX2; il numero di mTLS non si ricava da questi dati (audit 45 sez. 6); `deploy_b2k.sh` non provato prima di questo blocco: un fallimento dell'orchestratore (non del servizio) si riporta come tale e non conta come falsificazione di (d-kill) o (e).
 Esecuzione sul nodo dopo R1 (audit 97), un blocco alla volta. Risultati: audit 100.
+
+## Addendum (2026-10-12, 16:50Z, prima del lancio): albero e verifica dell'immagine
+Albero `tree-c898ea8` (`service.py` sha256 `3ffa57ee…`; `run.py` con `up -d --build` e `verify_service_image`, audit 104). **Precondizione H-G:** per ogni gruppo di run.py `b2kill` lo sha256 di `/app/service.py` dentro gli 11 container deve essere `3ffa57ee…` (il run si ferma con `ImageMismatch` altrimenti). Il resto della pre-registrazione (ipotesi (d-kill), (e), (f), T15 − T5 descrittiva, regola L_dns, limiti) è invariato. Ricordo che le correzioni di D1 sono nell'immagine solo da R1e in poi: (f) "nessuna riga `staging`/`committing` negli `final_states`" vale ora per la prima volta sul codice vero. R1e (audit 105) ha dato `setup_failed` = 0, quindi il setup di B2k (un sito, k fatti) usa lo stesso retry.
