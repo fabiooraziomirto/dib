@@ -28,3 +28,4 @@
 2026-10-12T16:43:33Z ssh dibnode: R1e (tree-c898ea8) DONE rc=0 (audit 105); scp deploy_b2k.sh to ~/dib_tnsm/b2k/; deploy_b2k.sh tree-c898ea8 -> out/final_B2k_20261012 (lan,degraded,wan) launched (audit 99 addendum)
 2026-10-12T17:42:46Z ssh dibnode: tree-2a40fa4 created (--trials), frozen_hashes_2a40fa4.txt 0 mismatches; scp deploy_b2k.sh -> ~/dib_tnsm/b2k/deploy_b2k_v2.sh (TRIALS/SEED); night queue script to be launched (audit 99 addendum 2)
 2026-10-12T17:42:58Z ssh dibnode: night_queue.sh launched: waits for out/final_B2k_20261012/DONE, then TRIALS=20 SEED=20261016 deploy_b2k_v2.sh tree-2a40fa4 -> out/final_B2k_b_20261012, then deploy_run.sh tree-2a40fa4 -> out/final_R1f_20261012
+2026-10-12T18:09:36Z ssh dibnode: waiting night_queue.sh (pid 1809185, tree-2a40fa4) stopped by PID and relaunched on tree-06514c8 (second series with reconcile_trace; audit 99 addendum 3); tree-06514c8 created, frozen_hashes 0 mismatches
