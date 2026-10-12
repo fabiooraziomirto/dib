@@ -508,8 +508,18 @@ def service_settings(groups) -> dict:
 
 
 def check_step(resp, site: int, step: str) -> None:
-    body = resp.json()
-    if resp.status_code != 200 or not isinstance(body, dict) or body.get("applied") is not True:
+    """The status is checked FIRST and the body is parsed only for a 200: a non-200 answer (500/503 plain text, a proxy page, an empty body) is a refusal like any other (audit 98)."""
+    if resp.status_code != 200:
+        try:
+            body = resp.json()
+        except ValueError:
+            body = getattr(resp, "text", "")
+        raise SetupFailed(site, step, resp.status_code, body)
+    try:
+        body = resp.json()
+    except ValueError:
+        raise SetupFailed(site, step, resp.status_code, getattr(resp, "text", "")) from None
+    if not isinstance(body, dict) or body.get("applied") is not True:
         raise SetupFailed(site, step, resp.status_code, body)
 
 

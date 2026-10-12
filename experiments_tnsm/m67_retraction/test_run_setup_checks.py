@@ -72,3 +72,37 @@ def test_d5_4_check_step():
         r.check_step(Resp(200, {"applied": False}), 3, "commit")
     with pytest.raises(r.SetupFailed):
         r.check_step(Resp(500, {}), 3, "query")
+
+
+class RawResp:
+    """A response whose body is NOT json (a plain-text 500/503, an HTML proxy page, an empty body)."""
+
+    def __init__(self, status, text):
+        self.status_code, self.text = status, text
+
+    def json(self):
+        import json
+        return json.loads(self.text)
+
+
+def test_d5_5_non_json_refusal_raises_setup_failed():
+    """Found on the node (audit 98): R1 on the final tree crashed with JSONDecodeError at episode 8 because check_step parsed the body of a non-200 answer. Any non-200 answer, JSON or not,
+    and any 200 whose body is not a JSON object, must raise SetupFailed (never another exception) carrying the status and the start of the body."""
+    for resp in (RawResp(500, "Internal Server Error"), RawResp(503, ""), RawResp(409, "<html>x</html>")):
+        with pytest.raises(r.SetupFailed) as ei:
+            r.check_step(resp, 4, "commit")
+        assert str(resp.status_code) in str(ei.value) and ei.value.site == 4 and ei.value.step == "commit"
+    with pytest.raises(r.SetupFailed):
+        r.check_step(RawResp(200, "not json"), 4, "query")
+    with pytest.raises(r.SetupFailed):
+        r.check_step(RawResp(200, "[1]"), 4, "query")
+
+
+def test_d5_6_setup_fact_with_non_json_refusal_is_an_excluded_episode():
+    class E(FakeEnv):
+        arm, T, fanout = "D", 5.0, 10
+        queues_clean = lambda self, timeout: (True, 0.0)  # noqa: E731
+
+    env = E({(2, "commit"): RawResp(503, "Service Unavailable")})
+    row = r.episode_b1(env, "lan", "t", 0)
+    assert row["excluded"] is True and row["excluded_reason"] == "setup_failed" and "503" in row["setup_failed"]
