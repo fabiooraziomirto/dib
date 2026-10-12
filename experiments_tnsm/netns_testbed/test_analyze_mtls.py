@@ -29,8 +29,10 @@ def test_a1_supports():
 
 
 def test_a1_v4_like_data_not_preferred():
-    v = am.verdict(meas(V4))
-    assert v["h_v1"] is True and v["h_v2"] is False          # within 0.04 of v5 everywhere but eps4 = 0 -> v5 not preferred
+    # NB: data equal to v4 are NOT within 0.04 of v5 at X1 (0.348 - 0.307 = 0.041): the first version of this test assumed so and was wrong (test error, criterion unchanged).
+    v = am.verdict(meas({x: V4[x] + 0.015 for x in V4}))
+    assert v["h_v1"] is True and v["h_v2"] is False          # within 0.04 of v5 everywhere, eps4 = 0.015 <= 0.02 -> v5 not preferred
+    assert am.verdict(meas(V4))["h_v1"] is False             # exactly v4: X1 is 0.041 away from v5
 
 
 def test_a1_v1_falsified():
