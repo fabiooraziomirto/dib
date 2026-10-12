@@ -458,6 +458,14 @@ class SetupFailed(Exception):
         self.site, self.step, self.status, self.body = site, step, status, body
 
 
+def service_settings(groups) -> dict:
+    """Settings of the cluster that decide how an experiment must be read (audit 90 sez. 4): the reconcile interval(s) T of the cells and the suspension quorum the containers get.
+    run.py never passes DIB_DIST_SUSPENSION_QUORUM to the containers, so they run the service default (1) whatever the generator's own environment says."""
+    ts = sorted({k[2] for k, _ in groups})
+    return {"reconcile_interval_s": ts, "reconcile_unbounded_window": any(x == 0 for x in ts), "suspension_quorum": 1,
+            "quorum_source": "service default (service.py:127); DIB_DIST_SUSPENSION_QUORUM is not passed to the containers by run.py"}
+
+
 def check_step(resp, site: int, step: str) -> None:
     body = resp.json()
     if resp.status_code != 200 or not isinstance(body, dict) or body.get("applied") is not True:
@@ -839,7 +847,7 @@ def live(a, cells, rng) -> int:
                 "generator_is_node": True, "clock": "time.time() = CLOCK_REALTIME of the node (same clock as docker logs -t)",
                 "cluster_recreations": len(groups), "plog_thresholds": thresholds,
                 "measure_rule": "per profile from the thresholds file" if thresholds else "dispute-rtt (no P-log calibration applied)",
-                "node_service_sha256": sha(Path(f"{tree}/code/src/dib/registry/distributed/service.py")), "fanout_keepalive": keepalive_enabled(), "dns_nosearch": dns_nosearch_enabled(), "extra_compose": extra_compose(),
+                "node_service_sha256": sha(Path(f"{tree}/code/src/dib/registry/distributed/service.py")), "fanout_keepalive": keepalive_enabled(), "dns_nosearch": dns_nosearch_enabled(), "extra_compose": extra_compose(), "service_settings": service_settings(groups),
                 "launcher_d_sha256": sha(Path(f"{tree}/experiments_tnsm/m3_distributed/launcher_d.py")),
                 "note_launcher_d": "_HTTP_TLS is set from outside by launcher_d.py; service.py unmodified",
                 "run_py_sha256": sha(Path(__file__)), "discard_rule": rule,
