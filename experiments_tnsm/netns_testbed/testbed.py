@@ -363,13 +363,20 @@ def guard_load(cmdlines: list[str], load1: float) -> str | None:
     return None
 
 
+def proc_is_stopped(stat_line: str) -> bool:
+    """State field of /proc/<pid>/stat (after the last ')' because the command name may contain spaces and parentheses): T = stopped (SIGSTOP), which uses no CPU."""
+    return stat_line.rsplit(")", 1)[1].split()[0] == "T"
+
+
 def _machine_state() -> tuple[list[str], float]:
     cmds = []
     for d in Path("/proc").iterdir():
         if d.name.isdigit():
             try:
+                if proc_is_stopped((d / "stat").read_text()):
+                    continue   # a paused process does not count (audit 95 addendum: the TLC of the other session may be paused for the validation window)
                 cmds.append((d / "cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace"))
-            except OSError:
+            except (OSError, IndexError):
                 pass
     return cmds, os.getloadavg()[0]
 

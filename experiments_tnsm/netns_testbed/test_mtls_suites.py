@@ -44,3 +44,10 @@ def test_s4_guard():
     assert tb.guard_load(["python3 x.py"], 0.5) is None
     assert "TLC" in tb.guard_load(["java -cp x tlc2.TLC -workers 8"], 0.5)
     assert "load" in tb.guard_load([], 7.0)
+
+
+def test_s5_stopped_processes_do_not_count():
+    """A process in state T (SIGSTOP, the other session pausing its TLC for the validation window) uses no CPU and must not block the start; a running one does."""
+    assert tb.proc_is_stopped("1234 (java) T 1 1 1 0 -1 4194304") is True
+    assert tb.proc_is_stopped("1234 (java) S 1 1 1 0 -1 4194304") is False
+    assert tb.proc_is_stopped("1234 (my (weird) name) T 1 1") is True
