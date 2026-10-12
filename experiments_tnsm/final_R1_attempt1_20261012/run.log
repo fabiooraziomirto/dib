@@ -1,0 +1,49 @@
+generator path (ms): {'reused_ms': 203.82627699291334, 'fresh_ms': 607.5845670129638, 'n': 5, 'reused_ok': True, 'fresh_ok': None}
+Traceback (most recent call last):
+  File "/home/ubuntu/dib_tnsm/tree-54521aa/experiments_tnsm/m67_retraction/run.py", line 1061, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/ubuntu/dib_tnsm/tree-54521aa/experiments_tnsm/m67_retraction/run.py", line 1057, in main
+    return live(a, cells, rng)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dib_tnsm/tree-54521aa/experiments_tnsm/m67_retraction/run.py", line 957, in live
+    run_episodes(env, a.profile, tag, cell["episodes"], cell["block"] == "b1", rows, sink)
+  File "/home/ubuntu/dib_tnsm/tree-54521aa/experiments_tnsm/m67_retraction/run.py", line 760, in run_episodes
+    row = episode_b1(env, profile, tag, e, setup=setup)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dib_tnsm/tree-54521aa/experiments_tnsm/m67_retraction/run.py", line 716, in episode_b1
+    sid = setup_fact(env, ep, list(range(N_SITES)), 30.0 if profile != "extreme" else 90.0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dib_tnsm/tree-54521aa/experiments_tnsm/m67_retraction/run.py", line 700, in setup_fact
+    list(ex.map(one, sites))
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/dib_tnsm/tree-54521aa/experiments_tnsm/m67_retraction/run.py", line 697, in one
+    check_step(env.req("POST", f"{env.site(i)}/commit", f"op-site-{i}", timeout, json=body), i, "commit")
+  File "/home/ubuntu/dib_tnsm/tree-54521aa/experiments_tnsm/m67_retraction/run.py", line 511, in check_step
+    body = resp.json()
+           ^^^^^^^^^^^
+  File "/home/ubuntu/dib_tnsm/venv/lib/python3.12/site-packages/httpx/_models.py", line 832, in json
+    return jsonlib.loads(self.content, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)

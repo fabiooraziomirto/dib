@@ -18,3 +18,5 @@
 2026-10-12T06:36:37Z ssh dibnode: tree-dc3dd20 created from git archive of tnsm-fixes dc3dd20 (code + experiments_tnsm/{common,m1_single_node,m2_p99_tail,m3_distributed,m67_retraction}); frozen_hashes_dc3dd20.txt (24 files, same list as 244f1d0), sha256sum -c 0 mismatches; tree-467a711 untouched
 2026-10-12T06:36:48Z ssh dibnode: kill 3793084 (auto_degraded_k.py waiting for the expired watcher, keep-alive block already falsified in the testbed, audit 76); no data affected
 2026-10-12T10:51:55Z ssh dibnode: tree-54521aa created from git archive of tnsm-fixes 54521aa (service.py with D1+D2, run.py with D5/manifest/invariants opt-in); frozen_hashes_54521aa.txt (24 files, list of 244f1d0), sha256sum -c 0 mismatches; older trees untouched
+2026-10-12T10:52:15Z ssh dibnode: deploy_run.sh tree-54521aa -> out/final_R1_20261012 (degraded, D,C x 10,1, default episodes) launched (audit 97)
+2026-10-12T11:55:19Z ssh dibnode: R1 on tree-54521aa crashed at episode 8 (rc=1, JSONDecodeError in check_step, my bug); data copied to experiments_tnsm/final_R1_attempt1_20261012; tree-3cc41c5 created (fix of check_step), frozen_hashes_3cc41c5.txt 0 mismatches

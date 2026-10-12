@@ -1,0 +1,3 @@
+2026-10-12T10:52:09Z applier pid 305783 profile degraded
+2026-10-12T10:52:09Z run.py b1 degraded arms D,C fanouts 10,1 episodes default
+2026-10-12T10:58:13Z run.py rc=1

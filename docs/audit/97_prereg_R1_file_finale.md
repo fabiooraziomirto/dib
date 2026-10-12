@@ -11,3 +11,6 @@ Riferimenti (stessi dati, stessi criteri di analisi): audit 86 (`experiments_tns
 
 ## Cosa si fa dei risultati
 Verdetti con `analyze_deploy.py` (H-N1/H-N2) e `compare_deploy.py` (confronto con 86 e 89); `analyze_b5.py` per i criteri dell'audit 46 sugli stessi dati (stessa cella di B5). Audit dei risultati: 98.
+
+## Addendum (2026-10-12, prima del secondo lancio): il primo tentativo è fallito per un errore del driver
+Il lancio su `tree-54521aa` (10:52Z) è terminato con `rc=1` alle 10:58Z dopo 8 episodi: `check_step` (D5, mio) chiamava `resp.json()` anche su una risposta non-200 con corpo non JSON e ha sollevato `JSONDecodeError`, che non è `SetupFailed`, quindi ha fatto cadere l'intero run invece di escludere l'episodio. Dati del tentativo: `experiments_tnsm/final_R1_attempt1_20261012/` (8 episodi, non analizzati per i criteri). Correzione solo nel driver (`run.py`, commit 3cc41c5, 2 test rossi prima); `service.py` identico (sha256 `f7987d95…`). Nuovo albero `~/dib_tnsm/tree-3cc41c5`, `frozen_hashes_3cc41c5.txt` (24 file, 0 differenze). Il secondo lancio (`out/final_R1b_20261012`) ha **ipotesi, soglie e configurazione invariate** da questo audit; il fatto che il commit sia stato rifiutato (con quale stato) all'episodio 8 del primo tentativo non è noto: il secondo lo registrerà in `setup_failed`.
