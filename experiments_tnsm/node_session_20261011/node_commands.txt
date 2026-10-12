@@ -14,3 +14,6 @@
 2026-10-12T22:58Z ssh dibnode: tree-50c4335 created from git archive of 50c4335 (code + experiments_tnsm/{common,m1,m2,m3,m67} without data dirs); frozen_hashes_50c4335.txt copied, sha256sum -c 0 mismatches. FOUND: watcher v2 expired at 21:48Z (9h timeout); sudo needs a password: no netem profile can be applied until the user restarts it
 2026-10-12T02:0xZ node: tree-3a45868 created (hash check 0 mismatches), old degraded waiter stopped (KeyboardInterrupt), lan_b2k_dnsfix.sh launched (audit 72 H-N1)
 04:51:44 node replica launched (3 containers, 4g each)
+05:12:17 deploy_run (full deployment, userspace netem) launched, tree 467a711
+2026-10-12T06:36:37Z ssh dibnode: tree-dc3dd20 created from git archive of tnsm-fixes dc3dd20 (code + experiments_tnsm/{common,m1_single_node,m2_p99_tail,m3_distributed,m67_retraction}); frozen_hashes_dc3dd20.txt (24 files, same list as 244f1d0), sha256sum -c 0 mismatches; tree-467a711 untouched
+2026-10-12T06:36:48Z ssh dibnode: kill 3793084 (auto_degraded_k.py waiting for the expired watcher, keep-alive block already falsified in the testbed, audit 76); no data affected

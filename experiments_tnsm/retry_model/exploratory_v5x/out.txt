@@ -1,0 +1,4 @@
+CERT_SEGMENTS=0 late_share_C10=0.251 median_C10_ms=2800 median_C1_ms=16400
+CERT_SEGMENTS=1 late_share_C10=0.281 median_C10_ms=2800 median_C1_ms=17000
+CERT_SEGMENTS=2 late_share_C10=0.310 median_C10_ms=3400 median_C1_ms=17400
+CERT_SEGMENTS=3 late_share_C10=0.334 median_C10_ms=3400 median_C1_ms=18000
