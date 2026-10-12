@@ -97,7 +97,6 @@ def _query_race(c):
     return sid, r
 
 
-@pytest.mark.xfail(strict=True, reason="H-b3q-1 falsificata 2026-10-12: monitor-only con last_applied_seq 0 durante l'episodio (S:476-478, S:512; docs/audit/64_fsm_test_risultati.md)")
 def test_b3q_1_query_racing_dispute_does_not_stage_during_open_episode(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, _r = _query_race(c)
@@ -110,8 +109,9 @@ def test_b3q_2_reconcile_repairs_query_race(make_cluster) -> None:
     sid, _r = _query_race(c)
     assert c.reconcile(0).status_code == 200
     st = c.state(0, sid)
-    assert st is not None and st["state"] == "disputed", st
-    assert st["last_applied_seq"] == c.evidence_score()["fanout_seq"]
+    assert st is None or st["state"] == "disputed", st  # reformulated with the fix (H-F3): the corrected /query leaves the row absent
+    if st is not None:
+        assert st["last_applied_seq"] == c.evidence_score()["fanout_seq"]
     assert c.commit(0).status_code == 409
     assert c.ace_count(0) == 0
 
@@ -132,7 +132,6 @@ def _commit_race(c, lose_fanout: bool):
     return sid, r
 
 
-@pytest.mark.xfail(strict=True, reason="H-b3c-1 falsificata 2026-10-12: commit 200, stato active, 1 ACE durante la dispute (S:528; docs/audit/64_fsm_test_risultati.md)")
 def test_b3c_1_commit_racing_dispute_with_lost_fanout_creates_no_active(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, _r = _commit_race(c, lose_fanout=True)
@@ -166,7 +165,6 @@ def _local_restore_race(c):
     return sid, r
 
 
-@pytest.mark.xfail(strict=True, reason="H-b3r-1 falsificata 2026-10-12: local_restore 200, monitor-only durante la dispute (S:487-490, S:570-573; docs/audit/64_fsm_test_risultati.md)")
 def test_b3r_1_local_restore_racing_dispute_is_refused(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, r = _local_restore_race(c)
@@ -191,7 +189,6 @@ def test_b3r_3_raced_local_restore_still_cannot_export(make_cluster) -> None:
 
 
 # --------------------------------------------------------------------------- b4: evidence down
-@pytest.mark.xfail(strict=True, reason="H-b4-1 falsificata 2026-10-12: ConnectError, record ancora active (S:538, S:461-470; docs/audit/64_fsm_test_risultati.md)")
 def test_b4_1_local_revoke_works_with_evidence_down(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid = _setup(c, sites=(0,))
@@ -276,7 +273,6 @@ def test_b6_2_quorum2_single_vote_persists_and_restore_refused_characterization(
     assert c.state(0, sid)["state"] == "disputed"
 
 
-@pytest.mark.xfail(strict=True, reason="H-a10 falsificata 2026-10-12: site-0 (votante della sospensione) conferma la revoca (S:918; docs/audit/64_fsm_test_risultati.md)")
 def test_a10_quorum2_confirmation_needs_a_site_outside_the_suspending_voters(make_cluster) -> None:
     c = make_cluster(n_sites=N3, quorum=2)
     sid = _setup(c, sites=(0, 1, 2))
@@ -293,6 +289,7 @@ def test_a10_quorum2_confirmation_needs_a_site_outside_the_suspending_voters(mak
 # --------------------------------------------------------------------------- observed behaviour
 # Added AFTER the run of 2026-10-12 (rule of Fase 2): each test pins what the code does where the
 # pre-registered hypothesis above was falsified. Characterization, not approval.
+@pytest.mark.xfail(strict=True, reason="comportamento osservato sul codice PRIMA della correzione (tnsm-fixes): il difetto e' stato corretto, il test documenta il vecchio comportamento")
 def test_b3q_1_observed_query_race_stages_monitor_only_with_stale_seq_characterization(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, r = _query_race(c)
@@ -301,6 +298,7 @@ def test_b3q_1_observed_query_race_stages_monitor_only_with_stale_seq_characteri
     assert c.evidence_score()["fanout_seq"] == 1
 
 
+@pytest.mark.xfail(strict=True, reason="comportamento osservato sul codice PRIMA della correzione (tnsm-fixes): il difetto e' stato corretto, il test documenta il vecchio comportamento")
 def test_b3c_1_observed_commit_race_creates_active_until_reconcile_characterization(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, r = _commit_race(c, lose_fanout=True)
@@ -310,6 +308,7 @@ def test_b3c_1_observed_commit_race_creates_active_until_reconcile_characterizat
     assert c.pending(0) == [{"score_id": sid, "seq": 1, "event_type": "dispute", "target_state": "disputed"}]
 
 
+@pytest.mark.xfail(strict=True, reason="comportamento osservato sul codice PRIMA della correzione (tnsm-fixes): il difetto e' stato corretto, il test documenta il vecchio comportamento")
 def test_b3r_observed_local_restore_race_leaves_unrepaired_monitor_only_characterization(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, r = _local_restore_race(c)
@@ -320,6 +319,7 @@ def test_b3r_observed_local_restore_race_leaves_unrepaired_monitor_only_characte
     assert c.state(0, sid) == expected
 
 
+@pytest.mark.xfail(strict=True, reason="comportamento osservato sul codice PRIMA della correzione (tnsm-fixes): il difetto e' stato corretto, il test documenta il vecchio comportamento")
 def test_b4_1_observed_local_revoke_raises_with_evidence_down_characterization(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid = _setup(c, sites=(0,))
@@ -330,6 +330,7 @@ def test_b4_1_observed_local_revoke_raises_with_evidence_down_characterization(m
     assert c.ace_count(0) == 1
 
 
+@pytest.mark.xfail(strict=True, reason="comportamento osservato sul codice PRIMA della correzione (tnsm-fixes): il difetto e' stato corretto, il test documenta il vecchio comportamento")
 def test_a10_observed_suspending_voter_confirms_on_three_sites_characterization(make_cluster) -> None:
     c = make_cluster(n_sites=N3, quorum=2)
     sid = _setup(c, sites=(0, 1, 2))

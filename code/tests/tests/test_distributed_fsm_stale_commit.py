@@ -39,8 +39,6 @@ def _episode_during_commit(c):
     return sid, r
 
 
-@pytest.mark.xfail(strict=True, reason="H-S1 falsificata 2026-10-12: il record diventa active dopo il restore "
-                   "(S:528 controlla solo monitor-only; docs/audit/67 sez. 10)")
 def test_s1_commit_read_before_a_whole_episode_does_not_activate(make_cluster) -> None:
     c = make_cluster(n_sites=N3)
     sid, _r = _episode_during_commit(c)
@@ -49,13 +47,14 @@ def test_s1_commit_read_before_a_whole_episode_does_not_activate(make_cluster) -
 
 
 def test_s2_corrected_copy_refuses_the_stale_commit(make_cluster, tmp_path) -> None:
-    c = make_cluster(n_sites=N3, source=make_source_copy(tmp_path, FIXES, name="service_fixed_s.py"))
+    c = make_cluster(n_sites=N3)  # production service.py already contains the correction (tnsm-fixes)
     sid, r = _episode_during_commit(c)
     assert r.status_code == 409
     assert c.state(0, sid)["state"] == "monitor-only"
     assert c.ace_count(0) == 0
 
 
+@pytest.mark.xfail(strict=True, reason="comportamento osservato sul codice PRIMA della correzione (tnsm-fixes): il difetto e' stato corretto, il test documenta il vecchio comportamento")
 def test_s1_observed_stale_commit_activates_after_restore_characterization(make_cluster) -> None:
     """Added AFTER the run (rule of Fase 2): pins the observed defect."""
     c = make_cluster(n_sites=N3)

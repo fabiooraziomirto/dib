@@ -501,21 +501,52 @@ if ROLE == "site":
         score = _evidence_get_score(req.device_type, req.endpoint, req.protocol, req.port)
         if score is None or not score["accepted"] or score["status"] != STATUS_ACTIVE:
             return {"applied": False}
+        sid = score["id"]
 
-        def txn(con):
-            existing = con.execute("SELECT 1 FROM local_decisions WHERE score_id=?", (score["id"],)).fetchone()
-            if existing is not None:
-                return
+        def reserve(con):
+            if con.execute("SELECT 1 FROM local_decisions WHERE score_id=?", (sid,)).fetchone() is not None:
+                return False
             con.execute(
                 "INSERT INTO local_decisions"
                 " (score_id, state, origin, last_applied_seq, device_type, endpoint, protocol, port)"
-                " VALUES (?, ?, NULL, ?, ?, ?, ?, ?)",
-                (score["id"], DECISION_MONITOR_ONLY, score["fanout_seq"],
-                 req.device_type, req.endpoint, req.protocol, req.port),
+                " VALUES (?, 'staging', NULL, 0, ?, ?, ?, ?)",
+                (sid, req.device_type, req.endpoint, req.protocol, req.port),
             )
+            return True
 
-        _site_db.run(txn)
-        return {"applied": True, "score_id": score["id"]}
+        with _reconcile_lock:  # v5: no reservation between a reconcile apply and its ack
+            reserved = _site_db.run(reserve)
+        if not reserved:
+            return {"applied": True, "score_id": sid}
+        try:
+            again = _evidence_get_score(req.device_type, req.endpoint, req.protocol, req.port)
+        except Exception:
+            _site_db.run(lambda con: con.execute(
+                "DELETE FROM local_decisions WHERE score_id=? AND state='staging'", (sid,)))
+            raise
+        ok = again is not None and again["accepted"] and again["status"] == STATUS_ACTIVE
+
+        def finish(con):
+            row = con.execute(
+                "SELECT state, last_applied_seq FROM local_decisions WHERE score_id=?", (sid,)).fetchone()
+            if row is None:
+                return
+            if row[0] != "staging":
+                # v6: a fan-out moved the reserved row; apply this read's snapshot through the same
+                # seq guard, so an event that hit the row while it was Absent is not lost
+                if again is not None:
+                    ev = {STATUS_DISPUTED: ("dispute", DECISION_DISPUTED), STATUS_REVOKED: ("revoke", DECISION_REVOKED),
+                          STATUS_ACTIVE: ("restore", DECISION_MONITOR_ONLY)}[again["status"]]
+                    _apply_fanout_row(con, sid, again["fanout_seq"], ev[0], ev[1])
+                return
+            if ok:
+                con.execute("UPDATE local_decisions SET state=?, last_applied_seq=? WHERE score_id=?",
+                            (DECISION_MONITOR_ONLY, max(row[1], again["fanout_seq"]), sid))
+            else:
+                con.execute("DELETE FROM local_decisions WHERE score_id=?", (sid,))
+
+        _site_db.run(finish)
+        return {"applied": ok, "score_id": sid}
 
     @app.post("/commit")
     def operator_commit(req: QueryReq, request: Request):
@@ -524,26 +555,47 @@ if ROLE == "site":
         if score is None or not score["accepted"] or score["status"] != STATUS_ACTIVE:
             raise HTTPException(409, "global evidence is not admissible")
 
-        def txn(con):
-            row = con.execute("SELECT state FROM local_decisions WHERE score_id=?", (score["id"],)).fetchone()
-            if row is None or row[0] != DECISION_MONITOR_ONLY:
-                raise HTTPException(409, f"cannot commit: state is {row[0] if row else None!r}")
-            con.execute("UPDATE local_decisions SET state=? WHERE score_id=?", (DECISION_ACTIVE, score["id"]))
+        sid, seq0 = score["id"], score["fanout_seq"]
 
-        _site_db.run(txn)
+        def phase1(con):
+            row = con.execute(
+                "SELECT state, last_applied_seq FROM local_decisions WHERE score_id=?", (sid,)).fetchone()
+            if row is None or row[0] != DECISION_MONITOR_ONLY or row[1] > seq0:
+                raise HTTPException(409, f"cannot commit: state is {row[0] if row else None!r}")
+            con.execute("UPDATE local_decisions SET state='committing' WHERE score_id=?", (sid,))
+
+        _site_db.run(phase1)
+        try:
+            again = _evidence_get_score(req.device_type, req.endpoint, req.protocol, req.port)
+        except Exception:
+            again = None
+        promote = (again is not None and again["accepted"] and again["status"] == STATUS_ACTIVE
+                   and again["fanout_seq"] == seq0)
+
+        def phase2(con):
+            row = con.execute("SELECT state FROM local_decisions WHERE score_id=?", (sid,)).fetchone()
+            if row is None or row[0] != "committing":
+                return False
+            con.execute("UPDATE local_decisions SET state=? WHERE score_id=?",
+                        (DECISION_ACTIVE if promote else DECISION_MONITOR_ONLY, sid))
+            return promote
+
+        if not _site_db.run(phase2):
+            raise HTTPException(409, "the evidence changed during the commit")
         return {"applied": True}
 
     @app.post("/local_revoke")
     def local_revoke(req: QueryReq, request: Request):
         _authorize(request, site_roles=("operator",), site=_site_id())
-        score = _evidence_get_score(req.device_type, req.endpoint, req.protocol, req.port)
-        if score is None:
-            raise HTTPException(404, "unknown fact")
-
         def txn(con):
-            row = con.execute("SELECT state, origin FROM local_decisions WHERE score_id=?", (score["id"],)).fetchone()
+            found = con.execute(
+                "SELECT state, origin, score_id FROM local_decisions"
+                " WHERE device_type=? AND endpoint=? AND protocol=? AND port=?",
+                (req.device_type, req.endpoint, req.protocol, req.port)).fetchone()
+            row = found[:2] if found else None
+            score = {"id": found[2]} if found else None
             if row is None or not (
-                row[0] in (DECISION_MONITOR_ONLY, DECISION_ACTIVE, DECISION_DISPUTED)
+                row[0] in (DECISION_MONITOR_ONLY, DECISION_ACTIVE, DECISION_DISPUTED, "committing")
                 or (row[0] == DECISION_REVOKED and row[1] == ORIGIN_FANOUT)
             ):
                 raise HTTPException(409, f"cannot local-revoke: state is {row[0] if row else None!r}")
@@ -565,9 +617,12 @@ if ROLE == "site":
             raise HTTPException(409, "a cross-site dispute episode is open")
 
         def txn(con):
-            row = con.execute("SELECT state, origin FROM local_decisions WHERE score_id=?", (score["id"],)).fetchone()
+            row = con.execute("SELECT state, origin, last_applied_seq FROM local_decisions WHERE score_id=?",
+                              (score["id"],)).fetchone()
             if row is None or row[0] != DECISION_REVOKED or row[1] != ORIGIN_LOCAL:
                 raise HTTPException(409, "not locally revoked")
+            if row[2] > score["fanout_seq"]:
+                raise HTTPException(409, "a newer lifecycle event arrived during the local restore")
             con.execute(
                 "UPDATE local_decisions SET state=?, origin=NULL WHERE score_id=?",
                 (DECISION_MONITOR_ONLY, score["id"]),
@@ -794,6 +849,9 @@ if ROLE == "evidence":
                     except httpx.HTTPError:
                         _drop_site_client(i, client)  # the next attempt opens a fresh connection
                         raise
+                    except RuntimeError as exc:  # client closed by another thread: retry on a fresh one, as for a transport error
+                        _drop_site_client(i, client)
+                        raise httpx.TransportError(str(exc)) from exc
                 else:
                     resp = httpx.post(f"{_site_url(i)}/apply_fanout", json=body, timeout=_FANOUT_TIMEOUT_S, **_HTTP_TLS)
                 if resp.status_code == 200:
@@ -916,7 +974,10 @@ if ROLE == "evidence":
                     (STATUS_DISPUTED, req.site_id, new_seq, score_id),
                 )
                 return score_id, new_seq, "dispute", DECISION_DISPUTED
-            if status == STATUS_DISPUTED and req.site_id != disputed_by:
+            if status == STATUS_DISPUTED and req.site_id != disputed_by and (
+                SUSPENSION_QUORUM == 1 or con.execute(
+                    "SELECT 1 FROM suspension_reports WHERE score_id=? AND site_id=?",
+                    (score_id, req.site_id)).fetchone() is None):
                 new_seq = seq + 1
                 con.execute("UPDATE scores SET status=?, fanout_seq=? WHERE id=?", (STATUS_REVOKED, new_seq, score_id))
                 return score_id, new_seq, "revoke", DECISION_REVOKED

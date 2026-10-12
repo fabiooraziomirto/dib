@@ -105,6 +105,7 @@ def test_third_dispute_after_revoke_is_noop(make_cluster) -> None:
     assert c.state(0, sid)["last_applied_seq"] == 2
 
 
+@pytest.mark.xfail(strict=True, reason="comportamento osservato sul codice PRIMA della correzione (tnsm-fixes): il difetto e' stato corretto, il test documenta il vecchio comportamento")
 def test_suspension_quorum_2_two_distinct_sites_suffice_characterization(make_cluster) -> None:
     """D8 (vedi docstring del modulo per la divergenza dall'audit)."""
     c = make_cluster(n_sites=2, quorum=2)

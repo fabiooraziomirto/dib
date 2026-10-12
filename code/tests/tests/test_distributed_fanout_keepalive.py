@@ -207,3 +207,27 @@ def test_k10_ping_timeout_is_longer_than_the_delivery_timeout(make_cluster):
     c.evidence_mod._new_site_client = lambda: Rec(c.net, 0)
     c.evidence_mod._warm_once(1)
     assert seen["timeout"] is not None and seen["timeout"] > c.evidence_mod._FANOUT_TIMEOUT_S
+
+
+def test_k11_client_closed_by_another_thread_is_retried_not_lost(make_cluster):
+    """Review of 2026-10-12 (point 2): a shared client closed by another thread makes httpx raise RuntimeError, which is NOT an
+    httpx.HTTPError. K-11: the first attempt raising RuntimeError drops the client, the next attempt uses a NEW one and succeeds, no outbox row is
+    written, and nothing propagates out of _deliver_to_site. Falsified by an exception escaping or by an outbox row."""
+    c = _cluster(make_cluster, keepalive=True)
+    made = _install(c)
+    c.seed()
+    orig = FakeClient.post
+    state = {"n": 0}
+
+    def post(self, url, **kw):
+        state["n"] += 1
+        if state["n"] == 1:
+            raise RuntimeError("Cannot send a request, as the client has been closed.")
+        return orig(self, url, **kw)
+
+    FakeClient.post = post
+    try:
+        _deliver(c, 1)
+    finally:
+        FakeClient.post = orig
+    assert len(made) == 2 and made[0].closed and _outbox(c) == []

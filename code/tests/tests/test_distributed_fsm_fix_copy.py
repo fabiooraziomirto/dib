@@ -41,7 +41,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from _dist_harness import make_cluster, make_source_copy  # noqa: F401  (fixture)
+from _dist_harness import DIST_SOURCE, make_cluster, make_source_copy  # noqa: F401  (fixture)
 
 N3 = 3
 
@@ -199,7 +199,7 @@ FIXES = [FQ, FC, FR, FV, FQ2]
 
 @pytest.fixture
 def fixed(tmp_path):
-    return make_source_copy(tmp_path, FIXES, name="service_fixed.py")
+    return DIST_SOURCE  # tnsm-fixes: the correction is now IN service.py; FIXES above stays as the record of the substitutions
 
 
 def _setup(c, sites=(0,), commit=True) -> int:
