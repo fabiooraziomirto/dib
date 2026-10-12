@@ -154,3 +154,35 @@ controesempio già trovato **esiste ancora**, se la sua proprietà è nell'insie
   prosegue.
   (Il testo di questa riga è stato ripristinato dopo il commit `25b19b7`: un heredoc senza virgolette
   aveva cancellato i nomi fra backtick. Il contenuto è quello deciso prima del lancio.)
+
+## 8. Risultati (eseguiti, 2026-10-12 ~10:47-10:48Z) e arresto
+| cfg | Previsione | Esito | Stati | Traccia / log |
+|---|---|---|---|---|
+| `L1b_window_v6` | violazione di ExportSafe con un `Lose` | **confermata** | 2.369 | Query(s2), Commit(s2), EvDispute, **Lose** (consegna a s2): s2 Active con evidence Disputed e nulla in volo. Il sito s2 non è diviso: la finestra non dipende dalla correzione. `v6loss/logs/L1b_window_v6.log` |
+| `L1b_window_atomic` | violazione anche senza correzione | **confermata** | 1.474 | stessa traccia (Query, Commit, EvDispute, Lose). `v6loss/logs/L1b_window_atomic.log` |
+| `L2_m2_nolrguard` | violazione | **confermata** | 45.297 | `v6loss_m/logs/L2_m2_nolrguard.log` |
+| `L2_m3_noverify` | violazione | **confermata** | 8.770 | `v6loss_m/logs/L2_m3_noverify.log` |
+| `L2_noae_live_e1` | `ConvergedEventually` violata da un evento perso mai recuperato | violata, **ma non per la ragione prevista** | 46.974 | la traccia **non contiene `Lose`** (`lossCount = 0`): ciclo QueryReserve → QueryRead → QueryFinish (abort, perché l'evidence è Disputed) → Absent, ripetuto all'infinito; negli stati `Staging` vale `last_applied 0 ≠ eseq 1` |
+| `L3_live_e1` | `ConvergedEventually` e `ExposureEnds` valgono | **FALSIFICATA come scritta** | 27.017 | stesso tipo di ciclo: dopo un `Lose` (s1 ancora senza riga) le riparazioni avvengono mentre s1 è Absent; poi s1 riserva e abortisce all'infinito (ritorno allo stato 8). `v6loss/logs/L3_live_e1.log` |
+| `L1a_e2_np` | nessuna violazione | **interrotto** a 163.318 stati, nessuna violazione fino lì: **nessuna affermazione** | — | |
+
+**Errore mio nel lanciatore.** La regola di arresto cercava "Temporal properties were violated",
+mentre TLC scrive "Temporal property … was violated". La sequenza non si è fermata dopo
+`L3_live_e1`: ha avviato `L1a_e2_np` e l'ho fermata a mano subito dopo (TaskStop, nessun processo
+residuo, metadir rimossa). Gli altri run (L1a_e3_np, L2_m6, L1a_e2_p, L3_live_e2) non sono partiti.
+
+**Lettura (mia, da confermare con l'utente).**
+- Il controesempio di vivacità è un **artefatto della formulazione**: nessun evento perso resta
+  senza recupero.
+- `Converged` (`v6/DIB_AE_NA.tla:836-838`) chiede, per ogni riga non Absent, `last_applied = eseq`.
+  Le operazioni dell'operatore non hanno vincoli di equità né di numero: un operatore che rilancia
+  `/query` all'infinito mentre il fatto è disputato crea infinite volte una riga `Staging` con
+  `last_applied 0`, quindi `[]Converged` non vale mai. Questo accade anche **senza** perdite
+  (`L2_noae_live_e1`) e quindi anche con l'anti-entropia.
+- Il modello pubblicato non aveva questo problema, perché la sua `Query` era atomica: niente stato
+  intermedio.
+- Correggere la formulazione (ad esempio escludere da `Converged` le righe `Staging`/`Committing`
+  con un'operazione pendente, oppure limitare il numero di query) è un **cambio di semantica**: non
+  lo faccio senza l'assenso dell'utente.
+- Le parti di safety con le perdite (H-L1a) **non sono state verificate**: i run non sono partiti o
+  sono stati interrotti.
