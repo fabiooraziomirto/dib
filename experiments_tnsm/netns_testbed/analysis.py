@@ -23,13 +23,13 @@ def netem_cmds(d_ms: int, loss_pct: float, initial: bool) -> list[list[str]]:
     ]
 
 
-def nominal(R: float, warm: bool) -> float:
+def nominal(R: float, warm: bool, arm: str = "D") -> float:
     """Request arrival at the site without loss: cold = connect (R) + one way (R/2) = 1.5 R; warm connection = 0.5 R."""
-    return (0.5 if warm else 1.5) * R
+    return (0.5 if warm else (2.5 if arm == "C" else 1.5)) * R
 
 
-def is_late(apply_s: float, R: float, warm: bool) -> bool:
-    return apply_s > nominal(R, warm) + 0.75 * R
+def is_late(apply_s: float, R: float, warm: bool, arm: str = "D") -> bool:
+    return apply_s > nominal(R, warm, arm) + 0.75 * R
 
 
 def _complete(e: dict) -> bool:
@@ -37,13 +37,13 @@ def _complete(e: dict) -> bool:
     return e["setup_ok"] and len(a) == 10 and all(v is not None for v in a.values())
 
 
-def cell_summary(episodes: list[dict], R: float, warm: bool) -> dict:
+def cell_summary(episodes: list[dict], R: float, warm: bool, arm: str = "D") -> dict:
     valid = [e for e in episodes if e["setup_ok"]]
     comp = [e for e in valid if _complete(e)]
     sites = [v for e in valid for v in e["applies"].values() if v is not None]
-    late = sum(1 for v in sites if is_late(v, R, warm))
+    late = sum(1 for v in sites if is_late(v, R, warm, arm))
     lasts = sorted(1000 * max(e["applies"].values()) for e in comp)
-    slow = sum(1 for e in comp if is_late(max(e["applies"].values()), R, warm))
+    slow = sum(1 for e in comp if is_late(max(e["applies"].values()), R, warm, arm))
     q = lambda p: lasts[int(p * (len(lasts) - 1))] if lasts else None  # noqa: E731
     return {"n_episodes": len(episodes), "n_valid": len(valid), "n_setup_failed": len(episodes) - len(valid), "n_complete": len(comp),
             "pending_fraction": (len(valid) - len(comp)) / len(valid) if valid else None,
@@ -61,23 +61,23 @@ def boot_ci_share(xs: list[int], seed: int = 20261012, res: int = 10000):
     return vals[int(0.025 * res)], vals[int(0.975 * res) - 1]
 
 
-def t0_valid(episodes: list[dict], R: float, warm: bool, tol_s: float = 0.05) -> dict:
+def t0_valid(episodes: list[dict], R: float, warm: bool, tol_s: float = 0.05, arm: str = "D") -> dict:
     """T-0: at p = 0 the median per-site apply time is within tol of the nominal and nothing is late."""
     sites = [v for e in episodes if e["setup_ok"] for v in e["applies"].values() if v is not None]
     if not sites:
         return {"valid": False, "reason": "no data"}
     med = statistics.median(sites)
-    late = sum(1 for v in sites if is_late(v, R, warm))
-    return {"valid": abs(med - nominal(R, warm)) <= tol_s and late == 0, "median_s": med, "nominal_s": nominal(R, warm), "late": late, "n": len(sites)}
+    late = sum(1 for v in sites if is_late(v, R, warm, arm))
+    return {"valid": abs(med - nominal(R, warm, arm)) <= tol_s and late == 0, "median_s": med, "nominal_s": nominal(R, warm, arm), "late": late, "n": len(sites)}
 
 
-def _late_counts(eps: list[dict], R: float, warm: bool) -> list[tuple[int, int]]:
+def _late_counts(eps: list[dict], R: float, warm: bool, arm: str = "D") -> list[tuple[int, int]]:
     out = []
     for e in eps:
         if not e["setup_ok"]:
             continue
         v = [x for x in e["applies"].values() if x is not None]
-        out.append((sum(1 for x in v if is_late(x, R, warm)), len(v)))
+        out.append((sum(1 for x in v if is_late(x, R, warm, arm)), len(v)))
     return out
 
 
@@ -94,6 +94,21 @@ def boot_diff_late_share(eps_a, eps_b, R: float, warm_a: bool, warm_b: bool, see
         diffs.append(sum(x for x, _ in sa) / max(sum(n for _, n in sa), 1) - sum(x for x, _ in sb) / max(sum(n for _, n in sb), 1))
     diffs.sort()
     return diffs[int(0.025 * res)], diffs[int(0.975 * res) - 1]
+
+
+def late_share_ci(eps: list[dict], R: float, arm: str, warm: bool = False, seed: int = 20261012, res: int = 5000):
+    """(share, lo, hi): per-site late share over setup_ok episodes with the percentile 95% interval resampling EPISODES (per-site values are not independent within an episode)."""
+    c = _late_counts(eps, R, warm, arm)
+    if not c:
+        return None
+    share = sum(x for x, _ in c) / max(sum(n for _, n in c), 1)
+    rng = random.Random(seed)
+    vals = []
+    for _ in range(res):
+        s = rng.choices(c, k=len(c))
+        vals.append(sum(x for x, _ in s) / max(sum(n for _, n in s), 1))
+    vals.sort()
+    return share, vals[int(0.025 * res)], vals[int(0.975 * res) - 1]
 
 
 def median_site_ms(eps: list[dict]):
