@@ -1,6 +1,6 @@
 # Audit 76 — Banco netns, run 1: verdetti pre-registrati (audit 75), cause individuate e pre-registrazione del run 2 con l'implementazione corretta
 
-Data: 2026-10-12. Dati: `experiments_tnsm/netns_testbed/run_20261012/` (1 200 episodi, 4 worker in namespace separati, `unshare -n`, netem su `lo`, `service.py` del commit `4e97eab` e successivi senza modifiche al percorso P0; 8 GB di memoria in più in uso al massimo; `manifest.json` con sha256 di `service.py` e `testbed.py`). Analisi: `analyze_run.py` (`analysis.md`). Ipotesi e criteri: audit 75 (committato prima di costruire il banco).
+Data: 2026-10-12. Dati: `experiments_tnsm/netns_testbed/run_20261012/` (1 200 episodi, 4 worker in namespace separati, `unshare -n`, netem su `lo`, `service.py` del commit `4e97eab` e successivi senza modifiche al percorso P0; circa 2 GB di memoria in più in uso, 40 GB liberi per tutto il run; `manifest.json` con sha256 di `service.py` e `testbed.py`). Analisi: `analyze_run.py` (`analysis.md`). Ipotesi e criteri: audit 75 (committato prima di costruire il banco).
 
 ## Verdetti pre-registrati del run 1
 - **T-0 (validità): FALLITO per P1.** P0 valido in tutti e tre i ritardi (mediana per sito 155/307/605 ms contro 150/300/600 nominali, 0 in ritardo su 200 consegne per cella). **P1 a p = 0: consegne in ritardo 8/200 (d = 50 ms), 3/200 (100 ms), 18/200 (200 ms)**: la connessione "calda" non lo era sempre, anche senza perdita (mediane 57/104/204 ms contro 50/100/200: buone).
