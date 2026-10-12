@@ -51,7 +51,7 @@ Valgono ancora i limiti dell'audit 90 sez. 1:
 | `e3a_view_check` | nessuna violazione, ≤ 100.746.547 | **confermata** | 19.415.620, profondità 42, 5 min 46 s (VIEW: circa 5,2× meno stati) | `v6e3/logs/e3a_view_check.log:31,36` |
 | `e3m_nofinishapply_noparts` | violazione | **confermata** | 113.182 | `v6e3/logs/e3m_nofinishapply_noparts.log` (righe "is violated" e "distinct states") |
 | `e3b_noparts` | nessuna violazione | **confermata** | **37.775.741**, profondità 43, 13 min 32 s | `v6e3/logs/e3b_noparts.log:39,44` |
-| `e3c_parts` | nessuna violazione | (in corso) | | |
+| `e3c_parts` | nessuna violazione | **confermata** | **402.633.492**, profondità 46, 2 h 15 min (08:22-10:38Z) | `v6e3/logs/e3c_parts.log:169,174,175` |
 
 Lettura:
 - con 3 eventi dell'evidence e senza partizioni, la correzione v6 regge;
@@ -69,3 +69,25 @@ Restano le protezioni:
 
 Tecnica: viene terminato **solo** il processo `timeout 10800` che avvolge `run_tlc.sh` (per PID).
 Lo script, con il suo watchdog e la scrittura del manifest, continua; TLC non viene toccato.
+
+## Esito finale
+**Tutte e quattro le ipotesi confermate.** La correzione v6 (= `dc3dd20`, sez. 2 dell'audit 90) non
+viola nessuna proprietà (invarianti e proprietà d'azione originali e nuove) con un sito diviso e
+**3 eventi dell'evidence**:
+- senza partizioni: 37.775.741 stati;
+- con partizioni (MaxToggles 2): 402.633.492 stati.
+
+Il run e3c è stato completato senza il tetto di 3 h, per la deviazione dichiarata sopra prima
+dell'esito. Picco della metadir circa 4-5 GB, disco libero minimo 25 GB, nessun intervento del
+watchdog, nessun errore di memoria.
+
+Conseguenze per l'audit 90:
+- sez. 1: il limite "al più 2 eventi" sale a **3 eventi con un sito diviso**. Con entrambi i siti
+  divisi resta 2 eventi (`v6/logs/v6_f3_two_split.log:174`);
+- sez. 4 regola 4: B2k (3 eventi per fatto, `run.py:720-724`) rientra ora nella configurazione
+  verificata, per un sito diviso;
+- sez. 8: la condizione "aspettare TLC" per B2k, offline, costo della correzione e nuovo hash con
+  D1/D2/D5 è soddisfatta.
+
+Limiti che restano: 2 siti, 1 fatto, MaxLoss 0, quorum 1 nei run divisi; evidence irraggiungibile,
+crash e concorrenza nello stesso sito non modellati.
