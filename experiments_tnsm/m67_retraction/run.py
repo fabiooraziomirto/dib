@@ -696,6 +696,22 @@ class Env:
         return {int(k): v for k, v in json.loads(r.stdout.strip().splitlines()[-1]).items()}
 
 
+SETUP_ATTEMPTS = 3   # audit 102: attempts per setup step on a clean 503
+
+
+def setup_step(env, method: str, url: str, identity: str, timeout: float, site: int, step: str, body: dict) -> None:
+    """One /query or /commit of the setup, checked (D5). A 503 is a clean refusal (evidence unreachable or reconcile lock busy: nothing changed), so it is retried up to
+    SETUP_ATTEMPTS times in total (the node testbed does the same); 409/500/applied=false are NOT retried. Retries are counted in env.setup_retries."""
+    for attempt in range(SETUP_ATTEMPTS):
+        resp = env.req(method, url, identity, timeout, json=body)
+        if resp.status_code == 503 and attempt + 1 < SETUP_ATTEMPTS:
+            env.setup_retries = getattr(env, "setup_retries", 0) + 1
+            time.sleep(0.2)
+            continue
+        check_step(resp, site, step)
+        return
+
+
 def setup_fact(env: Env, ep: str, sites: list[int], timeout: float) -> int:
     from concurrent.futures import ThreadPoolExecutor
     r = env.req("POST", f"{env.ev}/seed", "admin", timeout, json={"device_type": "cam-a", "endpoint": ep})
@@ -703,8 +719,8 @@ def setup_fact(env: Env, ep: str, sites: list[int], timeout: float) -> int:
 
     def one(i):
         body = {"device_type": "cam-a", "endpoint": ep}
-        check_step(env.req("POST", f"{env.site(i)}/query", f"op-site-{i}", timeout, json=body), i, "query")
-        check_step(env.req("POST", f"{env.site(i)}/commit", f"op-site-{i}", timeout, json=body), i, "commit")
+        setup_step(env, "POST", f"{env.site(i)}/query", f"op-site-{i}", timeout, i, "query", body)
+        setup_step(env, "POST", f"{env.site(i)}/commit", f"op-site-{i}", timeout, i, "commit", body)
 
     with ThreadPoolExecutor(max_workers=10) as ex:
         list(ex.map(one, sites))
@@ -723,7 +739,10 @@ def episode_b1(env: Env, profile: str, tag: str, e: int, setup: bool = True) -> 
             row.update(excluded=True, excluded_reason="queues_not_empty_at_start")
             return row
         if setup:
+            env.setup_retries = 0
             sid = setup_fact(env, ep, list(range(N_SITES)), 30.0 if profile != "extreme" else 90.0)
+            if env.setup_retries:
+                row["setup_retries"] = env.setup_retries
         else:
             sid = env.req("POST", f"{env.ev}/seed", "admin", 30.0, json={"device_type": "cam-a", "endpoint": ep}).json()["id"]
         env.warm_many(["op-site-1"] + [f"site-{i}" for i in range(N_SITES)])   # connections the dispute and the pending reads will reuse

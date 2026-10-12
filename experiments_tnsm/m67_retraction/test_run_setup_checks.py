@@ -106,3 +106,56 @@ def test_d5_6_setup_fact_with_non_json_refusal_is_an_excluded_episode():
     env = E({(2, "commit"): RawResp(503, "Service Unavailable")})
     row = r.episode_b1(env, "lan", "t", 0)
     assert row["excluded"] is True and row["excluded_reason"] == "setup_failed" and "503" in row["setup_failed"]
+
+
+# ---- audit 102: the setup retries a clean 503 (evidence unreachable / reconcile lock busy: nothing changed) up to 3 attempts per step, never a 409/500
+class Seq(FakeEnv):
+    """Answers each (site, step) from a list, then 200 {"applied": true}."""
+
+    def __init__(self, plan):
+        super().__init__()
+        self.plan, self.n = plan, {}
+
+    def req(self, method, url, identity, timeout, **kw):
+        for (i, step), answers in self.plan.items():
+            if url == f"https://site-{i}/{step}":
+                k = self.n.get((i, step), 0)
+                self.n[(i, step)] = k + 1
+                if k < len(answers):
+                    return answers[k]
+        return super().req(method, url, identity, timeout, **kw)
+
+
+def test_d5_7_503_is_retried(monkeypatch):
+    monkeypatch.setattr(r.time, "sleep", lambda s: None)
+    env = Seq({(1, "commit"): [Resp(503, {"detail": "evidence unreachable"})], (2, "query"): [RawResp(503, "x"), RawResp(503, "x")]})
+    assert r.setup_fact(env, "x.example", [0, 1, 2], 30.0) == 7
+    assert env.n[(1, "commit")] == 2 and env.n[(2, "query")] == 3 and env.setup_retries == 3
+
+
+def test_d5_8_three_503_fail_and_409_500_are_not_retried(monkeypatch):
+    monkeypatch.setattr(r.time, "sleep", lambda s: None)
+    env = Seq({(1, "query"): [Resp(503, {})] * 3})
+    with pytest.raises(r.SetupFailed) as ei:
+        r.setup_fact(env, "x.example", [0, 1], 30.0)
+    assert ei.value.status == 503 and env.n[(1, "query")] == 3
+    for code in (409, 500):
+        env = Seq({(1, "commit"): [Resp(code, {"detail": "x"})] * 3})
+        with pytest.raises(r.SetupFailed):
+            r.setup_fact(env, "x.example", [0, 1], 30.0)
+        assert env.n[(1, "commit")] == 1
+
+
+def test_d5_9_episode_row_counts_retries(monkeypatch):
+    monkeypatch.setattr(r.time, "sleep", lambda s: None)
+
+    class E(Seq):
+        arm, T, fanout = "D", 5.0, 10
+        queues_clean = lambda self, timeout: (True, 0.0)  # noqa: E731
+
+        def warm_many(self, ids):   # stop right after the setup: the row must already carry the retry count
+            raise r.ClientTimeout("stop after setup")
+
+    env = E({(0, "commit"): [Resp(503, {})]})
+    row = r.episode_b1(env, "lan", "t", 0)
+    assert row.get("setup_retries") == 1
