@@ -19,3 +19,7 @@ La frase sul modello cita un banco di prova che non è il nodo: stessa macchina 
 
 ## Verifica di merge con `tnsm-fsm-paper` (2026-10-12)
 Prova in un worktree temporaneo (branch `tnsm-merge-preview`, nessun branch altrui modificato): un solo conflitto, nel paragrafo della Discussione (la mia frase sul limite dopo la riconnessione contro la frase dell'altra sessione sul veto locale che dipende dall'evidence), risolto tenendo entrambe le frasi; il paper unito compila (14 pagine), la suite `code/tests` passa (491 passed, 7 skipped, 7 xfailed). Con `tnsm-fsm` (senza paper) il merge è pulito. Il preview è nel branch `tnsm-merge-preview` (commit `94ea825`) per chi voglia adottarlo.
+
+## Aggiunta 2026-10-12 (audit 86)
+
+Una frase aggiunta in `docs/main_wip.tex` nel paragrafo del modello di consegna (dopo "inferred, not captured"): sul deployment completo il modello prevede la quota di consegne in ritardo entro 0,7 punti senza mTLS e 3,1 con mTLS, e la mediana dell'ultimo sito a fan-out sequenziale entro il 2 %. Numeri da `docs/audit/86_distribuzione_completa_risultati.md` (D/10 0,186 contro 0,179; C/10 0,282 contro 0,251; F1 10 670 contro 10 600 ms e 16 126 contro 16 400 ms). Una prima formulazione più lunga portava il paper a 14 pagine: accorciata, compila a 13 pagine. La frase riguarda codice PRE-correzione (albero `467a711`); va riconfermata dopo il rerun sul codice di `tnsm-fixes` (audit 87).
