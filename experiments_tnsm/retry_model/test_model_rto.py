@@ -62,3 +62,19 @@ def test_r6_tls_flight_loss():
 def test_r7_v1_unchanged():
     a = m.attempt("D", lost=scripted(False, False, True), R_=0.1)
     assert not a["ok"] and a["dur"] == pytest.approx(0.1 + 1.0)
+
+
+def test_r8_late_share_threshold_scales_with_R():
+    z = m.simulate("D", fanout=10, episodes=50, seed=1, p_loss=0.0, R_=0.1, rto=True)
+    assert z["median_ms"] == pytest.approx(150.0) and z["late_share"] == 0.0
+    z2 = m.simulate("C", fanout=10, episodes=50, seed=1, p_loss=0.0, R_=0.2, rto=True)
+    assert z2["median_ms"] == pytest.approx(500.0)
+
+
+def test_r9_v2_matches_v1_at_degraded():
+    """At R = 0.4 the RTO (1.2 s) exceeds the phase timeout: v2 and v1 must agree statistically (same medians within 5%, late share within 2 points)."""
+    for arm in ("D", "C"):
+        a = m.simulate(arm, 10, episodes=8000, seed=3)
+        b = m.simulate(arm, 10, episodes=8000, seed=3, rto=True)
+        assert abs(a["median_ms"] - b["median_ms"]) <= 0.05 * a["median_ms"]
+        assert abs(a["late_share"] - b["late_share"]) <= 0.02

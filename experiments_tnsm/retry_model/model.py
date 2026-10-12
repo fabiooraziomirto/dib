@@ -21,11 +21,25 @@ def always_lost(kind):
     return True
 
 
+def rto(R_: float) -> float:
+    """Linux TCP retransmission timeout after the handshake: srtt + max(4*rttvar, 200 ms) with srtt = R, rttvar = R/2 (v2, audit 75)."""
+    return R_ + max(2 * R_, 0.2)
+
+
+def _extra(lost, kind: str, R_: float) -> float:
+    """Extra delay of one packet that may be lost repeatedly: RTO, then 2*RTO, ... (v2)."""
+    extra, k = 0.0, 0
+    while lost(kind) and k < 6:
+        extra += rto(R_) * 2 ** k
+        k += 1
+    return extra
+
+
 def rng_lost(rng: random.Random, p: float):
     return lambda kind: rng.random() < p
 
 
-def attempt(arm: str, lost, warm: bool = False, timeout: float = TIMEOUT, hedge_s: float | None = None, R_: float = R) -> dict:
+def attempt(arm: str, lost, warm: bool = False, timeout: float = TIMEOUT, hedge_s: float | None = None, R_: float = R, rto: bool = False) -> dict:
     """One attempt. Returns dur (time until it returns or fails), ok (response received), apply (request arrival time or None)."""
     t = 0.0
     if not warm:
@@ -43,10 +57,24 @@ def attempt(arm: str, lost, warm: bool = False, timeout: float = TIMEOUT, hedge_
             if not first_ok:
                 return {"dur": timeout, "ok": False, "apply": None}
             t = R_
-        if arm == "C":
+        if arm == "C" and not rto:
             if lost("clienthello") or lost("serverflight"):
                 return {"dur": t + timeout, "ok": False, "apply": None}
             t += R_
+    if rto:   # v2: packets after the handshake are retransmitted after the RTO instead of failing the phase outright
+        if arm == "C" and not warm:
+            extra = _extra(lost, "clienthello", R_) + _extra(lost, "serverflight", R_)
+            if R_ + extra >= timeout:
+                return {"dur": t + timeout, "ok": False, "apply": None}
+            t += R_ + extra
+        er = _extra(lost, "request", R_)
+        if er + R_ / 2 >= timeout:
+            return {"dur": t + timeout, "ok": False, "apply": None}
+        apply = t + er + R_ / 2
+        t_read = R_ + er + _extra(lost, "response", R_)
+        if t_read >= timeout:
+            return {"dur": t + timeout, "ok": False, "apply": apply}
+        return {"dur": t + t_read, "ok": True, "apply": apply}
     if lost("request"):
         return {"dur": t + timeout, "ok": False, "apply": None}
     apply = t + R_ / 2
@@ -90,7 +118,9 @@ def simulate(arm: str, fanout: int, episodes: int = 20000, seed: int = SEED, p_l
             for a in ep["applies"]:
                 if a is not None:
                     tot += 1
-                    late += a > NOMINAL[arm] + 0.3 if not kw.get("warm_first") else a > 0.2 + 0.3
+                    Rr = kw.get("R_", R)
+                    nominal = (0.5 if kw.get("warm_first") else (1.5 if arm == "D" else 2.5)) * Rr   # request arrival without loss (cold D 1.5 R, cold C 2.5 R)
+                    late += a > nominal + 0.75 * Rr
         if ep["apply_last"] is not None:
             lasts.append(ep["apply_last"])
     lasts.sort()
