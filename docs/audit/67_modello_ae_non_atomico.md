@@ -389,3 +389,13 @@ Esito 14.1 (heap 6 GB, 4 worker, in parallelo con v6_f4_e3): **tutte e quattro c
 | `v6m_m6_nolock` | 674.006 |
 
 Con `v6_m5` (624.874), **ognuna delle cinque parti della correzione v6 è necessaria**.
+
+### 14.2 `v6_f4_e3` (MaxEvents 3): INCOMPLETO, fermato da me
+Avviato alle 03:43Z. Alle 04:25Z era a 202.510.519 stati distinti, profondità 18, con la coda a
+82,2 M e ancora in crescita; il disco scendeva di ~2 GB ogni 10 min. La proiezione superava sia il
+limite di 3 h sia la soglia del watchdog. L'ho fermato (exit 143) per lasciare la macchina a
+`v6_f3_two_split`. La riga dell'interruzione è nel log.
+
+Per la regola pre-registrata: **incompleto, nessuna affermazione**. Nella porzione esplorata non è
+stata trovata alcuna violazione, ma questo non verifica la correzione con 3 eventi.
+Il paper dichiara "up to two evidence events".
