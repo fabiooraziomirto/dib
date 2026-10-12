@@ -1,0 +1,1 @@
+v6_f3_two_split exit=0 Progress(42) at 2026-10-12 08:41:13: 3,309,684,501 states generated (24,973,038 s/min), 475,360,773 distinct states found (2,366,092 ds/min), 883,507 states left on queue. Model checking completed. No error has been found. 3326277520 states generated, 476759280 distinct states found, 0 states left on queue. 

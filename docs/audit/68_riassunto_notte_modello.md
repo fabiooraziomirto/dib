@@ -49,8 +49,8 @@ siti raggiungibili senza nulla in volo, I1, I2, la conservazione del veto, il re
     restore più vecchio consegnato fuori ordine sulla riserva;
   - `v6_f2_fix_all`: nessuna violazione di alcuna proprietà su 100.746.547 stati (MaxEvents 2);
   - ognuna delle cinque parti è necessaria (5 mutanti v6, tutti rilevati);
-  - versione v5 su entrambi i siti: 466.601.973 stati senza violazioni, ma è la v5;
-    `v6_f3_two_split` è in corso;
+  - `v6_f3_two_split`: correzione v6 su entrambi i siti, nessuna violazione su 476.759.280 stati
+    (profondità 53, 2 h 16 min);
   - con MaxEvents 3 la v6 è **incompleta** (fermata da me a 202 M stati: nessuna affermazione);
   - quorum 2 con la regola outsider: 64.458.470 stati, nessuna violazione.
 - **Sulla copia:**
