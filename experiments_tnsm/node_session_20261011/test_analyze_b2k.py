@@ -67,3 +67,17 @@ def test_t_difference_with_an_empty_side_is_not_evaluable():
     assert k2.t_difference(ok, none) is None
     assert k2.t_difference(none, ok) is None
     assert k2.cell_summary(none, 7.0)["d_kill"] == "not evaluable"
+
+
+def test_pool_cells_concatenates_the_rows_of_the_same_cell():
+    """Audit 99 addendum 2 (written before the change): the two series of the 30-trial design (10 + 20 trials, different seeds, same tree service) are pooled per cell
+    (profile, arm, k, T) by concatenating the rows; a cell present in one series only is kept; the budget of the first series is kept."""
+    import analyze_b2k as m
+
+    def cell(arm, k, T, n, tag):
+        return ("lan", f"b2kill_{arm}", {"cell_spec": {"arm": arm, "k": k, "T": T}, "budget": {"bound_kill_s": 7.0}, "rows": [{"convergence_s": 1.0, "s": tag}] * n})
+
+    pooled = m.pool_cells([cell("D", 1, 5, 10, "a"), cell("D", 10, 5, 10, "a"), cell("D", 1, 5, 20, "b")])
+    byk = {(p, c["cell_spec"]["arm"], c["cell_spec"]["k"], c["cell_spec"]["T"]): c for p, _, c in pooled}
+    assert len(pooled) == 2 and len(byk[("lan", "D", 1, 5)]["rows"]) == 30 and len(byk[("lan", "D", 10, 5)]["rows"]) == 10
+    assert byk[("lan", "D", 1, 5)]["budget"] == {"bound_kill_s": 7.0}

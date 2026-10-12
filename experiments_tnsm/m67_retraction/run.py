@@ -298,7 +298,7 @@ def first_after(lines, t0: float, status: int = 200):
     return None
 
 
-def plan(profile: str, blocks: list[str], arms: list[str], fanouts: list[int] | None = None, episodes: int | None = None) -> list[dict]:
+def plan(profile: str, blocks: list[str], arms: list[str], fanouts: list[int] | None = None, episodes: int | None = None, trials: int = 10) -> list[dict]:
     cells = []
     fanouts = fanouts or FANOUTS
     if "b1" in blocks:
@@ -309,7 +309,7 @@ def plan(profile: str, blocks: list[str], arms: list[str], fanouts: list[int] | 
         for arm in arms:
             for T in B2_TS:
                 for k in B2_KS[profile]:
-                    cells.append({"block": "b2kill", "arm": arm, "fanout": 10, "T": T, "k": k, "trials": 10})
+                    cells.append({"block": "b2kill", "arm": arm, "fanout": 10, "T": T, "k": k, "trials": trials})
     if "tcpdump" in blocks:
         for arm in arms:
             cells.append({"block": "tcpdump", "arm": arm, "fanout": 1, "T": 5, "episodes": 20})
@@ -1100,6 +1100,7 @@ def main() -> int:
     ap.add_argument("--l-dns", type=float, default=None, help="calibrated L_dns (s), for the B2-kill client timeout")
     ap.add_argument("--profile-wait", type=float, default=90.0, help="seconds to wait for the claimed netem profile to show up in the measured RTT")
     ap.add_argument("--fanouts", default="1,10", help="B1 FANOUT values (smoke: 10)")
+    ap.add_argument("--trials", type=int, default=10, help="B2-kill trials per cell (default 10 = audit 45/99; 20 for the second series of the 30-trial design)")
     ap.add_argument("--episodes", type=int, default=None, help="override the B1 episode count (smoke: 3)")
     ap.add_argument("--plog-p95-ms", type=float, default=PLOG_P95_MS_DEFAULT, help="calibrated p95 of the docker logs -t latency")
     ap.add_argument("--watch-log", default=None, help="saved output of netem_watch.sh (tee), joined to the B2-kill site restarts")
@@ -1107,7 +1108,7 @@ def main() -> int:
     a = ap.parse_args()
     blocks = a.block.split(",")
     arms = a.arms.split(",")
-    cells = plan(a.profile, blocks, arms, [int(x) for x in a.fanouts.split(",")], a.episodes)
+    cells = plan(a.profile, blocks, arms, [int(x) for x in a.fanouts.split(",")], a.episodes, a.trials)
     rng = random.Random(a.seed)
     rng.shuffle(cells)  # order of the cells inside the block, recorded in the manifest
     if a.dry_run:

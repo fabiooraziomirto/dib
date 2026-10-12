@@ -45,23 +45,37 @@ def t_difference(rows15: list, rows5: list, rng: random.Random | None = None) ->
     return {"diff_s": d, "lo": lo, "hi": hi, "n15": len(a), "n5": len(b)}
 
 
+def pool_cells(cells: list) -> list:
+    """Pool cells of the same (profile, arm, k, T) coming from several series (audit 99 addendum 2: 10 + 20 trials): rows are concatenated, the first cell's other fields are kept."""
+    out: dict = {}
+    for prof, dn, c in cells:
+        sp = c["cell_spec"]
+        key = (prof, sp["arm"], sp["k"], sp["T"])
+        if key in out:
+            out[key][2]["rows"] = out[key][2]["rows"] + c["rows"]
+        else:
+            out[key] = (prof, dn, {**c, "rows": list(c["rows"])})
+    return list(out.values())
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("dir")
+    ap.add_argument("dir", nargs="+", help="one or more series directories (b2k_<profile>/b2kill_<arm>/ inside); cells of the same (profile, arm, k, T) are pooled")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
-    root = Path(a.dir)
     rng = random.Random(b1.SEED)
     cells = []
-    for bd in sorted(root.glob("b2k_*")):
-        prof = bd.name[4:]
-        for ad in sorted(bd.glob("b2kill_*")):
-            try:
-                for c in blockdata.load_cells(ad):
-                    if "rows" in c and "aborted" not in c:
-                        cells.append((prof, ad.name, c))
-            except FileNotFoundError:
-                continue
+    for root in (Path(x) for x in a.dir):
+        for bd in sorted(root.glob("b2k_*")):
+            prof = bd.name[4:]
+            for ad in sorted(bd.glob("b2kill_*")):
+                try:
+                    for c in blockdata.load_cells(ad):
+                        if "rows" in c and "aborted" not in c:
+                            cells.append((prof, ad.name, c))
+                except FileNotFoundError:
+                    continue
+    cells = pool_cells(cells)
     L = ["# B2-kill analysis (audit 45)", "", "| profile | arm | T | k | n | converged | never | median s [CI] | bound s | (d-kill) | (e) violations | excluded |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
     sums, by = [], {}
     for prof, dn, c in sorted(cells, key=lambda x: (x[0], x[2]["cell_spec"]["arm"], x[2]["cell_spec"]["k"], x[2]["cell_spec"]["T"])):

@@ -17,3 +17,7 @@ def test_rules_present():
               "REFUSED", "MemAvailable", "2000000000", "dibtnsm"):
         assert s in T, s
     assert "sudo" not in T.replace("no sudo", "") and "pkill" not in T
+
+
+def test_trials_and_seed_are_parameters_with_the_old_defaults():
+    assert "TRIALS=${TRIALS:-10}" in T and "SEED=${SEED:-20261014}" in T and "--seed $SEED --trials $TRIALS" in T

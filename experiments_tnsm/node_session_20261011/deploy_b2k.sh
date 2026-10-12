@@ -4,6 +4,7 @@
 # Usage: deploy_b2k.sh <tree> <out-dir> [profiles=lan,degraded,wan]
 set -uo pipefail
 T=$1; OUT=$2; PROFILES=${3:-lan,degraded,wan}
+TRIALS=${TRIALS:-10}; SEED=${SEED:-20261014}   # audit 99 addendum 2: second series = TRIALS=20 SEED=20261016
 export DIB_M67_DNS_NOSEARCH=1          # audit 72: no search domains in the cluster
 PY=$HOME/dib_tnsm/venv/bin/python; M=$HOME/dib_tnsm/m67
 mkdir -p "$OUT" "$M"
@@ -39,7 +40,7 @@ PYEOF
   [ "$DEC" != "run" ] && { log "profile $PROF NOT run (rule of audit 45, no threshold change)"; continue; }
   for ARM in D C; do
     log "b2kill $PROF arm $ARM"
-    timeout 21600 $PY $T/experiments_tnsm/m67_retraction/run.py --block b2kill --profile $PROF --tree $T --out $OUT/b2kill_${PROF}_$ARM --arms $ARM --seed 20261014 --profile-wait 90 --l-dns $L > $OUT/b2kill_${PROF}_$ARM.log 2>&1; log "$PROF arm $ARM rc=$?"
+    timeout 21600 $PY $T/experiments_tnsm/m67_retraction/run.py --block b2kill --profile $PROF --tree $T --out $OUT/b2kill_${PROF}_$ARM --arms $ARM --seed $SEED --trials $TRIALS --profile-wait 90 --l-dns $L > $OUT/b2kill_${PROF}_$ARM.log 2>&1; log "$PROF arm $ARM rc=$?"
   done
 done
 touch "$M/userspace_profile.STOP"; sleep 2; kill $APID 2>/dev/null
