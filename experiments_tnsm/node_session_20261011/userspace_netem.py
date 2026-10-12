@@ -11,7 +11,8 @@ import time
 from pathlib import Path
 
 DOCKER = "docker"
-SPEC = {"lan": None, "wan": "delay 80ms loss 1%", "degraded": "delay 200ms loss 5%"}
+SPEC = {"lan": None, "wan": "delay 80ms loss 1%", "degraded": "delay 200ms loss 5%",
+        "x1": "delay 60ms loss 6%", "x2": "delay 100ms loss 4%", "x3": "delay 150ms loss 6%", "x4": "delay 150ms loss 8%"}   # audit 107
 LOADER = ["/hostlib/ld-linux-x86-64.so.2", "--library-path", "/hostlib", "/hosttc"]
 
 

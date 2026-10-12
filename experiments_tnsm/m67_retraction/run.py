@@ -124,6 +124,11 @@ PROFILES = {
     "degraded": {"d": 0.200, "R": 0.400, "loss_rt": 0.10},
     "extreme": {"d": 0.550, "R": 1.100, "loss_rt": 0.0},
     "mixed": {"d": 0.080, "R": 0.080, "loss_rt": 0.01},   # only sites 5-9 are delayed (their egress): R = d
+    # audit 107: out-of-sample conditions of the v5 validation on the real deployment (d one way, loss per side 6/4/6/8 %, R = 2d)
+    "x1": {"d": 0.060, "R": 0.120, "loss_rt": 0.12},
+    "x2": {"d": 0.100, "R": 0.200, "loss_rt": 0.08},
+    "x3": {"d": 0.150, "R": 0.300, "loss_rt": 0.12},
+    "x4": {"d": 0.150, "R": 0.300, "loss_rt": 0.16},
 }
 # Expected TCP connect RTT (ms) evidence -> site-i, as (lo, hi), per profile (profile check, no sudo needed).
 # Tolerance (declared 2026-10-10, before the wan block): +-20% of the expected RTT R = 2d, applied to the MEDIAN of 3 connections per
@@ -146,11 +151,15 @@ RTT_EXPECT_MS = {
     "degraded": {i: _band(400.0) for i in range(N_SITES)},
     "extreme": {i: _band(1100.0) for i in range(N_SITES)},
     "mixed": {**{i: (0.0, 3.0) for i in range(5)}, **{i: _band(80.0) for i in range(5, 10)}},
+    "x1": {i: _band(120.0) for i in range(N_SITES)},
+    "x2": {i: _band(200.0) for i in range(N_SITES)},
+    "x3": {i: _band(300.0) for i in range(N_SITES)},
+    "x4": {i: _band(300.0) for i in range(N_SITES)},
 }
 ARMS = {"D": {"mtls": 0}, "C": {"mtls": 1}, "default": {"mtls": 0}}   # `default` = reference only (B1 at lan)
 N_RTT = {"D": 2, "default": 2, "C": 3}
 ATTEMPT_HARD_S = {"D": 3.0, "default": 3.0, "C": 4.0}   # sum of per-phase 1 s timeouts of one attempt (audit 14 V1)
-B1_EPISODES = {"lan": 10, "regional": 10, "wan": 10, "degraded": 50, "extreme": 10, "mixed": 10}
+B1_EPISODES = {"lan": 10, "regional": 10, "wan": 10, "degraded": 50, "extreme": 10, "mixed": 10, "x1": 50, "x2": 50, "x3": 50, "x4": 50}
 B2_KS = {"lan": [1, 10, 50], "wan": [1, 10], "degraded": [1, 10], "regional": [1, 10], "mixed": [1, 10], "extreme": [1]}
 B2_TS = [5, 15]
 FANOUTS = [1, 10]

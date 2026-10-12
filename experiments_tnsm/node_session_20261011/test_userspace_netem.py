@@ -48,3 +48,10 @@ def test_u4_retry_on_failure():
     assert applied == {}
     un.apply_all([("id1", "n1")], "degraded", applied, runner)
     assert applied == {"id1": "degraded"} and len(calls) == 2
+
+
+def test_x_profiles_specs():
+    """Audit 107: the applier knows x1..x4 with the netem specs of the testbed conditions (one-way delay and loss per side)."""
+    import userspace_netem as u
+    assert u.SPEC["x1"] == "delay 60ms loss 6%" and u.SPEC["x2"] == "delay 100ms loss 4%" and u.SPEC["x3"] == "delay 150ms loss 6%" and u.SPEC["x4"] == "delay 150ms loss 8%"
+    assert u.SPEC["degraded"] == "delay 200ms loss 5%" and u.SPEC["lan"] is None
