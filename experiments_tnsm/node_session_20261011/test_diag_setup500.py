@@ -35,3 +35,11 @@ def test_no_traceback():
 def test_httpx_error():
     assert d.is_httpx_error("httpx.ConnectTimeout: timed out") and d.is_httpx_error("httpcore.ReadTimeout")
     assert not d.is_httpx_error("KeyError: 'x'") and not d.is_httpx_error(None)
+
+
+def test_docker_timestamps_are_stripped():
+    """Audit 102: `docker logs -t` lines start with a timestamp; the first classifier returned (None, None) on the real logs."""
+    ts = "2026-10-12T13:20:58.981536510Z "
+    log = "\n".join(ts + l for l in LOG.splitlines())
+    c = d.classify_log(log)
+    assert c["exception"] == "httpcore.ReadTimeout" and "line 501" in c["frame"]

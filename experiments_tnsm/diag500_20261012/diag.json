@@ -1,0 +1,108 @@
+{
+ "arm": "C",
+ "facts": 50,
+ "n_non200": 7,
+ "n_500": 7,
+ "n_500_httpx": 0,
+ "started": 1791811122.851983,
+ "rows": [
+  {
+   "fact": 12,
+   "site": 7,
+   "step": "commit",
+   "status": 500,
+   "body": "Internal Server Error",
+   "t": 1791811253.161569,
+   "dt_s": 6.012714147567749,
+   "classified": {
+    "exception": null,
+    "frame": null
+   },
+   "log_tail": "942, in _send_handling_auth\n2026-10-12T13:20:58.981527223Z     response = self._send_handling_redirects(\n2026-10-12T13:20:58.981528335Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:20:58.981529427Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 979, in _send_handling_redirects\n2026-10-12T13:20:58.981532964Z     response = self._send_single_request(request)\n2026-10-12T13:20:58.981534166Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:20:58.981535268Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 1014, in _send_single_request\n2026-10-12T13:20:58.981536510Z     response = transport.handle_request(request)\n2026-10-12T13:20:58.981537603Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:20:58.981538695Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 249, in handle_request\n2026-10-12T13:20:58.981540037Z     with map_httpcore_exceptions():\n2026-10-12T13:20:58.981541350Z          ^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:20:58.981542472Z   File \"/usr/local/lib/python3.12/contextlib.py\", line 158, in __exit__\n2026-10-12T13:20:58.981543694Z     self.gen.throw(value)\n2026-10-12T13:20:58.981544746Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 118, in map_httpcore_exceptions\n2026-10-12T13:20:58.981546038Z     raise mapped_exc(message) from exc\n2026-10-12T13:20:58.981547140Z httpx.ReadTimeout: The read operation timed out\n"
+  },
+  {
+   "fact": 13,
+   "site": 7,
+   "step": "query",
+   "status": 500,
+   "body": "Internal Server Error",
+   "t": 1791811260.4980567,
+   "dt_s": 6.016971826553345,
+   "classified": {
+    "exception": null,
+    "frame": null
+   },
+   "log_tail": "ng_auth\n2026-10-12T13:21:06.316975340Z     response = self._send_handling_redirects(\n2026-10-12T13:21:06.316976422Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:21:06.316977514Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 979, in _send_handling_redirects\n2026-10-12T13:21:06.316978756Z     response = self._send_single_request(request)\n2026-10-12T13:21:06.316979848Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:21:06.316980970Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 1014, in _send_single_request\n2026-10-12T13:21:06.316982212Z     response = transport.handle_request(request)\n2026-10-12T13:21:06.316983304Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:21:06.316984417Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 249, in handle_request\n2026-10-12T13:21:06.316985659Z     with map_httpcore_exceptions():\n2026-10-12T13:21:06.316986731Z          ^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:21:06.316987813Z   File \"/usr/local/lib/python3.12/contextlib.py\", line 158, in __exit__\n2026-10-12T13:21:06.316988985Z     self.gen.throw(value)\n2026-10-12T13:21:06.316990047Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 118, in map_httpcore_exceptions\n2026-10-12T13:21:06.316991320Z     raise mapped_exc(message) from exc\n2026-10-12T13:21:06.316992422Z httpx.ConnectTimeout: _ssl.c:993: The handshake operation timed out\n"
+  },
+  {
+   "fact": 27,
+   "site": 8,
+   "step": "commit",
+   "status": 500,
+   "body": "Internal Server Error",
+   "t": 1791811380.5306032,
+   "dt_s": 6.630786418914795,
+   "classified": {
+    "exception": null,
+    "frame": null
+   },
+   "log_tail": "ng_auth\n2026-10-12T13:23:06.967191062Z     response = self._send_handling_redirects(\n2026-10-12T13:23:06.967192975Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:23:06.967194789Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 979, in _send_handling_redirects\n2026-10-12T13:23:06.967196832Z     response = self._send_single_request(request)\n2026-10-12T13:23:06.967198756Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:23:06.967200629Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 1014, in _send_single_request\n2026-10-12T13:23:06.967203515Z     response = transport.handle_request(request)\n2026-10-12T13:23:06.967205509Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:23:06.967207312Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 249, in handle_request\n2026-10-12T13:23:06.967209376Z     with map_httpcore_exceptions():\n2026-10-12T13:23:06.967211189Z          ^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:23:06.967218052Z   File \"/usr/local/lib/python3.12/contextlib.py\", line 158, in __exit__\n2026-10-12T13:23:06.967220326Z     self.gen.throw(value)\n2026-10-12T13:23:06.967222190Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 118, in map_httpcore_exceptions\n2026-10-12T13:23:06.967224274Z     raise mapped_exc(message) from exc\n2026-10-12T13:23:06.967226147Z httpx.ConnectTimeout: _ssl.c:993: The handshake operation timed out\n"
+  },
+  {
+   "fact": 28,
+   "site": 0,
+   "step": "query",
+   "status": 500,
+   "body": "Internal Server Error",
+   "t": 1791811388.4699094,
+   "dt_s": 6.018471717834473,
+   "classified": {
+    "exception": null,
+    "frame": null
+   },
+   "log_tail": "ng_auth\n2026-10-12T13:23:14.293702110Z     response = self._send_handling_redirects(\n2026-10-12T13:23:14.293703873Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:23:14.293705737Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 979, in _send_handling_redirects\n2026-10-12T13:23:14.293707821Z     response = self._send_single_request(request)\n2026-10-12T13:23:14.293709544Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:23:14.293711277Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 1014, in _send_single_request\n2026-10-12T13:23:14.293713311Z     response = transport.handle_request(request)\n2026-10-12T13:23:14.293715555Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:23:14.293717449Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 249, in handle_request\n2026-10-12T13:23:14.293723991Z     with map_httpcore_exceptions():\n2026-10-12T13:23:14.293726055Z          ^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:23:14.293727918Z   File \"/usr/local/lib/python3.12/contextlib.py\", line 158, in __exit__\n2026-10-12T13:23:14.293729982Z     self.gen.throw(value)\n2026-10-12T13:23:14.293731725Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 118, in map_httpcore_exceptions\n2026-10-12T13:23:14.293733869Z     raise mapped_exc(message) from exc\n2026-10-12T13:23:14.293735683Z httpx.ConnectTimeout: _ssl.c:993: The handshake operation timed out\n"
+  },
+  {
+   "fact": 36,
+   "site": 4,
+   "step": "commit",
+   "status": 500,
+   "body": "Internal Server Error",
+   "t": 1791811465.168365,
+   "dt_s": 5.610948085784912,
+   "classified": {
+    "exception": null,
+    "frame": null
+   },
+   "log_tail": "ng_auth\n2026-10-12T13:24:30.585188548Z     response = self._send_handling_redirects(\n2026-10-12T13:24:30.585189640Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:24:30.585190773Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 979, in _send_handling_redirects\n2026-10-12T13:24:30.585192015Z     response = self._send_single_request(request)\n2026-10-12T13:24:30.585193117Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:24:30.585194249Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 1014, in _send_single_request\n2026-10-12T13:24:30.585195522Z     response = transport.handle_request(request)\n2026-10-12T13:24:30.585196624Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:24:30.585197726Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 249, in handle_request\n2026-10-12T13:24:30.585198978Z     with map_httpcore_exceptions():\n2026-10-12T13:24:30.585200040Z          ^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:24:30.585201132Z   File \"/usr/local/lib/python3.12/contextlib.py\", line 158, in __exit__\n2026-10-12T13:24:30.585202324Z     self.gen.throw(value)\n2026-10-12T13:24:30.585203396Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 118, in map_httpcore_exceptions\n2026-10-12T13:24:30.585204669Z     raise mapped_exc(message) from exc\n2026-10-12T13:24:30.585205781Z httpx.ConnectTimeout: _ssl.c:993: The handshake operation timed out\n"
+  },
+  {
+   "fact": 40,
+   "site": 6,
+   "step": "commit",
+   "status": 500,
+   "body": "Internal Server Error",
+   "t": 1791811498.8654487,
+   "dt_s": 5.611891269683838,
+   "classified": {
+    "exception": null,
+    "frame": null
+   },
+   "log_tail": "ng_auth\n2026-10-12T13:25:04.283082560Z     response = self._send_handling_redirects(\n2026-10-12T13:25:04.283083692Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:25:04.283084774Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 979, in _send_handling_redirects\n2026-10-12T13:25:04.283086016Z     response = self._send_single_request(request)\n2026-10-12T13:25:04.283087138Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:25:04.283088250Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 1014, in _send_single_request\n2026-10-12T13:25:04.283089493Z     response = transport.handle_request(request)\n2026-10-12T13:25:04.283090585Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:25:04.283091707Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 249, in handle_request\n2026-10-12T13:25:04.283092949Z     with map_httpcore_exceptions():\n2026-10-12T13:25:04.283094031Z          ^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:25:04.283095123Z   File \"/usr/local/lib/python3.12/contextlib.py\", line 158, in __exit__\n2026-10-12T13:25:04.283096315Z     self.gen.throw(value)\n2026-10-12T13:25:04.283097367Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 118, in map_httpcore_exceptions\n2026-10-12T13:25:04.283098660Z     raise mapped_exc(message) from exc\n2026-10-12T13:25:04.283099782Z httpx.ConnectTimeout: _ssl.c:993: The handshake operation timed out\n"
+  },
+  {
+   "fact": 43,
+   "site": 3,
+   "step": "commit",
+   "status": 500,
+   "body": "Internal Server Error",
+   "t": 1791811529.174365,
+   "dt_s": 6.0146589279174805,
+   "classified": {
+    "exception": null,
+    "frame": null
+   },
+   "log_tail": "942, in _send_handling_auth\n2026-10-12T13:25:34.997030637Z     response = self._send_handling_redirects(\n2026-10-12T13:25:34.997031810Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:25:34.997032932Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 979, in _send_handling_redirects\n2026-10-12T13:25:34.997034184Z     response = self._send_single_request(request)\n2026-10-12T13:25:34.997035336Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:25:34.997036478Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_client.py\", line 1014, in _send_single_request\n2026-10-12T13:25:34.997037721Z     response = transport.handle_request(request)\n2026-10-12T13:25:34.997038823Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:25:34.997039905Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 249, in handle_request\n2026-10-12T13:25:34.997041167Z     with map_httpcore_exceptions():\n2026-10-12T13:25:34.997042420Z          ^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-12T13:25:34.997043592Z   File \"/usr/local/lib/python3.12/contextlib.py\", line 158, in __exit__\n2026-10-12T13:25:34.997044804Z     self.gen.throw(value)\n2026-10-12T13:25:34.997045856Z   File \"/usr/local/lib/python3.12/site-packages/httpx/_transports/default.py\", line 118, in map_httpcore_exceptions\n2026-10-12T13:25:34.997047269Z     raise mapped_exc(message) from exc\n2026-10-12T13:25:34.997048441Z httpx.ReadTimeout: The read operation timed out\n"
+  }
+ ]
+}

@@ -14,9 +14,12 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 
+_TS = re.compile(r"^\d{4}-\d\d-\d\dT[\d:.]+Z ")   # `docker logs -t` prefixes every line with a timestamp (audit 102: the first version did not strip it and found nothing)
+
+
 def classify_log(text: str) -> dict:
     """Last exception line of the LAST traceback in a container log and the service frame that raised it."""
-    lines = text.splitlines()
+    lines = [_TS.sub("", l) for l in text.splitlines()]
     last_tb = max((i for i, l in enumerate(lines) if "Traceback (most recent call last)" in l), default=None)
     if last_tb is None:
         return {"exception": None, "frame": None}
