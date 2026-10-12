@@ -403,3 +403,8 @@ Il paper dichiara "up to two evidence events".
 Regressione della copia **v6** (chiusura della query con applicazione della lettura) su tutti i test
 distribuiti più stale_commit: **127 passed, 15 failed, 1 xfailed in 31,4 s**. Gli stessi 15
 fallimenti della copia v5 (sez. 13), tutti nelle classi dichiarate salvo il noto b3q-2.
+
+### 14.3 `v6_f3_two_split`: CONFERMATA
+Correzione v6 su **entrambi** i siti, MaxEvents 2, MaxToggles 2, V2 stretta: nessuna violazione di
+alcuna proprietà su **476.759.280** stati distinti, profondità 53, 2 h 16 min (06:26-08:42 CEST).
+Nessun intervento del watchdog; disco libero minimo ~25 GB.
