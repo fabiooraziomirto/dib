@@ -35,5 +35,14 @@ def test_night_queue2():
     q = p.read_text()
     assert subprocess.run(["bash", "-n", str(p)]).returncode == 0
     body = q.split("mkdir -p", 1)[1]
-    assert "QUEUE_DONE" in body and "for X in x1 x2 x3 x4" in body and "deploy_run.sh $T $ROOT/node_oos_$X $X default D,C 10" in body
+    assert "QUEUE_DONE" in body and "for X in x1 x2 x3 x4" in body and "deploy_run.sh $T4 $ROOT/node_oos_$X $X default D,C 10" in body
     assert "sudo" not in q.replace("no sudo", "") and "pkill" not in q
+
+
+def test_queues_read_their_tree_from_pointer_files():
+    """Runtime correction: a fixed tree can be swapped in between steps by writing a pointer file, without restarting the queue."""
+    d = Path(__file__).resolve().parent
+    q1, q2 = (d / "night_queue.sh").read_text(), (d / "night_queue2.sh").read_text()
+    assert "CURRENT_TREE_B2K_B" in q1 and "CURRENT_TREE_R1F" in q1 and "CURRENT_TREE_OOS" in q2
+    for p in ("night_queue.sh", "night_queue2.sh"):
+        assert subprocess.run(["bash", "-n", str(d / p)]).returncode == 0
