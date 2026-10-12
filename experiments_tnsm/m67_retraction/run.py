@@ -449,6 +449,14 @@ class ClientTimeout(Exception):
     """A client-side timeout: the episode/trial is EXCLUDED from the statistics, never counted as a service failure."""
 
 
+class ImageMismatch(Exception):
+    """A container's /app/service.py is not the tree's service.py: the run would not measure the code it claims to (audit 104). The run stops."""
+
+
+def cell_image_field(sha: dict) -> dict:
+    return {"image_service_sha256": sha}
+
+
 class SetupFailed(Exception):
     """D5 (audit 90): a /query or /commit of the episode setup was refused (status != 200 or applied != true): the episode/trial is EXCLUDED with the step, the site and
     the answer, it is not a service failure of the measured operation and it must not start with sites that are not Active."""
@@ -576,7 +584,20 @@ class Env:
 
     def up(self):
         self.sh(self.compose() + "down -v --remove-orphans", check=False)
-        self.sh(self.compose() + "up -d")
+        self.sh(self.compose() + "up -d --build", timeout=1800)   # audit 104: without --build the image of 2026-10-10 was reused by every run
+
+    def verify_service_image(self) -> dict:
+        """sha256 of /app/service.py INSIDE every container against the tree's service.py (audit 104); raises ImageMismatch naming the containers that differ."""
+        want = hashlib.sha256(Path(f"{self.tree}/code/src/dib/registry/distributed/service.py").read_bytes()).hexdigest()
+        names = ["dibtnsm-evidence-1"] + [f"dibtnsm-site-{i}-1" for i in range(N_SITES)]
+        got = {}
+        for n in names:
+            out = self.sh(f"/snap/bin/docker exec {n} sha256sum /app/service.py", check=False, timeout=60).strip()
+            got[n] = out.split()[0] if out else None
+        bad = [n for n, s in got.items() if s != want]
+        if bad:
+            raise ImageMismatch(f"containers run a service.py different from the tree's ({want[:12]}): " + ", ".join(f"{n}={str(got[n])[:12]}" for n in bad))
+        return got
 
     def down(self):
         self.sh(self.compose() + "down -v --remove-orphans", check=False)
@@ -947,6 +968,7 @@ def live(a, cells, rng) -> int:
         env = Env(tree, arm, fo, T, pki)
         env.up()
         try:
+            image_sha = env.verify_service_image()
             ready = env.healthy()
             ok, rtt, bad, timing = wait_profile(env, a.profile, a.profile_wait)
             if ok:
@@ -964,7 +986,7 @@ def live(a, cells, rng) -> int:
                 n_cell += 1
                 bg = nm.idle_window(12.0, project="dibtnsm")
                 flagged = bg["other_cores"] > rule["max_other_cores"] or bg["steal_pct"] > rule["max_steal_pct"]
-                rec = {"cell": n_cell, "cell_spec": cell, "profile": a.profile, "ready_s": ready, "background_idle": bg, "flagged_pre": flagged,
+                rec = {**cell_image_field(image_sha), "cell": n_cell, "cell_spec": cell, "profile": a.profile, "ready_s": ready, "background_idle": bg, "flagged_pre": flagged,
                        "rtt_ms_evidence_to_site": rtt, "profile_check_ok": ok, "profile_timing": timing, "budget": cell_budget(cell, a.profile)}
                 tag = f"{a.profile}-{arm}-f{fo}-T{int(T)}"
                 if cell["block"] == "tcpdump":
