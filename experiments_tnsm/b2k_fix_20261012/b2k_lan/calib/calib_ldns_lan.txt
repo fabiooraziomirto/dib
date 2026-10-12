@@ -1,0 +1,2 @@
+{"label": "lan", "alive": {"n": 50, "p50_ms": 0.14366999675985426, "p95_ms": 0.19040699407923967, "max_ms": 1.733291006530635, "outcomes": ["True"]},
+ "killed": {"n": 50, "p50_ms": 2.7821679977932945, "p95_ms": 3.131123012281023, "max_ms": 5.158094994840212, "outcomes": ["gaierror(-3, 'Temporary failure in name resolution')"]}}
