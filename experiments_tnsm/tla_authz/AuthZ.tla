@@ -31,7 +31,7 @@ RolesOf(ep, r) ==
   ELSE r.roles
 
 RECURSIVE ResolveFrom(_, _, _)
-\* Identities.resolve (mtls.py:134-143): primo SAN mappato; se un SAN incontrato prima e' in denylist -> None
+\* Identities.resolve (mtls.py:134-142): primo SAN mappato; se un SAN incontrato prima e' in denylist -> None
 ResolveFrom(cert, i, den) ==
   IF i > Len(cert) THEN NullE
   ELSE IF cert[i] \in den /\ ~MutNoDeny THEN NullE
@@ -39,7 +39,7 @@ ResolveFrom(cert, i, den) ==
        THEN [san |-> cert[i], role |-> Map[cert[i]].role, site |-> Map[cert[i]].site]
        ELSE ResolveFrom(cert, i + 1, den)
 
-\* _authorize (service.py:177-186) + controllo del payload di _reporter (service.py:866-868)
+\* _authorize (service.py:177-186) + controllo del payload di _reporter (service.py:874-876)
 Decide(ep, r, tgt, arg, e, mut) ==
   LET roles == IF mut THEN RolesOf(ep, r) ELSE r.roles
       site  == IF r.siteArg = "self" THEN tgt ELSE IF r.siteArg = "path" THEN arg ELSE NoSite
