@@ -1,0 +1,9 @@
+f2_witness_mo exit=12 Error: Invariant NeverMonitorOnlyOnSplitSite is violated. Error: The behavior up to this point is: 490 states generated, 435 distinct states found, 369 states left on queue. 
+f2_witness_active exit=12 Error: Invariant NeverActiveOnSplitSite is violated. Error: The behavior up to this point is: 125088 states generated, 54231 distinct states found, 37653 states left on queue. 
+m2_nolrguard exit=12 Error: Invariant NoMonitorOnlyCaughtUpDuringEpisode is violated. Error: The behavior up to this point is: 369128 states generated, 143253 distinct states found, 93601 states left on queue. 
+m3_noverify exit=13 Error: Action property I1_CommitOnUndisputedEvidence is violated. Error: The behavior up to this point is: 33380 states generated, 16735 distinct states found, 12328 states left on queue. 
+m4_noqueryfix exit=12 Error: Invariant DisputeSuspendsAtReachableSitesV2 is violated. Error: The behavior up to this point is: 1006 states generated, 857 distinct states found, 712 states left on queue. 
+f2_orig_strict exit=12 Error: Invariant DisputeSuspendsAtReachableSites is violated. Error: The behavior up to this point is: 481 states generated, 425 distinct states found, 359 states left on queue. 
+r1_regress_v2 exit=0 Progress(24) at 2026-10-12 02:01:38: 81,118,384 states generated (27,533,082 s/min), 12,926,077 distinct states found (3,377,946 ds/min), 1,022,852 states left on queue. Model checking completed. No error has been found. 101397218 states generated, 14947820 distinct states found, 0 states left on queue. 
+n5_export_nofix exit=13 Error: Action property I3_VetoPreserved is violated. Error: The behavior up to this point is: 4288 states generated, 2946 distinct states found, 2350 states left on queue. 
+f2_fix_all exit=13 Error: Action property I3_VetoPreserved is violated. Error: The behavior up to this point is: 36464 states generated, 18022 distinct states found, 13187 states left on queue. 

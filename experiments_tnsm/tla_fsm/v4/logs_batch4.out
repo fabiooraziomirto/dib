@@ -1,0 +1,4 @@
+v4_mut_ack exit=13 Error: Action property OutboxNeverDropsUnapplied is violated. Error: The behavior up to this point is: 232931 states generated, 94381 distinct states found, 63359 states left on queue. 
+v4_n6_export_nofix exit=13 Error: Action property OutboxNeverDropsUnapplied is violated. Error: The behavior up to this point is: 209989 states generated, 83959 distinct states found, 55161 states left on queue. 
+v4_f2_fix_all exit=13 Error: Action property OutboxNeverDropsUnapplied is violated. Error: The behavior up to this point is: 1605642 states generated, 543257 distinct states found, 326757 states left on queue. 
+v4_f3_two_split exit=13 Error: Action property OutboxNeverDropsUnapplied is violated. Error: The behavior up to this point is: 2387435 states generated, 814195 distinct states found, 508899 states left on queue. 
