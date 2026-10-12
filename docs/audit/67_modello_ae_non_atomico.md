@@ -302,3 +302,18 @@ Regressione della copia v5 (riserva sotto lock) su tutti i test distribuiti più
   - `s1` passa sulla copia (XPASS strict, ii);
   - `s1_observed` caratterizza il vecchio comportamento (riceve 409 invece di 200, i);
   - `s2` riapplica le FIXES a una sorgente già corretta: "anchor not found", iii.
+
+**`v5_f2_fix_all`: CONFERMATA.** Nessuna violazione di nessuna proprietà, invarianti e proprietà
+d'azione originali e nuove, `OutboxNeverDropsUnapplied` compresa: **98.945.568** stati distinti,
+profondità 43, 25 min 21 s.
+
+### 13.1 Batch 5b — pre-registrazione: necessità di ogni parte sulla v5
+I mutanti m2-m4 erano stati eseguiti sulla v2. La guardia aggiunta in v5 restringe i comportamenti,
+quindi la necessità di ogni parte va rivista sulla v5. La necessità del lock è già mostrata da
+v4_f2 (stesso modello senza la guardia).
+
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `v5_m2_nolrguard` | senza guardia in LRWrite: NoMonitorOnlyCaughtUpDuringEpisode violato | nessuna violazione |
+| `v5_m3_noverify` | senza seconda lettura: I1_CommitOnUndisputedEvidence violato | nessuna violazione |
+| `v5_m4_noqueryfix` | senza riserva: DisputeSuspendsAtReachableSitesV2 violato | nessuna violazione |
