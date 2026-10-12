@@ -1,0 +1,1 @@
+[{"d_ms": 100, "loss_pct": 5, "policy": "S1", "episodes": 40, "kind": "s1", "max_wait_s": 120}, {"d_ms": 50, "loss_pct": 2, "policy": "S1", "episodes": 40, "kind": "s1", "max_wait_s": 120}]
