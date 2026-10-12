@@ -1,4 +1,4 @@
-# Audit 63 — B2-kill a `lan` rifatto con la correzione del driver (H-D1 di audit 60 §1)
+# Audit 69 (già numerato 63 nei messaggi di commit del branch tnsm-driver-retry; rinumerato per non collidere con gli audit 63-68 del branch tnsm-fsm) — B2-kill a `lan` rifatto con la correzione del driver (H-D1 di audit 60 §1)
 
 Data: 2026-10-12 (00:06Z a nodo). Dati: `experiments_tnsm/b2k_fix_20261012/b2k_lan/` (tree `50c4335` = `244f1d0` con `service.py` e `run.py` cambiati, 22 hash su 24 identici, `frozen_hashes_50c4335.txt`; `calib_profile.py` e `run.py --block b2kill --profile lan`, arms D poi C, seme 20261014, L_dns calibrato a `lan` nello stesso blocco: p95 3,13 ms (n = 50) ≤ 50 ms, regola dell'audit 45 §5 soddisfatta; nessun watcher necessario a `lan`; PKI 336 h; `DATA.sha256` verificato dopo la copia: 0 discordanze). Script: `experiments_tnsm/node_session_20261011/lan_b2k_validation.sh`; analisi `analyze_b2k.py` (invariato salvo il caso "lato vuoto" di audit 57). Le ipotesi di B2k sono quelle dell'audit 45; la validazione del driver quella dell'audit 60 §1.
 
