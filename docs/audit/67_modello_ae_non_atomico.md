@@ -191,3 +191,54 @@ Il batch 3 ripete i tre run con la proprietà corretta.
 | `v3_f2_fix_all` | come H-f2 (correzioni: nessuna violazione) | qualunque violazione |
 | `v3_r1_regress_v2` | nessuna violazione, 14.947.820 stati | violazione o altro conteggio |
 | `v3_f3_two_split` | come H-f3 (correzioni su entrambi i siti, MaxToggles 2) | qualunque violazione; incompleto oltre 3 h = riportato come tale |
+
+## 10. Risultati del batch 3 (modello v3) e verifica sul codice reale
+| cfg | Previsione | Esito | Stati distinti | Nota |
+|---|---|---|---|---|
+| `v3_mut_veto` | violazione | **confermata** | 1.004 | la proprietà corretta non è vuota |
+| `v3_n5_export_nofix` | nessuna violazione | **FALSIFICATA (reale)** | 44.783 | `NoStaleActiveAfterEpisode` (invariante del modello pubblicato) |
+| `v3_f2_fix_all` | nessuna violazione | **FALSIFICATA (proprietà da adattare)** | 82.851 | `OutboxNeverDropsUnapplied`, vedi sez. 11 |
+
+**Traccia di v3_n5, un difetto reale del prototipo.**
+1. CommitRead legge Active a seq 0.
+2. Dispute (seq 1) e Restore (seq 2) completano l'episodio.
+3. Il restore arriva a s1: monitor-only, last_applied 2.
+4. CommitWrite → **Active**.
+5. La consegna della dispute (seq 1) è scartata perché 1 ≤ 2.
+
+Un'approvazione decisa su evidenza precedente all'episodio diventa Active dopo il restore, aggiornata
+ed esportabile, senza un commit successivo al restore. Viola I3 ("Restoration requires fresh local
+approval", main_wip.tex:340). L'export-safety "durante la dispute" non la vede, perché quando il
+record diventa Active l'evidence è di nuovo Active.
+
+**Sul codice reale:** `code/tests/tests/test_distributed_fsm_stale_commit.py` (pre-registrato in un
+commit separato prima dell'esecuzione):
+- **H-S1 falsificata come previsto:** il record è `active` dopo il commit con la lettura prima
+  dell'episodio;
+- **H-S2 confermata:** la copia corretta risponde 409 e lascia monitor-only;
+- 1 failed, 1 passed in 0,71 s.
+
+H-S1 resta rossa nel commit di pre-registrazione; nel commit dei risultati è marcata
+`xfail(strict=True)` con un test di caratterizzazione, come gli altri.
+
+## 11. Batch 4 — pre-registrazione (v4 = v3 + OutboxNeverDropsUnapplied con Staging come Absent)
+**Seconda correzione di una proprietà dopo un risultato: la dichiaro come tale.** Nella traccia di
+v3_f2:
+1. una dispute è messa in outbox mentre s1 è Absent;
+2. la reconcile la applica come no-op;
+3. QueryReserve crea Staging;
+4. l'ack cancella la riga, e la proprietà guarda lo stato all'ack (Staging) invece che
+   all'applicazione (Absent).
+
+Argomento per cui nessun evento si perde: un fan-out applicato a una riga Staging la sposta sempre
+(il suo last_applied è 0 e ogni seq è ≥ 1), quindi Staging all'ack implica che l'applicazione è
+avvenuta su Absent. In più la riserva precede la seconda lettura, che vede l'evento.
+
+Controllo di non vacuità: `v4_mut_ack` (ack "cancella tutto", D12) deve violare la proprietà v4.
+
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `v4_mut_ack` | la proprietà v4 non è vuota | nessuna violazione |
+| `v4_n6_export_nofix` | semantica del PROTOTIPO, senza NoStaleActiveAfterEpisode: export sicuro ai siti raggiungibili e tutte le proprietà d'azione originali | qualunque violazione |
+| `v4_f2_fix_all` | correzioni su s1: nessuna violazione di nessuna proprietà | qualunque violazione |
+| `v4_f3_two_split` | correzioni su entrambi i siti, MaxToggles 2: nessuna violazione | qualunque violazione; incompleto oltre 3 h = riportato come tale |
