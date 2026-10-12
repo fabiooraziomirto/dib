@@ -31,6 +31,9 @@ H-F4  Senza corsa la copia si comporta come l'originale sul ciclo base: stage, c
 H-F5  (aggiunta 2026-10-12 dopo il modello v5, prima di rieseguire) con la riserva presa sotto
       _reconcile_lock (come QueryReserve con rc idle nel modello v5) tutti i test di questo file
       restano verdi.
+H-F6  (aggiunta dopo il modello v6, prima di rieseguire) con la chiusura della query che applica la
+      propria seconda lettura a una riga gia' spostata, tutti i test di questo file restano verdi.
+      Lo scenario che la motiva (v5_f4_e3, consegne fuori ordine) NON e' riprodotto da un test qui.
 Falsificazione complessiva: un qualunque test di questo file rosso.
 """
 from __future__ import annotations
@@ -92,7 +95,15 @@ FQ = (
         def finish(con):
             row = con.execute(
                 "SELECT state, last_applied_seq FROM local_decisions WHERE score_id=?", (sid,)).fetchone()
-            if row is None or row[0] != "staging":
+            if row is None:
+                return
+            if row[0] != "staging":
+                # v6: a fan-out moved the reserved row; apply this read's snapshot through the same
+                # seq guard, so an event that hit the row while it was Absent is not lost
+                if again is not None:
+                    ev = {STATUS_DISPUTED: ("dispute", DECISION_DISPUTED), STATUS_REVOKED: ("revoke", DECISION_REVOKED),
+                          STATUS_ACTIVE: ("restore", DECISION_MONITOR_ONLY)}[again["status"]]
+                    _apply_fanout_row(con, sid, again["fanout_seq"], ev[0], ev[1])
                 return
             if ok:
                 con.execute("UPDATE local_decisions SET state=?, last_applied_seq=? WHERE score_id=?",

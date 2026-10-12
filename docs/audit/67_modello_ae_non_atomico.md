@@ -331,3 +331,80 @@ parti della correzione è necessaria** nella configurazione verificata.
 MaxToggles 2. Ipotesi: nessuna violazione di nessuna proprietà. Falsificata da qualunque violazione.
 Se lo fermano il limite di 3 h o il watchdog del disco: incompleto, nessuna affermazione. Parte
 dopo `v5_f3_two_split`, un TLC alla volta.
+
+### 13.3 Esito di `v5_f4_e3`: FALSIFICATA (reale per la correzione v5)
+50.914 stati. Traccia:
+1. Dispute (1), Restore (2), Dispute (3);
+2. a s1, ancora Absent, arrivano la dispute 1 e la dispute 3 (no-op);
+3. QueryReserve crea Staging;
+4. il restore 2 arriva in ritardo e sposta la riga a MonitorOnly con last_applied 2.
+
+s1 resta MonitorOnly mentre l'evidence è Disputed (seq 3), senza nulla in volo: viola
+`DisputeSuspendsAtReachableSitesV2`. La correzione v5 è quindi verificata **solo con MaxEvents 2**.
+Con 3 eventi ha un buco: una dispute arrivata quando la riga non esisteva, seguita da un evento più
+vecchio consegnato fuori ordine sulla riserva. L'anti-entropia lo ripara alla reconcile successiva
+(current seq 3 > 2).
+
+## 14. Batch 6 — pre-registrazione (v6 = v5 + `QueryFinish` che applica la propria lettura a una riga già spostata)
+La correzione v6 applica la seconda lettura della query (seq, stato) con la stessa guardia di
+sequenza (`ApplyEffect`). `DisputeSuspendsAtReachableSitesV3` ammette anche MonitorOnly durante
+una query pendente del sito su quel fatto. Motivo: la chiusura applicherà la lettura;
+MonitorOnly non è esportabile; nessun commit può partire, perché c'è una sola operazione pendente
+per sito. Mutazione `MutNoFinishApply` = comportamento v5. Patch su copia aggiornata allo stesso
+modo (H-F6; lo scenario fuori ordine non ha un test Python: NON VERIFICATO sul codice).
+
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `v6_m5_nofinishapply` | MaxEvents 3, senza l'applicazione: V3 violato (traccia di v5_f4_e3) | nessuna violazione |
+| `v6_f2_fix_all` | MaxEvents 2, con la V2 stretta: nessuna violazione | qualunque violazione |
+| `v6_f4_e3` | MaxEvents 3, MaxToggles 2, con V3: nessuna violazione | qualunque violazione; incompleto = nessuna affermazione |
+
+Esito parziale del batch 6:
+- `v6_m5_nofinishapply`: violazione **confermata** (624.874 stati);
+- `v6_f2_fix_all`: **confermata**, nessuna violazione con la V2 stretta su **100.746.547** stati,
+  profondità 43, 26 min 44 s.
+
+Pre-registrazione 6b: `v6_f3_two_split` (correzione v6 su entrambi i siti, MaxEvents 2,
+MaxToggles 2, V2 stretta): nessuna violazione. Incompleto = nessuna affermazione. Parte dopo
+`v6_f4_e3`.
+
+### 14.1 Batch 6m — pre-registrazione: necessità di ogni parte sulla v6
+`experiments_tnsm/tla_fsm/v6m/` = v6 più il flag `MutNoLock` (FALSE di default). È una cartella
+separata per non cambiare il modello copiato dai run in coda. Limiti di v6_f2 (MaxEvents 2).
+Ipotesi:
+- `v6m_m2_nolrguard`: NoMonitorOnlyCaughtUpDuringEpisode violato;
+- `v6m_m3_noverify`: I1_CommitOnUndisputedEvidence violato;
+- `v6m_m4_noqueryfix`: V2 violato;
+- `v6m_m6_nolock`: OutboxNeverDropsUnapplied violato.
+
+Ciascuna è falsificata se non c'è violazione. (La necessità dell'applicazione della lettura è
+`v6_m5`, con MaxEvents 3.)
+
+Esito 14.1 (heap 6 GB, 4 worker, in parallelo con v6_f4_e3): **tutte e quattro confermate**.
+| cfg | stati alla violazione |
+|---|---|
+| `v6m_m2_nolrguard` | 132.075 |
+| `v6m_m3_noverify` | 16.310 |
+| `v6m_m4_noqueryfix` | 1.024 |
+| `v6m_m6_nolock` | 674.006 |
+
+Con `v6_m5` (624.874), **ognuna delle cinque parti della correzione v6 è necessaria**.
+
+### 14.2 `v6_f4_e3` (MaxEvents 3): INCOMPLETO, fermato da me
+Avviato alle 03:43Z. Alle 04:25Z era a 202.510.519 stati distinti, profondità 18, con la coda a
+82,2 M e ancora in crescita; il disco scendeva di ~2 GB ogni 10 min. La proiezione superava sia il
+limite di 3 h sia la soglia del watchdog. L'ho fermato (exit 143) per lasciare la macchina a
+`v6_f3_two_split`. La riga dell'interruzione è nel log.
+
+Per la regola pre-registrata: **incompleto, nessuna affermazione**. Nella porzione esplorata non è
+stata trovata alcuna violazione, ma questo non verifica la correzione con 3 eventi.
+Il paper dichiara "up to two evidence events".
+
+Regressione della copia **v6** (chiusura della query con applicazione della lettura) su tutti i test
+distribuiti più stale_commit: **127 passed, 15 failed, 1 xfailed in 31,4 s**. Gli stessi 15
+fallimenti della copia v5 (sez. 13), tutti nelle classi dichiarate salvo il noto b3q-2.
+
+### 14.3 `v6_f3_two_split`: CONFERMATA
+Correzione v6 su **entrambi** i siti, MaxEvents 2, MaxToggles 2, V2 stretta: nessuna violazione di
+alcuna proprietà su **476.759.280** stati distinti, profondità 53, 2 h 16 min (06:26-08:42 CEST).
+Nessun intervento del watchdog; disco libero minimo ~25 GB.

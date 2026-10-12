@@ -1,0 +1,578 @@
+TLC2 Version 2026.05.26.235334 (rev: 4ba7d88)
+Running breadth-first search Model-Checking with fp 53 and seed 6041358095175019649 with 4 workers on 16 cores with 5461MB heap and 64MB offheap memory [pid: 3345548] (Linux 6.8.12-18-pve amd64, Ubuntu 17.0.19 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /tmp/claude-0/-root-Desktop-DIB-tnsm/596cfc7a-3336-44f6-8449-38b198d337d1/scratchpad/tlc_v6m_m6_nolock_lHSF/DIB_AE_NA.tla
+Parsing file /tmp/tlc-7129778190193306665/Naturals.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /tmp/tlc-7129778190193306665/FiniteSets.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /tmp/tlc-7129778190193306665/_TLCTrace.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /tmp/tlc-7129778190193306665/Sequences.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /tmp/tlc-7129778190193306665/TLC.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /tmp/tlc-7129778190193306665/TLCExt.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file /tmp/tlc-7129778190193306665/Integers.tla (jar:file:/root/Desktop/BioDevOps/formal_methods/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Integers
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module DIB_AE_NA
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module DIB_AE_NA
+Starting... (2026-10-12 05:45:31)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-10-12 05:45:31.
+Progress(9) at 2026-10-12 05:45:34: 460,085 states generated (460,085 s/min), 175,011 distinct states found (175,011 ds/min), 116,149 states left on queue.
+Error: Action property OutboxNeverDropsUnapplied is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ lossCount = 0
+/\ eseq = (f1 :> 0)
+/\ estatus = (f1 :> "Active")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "Init", seq |-> 0, ev |-> "none", site |-> nosite, fact |-> nofact]
+/\ unreachable = {}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 0, ev |-> "none"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 0
+/\ rc = ( s1 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 0
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Absent") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = {}
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> nosite)
+/\ gen = (f1 :> 0)
+
+State 2: <Dispute(r1,f1) line 291, col 8 to line 294, col 80 of module DIB_AE_NA>
+/\ lossCount = 0
+/\ eseq = (f1 :> 1)
+/\ estatus = (f1 :> "Disputed")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "EvDispute", seq |-> 1, ev |-> "dispute", site |-> nosite, fact |-> f1]
+/\ unreachable = {}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 0, ev |-> "none"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 0
+/\ rc = ( s1 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 1
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Absent") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = { [seq |-> 1, ev |-> "dispute", site |-> s1, fact |-> f1],
+  [seq |-> 1, ev |-> "dispute", site |-> s2, fact |-> f1] }
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> r1)
+/\ gen = (f1 :> 1)
+
+State 3: <Dispute(r2,f1) line 295, col 8 to line 297, col 75 of module DIB_AE_NA>
+/\ lossCount = 0
+/\ eseq = (f1 :> 2)
+/\ estatus = (f1 :> "Revoked")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "EvRevoke", seq |-> 2, ev |-> "revoke", site |-> r2, fact |-> f1]
+/\ unreachable = {}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 0, ev |-> "none"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 0
+/\ rc = ( s1 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 2
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Absent") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = { [seq |-> 1, ev |-> "dispute", site |-> s1, fact |-> f1],
+  [seq |-> 1, ev |-> "dispute", site |-> s2, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s1, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s2, fact |-> f1] }
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> r1)
+/\ gen = (f1 :> 1)
+
+State 4: <SiteDown(s1) line 524, col 5 to line 530, col 45 of module DIB_AE_NA>
+/\ lossCount = 0
+/\ eseq = (f1 :> 2)
+/\ estatus = (f1 :> "Revoked")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "SiteDown", seq |-> 0, ev |-> "none", site |-> s1, fact |-> nofact]
+/\ unreachable = {s1}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 0, ev |-> "none"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 1
+/\ rc = ( s1 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 2
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Absent") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = { [seq |-> 1, ev |-> "dispute", site |-> s1, fact |-> f1],
+  [seq |-> 1, ev |-> "dispute", site |-> s2, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s1, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s2, fact |-> f1] }
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> r1)
+/\ gen = (f1 :> 1)
+
+State 5: <Next line 645, col 8 to line 645, col 44 of module DIB_AE_NA>
+/\ lossCount = 0
+/\ eseq = (f1 :> 2)
+/\ estatus = (f1 :> "Revoked")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "Enqueue", seq |-> 2, ev |-> "revoke", site |-> s1, fact |-> f1]
+/\ unreachable = {s1}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 2, ev |-> "revoke"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 1
+/\ rc = ( s1 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 2
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Absent") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = { [seq |-> 1, ev |-> "dispute", site |-> s1, fact |-> f1],
+  [seq |-> 1, ev |-> "dispute", site |-> s2, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s2, fact |-> f1] }
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> r1)
+/\ gen = (f1 :> 1)
+
+State 6: <ReconcileRead(s1) line 557, col 5 to line 569, col 41 of module DIB_AE_NA>
+/\ lossCount = 0
+/\ eseq = (f1 :> 2)
+/\ estatus = (f1 :> "Revoked")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "Read", seq |-> 0, ev |-> "none", site |-> s1, fact |-> nofact]
+/\ unreachable = {s1}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 2, ev |-> "revoke"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 1
+/\ rc = ( s1 :>
+      [ ph |-> "apply",
+        rows |-> {[seq |-> 2, ev |-> "revoke", f |-> f1]},
+        done |-> {},
+        cur |-> {[seq |-> 2, ev |-> "revoke", f |-> f1]},
+        round |-> 1,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 2
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Absent") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = { [seq |-> 1, ev |-> "dispute", site |-> s1, fact |-> f1],
+  [seq |-> 1, ev |-> "dispute", site |-> s2, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s2, fact |-> f1] }
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> r1)
+/\ gen = (f1 :> 1)
+
+State 7: <ReconcileApply(s1) line 583, col 5 to line 592, col 14 of module DIB_AE_NA>
+/\ lossCount = 0
+/\ eseq = (f1 :> 2)
+/\ estatus = (f1 :> "Revoked")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "Apply", seq |-> 2, ev |-> "revoke", site |-> s1, fact |-> f1]
+/\ unreachable = {s1}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 2, ev |-> "revoke"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 1
+/\ rc = ( s1 :>
+      [ ph |-> "ack",
+        rows |-> {},
+        done |-> {[seq |-> 2, f |-> f1]},
+        cur |-> {[seq |-> 2, ev |-> "revoke", f |-> f1]},
+        round |-> 1,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 2
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Absent") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = { [seq |-> 1, ev |-> "dispute", site |-> s1, fact |-> f1],
+  [seq |-> 1, ev |-> "dispute", site |-> s2, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s2, fact |-> f1] }
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> r1)
+/\ gen = (f1 :> 1)
+
+State 8: <QueryReserve(s1,f1) line 417, col 5 to line 424, col 44 of module DIB_AE_NA>
+/\ lossCount = 0
+/\ eseq = (f1 :> 2)
+/\ estatus = (f1 :> "Revoked")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> f1,
+        k |-> "qreserved",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "QueryReserve", seq |-> 0, ev |-> "none", site |-> s1, fact |-> f1]
+/\ unreachable = {s1}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 2, ev |-> "revoke"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 1
+/\ rc = ( s1 :>
+      [ ph |-> "ack",
+        rows |-> {},
+        done |-> {[seq |-> 2, f |-> f1]},
+        cur |-> {[seq |-> 2, ev |-> "revoke", f |-> f1]},
+        round |-> 1,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 2
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Staging") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = { [seq |-> 1, ev |-> "dispute", site |-> s1, fact |-> f1],
+  [seq |-> 1, ev |-> "dispute", site |-> s2, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s2, fact |-> f1] }
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> r1)
+/\ gen = (f1 :> 1)
+
+State 9: <SiteUp(s1) line 533, col 5 to line 539, col 43 of module DIB_AE_NA>
+/\ lossCount = 0
+/\ eseq = (f1 :> 2)
+/\ estatus = (f1 :> "Revoked")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> f1,
+        k |-> "qreserved",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "SiteUp", seq |-> 0, ev |-> "none", site |-> s1, fact |-> nofact]
+/\ unreachable = {}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 2, ev |-> "revoke"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 2
+/\ rc = ( s1 :>
+      [ ph |-> "ack",
+        rows |-> {},
+        done |-> {[seq |-> 2, f |-> f1]},
+        cur |-> {[seq |-> 2, ev |-> "revoke", f |-> f1]},
+        round |-> 1,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 2
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Staging") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = { [seq |-> 1, ev |-> "dispute", site |-> s1, fact |-> f1],
+  [seq |-> 1, ev |-> "dispute", site |-> s2, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s2, fact |-> f1] }
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> r1)
+/\ gen = (f1 :> 1)
+
+State 10: <Next line 645, col 8 to line 645, col 44 of module DIB_AE_NA>
+/\ lossCount = 0
+/\ eseq = (f1 :> 2)
+/\ estatus = (f1 :> "Revoked")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> f1,
+        k |-> "qreserved",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 1) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "Deliver", seq |-> 1, ev |-> "dispute", site |-> s1, fact |-> f1]
+/\ unreachable = {}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 2, ev |-> "revoke"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 2
+/\ rc = ( s1 :>
+      [ ph |-> "ack",
+        rows |-> {},
+        done |-> {[seq |-> 2, f |-> f1]},
+        cur |-> {[seq |-> 2, ev |-> "revoke", f |-> f1]},
+        round |-> 1,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 2
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Disputed") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = { [seq |-> 1, ev |-> "dispute", site |-> s2, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s2, fact |-> f1] }
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> r1)
+/\ gen = (f1 :> 1)
+
+State 11: <ReconcileAck(s1) line 595, col 5 to line 605, col 40 of module DIB_AE_NA>
+/\ lossCount = 0
+/\ eseq = (f1 :> 2)
+/\ estatus = (f1 :> "Revoked")
+/\ dirty = (s1 :> FALSE @@ s2 :> FALSE)
+/\ op = ( s1 :>
+      [ f |-> f1,
+        k |-> "qreserved",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] @@
+  s2 :>
+      [ f |-> nofact,
+        k |-> "none",
+        sq |-> 0,
+        sq2 |-> 0,
+        st2 |-> "none",
+        g |-> 0 ] )
+/\ lastApplied = (s1 :> (f1 :> 1) @@ s2 :> (f1 :> 0))
+/\ lastOp = [op |-> "Ack", seq |-> 0, ev |-> "none", site |-> s1, fact |-> nofact]
+/\ unreachable = {}
+/\ outbox = ( s1 :> (f1 :> [seq |-> 0, ev |-> "none"]) @@
+  s2 :> (f1 :> [seq |-> 0, ev |-> "none"]) )
+/\ toggleCount = 2
+/\ rc = ( s1 :>
+      [ ph |-> "reread",
+        rows |-> {},
+        done |-> {},
+        cur |-> {[seq |-> 2, ev |-> "revoke", f |-> f1]},
+        round |-> 1,
+        aseq |-> (f1 :> 0) ] @@
+  s2 :>
+      [ ph |-> "idle",
+        rows |-> {},
+        done |-> {},
+        cur |-> {},
+        round |-> 0,
+        aseq |-> (f1 :> 0) ] )
+/\ evCount = 2
+/\ sorigin = (s1 :> (f1 :> "None") @@ s2 :> (f1 :> "None"))
+/\ sstate = (s1 :> (f1 :> "Disputed") @@ s2 :> (f1 :> "Absent"))
+/\ votes = (f1 :> {})
+/\ todo = { [seq |-> 1, ev |-> "dispute", site |-> s2, fact |-> f1],
+  [seq |-> 2, ev |-> "revoke", site |-> s2, fact |-> f1] }
+/\ commitGen = (s1 :> (f1 :> 0) @@ s2 :> (f1 :> 0))
+/\ edisp = (f1 :> r1)
+/\ gen = (f1 :> 1)
+
+2037595 states generated, 674006 distinct states found, 405268 states left on queue.
+The depth of the complete state graph search is 11.
+Finished in 09s at (2026-10-12 05:45:41)
+Trace exploration spec path: ./DIB_AE_NA_TTrace_1791776731.tla
