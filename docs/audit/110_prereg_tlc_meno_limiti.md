@@ -1,0 +1,307 @@
+# Audit 110 — Pre-registrazione: togliere limiti al modello (letture fallite, crash, quorum 2, perdite, fatti, siti)
+
+Data: 2026-10-12. Branch `tnsm-fsm`. Scritto e committato **prima** di ogni esecuzione.
+
+**Numero:** 110 e non il primo numero libero, che sarebbe 96.
+- Il 100 è riservato esplicitamente dall'altra sessione (`99_prereg_B2k_file_finale.md:22`,
+  "Risultati: audit 100").
+- Il 96 e il 103 seguono il suo schema (pre-registrazione N, risultati N+1: 97→98, 99→100,
+  101→102): con ogni probabilità sono i suoi prossimi numeri.
+
+Per evitare collisioni uso un blocco separato. Verificato su tutti i branch e nelle worktree: il 110
+non esiste.
+
+**Decisione dell'utente (2026-10-12):** "vorrei avere meno limiti possibili nel paper". Approvate
+tutte le estensioni proposte: 1+2 letture fallite e crash, 3 quorum 2 con la correzione, 4+5
+MaxLoss 2 e due fatti, 6+7 tre siti e concorrenza. Prima si lascia finire `Lv_e2` (audit 93).
+
+## 1. Codice di riferimento
+`service.py` sha256 `3ffa57ee…` (commit `864101f` su `tnsm-fixes`): `dc3dd20` più
+- `54521aa` (D1, D2);
+- `4be98f4` e `864101f` (letture dell'evidence fallite → 503/502).
+
+Letto da me in sola lettura (audit 90 e risposte in chat del 2026-10-12):
+- **D1:** all'avvio del sito `DELETE … WHERE state='staging'` e `committing` → `monitor-only`;
+- **D2:** `_reconcile_lock.acquire(timeout=…)`, altrimenti 503 **prima** della riserva;
+- **lettura fallita:**
+  - prima lettura di `/query`, `/commit`, `/local_restore`: 503/502 senza cambiare lo stato;
+  - seconda lettura di `/query`: cancella la riga `staging` e risponde 503 (`except Exception`,
+    `service.py:543` a `4be98f4`);
+  - seconda lettura di `/commit`: `again = None`, fase 2 → `monitor-only`, 409 (`service.py:590`).
+
+## 2. Modello v8 (`experiments_tnsm/tla_fsm/v8/DIB_AE_NA.tla`)
+= `v6m` (v6 con il flag `MutNoLock`) più:
+- le definizioni di vivacità v7 (`DecisionRow`, `ConvergedDecisions`, `ConvergedDecisionsEventually`,
+  audit 93 sez. 9);
+- azioni nuove:
+  - `QueryRead2Fail(s)`: con una query pendente in `qreserved`, la seconda lettura fallisce. Se la
+    riga è ancora `Staging` diventa `Absent`, altrimenti resta com'è (come
+    `DELETE … AND state='staging'`). Fine dell'operazione.
+  - `VerifyReadFail(s)`: con un commit in `committing`, la seconda lettura fallisce.
+    `Committing` → `MonitorOnly`, altrimenti nulla. Fine dell'operazione.
+  - `RcFail(t)`: un giro di reconcile in qualunque fase viene abbandonato (`rc` torna `IdleRc`,
+    nessun ack). Le applicazioni già fatte restano; il giro successivo riparte da capo.
+  - `Crash(t)`: il processo del sito muore e riparte. Le righe SQLite restano; operazione pendente
+    e giro di reconcile si perdono; pulizia D1 (`Staging` → `Absent`, `Committing` →
+    `MonitorOnly`). Crash e riavvio sono istantanei: il periodo "giù" è già coperto da
+    `SiteDown`/`SiteUp`.
+- limiti: `MaxFails`, `MaxCrashes` (contatori `failCount`, `crashCount`, inclusi nella VIEW);
+- mutazioni: `MutNoD1` (riavvio senza pulizia), `MutFailNoClean` (lettura fallita che lascia la
+  riserva);
+- proprietà nuova `CrashConfinement`: un crash cambia solo i record del proprio sito. `Crash` non è
+  fra le `LocalOps`, perché pulisce tutti i fatti del sito e `UnrelatedFactIsolation` non gli si
+  applica.
+
+**Non modellato, e perché non cambia lo stato:**
+- le prime letture fallite e il timeout di D2: nel modello equivalgono a "il passo non avviene";
+- i retry del driver: sono del client.
+
+**Verifiche fatte prima di committare (non run TLC):**
+- SANY senza errori;
+- `diff` contro `v6m`: 102 righe aggiunte; le righe tolte sono solo liste estese con i contatori.
+
+## 3. Configurazioni e ipotesi
+Comune: 1 operazione pendente per sito, `VIEW View` per la safety, quorum 1 salvo Q*. Con
+`MaxFails = MaxCrashes = 0` il modello si comporta come la v6.
+
+**Insiemi di proprietà:**
+- **S:** `TypeOK`, `CaughtUpIsCoherent`, `NoStaleActiveAfterEpisode`,
+  `NoMonitorOnlyCaughtUpDuringEpisode`, `CommittingIsTransient`, `StagingIsTransient`;
+  `I1_NonEscalation`, `I2_SiteConfinement`, `I2_ApplyConfinement`, `I3_ConservativeRestore`,
+  `I3_VetoPreserved`, `UnrelatedFactIsolation`, `LastAppliedMonotone`, `NoRegression`,
+  `OutboxNeverDropsUnapplied`, `I1_CommitOnUndisputedEvidence`, `RevokeConfirmedByOutsider`,
+  `CrashConfinement`;
+- **ALL2** = S + `DisputeSuspendsAtReachableSitesV2` + `ExportSafeAtReachableSites`;
+- **ALL3** = S + `V3` + `ExportSafe`. Con 3 eventi si usa V3, come in audit 92: la chiusura della
+  query applica la lettura e il record può essere `MonitorOnly` durante la query pendente;
+- **SLOSS** = S. Con le perdite ExportSafe e V2/V3 sono violate per costruzione (audit 93 sez. 1).
+
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `H0_regress` (e2, MaxToggles 3, F0 C0) | conservativa: nessuna violazione di ALL2 e **esattamente 19.415.620** stati (`v6e3/logs/e3a_view_check.log:36`) | violazione o altro conteggio |
+| `Xm1_noD1` (C1, `MutNoD1`) | `StagingIsTransient` o `CommittingIsTransient` violato | nessuna violazione |
+| `Xm2_failnoclean` (F1, `MutFailNoClean`) | `StagingIsTransient` violato | nessuna violazione |
+| `X1_e2_fc` (e2, T0, L0, F1, C1) | nessuna violazione di ALL2 | qualunque violazione |
+| `X5_live_e1` (SpecL, e1, L1, F1, C1, T0) | `ConvergedDecisionsEventually` ed `ExposureEnds` valgono | qualunque violazione |
+| `X3_e2_loss_fc` (e2, T0, L1, F1, C1) | nessuna violazione di SLOSS | qualunque violazione |
+| `X2_e2_p_fc` (e2, T2, L0, F1, C1) | nessuna violazione di ALL2 | qualunque violazione |
+| `X4_e3_fc` (e3, T0, L0, F1, C1) | nessuna violazione di ALL3 | qualunque violazione |
+| `Q1_quorum2_e3` (quorum 2 outsider, 3 reporter, e3, T0) | nessuna violazione di ALL3 | qualunque violazione |
+| `Q2_quorum2_e2_p` (quorum 2, e2, T2) | nessuna violazione di ALL2 | qualunque violazione |
+| `L2a_loss2` (e2, T0, MaxLoss 2) | nessuna violazione di SLOSS | qualunque violazione |
+| `L2b_loss2_p` (e2, T2, MaxLoss 2) | nessuna violazione di SLOSS | qualunque violazione |
+| `F2_two_facts` (2 fatti, e2 in totale, T0) | nessuna violazione di ALL2 | qualunque violazione |
+| `S3_three_sites` (3 siti, s1 diviso, e2, T0) | nessuna violazione di ALL2 | qualunque violazione |
+| `S2e3_both_split` (s1 e s2 divisi, e3, T0) | nessuna violazione di ALL3 | qualunque violazione |
+
+Legenda: eN = MaxEvents N; TN = MaxToggles N; LN = MaxLoss N; F/C = MaxFails/MaxCrashes.
+
+**Non vacuità delle parti già note:** i mutanti di audit 67/92/93 restano validi, perché con
+`MaxFails = MaxCrashes = 0` v8 coincide con v6m (H0). Non li ripeto.
+
+## 4. Concorrenza (estensione 7): pre-registrazione separata
+Due richieste pendenti per sito richiedono di cambiare la struttura di `op`: da una per sito a più
+"slot" per sito. È un intervento più grande, che faccio **dopo** questi run, con una pre-registrazione
+aggiuntiva committata prima del suo lancio.
+
+## 5. Risorse, ordine, arresto
+- Come in audit 67/92/93: `-Xmx28g` su 64 GB, 8 worker, metadir nello scratchpad, watchdog del
+  disco sotto 8 GB, un TLC alla volta.
+- **Nessun tetto di tempo** (decisione dell'utente, audit 93 sez. 7).
+- **Ordine** (dai più leggeri ai più pesanti): H0, Xm1, Xm2, X1, X5, X3, X2, X4, Q1, Q2, L2a, L2b,
+  F2, S3, S2e3. Parte quando `Lv_e2` ha finito.
+- **Arresto:** se un run che deve reggere (tutti tranne Xm1 e Xm2) trova una violazione, o H0 dà un
+  altro conteggio, la sequenza si ferma e si riporta la traccia minima, senza proporre codice.
+- I run fermati dal watchdog sono incompleti: nessuna affermazione.
+
+## 6. Cosa va nel paper
+- **Tutto confermato:** la frase sul modello elenca la configurazione verificata, cioè letture
+  dell'evidence fallite, crash e riavvio, una o due consegne perse, partizioni, quorum 2, 2 fatti,
+  3 siti, fino a 3 eventi, e i limiti restanti (la finestra D19; la concorrenza solo se verificata
+  in sez. 4).
+- **Controesempio:** ci si ferma. Se riguarda il codice, `service.py` cambia e i blocchi sul nodo
+  vanno rifatti (decisione dell'utente).
+- **Incompleti:** si dichiarano tali, e la configurazione verificata nel paper si ferma all'ultimo
+  run completo.
+
+## 7. Risultati (eseguiti)
+
+Esecuzione del 2026-10-12, 14:02-14:42 UTC (i `Progress` nei log sono in ora locale, CEST = UTC+2), worktree `DIB_tnsm_v8`
+(branch `tnsm-fsm-v8`, da 7a4a9d5), `run_tlc.sh <cfg> 28 8`, un TLC alla volta, jar sha256 `237332bd…`, Java OpenJDK 17.0.19.
+Log in `experiments_tnsm/tla_fsm/v8/logs/<cfg>.log`, riga per run in `logs_v8.out`, manifest (hash di modello e cfg) in `logs/manifest.tsv`.
+Righe citate: "r. A/B/C" = riga di `No error has been found` / `distinct states found` / `depth` (o `is violated`) del log.
+
+| cfg | Previsione | Esito | Stati distinti | Profondità | Durata | Log (righe) |
+|---|---|---|---|---|---|---|
+| `H0_regress` | nessuna violazione, esattamente 19.415.620 stati | **confermata** | 19.415.620 | 42 | 6 min 00 s | r. 31, 36, 37 |
+| `Xm1_noD1` | `StagingIsTransient` violato | **confermata** (violazione prevista) | 179 (al momento della violazione) | 6 | 15 s | r. 25, 177, 178 |
+| `Xm2_failnoclean` | `StagingIsTransient` violato | **confermata** (violazione prevista) | 229 | 7 | 15 s | r. 25, 287, 288 |
+| `X1_e2_fc` | nessuna violazione di ALL2 | **confermata** | 7.370.542 | 38 | 3 min 00 s | r. 28, 33, 34 |
+| `X5_live_e1` | `ConvergedDecisionsEventually` ed `ExposureEnds` valgono | **confermata** | 1.087.027 | 25 | 3 min 45 s | r. 36, 41, 42 |
+| `X3_e2_loss_fc` | nessuna violazione di SLOSS | **confermata** | 19.485.890 | 39 | 7 min 15 s | r. 32, 37, 38 |
+| `X2_e2_p_fc` | nessuna violazione di ALL2 | **confermata** | 54.623.202 | 42 | 19 min 31 s | r. 45, 50, 51 |
+| `X4_e3_fc` | nessuna violazione di ALL3 | **FALSIFICATA** | 88.535 (al momento della violazione) | 10 | 15 s | r. 25 (`DisputeSuspendsAtReachableSitesV3 is violated`), 500, 501 |
+| `Q1_quorum2_e3`, `Q2_quorum2_e2_p`, `L2a_loss2`, `L2b_loss2_p`, `F2_two_facts`, `S3_three_sites`, `S2e3_both_split` | — | **NON ESEGUITE**: regola di arresto (sez. 5), la sequenza si è fermata a `X4_e3_fc` | — | — | — | `logs_v8.out`: `STOP: X4_e3_fc found a counterexample` |
+
+Risorse: picco di RAM usata a livello di sistema 24,6 GB (campionata ogni 60 s, include altri processi; heap TLC 28 GB su 64 GB, mai OOM);
+disco libero minimo osservato 33 GB (soglia del watchdog 8 GB, mai scattato). Nessun run incompleto: tutti terminati con `exit=0` o `exit=12` (violazione).
+
+### 7.1 Violazioni previste (non vacuità delle due mutazioni)
+- **`Xm1_noD1`** (riavvio senza pulizia D1), `StagingIsTransient`: (1) `QueryReserve(s1,f1)` → `sstate[s1][f1]="Staging"` con operazione pendente; (2) `Crash(s1)` →
+  l'operazione pendente si perde, la riga resta `Staging`. Violato: `Staging` senza query pendente (r. 98-169).
+- **`Xm2_failnoclean`** (lettura fallita che lascia la riserva), `StagingIsTransient`: (1) `Dispute(r1,f1)`; (2) `Dispute(r2,f1)` (revoca, `EvRevoke`);
+  (3) `QueryReserve(s1,f1)` → `Staging`; (4) `QueryRead2Fail(s1)` senza pulizia → la riga resta `Staging`, operazione terminata (r. 77-276).
+Le due mutazioni sono quindi non vacue: i due rami di D1 (`Crash`) e della pulizia nella lettura fallita (`QueryRead2Fail`) sono necessari a `StagingIsTransient`.
+
+### 7.2 Falsificazione: `X4_e3_fc` (3 eventi, letture fallite e crash, nessuna perdita né partizione, ALL3)
+Proprietà violata: `DisputeSuspendsAtReachableSitesV3` (`DIB_AE_NA.tla:894-898`: con stato dell'evidence ≠ Active e nessuna operazione in volo, un sito
+raggiungibile deve essere `Absent`/`Disputed`/`Revoked`, oppure `Staging`/`MonitorOnly` **con una query pendente**). Traccia minima (9 stati, `lastOp` fra parentesi):
+
+| # | Azione | Evidence | Sito s1 per f1 | `lastApplied[s1]` |
+|---|---|---|---|---|
+| 1 | Init | Active, seq 0 | Absent | 0 |
+| 2 | `Dispute(r1,f1)` (`EvDispute`, seq 1) | Disputed | Absent | 0 |
+| 3 | `Restore(f1)` (`EvRestore`, seq 2) | Active | Absent | 0 |
+| 4 | `Dispute(r1,f1)` (`EvDispute`, seq 3) | Disputed | Absent | 0 |
+| 5 | `Deliver` a s1 del seq 1 dispute (`Deliver`) | Disputed | Absent | 0 |
+| 6 | `Deliver` a s1 del seq 3 dispute (`Deliver`) | Disputed | Absent | 0 |
+| 7 | `QueryReserve(s1,f1)` (`QueryReserve`) | Disputed | **Staging**, query pendente `qreserved` | 0 |
+| 8 | `Deliver` a s1 del **seq 2 restore** (`Deliver`), arrivato dopo il seq 3 | Disputed | **MonitorOnly**, query ancora pendente | **2** |
+| 9 | `QueryRead2Fail(s1)` (`QueryFail`, `failCount=1`) | Disputed | **MonitorOnly**, **nessuna query pendente** | 2 |
+
+Lettura: i due `dispute` (seq 1 e 3) consegnati a un sito dove il fatto è `Absent` non cambiano lo stato né `lastApplied` (resta 0); il `restore` (seq 2),
+vecchio rispetto al seq 3, viene consegnato dopo e, con la query in corso, porta la riga a `MonitorOnly` con `lastApplied=2`. Il fallimento della seconda lettura chiude
+l'operazione ma, avendo la riga già lasciato `Staging`, non la cancella: resta un `MonitorOnly` con l'evidence `Disputed`, senza query che lo giustifichi.
+`MonitorOnly` non è esportabile (commento a `DIB_AE_NA.tla:893`): il controesempio è a `V3` e **non** dice che un fatto disputato venga esportato; non ho verificato
+(non è nel modello) come il codice si comporti nello stesso scenario e non propongo correzioni.
+Con 3 eventi senza fallimenti né crash `V3` regge (audit 92), quindi il controesempio dipende dalla sola azione `QueryRead2Fail` di v8 (`F1`).
+Decisione per l'utente: se `V3` va letta come invariante da correggere (modello o codice) oppure ridotta (ammettere `MonitorOnly` anche dopo una lettura fallita), e se
+`lastApplied` non avanzato per un `dispute` su fatto `Absent` sia voluto. Nessuna correzione proposta in questa sede.
+
+### 7.3 NON VERIFICATO
+- Le 7 configurazioni non eseguite (quorum 2 con 3 eventi e con partizioni; `MaxLoss 2` senza e con partizioni; due fatti; tre siti; due siti divisi con 3 eventi): fermate dalla regola di arresto. Nessuna affermazione su di esse.
+- Tutto ciò che richiede 3 eventi con letture fallite e crash: il controesempio di `X4` vale per ALL3 (V3); `X1`, `X2`, `X3`, `X5` reggono solo con **2 eventi** (X5: 1 evento).
+- Estensione 7 (richieste pendenti multiple per sito): non iniziata.
+- Lettura del controesempio sul codice (`service.py`): non fatta.
+
+## 8. Addendum (2026-10-12, dopo il controesempio di `X4_e3_fc`; committato prima di ogni nuovo run)
+**Decisione dell'utente:** correggere il caso `X4` nel modo migliore per il paper, poi rieseguire e riprendere le 7 configurazioni fermate.
+
+### 8.1 Il controesempio sul codice (`service.py` sha256 `0501b383…`, sola lettura)
+Ogni passo della traccia di sez. 7.2 corrisponde al codice, non è un artefatto del modello:
+- un `dispute` consegnato a un sito senza riga locale è scartato e `last_applied_seq` non avanza (`service.py:476-479`);
+- un `restore` con seq maggiore dell'ultimo applicato aggiorna **qualunque** riga, anche `staging` (`:480-481`, `:495-498`);
+- la seconda lettura fallita di `/query` cancella solo le righe ancora `staging` (audit 110 sez. 1; modello `QueryRead2Fail`, `DIB_AE_NA.tla:544-554`): una riga già `monitor-only` resta.
+Esito: un sito `monitor-only` mentre l'evidence è `Disputed`, senza query pendente, con `last_applied_seq < seq` dell'evidence.
+- **Esposizione:** nessuna. `monitor-only` non è esportabile e `/commit` richiede evidence `Active` (`:522-523`).
+- **Riparazione:** l'anti-entropia riapplica lo stato corrente se `item["seq"] > last` (`_repair_from_snapshot`, `:582-` ; nel modello `rc` con `aseq`).
+- **Conclusione:** V3 (`DIB_AE_NA.tla:894-898`) era troppo forte: ignora la finestra "sito indietro rispetto all'evidence", che a 2 eventi non si raggiunge (servono dispute scartato, restore tardivo e dispute successivo = 3 eventi).
+
+### 8.2 Scelta: raffinare la proprietà, non il codice
+Il codice non cambia (cambiarlo rifarebbe i blocchi sul nodo, sez. 6; nessuna esposizione da evitare). Nuova proprietà **V4** (`experiments_tnsm/tla_fsm/v8b/DIB_AE_NA.tla`),
+= V3 più la clausola `sstate[t][f] = "MonitorOnly" ∧ lastApplied[t][f] < eseq[f]` ("sito indietro, riparabile"). Il modello (azioni, stato, VIEW) **non cambia**:
+`diff` contro v8 = solo la definizione aggiunta (11 righe); SANY senza errori. Il modello originale resta in `v8/`.
+Per il paper, la proprietà vera è l'insieme: **sicurezza** (V4 + `ExportSafeAtReachableSites` + `I1_CommitOnUndisputedEvidence`: durante un episodio un sito non esporta e non può
+confermare) **più convergenza** (`ConvergedDecisionsEventually`, verificata solo con 1 evento + fallimenti e crash in `X5`, e con 2 eventi + 1 perdita in `Lv_e2`, audit 93:
+**non** con 3 eventi + fallimenti: dichiarato come limite, sez. 8.5).
+
+### 8.3 Configurazioni (in `v8b/`, hash del modello diverso da `v8/`)
+Un TLC alla volta, `-Xmx28g`, 8 worker, ordine:
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `H0_regress` (v8b) | guardia: la definizione aggiunta non cambia lo spazio: nessuna violazione di ALL2 e **19.415.620** stati | altro conteggio o violazione |
+| `X4a_V4` (= X4 con V3→V4) | nessuna violazione di nessuna proprietà elencata | qualunque violazione |
+| `Xm3_nofinish` (X4a + `MutNoFinishApply`) | violazione (V4 o altra elencata) | nessuna violazione: V4 vacua contro questo mutante |
+| `Xm4_noseq` (X4a + `MutNoSeqGuard`) | violazione di una proprietà elencata | nessuna violazione: i limiti non esercitano la guardia |
+Poi, in `v8/` con il modello originale (nessuna modifica; `Q1` e `S2e3` hanno `MaxFails = MaxCrashes = 0`, quindi non possono produrre la traccia di X4 e **restano con V3**):
+`Q1_quorum2_e3`, `Q2_quorum2_e2_p`, `L2a_loss2`, `L2b_loss2_p`, `F2_two_facts`, `S3_three_sites`, `S2e3_both_split`, con le ipotesi della sez. 3 invariate.
+Regole di arresto invariate (sez. 5): un controesempio ferma la sequenza e si riporta senza proporre codice. Se `X4a_V4` viene violata, la sequenza si ferma lì.
+
+### 8.4 Cosa va nel paper
+- `X4a_V4` confermata: "con 3 eventi, un fallimento e un crash, durante un episodio nessun sito esporta o può confermare, e un sito resta fermo in `monitor-only` solo se è indietro rispetto all'evidence (riparato dall'anti-entropia)". Si dichiara che V3 nella sua forma stretta **non** vale (traccia di sez. 7.2).
+- Violata: ci si ferma.
+
+### 8.5 Limiti già noti di questa lettura
+La riparazione di quel caso con 3 eventi + fallimenti è coperta dalla sola convergenza a 1 e 2 eventi. Una verifica di vivacità `SpecL` con 3 eventi e F1 C1 non è nel piano (costo; `Lv_e2` ha richiesto 2 h 08 min a 2 eventi): da decidere.
+
+## 9. Addendum 8.6 (2026-10-12): esiti parziali di v8b, V4 vacua contro `MutNoFinishApply`, V5; committato prima di ogni nuovo run
+
+### 9.1 Esiti ottenuti (v8b, modello v8 + definizione V4, `run_tlc.sh <cfg> 28 8`)
+| cfg | Previsione | Esito | Stati distinti | Prof. | Durata | Log (righe) |
+|---|---|---|---|---|---|---|
+| `H0_regress` (v8b) | nessuna violazione, 19.415.620 stati | **confermata** | 19.415.620 | 42 | ~6 min | `v8b/logs/H0_regress.log` (stessa riga finale del run v8; guardia: la definizione aggiunta non cambia lo spazio) |
+| `X4a_V4` | nessuna violazione | **confermata** | 154.363.430 | 43 | 1 h 06 min | r. 95, 100, 101, 103 |
+| `Xm3_nofinish` (V4) | violazione | **INCOMPLETO**: fermato da me a 27.075.405 stati distinti dopo ~8,5 min (`exit=143`), nessuna affermazione | — | — | — | `v8b/logs/Xm3_nofinish.log` (parziale) |
+| `Xm4_noseq` (V4) | violazione | **non eseguito** | — | — | — | — |
+
+### 9.2 Perché ho fermato `Xm3` e cosa è emerso
+`MutNoFinishApply` (`DIB_AE_NA.tla:461`) lascia la riga mossa da un fan-out, senza applicare la lettura. In audit 92 l'unica proprietà che violava era V3
+(`e3m_nofinishapply_noparts.log`, 113.182 stati, profondità 11). Il suo stato violante (`MonitorOnly`, evidence non Active, nessuna query pendente) ha `lastApplied < eseq`: è **esattamente** quello che
+la clausola aggiunta in V4 ammette. Le altre proprietà non lo vedono (`MonitorOnly` non è esportabile, `/commit` richiede evidence `Active`, `service.py:522-523`; l'anti-entropia ripara, `:582`).
+Quindi **V4 è vacua contro quel mutante per costruzione**: con V4 la correzione "la chiusura di `/query` applica la propria lettura" non risulta più necessaria per la sicurezza. La frase del paper
+"ognuna delle parti è necessaria" resta vera per V3 senza fallimenti (audit 92, `MaxFails = MaxCrashes = 0`), non per V4.
+Errore mio di pre-registrazione: non avevo previsto questo effetto di V4 sulla non vacuità.
+
+### 9.3 Nuova proprietà V5 (`v8b/DIB_AE_NA.tla`, definizione aggiunta; azioni e stato invariati)
+V5 = V3 più la clausola "sito indietro" **solo se** `failCount + crashCount > 0`. Senza fallimenti né crash V5 coincide con V3 (le parti restano necessarie); dopo un fallimento o un crash ammette
+il solo stato che quel fallimento può produrre (traccia di sez. 7.2). V4 e le cfg `X4a_V4`, `Xm3_nofinish`, `Xm4_noseq` restano come storia, superate da questa sezione.
+
+### 9.4 Configurazioni (nuove, in `v8b/`, un TLC alla volta, `-Xmx28g`, 8 worker)
+| cfg | Ipotesi | Falsificata se |
+|---|---|---|
+| `Xm3b_nofinish_V5` | `MutNoFinishApply` sui limiti di X4: violazione di V5 (o di altra elencata) da una traccia **senza fallimenti** | nessuna violazione: V5 vacua contro il mutante |
+| `Xm4b_noseq_V5` | `MutNoSeqGuard`: violazione di una proprietà elencata | nessuna violazione |
+| `X4b_V5` | limiti di X4 (e3, F1, C1, senza partizioni né perdite) con V5: nessuna violazione (la traccia di 7.2 ha `failCount = 1`) | qualunque violazione |
+Poi, in `v8/` con il modello originale, invariate: `Q1_quorum2_e3`, `Q2_quorum2_e2_p`, `L2a_loss2`, `L2b_loss2_p`, `F2_two_facts`, `S3_three_sites`, `S2e3_both_split`.
+`X4b_V5` (più forte) include `X4a_V4`. Stima `X4b_V5`: ~1 h 10 min come `X4a_V4`. Regole di arresto invariate.
+**Stato: non lanciato, su richiesta dell'utente (ripartenza al suo via).** SANY su V5 non ancora eseguito: da fare prima del lancio.
+
+### 9.5 Cosa va nel paper (provvisorio)
+- `X4b_V5` e `Xm3b` come previsto: "con fallimenti e crash, durante un episodio nessun sito esporta o può confermare, e un sito resta indietro solo dopo un fallimento ed è riparato dall'anti-entropia; senza fallimenti vale la forma stretta con le cinque parti necessarie".
+- `Xm3b` non viola: si dichiara che con fallimenti la necessità della quarta parte non è dimostrata (limite).
+
+## 10. Risultati (eseguiti) dell'addendum 8.6 e delle 7 configurazioni riprese
+Esecuzione 2026-10-12 15:36 UTC → 2026-10-13 07:11 UTC (orari del manifest), un TLC alla volta, `run_tlc.sh <cfg> 28 8`, jar sha256 `237332bd…`, OpenJDK 17.0.19.
+Modello v8b per le prime tre righe (hash diverso da v8: solo le definizioni V4 e V5 aggiunte); modello originale v8 per le altre 7. Log in `v8b/logs/` e `v8/logs/`, righe per run in
+`logs_v8b_resume2.out`, manifest in `logs/manifest.tsv` di ciascuna cartella. SANY pulito su V5 prima del lancio. La sequenza è stata lanciata dopo il via esplicito dell'utente, a validazione audit 95 conclusa.
+
+| cfg | Previsione | Esito | Stati distinti | Prof. | Durata | Log (righe: esito / conteggio / profondità) |
+|---|---|---|---|---|---|---|
+| `Xm3b_nofinish_V5` | violazione di V5 (o altra) senza fallimenti | **confermata** (V5 violata) | 240.996 | 12 | 5 s | `v8b/logs/Xm3b_nofinish_V5.log` r. 26 / 554 / 555 |
+| `Xm4b_noseq_V5` | violazione di una proprietà elencata | **confermata** (`LastAppliedMonotone`, proprietà d'azione) | 626 | 6 | <1 s | r. 25 / 337 / 338 |
+| `X4b_V5` | nessuna violazione | **confermata** | 154.363.430 | 43 | 1 h 07 min | r. 97 / 102 / 103 |
+| `Q1_quorum2_e3` | nessuna violazione di ALL3 | **confermata** | 129.575.354 | 45 | 49 min 47 s | r. 77 / 82 / 83 |
+| `Q2_quorum2_e2_p` | nessuna violazione di ALL2 | **confermata** | 50.611.560 | 43 | 16 min 18 s | r. 42 / 47 / 48 |
+| `L2a_loss2` | nessuna violazione di SLOSS | **confermata** | 7.270.016 | 40 | 2 min 25 s | r. 28 / 33 / 34 |
+| `L2b_loss2_p` | nessuna violazione di SLOSS | **confermata** | 45.837.116 | 43 | 14 min 10 s | r. 40 / 45 / 46 |
+| `F2_two_facts` | nessuna violazione di ALL2 | **confermata** | 148.251.876 | 47 | 1 h 03 min | r. 93 / 98 / 99 |
+| `S3_three_sites` | nessuna violazione di ALL2 | **confermata** | 712.287.745 | 50 | 6 h 06 min | r. 415 / 420 / 421 |
+| `S2e3_both_split` | nessuna violazione di ALL3 | **confermata** | 303.567.729 | 54 | 1 h 59 min | r. 151 / 156 / 157 |
+(`X4a_V4`, 154.363.430 stati, profondità 43, 1 h 06 min, è in sez. 9.1; `X4b_V5` ne è la forma più stretta e dà lo stesso conteggio.) `Q1_quorum2_e3` e `S2e3_both_split` usano V3
+(`MaxFails = MaxCrashes = 0`: V5 coincide con V3). Con le perdite (`L2a`, `L2b`) ExportSafe/V2/V3 sono esclusi apposta (finestra D19, audit 93 sez. 1).
+
+**Risorse:** picco di RAM usata a livello di sistema 28,5 GB (campioni ogni 60 s, include altri processi; heap TLC 28 GB, mai OOM); disco libero minimo 32 GB (osservato prima della pulizia del disco da parte dell'utente; poi ≥ 145 GB), watchdog (8 GB) mai scattato.
+`S3_three_sites` è il run più grande finora (712 milioni di stati) e ha chiuso entro 28 GB: non è servito il tetto a 40 GB. Nessun run incompleto nella sequenza finale.
+
+### 10.1 Esito complessivo della v8 (sez. 7, 9 e 10)
+Verificato dal modello v8 (letture fallite di `/query` e `/commit`, giri di reconcile abbandonati, crash e riavvio del sito con la pulizia D1):
+- sicurezza con **fallimenti e crash** a 2 eventi (`X1`, `X2` con partizioni, `X3` con una perdita) e a 3 eventi (`X4b_V5`: V5 + `ExportSafeAtReachableSites` + `I1_CommitOnUndisputedEvidence`, 154 milioni di stati);
+- convergenza e fine dell'esposizione con fallimenti e crash a 1 evento (`X5`);
+- quorum 2 con la correzione (`Q1` a 3 eventi, `Q2` con partizioni), fino a 2 perdite (`L2a`, `L2b`), 2 fatti (`F2`), 3 siti (`S3`), entrambi i siti divisi a 3 eventi (`S2e3`).
+Non vacuità: `Xm1`, `Xm2` (mutazioni di v8), `Xm3b` e `Xm4b` violano la proprietà prevista. La forma stretta V3 **non vale** con letture fallite (traccia di sez. 7.2); vale la forma V5 (sez. 9.3).
+
+### 10.2 NON VERIFICATO
+- **Concorrenza** (più richieste pendenti per sito, estensione 7): non iniziata; richiede un nuovo addendum pre-registrato prima di qualunque run.
+- **Convergenza a 3 eventi con fallimenti:** la riparazione del caso di sez. 7.2 è coperta dalla vivacità solo a 1 evento con fallimenti e crash (`X5`) e a 2 eventi con una perdita (`Lv_e2`, audit 93).
+- **Sicurezza con perdite e V2/V3/ExportSafe:** esclusi per la finestra D19 (sez. 3, audit 93).
+- **`MaxFails = 1` e `MaxCrashes = 1`:** nessuna verifica con due fallimenti o due crash.
+- **Comportamento del codice** oltre alle righe di `service.py` lette per la traccia di 7.2 (`:476-481`, `:522-523`, `:582`).
+- Le 15 configurazioni originali sono tutte eseguite o sostituite (`X4_e3_fc` falsificata, sostituita da `X4a_V4`/`X4b_V5`); tutte sul modello a 2 siti salvo `S3_three_sites`.
+
+### 10.3 Cosa va nel paper (decisione dell'utente)
+Esito "tutto confermato" con la riserva di sez. 8.4: la frase sul modello elenca letture fallite, crash e riavvio, una o due consegne perse, partizioni, quorum 2, 2 fatti, 3 siti, fino a 3 eventi. Si dichiara che
+la sospensione stretta (V3) vale senza fallimenti e che con fallimenti vale la forma V5 (sito indietro riparato dall'anti-entropia). Limiti restanti: finestra D19, concorrenza non verificata, convergenza a 3 eventi con fallimenti non verificata.
+
+## 11. Decisioni dell'utente (2026-10-13)
+Limiti restanti dichiarati nel paper, senza ulteriori verifiche: la **concorrenza** (estensione 7) non è modellata e non si pre-registra un addendum; la **convergenza a 3 eventi con fallimenti** non è verificata
+(nessuna `SpecL` a 3 eventi). Resta quanto di sez. 10.2 (due fallimenti o due crash; finestra D19). L'estensione 7 si riapre solo su richiesta esplicita (o di un revisore).
