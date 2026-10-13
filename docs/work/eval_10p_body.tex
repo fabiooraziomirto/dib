@@ -1,0 +1,71 @@
+\section{Evaluation}
+\label{sec:eval}
+We assess whether DIB preserves local authorization during withdrawal and recovery, how fast both are under delay and loss, and what candidate selection achieves on captured traffic. Timing experiments run ten site services and an evidence service in Docker on one 16-vCPU KVM node, with \texttt{tc netem} on every container; hypotheses were fixed before the runs.
+
+\subsection{Authorization and Recovery}
+\label{sec:lifecycle-results}
+The TLA+ model represents three sites and two facts, distinguishing the dispute opener, confirmer, and bystander. Exhaustive exploration of 4,311,852 reachable states finds no violation of I1--I3 or the export checks: only local commits create fresh authorization, export requires it, and disputes invalidate it without affecting unrelated facts. A distributed model adds disconnection at one of three sites, with local revoke and restore enabled while the site is unreachable (48,960 states, no violation). A further model of the implemented non-atomic query and commit protocol, with two sites and one fact, explores 402,633,492 states with up to three evidence events and network partitions without violations, and removing any one of its five corrections produces a violation. \textbf{[PLACEHOLDER: site crashes and failed reads, model v8, other session.]} These checks are exhaustive only within their finite configurations; they do not cover gateway timing or distributed linearizability.
+
+To identify which safeguards prevent failures, we remove six lifecycle guards in separate model variants, M1--M6. Each produces a distinct authorization failure involving grant handling, site confinement, revocation origin, or export control (Table~\ref{tab:tla}). A separate model of the mTLS authorization rules, extracted from the service code, checks role and site confinement; its ten base configurations find no counterexample and six mutants each violate the property they remove. \textbf{[PLACEHOLDER: scope on revocation timing and multi-SAN certificates, to confirm.]}
+
+@@TABLE_TLA@@
+
+The registry tests exercise these rules through one- and two-dispute episodes, repeated restoration, and local vetoes recorded before or during withdrawal. Among three restoration policies, only DIB prevents export of a disputed fact without a new commit while preserving every local veto: reusing approvals exports the fact at 12 of 18 non-vetoing sites, and resetting all records to review erases all six vetoes. Repeated score changes leave decision states and MUD export unchanged. All ten OpenWrt/osMUD gateway cases apply the exported policies as expected: MonitorOnly produces no rule, the first dispute removes the nftables rules, and access resumes only after a global restore and a fresh commit.
+
+\subsection{Recovery After Disconnection}
+\label{sec:scalability-results}
+When a site becomes unreachable, the service retains only the latest pending target for each fact and applies it on reconnection through the same idempotent path, using a monotonic per-fact sequence number; a restore target therefore invalidates an old Active approval even if the preceding dispute never reached the site. We kill one site, complete $k$ withdrawal-and-restore episodes at the others, restart it, and measure the time until it converges, for $k=1$, 10, and 50 (50 at \emph{lan} only), reconciliation interval $T\in\{5,15\}$~s, with and without mutual TLS, in three network profiles (\emph{lan}, \emph{wan}: 80~ms and 1\% loss per direction, \emph{degraded}: 200~ms and 5\%). Each of the 28 cells has 30 trials (two series of 10 and 20 trials with different seeds, pooled). The pre-registered bound is $1.5+0.1T+\max(5,D_{run})$~s, 7.0--8.6~s.
+
+The median convergence is 0.6--1.4~s at \emph{lan}, including 50 missed episodes (0.7--1.4~s), 1.4--2.1~s at \emph{wan}, and 2.4--4.1~s at \emph{degraded}; it stays below the bound in all 28 cells. All 834 completed trials (840 planned; six excluded for a refused setup request) end with every site in the MonitorOnly state and no transient record. At \emph{degraded}, 3 of 234 trials exceed the bound (by 0.1 to 4.0~s); in the one we traced, with mutual TLS, the first reconciliation attempt timed out in the TLS handshake (5~s) and the second succeeded. The reconciliation call itself takes 71~ms on average and at most 105~ms.
+
+\subsection{Withdrawal Under Emulated Network Delay and Loss}
+\label{sec:netem-results}
+A generator on the node sends a dispute and timestamps each site's \texttt{/apply\_fanout} log line with the clock that stamped the dispute, so the withdrawal time of the last site excludes the response path. Each cell crosses sequential and concurrent fan-out (1 or 10 sites at a time) with the presence (C) or absence (D) of mutual TLS; the \emph{degraded} profile ($R=400$~ms round trip, 5\% loss per direction) has two replicas of 50 episodes per cell, run on a deployment whose containers were verified to execute the evaluated service.
+
+We explain the delays with a delivery-cost model that has no fitted parameter: an attempt is a TCP handshake, with mutual TLS a TLS round trip and the client certificate flight, and a two-segment request; a lost segment is retransmitted after $R+\max(2R,0.2)$~s, which for $R\ge0.2$~s exceeds the 1~s per-phase timeout, so one loss fails the attempt; the periodic reconciliation then brings each site to the disputed state. The model was checked out of sample in a network-namespace testbed (six conditions, within 1.7 points) and on the deployment (Table~\ref{tab:netem}). Without mutual TLS it predicts the share of late deliveries per site within 3.4 points in five conditions (two \emph{degraded} replicas and four further conditions with $R=0.12$--0.30~s and loss 4--8\%) and the median of the last site within 9\% under sequential fan-out. With mutual TLS it is a lower estimate: the measured share exceeds it by 3--7 points in four of five conditions. In the testbed, sequential fan-out took 3.1--7.1 times the median withdrawal time of concurrent fan-out, and every site reached the disputed state in 3,280 episodes with loss; the service therefore fans out concurrently by default.
+
+\begin{table}[t]
+\centering
+\caption{Withdrawal at \emph{degraded}: median time of the last site (ms) and share of late deliveries per site, delivery-cost model against two replicas (R1, R2) of 50 episodes. Late: more than 0.75 round trips beyond the lossless time.}
+\label{tab:netem}
+\scriptsize
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Cell & Quantity & Model & R1 & R2 \\
+\midrule
+D, 10 sites & last site (ms) & 2000 & 1621 & 2012 \\
+C, 10 sites & last site (ms) & 2800 & 2823 & 2821 \\
+D, 1 site & last site (ms) & 10600 & 11517 & 10774 \\
+C, 1 site & last site (ms) & 17200 & 17215 & 16701 \\
+D, 10 sites & late share & 0.179 & 0.189 & 0.204 \\
+C, 10 sites & late share & 0.280 & 0.314 & 0.340 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Suspension Policy and Availability}
+\label{sec:suspension-policy}
+With immediate suspension, one member's requests withdraw the disputed facts across ten sites and take exports from the approved ACEs to zero, while the services keep answering; under two-reporter suspension the first report is retained and the second opens the dispute, duplicate reports add no votes, and local vetoes recorded during withdrawal survive restoration with fresh commits required for export. \textbf{[PLACEHOLDER: withdrawal-time and read-throughput figures to remeasure on the final service.]}
+
+\subsection{Candidate Selection on Captured Traffic}
+\label{sec:utility-results}
+In UNSW, only 55 of the 564 reference ACEs across 28 profiles remain observable after address filtering. DIB stages 36 of the observable ACEs, retaining 65.5\% of observable behavior. Pooling helps at cold start (macro F1 $0.112\pm0.002$ for ten pseudo-sites after 30 days, against $0.022\pm0.005$ for one), but this reflects a larger sample, not agreement across independent networks: the pseudo-sites are shards of one capture.
+
+\subsubsection{Candidate Review Volume}
+\label{sec:workload-results}
+The independent Mon(IoT)r US and UK captures share 26 device types. Of 24,886 distinct pooled facts, 24,046 occur at only one site and 840 at both, so the two-site quorum produces the largest reduction; the score threshold narrows the queue to 697 facts and endpoint eligibility to 462: 98.1\% fewer than pooling and 33.7\% fewer than quorum with scoring.
+
+\subsubsection{Proposals for a New Receiving Site}
+\label{sec:loo-results}
+A new receiving site must not use its own observations to select proposals, so we exclude the receiver from reporter sets and counts. YourThings (YT)~\cite{alrawi2019yourthings} supplies a third deployment, and a fixed six-entry label mapping aligns the device types present in all three. Each receiver uses the other two deployments as sources (Table~\ref{tab:threelab}); precision, recall, and F1 measure macro per-device agreement with receiver-observed endpoints.
+
+@@TABLE_THREELAB@@
+
+DIB reduces candidate counts by 96.4\% at US, 94.4\% at UK, and 92.3\% at YT and raises precision to 0.75/0.78/0.29 from 0.32/0.28/0.06 for the pooled union. The reduction trades coverage for review effort: the union contains more receiver-observed endpoints and has the higher macro F1 at US and UK, but needs 5.46/4.31/28.31 inspected entries per receiver-observed endpoint, against 1.03/1.16/2.89 for DIB. Admission and ordering serve different purposes: ranking limits review to a budget, whereas admission excludes adversary-only evidence under the raw-breadth Criterion~\ref{crit:poison-bound}; we recommend threshold-then-rank. These comparisons describe filter behavior on the selected captures; only six device types are common to the three deployments and the 95\% F1 intervals overlap across receivers.
+
+\subsection{Adversarial Observations and Fabricated Evidence}
+\label{sec:security-results}
+We inject captured malicious traffic and fabricated reports into the ten UNSW pseudo-sites, whose partition fixes the reporting population and lets us control the raw malicious breadth share $f_s$ of Criterion~\ref{crit:poison-bound}. This does not establish reporter independence in a real consortium; that remains a governance assumption (Sec.~\ref{subsec:trust}). DIB stages none of the 59 captured A1 facts, which pooled union and frequency filtering stage in full. At $f_s=0.30$ the largest score passing quorum is 0.562 over 120 days, below $\theta$, and an exhaustive worst case with raw breadth reaches 0.579, within the bound of 0.58. The guarantee is conditional: it holds up to $f_s=0.30$, and replacing IP literals with resolvable names raises admission from 0/150 to 21/150 configurations; a fabrication at $f_s=0.50$ reaches 0.663 (Sec.~\ref{sec:sensitivity-results} treats identity inflation). \subsubsection{Parameter Sensitivity, Identity Inflation, and Drift}
+\label{sec:sensitivity-results}
+The operating point chosen from the adversarial bound is not the one that maximizes traffic agreement: sweeping $\theta\in[0.50,0.80]$ and $\alpha\in[0.4,0.9]$ on Mon(IoT)r yields a best macro F1 of 0.071, against 0.054 at the chosen setting. Identity inflation deliberately violates the malicious-share assumption: raw counting admits the fabrication in 45 of 48 representative configurations, trust weighting and clustering reject them, and padding fabricated identities with real endpoints defeats clustering at the extreme (score 0.905). In a synthetic rollout over 162 device-type/adoption pairs, 69 pairs enter review by day 120 (median first admission: day seven); distinguishing a rollout from a slow compromise requires operator review.
+
