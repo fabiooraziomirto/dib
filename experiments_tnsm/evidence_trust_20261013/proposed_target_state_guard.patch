@@ -1,0 +1,23 @@
+--- a/code/src/dib/registry/distributed/service.py	2026-10-13 10:27:32.017050490 +0200
++++ b/code/src/dib/registry/distributed/service.py	2026-10-13 11:04:08.864458714 +0200
+@@ -486,6 +486,8 @@
+         except ValueError as exc:   # a 200 whose body is not JSON
+             raise HTTPException(502, "evidence answered with a body that is not JSON") from exc
+ 
++    _EVENT_TARGET = {"dispute": DECISION_DISPUTED, "revoke": DECISION_REVOKED, "restore": DECISION_MONITOR_ONLY}
++
+     def _apply_fanout_row(con, score_id: int, seq: int, event_type: str, target_state: str) -> None:
+         row = con.execute(
+             "SELECT state, origin, last_applied_seq FROM local_decisions WHERE score_id=?", (score_id,)
+@@ -494,6 +496,11 @@
+             # No local record at this site for this fact -- nothing to fan out to.
+             return
+         state, origin, last_seq = row
++        if _EVENT_TARGET.get(event_type) != target_state:
++            # Proposed (audit 124): an event can only move a record to the state its type defines
++            # (Table II); a mismatched target, e.g. restore -> active, is ignored, so no fan-out or
++            # reconcile item can create local authorization.
++            return
+         if seq <= last_seq:
+             return  # already applied (or stale/duplicate) -- idempotent no-op
+         if event_type == "restore" and state == DECISION_REVOKED and origin == ORIGIN_LOCAL:
