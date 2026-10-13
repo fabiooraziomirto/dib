@@ -4,14 +4,14 @@
 
 | Affermazione nel testo | Prova | Audit |
 |---|---|---|
-| Convergenza dopo kill e riavvio: mediana 0,6-4,1 s, 28 celle, 30 prove (834 completate), k fino a 50 a `lan`, 3 su 234 oltre il limite a `degraded` | `final_B2k_20261012` + `final_B2k_b_20261012` | 99 (pre-reg), 106, 110 |
-| Causa della coda con mTLS (timeout dell'handshake al primo tentativo di riconciliazione, `service.py:699`) | log del sito 3 nella seconda serie | 110 |
+| Convergenza dopo kill e riavvio: mediana 0,6-4,1 s, 28 celle, 30 prove (834 completate), k fino a 50 a `lan`, 3 su 234 oltre il limite a `degraded` | `final_B2k_20261012` + `final_B2k_b_20261012` | 99 (pre-reg), 106, 115 |
+| Causa della coda con mTLS (timeout dell'handshake al primo tentativo di riconciliazione, `service.py:699`) | log del sito 3 nella seconda serie | 115 |
 | Ritiro a `degraded`, due repliche del codice finale (tabella VII) | `final_R1e_20261012`, `final_R1f_20261012` | 104 (pre-reg), 105, 108 |
 | Modello senza mTLS entro 3,4 punti in cinque condizioni; con mTLS stima per difetto di 3-7 punti | X1-X4 sul deployment | 107 (pre-reg), 109 |
 | Modello verificato fuori campione nel banco netns (sei condizioni, entro 1,7 punti) | `netns_testbed` | 75-82 |
 | Fan-out concorrente 3,1-7,1 volte più veloce; 3 280 episodi con perdita senza siti non riconciliati | banco netns | 79, 81 |
 | TLC: 4 311 852 e 48 960 stati (modello originale); 402 633 492 stati con 3 eventi e partizioni, cinque mutanti | `formal/` (invariato), `tla_fsm` (altra sessione) | 63-68, 92-93 |
-| TLC v8 (letture fallite, giri di reconcile abbandonati, crash/riavvio con pulizia D1): X4b_V5 3 eventi 154 363 430 stati; quorum 2, 2 perdite, 2 fatti, 3 siti (712 287 745 stati), tutti senza violazione; V3 stretta FALSIFICATA con letture fallite (traccia sez. 7.2), vale V5; limiti: concorrenza, convergenza a 3 eventi con fallimenti | `DIB_tnsm_v8` branch `tnsm-fsm-v8`, audit 110 sez. 7-11 (numero in collisione con il mio 110, da rinumerare al merge) | 110 (v8) |
+| TLC v8 (letture fallite, giri di reconcile abbandonati, crash/riavvio con pulizia D1): X4b_V5 3 eventi 154 363 430 stati; quorum 2, 2 perdite, 2 fatti, 3 siti (712 287 745 stati), tutti senza violazione; V3 stretta FALSIFICATA con letture fallite (traccia sez. 7.2), vale V5; limiti: concorrenza, convergenza a 3 eventi con fallimenti | `DIB_tnsm_v8` branch `tnsm-fsm-v8`, audit 110 sez. 7-11 | 110 (v8) |
 | Modello di autorizzazione mTLS: dieci configurazioni senza controesempio, sei mutanti | `tla_authz` (altra sessione) | 111-112 |
 | Resto dell'Evaluation (mutanti M1-M6, ablazione del restore, gateway osMUD, selezione dei candidati, avversari) | invariati rispetto a `main_wip.tex` | v43-import, `results/` |
 

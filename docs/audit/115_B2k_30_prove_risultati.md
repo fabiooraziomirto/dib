@@ -1,4 +1,6 @@
-# Audit 110 — B2-kill sul codice finale, DUE SERIE UNITE (30 prove per cella): verdetti dell'audit 99
+# Audit 115 — B2-kill sul codice finale, DUE SERIE UNITE (30 prove per cella): verdetti dell'audit 99
+
+> Rinumerato: era "audit 110" (commit precedente al merge, anche nei messaggi di commit). Il numero 110 appartiene ora al modello TLA+ v8 (`110_prereg_tlc_meno_limiti.md`).
 
 Pre-registrazione: `docs/audit/99_prereg_B2k_file_finale.md` (addendum 1-3). Prima serie: audit 106 (10 prove per cella, `tree-c898ea8`, seme 20261014, 16:43Z-20:15Z). **Seconda serie** (20 prove per cella, `tree-550afed`: `run.py` con retry del setup di B2k e traccia dei giri di riconciliazione; `service.py` identico `3ffa57ee…`), seme 20261016, 20:16Z → 03:33Z del 13 ottobre, `deploy_b2k_v2.sh`, rc=0, nessun container rimasto. Dati: `experiments_tnsm/final_B2k_b_20261012/` (sha256, 0 differenze, pcap esclusi). Analisi: `analyze_b2k.py` con `pool_cells` (n = 10 + 20), soglie dell'audit 45 invariate.
 

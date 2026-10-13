@@ -39,7 +39,7 @@ def _table_block(t: str, label: str) -> str:
 
 def step2_evaluation(t: str) -> str:
     """Step 2 (page budget, 10 pages all included): replace Evaluation (everything from \\section{Evaluation} to \\section{Discussion}) with work/eval_10p_body.tex,
-    which carries the final-code results (audits 105, 108, 109, 110) and keeps the guard-removal and three-laboratory tables verbatim; drops the restoration-ablation table,
+    which carries the final-code results (audits 105, 108, 109, 115) and keeps the guard-removal and three-laboratory tables verbatim; drops the restoration-ablation table,
     the throughput sweep with the number of sites (old v33 data, not reusable), the registry latency paragraphs and the Pareto figure (all in the artifact)."""
     tla, three = _table_block(t, "tab:tla"), _table_block(t, "tab:threelab")
     body = (Path(__file__).resolve().parent / "eval_10p_body.tex").read_text()
