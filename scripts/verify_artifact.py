@@ -451,6 +451,36 @@ def check_gateway_20261013() -> None:
         check(f"gateway {prof}: median t3 new connections (s)", round(m["d_t3"]["median"], 3), t3, 0.0005)
 
 
+def check_sweep_flood_20261013() -> None:
+    """Site sweep and dispute flood on the evaluated service (audits 123, 127)."""
+    print("\nSite sweep and dispute flood (audits 123, 127; service in this tree)")
+    service = hashlib.sha256((ROOT / "code/src/dib/registry/distributed/service.py").read_bytes()).hexdigest()
+    d = "experiments_tnsm/site_sweep_20261013"
+    for tr in ("http", "mtls"):
+        man = json.loads(text(f"{d}/{tr}/manifest.json"))
+        check(f"sweep {tr}: no fatal error", man.get("fatal"), None)
+        check(f"sweep {tr}: cells", len(man["cells"]), 16)
+        for when in ("containers", "containers_end"):
+            check(f"sweep {tr}: {when} service hash", sorted({c["/app/service.py"] for n in man[when].values() for c in n.values()}), [service])
+        summ = json.loads(text(f"{d}/analysis_{tr}/summary.json"))
+        check(f"sweep {tr}: requests", sum(c["requests"] for c in summ["cells"]), 100000)
+        check(f"sweep {tr}: unexpected errors", sum(c["error"] + c["timeout"] + c["transport_err"] for c in summ["cells"]), {"http": 2, "mtls": 0}[tr])
+        check(f"sweep {tr}: every N>1 vs N=1 ratio CI above 1 at W=50,100", all(r["ci95_lo"] > 1 for r in summ["ratios"]), True)
+    r = {(x["transport"], x["n_sites"], x["n_workers"]): x for x in json.loads(text(f"{d}/analysis_http/summary.json"))["ratios"]}
+    check("sweep http: N=2 vs N=1 at W=100", round(r[("http", 2, 100)]["ratio_vs_n1"], 2), 1.92, 0.005)
+    f = "experiments_tnsm/dispute_flood_20261013"
+    man = json.loads(text(f"{f}/manifest.json"))
+    check("flood: repetitions", len(man["reps"]), 5)
+    check("flood: service in containers", sorted({h for r in man["reps"] for h in r["service_in_containers"]}), [service])
+    check("flood: only HTTP 200 in access logs", sorted({c for r in man["reps"] for v in r["status_codes"].values() for c in v}), ["200"])
+    for i in range(5):
+        s = json.loads(text(f"{f}/rep{i}/dispute_flood_summary.json"))
+        check(f"flood rep{i}: disputes applied", s["attacker"]["disputes_applied"], 100)
+        check(f"flood rep{i}: exports withdrawn at all sites", s["blast_radius"]["exported_aces_per_site_after"], [0] * 10)
+        check(f"flood rep{i}: exports recovered", s["blast_radius"]["exported_aces_per_site_after_recovery"], [100] * 10)
+        check(f"flood rep{i}: recovery requests per fact", s["recovery"]["requests_per_fact"], 11.0)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--with-tests", action="store_true", help="also run the unit suite")
@@ -466,6 +496,7 @@ def main() -> int:
     check_lifecycle_rerun_superseded_3ffa57ee()
     check_lifecycle_rerun_20261013()
     check_gateway_20261013()
+    check_sweep_flood_20261013()
     if args.with_tests:
         run_unit_tests()
 

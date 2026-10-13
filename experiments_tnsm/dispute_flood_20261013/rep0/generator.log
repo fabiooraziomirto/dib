@@ -1,0 +1,84 @@
+[setup] 100 facts Active at 10 sites; exported ACEs/site=[100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+[legit:quiet_baseline] {'phase': 'quiet_baseline', 'ops': 400, 'wall_s': 0.5835, 'throughput_ops_per_s': 685.49, 'p50_ms': 12.53, 'p99_ms': 25.77}
+[legit:under_flood] {'phase': 'under_flood', 'ops': 400, 'wall_s': 1.6408, 'throughput_ops_per_s': 243.78, 'p50_ms': 43.23, 'p99_ms': 89.89}
+[flood] 100/100 disputes applied in 5.25s; exported ACEs/site=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[recovery] 1100 requests in 23.36s; exported ACEs/site=[100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+{
+  "facts": 100,
+  "sites": 10,
+  "setup_requests": 2100,
+  "attacker": {
+    "identities": 1,
+    "threads": 1,
+    "requests": 100,
+    "disputes_applied": 100,
+    "wall_s": 5.2472,
+    "disputes_per_s": 19.06,
+    "mean_dispute_ms": 52.45,
+    "p99_dispute_ms": 75.13,
+    "requests_per_fact_suspended": 1.0,
+    "site_records_suspended": 1000
+  },
+  "blast_radius": {
+    "exported_aces_per_site_before": [
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100
+    ],
+    "exported_aces_per_site_after": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "exported_aces_per_site_after_recovery": [
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100
+    ]
+  },
+  "legitimate_load": {
+    "baseline": {
+      "phase": "quiet_baseline",
+      "ops": 400,
+      "wall_s": 0.5835,
+      "throughput_ops_per_s": 685.49,
+      "p50_ms": 12.53,
+      "p99_ms": 25.77
+    },
+    "under_flood": {
+      "phase": "under_flood",
+      "ops": 400,
+      "wall_s": 1.6408,
+      "throughput_ops_per_s": 243.78,
+      "p50_ms": 43.23,
+      "p99_ms": 89.89
+    }
+  },
+  "recovery": {
+    "requests": 1100,
+    "restore_only_wall_s": 4.8709,
+    "wall_s": 23.3556,
+    "requests_per_fact": 11.0
+  }
+}

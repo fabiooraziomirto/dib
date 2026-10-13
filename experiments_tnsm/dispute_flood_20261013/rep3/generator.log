@@ -1,0 +1,84 @@
+[setup] 100 facts Active at 10 sites; exported ACEs/site=[100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+[legit:quiet_baseline] {'phase': 'quiet_baseline', 'ops': 400, 'wall_s': 0.5916, 'throughput_ops_per_s': 676.19, 'p50_ms': 12.95, 'p99_ms': 26.14}
+[legit:under_flood] {'phase': 'under_flood', 'ops': 400, 'wall_s': 1.6297, 'throughput_ops_per_s': 245.44, 'p50_ms': 40.87, 'p99_ms': 71.49}
+[flood] 100/100 disputes applied in 4.77s; exported ACEs/site=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[recovery] 1100 requests in 24.11s; exported ACEs/site=[100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+{
+  "facts": 100,
+  "sites": 10,
+  "setup_requests": 2100,
+  "attacker": {
+    "identities": 1,
+    "threads": 1,
+    "requests": 100,
+    "disputes_applied": 100,
+    "wall_s": 4.7723,
+    "disputes_per_s": 20.95,
+    "mean_dispute_ms": 47.7,
+    "p99_dispute_ms": 70.16,
+    "requests_per_fact_suspended": 1.0,
+    "site_records_suspended": 1000
+  },
+  "blast_radius": {
+    "exported_aces_per_site_before": [
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100
+    ],
+    "exported_aces_per_site_after": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "exported_aces_per_site_after_recovery": [
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100
+    ]
+  },
+  "legitimate_load": {
+    "baseline": {
+      "phase": "quiet_baseline",
+      "ops": 400,
+      "wall_s": 0.5916,
+      "throughput_ops_per_s": 676.19,
+      "p50_ms": 12.95,
+      "p99_ms": 26.14
+    },
+    "under_flood": {
+      "phase": "under_flood",
+      "ops": 400,
+      "wall_s": 1.6297,
+      "throughput_ops_per_s": 245.44,
+      "p50_ms": 40.87,
+      "p99_ms": 71.49
+    }
+  },
+  "recovery": {
+    "requests": 1100,
+    "restore_only_wall_s": 4.6897,
+    "wall_s": 24.107,
+    "requests_per_fact": 11.0
+  }
+}
