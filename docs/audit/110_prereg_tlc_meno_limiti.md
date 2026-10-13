@@ -301,3 +301,7 @@ Non vacuità: `Xm1`, `Xm2` (mutazioni di v8), `Xm3b` e `Xm4b` violano la proprie
 ### 10.3 Cosa va nel paper (decisione dell'utente)
 Esito "tutto confermato" con la riserva di sez. 8.4: la frase sul modello elenca letture fallite, crash e riavvio, una o due consegne perse, partizioni, quorum 2, 2 fatti, 3 siti, fino a 3 eventi. Si dichiara che
 la sospensione stretta (V3) vale senza fallimenti e che con fallimenti vale la forma V5 (sito indietro riparato dall'anti-entropia). Limiti restanti: finestra D19, concorrenza non verificata, convergenza a 3 eventi con fallimenti non verificata.
+
+## 11. Decisioni dell'utente (2026-10-13)
+Limiti restanti dichiarati nel paper, senza ulteriori verifiche: la **concorrenza** (estensione 7) non è modellata e non si pre-registra un addendum; la **convergenza a 3 eventi con fallimenti** non è verificata
+(nessuna `SpecL` a 3 eventi). Resta quanto di sez. 10.2 (due fallimenti o due crash; finestra D19). L'estensione 7 si riapre solo su richiesta esplicita (o di un revisore).
