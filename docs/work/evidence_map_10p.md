@@ -27,3 +27,7 @@ Tabella di posizionamento, tabella delle configurazioni di scoring, tabella di a
 ## Numeri non rimisurati sul codice finale (da verificare)
 - "riconciliazione 71 ms in media, al massimo 105 ms" (frase dell'abstract e della sezione B): misura sul codice congelato (claims.json).
 - Prove di sospensione e quorum a due segnalatori: campagna API del servizio originale (qualitative nel testo).
+
+## Dopo il merge (tnsm-merged, 2026-10-13)
+- `main_wip.tex` unito con `tnsm-fsm-paper` descrive il prototipo ORIGINALE ("la progettazione corretta non è integrata"); `service.py` finale (commit dc3dd20, hash `3ffa57ee…`) la integra. `main_10p.tex` (build_10p.py, passo 7) dice lo stato finale; **main_wip.tex non è stato modificato** (decisione dell'utente).
+- Tagli per le 10 pagine dopo il merge: frase del caption sul restore a un sito in ritardo (non ricontrollata sul codice finale), frase di conclusione sul modello a livello di protocollo (ripetuta in abstract ed Evaluation), "71 ms/105 ms" e "circa 70 ms" (misurati solo sul prototipo originale), rollout sintetico 162 coppie, "score changes".

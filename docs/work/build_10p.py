@@ -95,6 +95,24 @@ def step3_trims(t: str) -> str:
     old = "(after reconnection, convergence stayed within its bound in every measured cell)"
     assert t.count(old) == 1
     t = t.replace(old, "(after reconnection, the median convergence stayed within its bound in every measured cell)")
+    # step 7 (merge of tnsm-fsm-paper): main_wip describes the ORIGINAL prototype (corrections "remain to be integrated"); the final service.py integrates them
+    # (commit dc3dd20: FQ reservation, FC two-phase commit, FR restore 409, FQ2 outsider confirmation), so the 10-page text states the final state.
+    for old, new in [
+        ("A protocol-level model of the prototype also exposes races between evidence reads and local updates, one of which lets an approval survive a restoration; a corrected design is verified in the model.",
+         "A protocol-level model exposed races between evidence reads and local updates, one of which lets an approval survive a restoration; the corrected design is verified in the model and implemented in the evaluated prototype."),
+        ("These guards hold in the lifecycle models; in the prototype, a commit whose evidence read precedes a whole dispute and restoration episode can still become Active after the restoration (Sec.~\\ref{sec:lifecycle-results}), which a two-phase commit prevents.",
+         "The prototype enforces them with a two-phase commit that re-reads the evidence before a record becomes Active (Sec.~\\ref{sec:lifecycle-results})."),
+        ("a corrected design is verified in the model and remains to be integrated.",
+         "the corrected design is verified in the model and implemented in the evaluated prototype."),
+        # the 70 ms average reconcile time was measured on the original prototype only (evidence_map_10p.md): not claimed for the final code
+        (", reconciles disconnected sites in about 70~ms on average in the evaluated deployment,", ", reconciles disconnected sites within a measured bound after reconnection,"),
+        (", with reconciliation taking about 70~ms on average in the evaluated deployment.", ", with median convergence after reconnection within the pre-registered bound."),
+        # page budget: the caption sentence on restore at a stale site (not re-checked on the final code) and the conclusion sentence (abstract and Evaluation carry it) go
+        (" In the distributed prototype, a site that missed the dispute also applies the restore target from Active or MonitorOnly and ends in MonitorOnly (Sec.~\\ref{sec:scalability-results}).", ""),
+        ("A protocol-level model of the prototype exposed races between evidence reads and local updates, including one that lets an approval survive a restoration; the corrected design is verified in the model and implemented in the evaluated prototype. ", ""),
+    ]:
+        assert t.count(old) == 1, (t.count(old), old[:60])
+        t = t.replace(old, new)
     # step 6a (page budget, v8 text added): cite only XACML for deny-overrides
     old = "policy frameworks~\\cite{xacml3, ponder}"
     assert t.count(old) == 1, t.count(old)
