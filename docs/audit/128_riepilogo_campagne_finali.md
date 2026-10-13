@@ -86,3 +86,8 @@ Da correggere fuori dal paper: `docs/work/evidence_map_10p.md:32` (`3ffa57ee` è
 2. OK per il merge di `tnsm-final-campaigns` in `tnsm-merged` (nessun conflitto previsto: branch lineare da `2f58f8f`).
 3. Decidere se `main_10p_rev.tex` diventa la base del manoscritto (`main_wip (1).tex` non era nel workspace).
 4. Eventuale benchmark con un mix di lifecycle per fatto (commit che cambiano stato): non pre-registrato e non eseguito (audit 127 §2).
+
+## Aggiornamento (dopo "puoi procedere", 13:45 UTC)
+- §7.1–7.3 eseguiti: promozione in `results/` e `claims.json` (audit 129); `main_10p_rev.tex` adottato come base; merge fast-forward di `tnsm-final-campaigns` in `tnsm-merged`.
+- §7.4 eseguito: sweep con mix di lifecycle (audit 130–131). La distribuzione **riduce** il throughput dei cambi di stato (0,15× http, 0,26× mtls a N=10 contro N=1, W=50) e il servizio condiviso è il collo di bottiglia attribuito. A W=100 il servizio supera il timeout di 5 s del client (H-L1 falsificata lì).
+- Verificatore: **558 passed, 0 failed**. Paper (`main_10p_rev.tex`): una frase nella discussione; 10 pagine.

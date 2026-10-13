@@ -310,6 +310,15 @@
       "generator": "experiments_tnsm/site_sweep_20261013/sweep.py; analyze.py",
       "input": "none",
       "audit": "docs/audit/123, 127"
+    },
+    {
+      "id": "site_sweep_lifecycle",
+      "section": "Scalability",
+      "value": "lifecycle mix on service 83d8c99a (every request a commit, dispute or restore): state-change throughput falls with the number of sites (W=50, N=10 vs N=1: 0.15x http, 0.26x mtls) because dispute/restore fan out synchronously; the shared evidence service is the attributed bottleneck at W=10-50; at W=100 some cells exceed the 5 s client timeout",
+      "result": "results/site_sweep_management/lifecycle_http/summary.json, results/site_sweep_management/lifecycle_mtls/summary.json",
+      "generator": "experiments_tnsm/site_sweep_20261013/lifecycle_bench.py; analyze.py",
+      "input": "none",
+      "audit": "docs/audit/130, 131"
     }
   ]
 }

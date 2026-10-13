@@ -475,6 +475,20 @@ def check_sweep_flood_20261013() -> None:
         check(f"sweep {tr}: every N>1 vs N=1 ratio CI above 1 at W=50,100", all(r["ci95_lo"] > 1 for r in summ["ratios"]), True)
     r = {(x["transport"], x["n_sites"], x["n_workers"]): x for x in json.loads(text(f"{d}/analysis_http/summary.json"))["ratios"]}
     check("sweep http: N=2 vs N=1 at W=100", round(r[("http", 2, 100)]["ratio_vs_n1"], 2), 1.92, 0.005)
+    for tr, (ratio, lo_hi) in (("http", (0.15, (0.15, 0.16))), ("mtls", (0.26, (0.25, 0.27)))):
+        man = json.loads(text(f"{d}/lifecycle_{tr}/manifest.json"))
+        check(f"lifecycle sweep {tr}: no fatal error, 16 cells", (man.get("fatal"), len(man["cells"])), (None, 16))
+        check(f"lifecycle sweep {tr}: service hash in containers",
+              sorted({c["/app/service.py"] for k in ("containers", "containers_end") for n in man[k].values() for c in n.values()}), [service])
+        summ = json.loads(text(f"{d}/analysis_lifecycle_{tr}/summary.json"))
+        check(f"lifecycle sweep {tr}: requests", sum(c["requests"] for c in summ["cells"]), 126000)
+        bad = sum(c["rejected_409"] + c["error"] + c["timeout"] + c["transport_err"] for c in summ["cells"])
+        check(f"lifecycle sweep {tr}: failed requests (all at W=100)", bad, {"http": 3215, "mtls": 4}[tr])
+        check(f"lifecycle sweep {tr}: failures only at W=100",
+              all(c["rejected_409"] + c["error"] + c["timeout"] + c["transport_err"] == 0 for c in summ["cells"] if c["n_workers"] != 100), True)
+        r = {(x["n_sites"], x["n_workers"]): x for x in summ["ratios"]}[(10, 50)]
+        check(f"lifecycle sweep {tr}: N=10 vs N=1 at W=50", round(r["ratio_vs_n1"], 2), ratio, 0.005)
+        check(f"lifecycle sweep {tr}: N=10 vs N=1 CI below 1", r["ci95_hi"] < 1, True)
     f = "experiments_tnsm/dispute_flood_20261013"
     man = json.loads(text(f"{f}/manifest.json"))
     check("flood: repetitions", len(man["reps"]), 5)

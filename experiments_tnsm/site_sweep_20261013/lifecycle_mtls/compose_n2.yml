@@ -1,0 +1,79 @@
+services:
+  evidence:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=evidence
+      - DIB_DIST_N_SITES=2
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_FANOUT_CONCURRENCY=2
+      - DIB_DIST_SITE_URL_0=https://site-0:8000
+      - DIB_DIST_SITE_URL_1=https://site-1:8000
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/evidence.crt
+      - DIB_DIST_TLS_KEY=/pki/evidence.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - evidence_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_phase2/lc_mtls:/pki:ro
+    ports:
+      - "18100:8000"
+  site-0:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=0
+      - DIB_DIST_N_SITES=2
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-0.crt
+      - DIB_DIST_TLS_KEY=/pki/site-0.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_0_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_phase2/lc_mtls:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18110:8000"
+  site-1:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=1
+      - DIB_DIST_N_SITES=2
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-1.crt
+      - DIB_DIST_TLS_KEY=/pki/site-1.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_1_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_phase2/lc_mtls:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18111:8000"
+volumes:
+  evidence_data:
+  site_0_data:
+  site_1_data:
