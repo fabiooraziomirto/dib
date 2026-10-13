@@ -6,9 +6,10 @@ Hypothesis H-T1: /apply_fanout with event_type="restore" and target_state="activ
 (higher seq) leaves a disputed record non-exportable.
 Falsification: the record becomes Active and /export_mud emits its ACE.
 Code read before running: service.py:508-511 writes target_state verbatim.
-Result: falsified on service 3ffa57ee (kept as xfail strict, per the project rule);
+Result: falsified on service 3ffa57ee (xfail strict on that hash, per the project rule); holds with the guard of audit 126;
 test_valid_restore_returns_to_monitor_only documents the intended path.
 """
+import hashlib
 import sys
 import tempfile
 from pathlib import Path
@@ -18,6 +19,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "code" / "scripts"))
 from v35_lifecycle_experiment import Deployment  # noqa: E402
 
+SERVICE = Path(__file__).resolve().parents[2] / "code/src/dib/registry/distributed/service.py"
+UNGUARDED = "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8"  # the service of the 2026-10-12/13 campaigns
 FACT = dict(device_type="camera", endpoint="subject.example.org", protocol="tcp", port=443)
 
 
@@ -32,7 +35,8 @@ def _disputed_site():
     return temp, dep
 
 
-@pytest.mark.xfail(strict=True, reason="H-T1 falsified on 3ffa57ee: target_state is applied verbatim (service.py:508-511)")
+@pytest.mark.xfail(hashlib.sha256(SERVICE.read_bytes()).hexdigest() == UNGUARDED, strict=True,
+                   reason="H-T1 falsified on 3ffa57ee: target_state is applied verbatim (service.py:508-511); guarded from the audit-126 fix on")
 def test_mismatched_restore_target_cannot_create_authorization():
     temp, dep = _disputed_site()
     try:
