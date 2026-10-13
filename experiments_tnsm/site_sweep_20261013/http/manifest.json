@@ -1,0 +1,3730 @@
+{
+ "prereg": "docs/audit/123",
+ "transport": "http",
+ "started_utc": "2026-10-13T11:44:50.248478+00:00",
+ "commit": "e1ad277bb0bfd133c27325ddaf34eb4b4304ddb3",
+ "dirty": [],
+ "tree_sha256": {
+  "code/src/dib/registry/distributed/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+  "code/src/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9",
+  "code/src/dib/registry/distributed/Dockerfile": "50adfd9dd41d4a7a9d19a992684bd7d108973318979b0ec7749671b327a8a5a9",
+  "code/src/dib/registry/distributed/generate_compose.py": "22c5be5ab390c17c1b38d77bf20c9e3cd4138e44c5d8b41bdbb1ecdcf64c4541",
+  "experiments_tnsm/site_sweep_20261013/mgmt_bench.py": "dcb5b69c25580636e2beaf56a6abfb87941365fc4e432ce1c6ef6c8562f17bb5",
+  "experiments_tnsm/site_sweep_20261013/sweep.py": "0c7d0c59777fd9017ae4c7974a5c1d993240c30386cacabeaef3c1032384056e",
+  "code/scripts/distributed_concurrency_benchmark.py": "035ab45ea5972fb2bad6a294a5705701e48983f6fcdb45e582e19693b61e9eb5"
+ },
+ "python": "3.12.15",
+ "nproc": 16,
+ "mix": [
+  "query",
+  "commit",
+  "query",
+  "commit",
+  "query",
+  "commit",
+  "query",
+  "attest",
+  "commit",
+  "query",
+  "commit",
+  "query",
+  "dispute",
+  "commit",
+  "query",
+  "restore",
+  "query",
+  "commit"
+ ],
+ "client": "one process, ThreadPoolExecutor(W); shared httpx.Client timeout 5 s (http) or one client per identity (mtls)",
+ "cells": [
+  {
+   "n_workers": 1,
+   "ops_per_worker": 1000,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 9.429034953995142,
+     "requests": 1000,
+     "ok": 607,
+     "rejected": 393,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 161,
+     "client_cpu_s": 0.719764,
+     "container_cpu_s": {
+      "evidence": 1.995966,
+      "site-0": 7.02117
+     },
+     "container_mem_max_bytes": {
+      "evidence": 50790400,
+      "site-0": 51617792
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 51576832,
+      "site-0": 52383744
+     },
+     "host_busy_fraction": 0.2076968081648573,
+     "loadavg": [
+      11.43994140625,
+      10.41943359375,
+      10.55078125
+     ],
+     "sampler_wall_s": 9.433006782026496
+    },
+    {
+     "rep": 1,
+     "wall_s": 9.420779800013406,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.7037660000000001,
+     "container_cpu_s": {
+      "evidence": 2.002904,
+      "site-0": 7.028584
+     },
+     "container_mem_max_bytes": {
+      "evidence": 53563392,
+      "site-0": 51671040
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 53874688,
+      "site-0": 52432896
+     },
+     "host_busy_fraction": 0.25274378705689415,
+     "loadavg": [
+      11.48486328125,
+      10.44580078125,
+      10.55859375
+     ],
+     "sampler_wall_s": 9.425613734987564
+    },
+    {
+     "rep": 2,
+     "wall_s": 9.734904868004378,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.7234929999999999,
+     "container_cpu_s": {
+      "evidence": 2.085184,
+      "site-0": 7.253255
+     },
+     "container_mem_max_bytes": {
+      "evidence": 53346304,
+      "site-0": 51851264
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 54112256,
+      "site-0": 52772864
+     },
+     "host_busy_fraction": 0.2224020920241579,
+     "loadavg": [
+      11.349609375,
+      10.4482421875,
+      10.55810546875
+     ],
+     "sampler_wall_s": 9.74079895397881
+    },
+    {
+     "rep": 3,
+     "wall_s": 8.626833538000938,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.6266069999999999,
+     "container_cpu_s": {
+      "evidence": 1.858517,
+      "site-0": 6.433934
+     },
+     "container_mem_max_bytes": {
+      "evidence": 54362112,
+      "site-0": 52113408
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 54857728,
+      "site-0": 53043200
+     },
+     "host_busy_fraction": 0.17979942693409742,
+     "loadavg": [
+      10.76025390625,
+      10.3505859375,
+      10.52490234375
+     ],
+     "sampler_wall_s": 8.630619896983262
+    },
+    {
+     "rep": 4,
+     "wall_s": 8.513749609002843,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.644962,
+     "container_cpu_s": {
+      "evidence": 1.831499,
+      "site-0": 6.339887
+     },
+     "container_mem_max_bytes": {
+      "evidence": 65392640,
+      "site-0": 53145600
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 66179072,
+      "site-0": 55037952
+     },
+     "host_busy_fraction": 0.21551848123112324,
+     "loadavg": [
+      11.056640625,
+      10.4228515625,
+      10.54638671875
+     ],
+     "sampler_wall_s": 8.51813378999941
+    }
+   ],
+   "n_sites": 1,
+   "transport": "http"
+  },
+  {
+   "n_workers": 10,
+   "ops_per_worker": 100,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 4.349408231995767,
+     "requests": 1000,
+     "ok": 612,
+     "rejected": 388,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 159,
+     "client_cpu_s": 1.0535109999999994,
+     "container_cpu_s": {
+      "evidence": 2.334179,
+      "site-0": 10.375807
+     },
+     "container_mem_max_bytes": {
+      "evidence": 75636736,
+      "site-0": 75730944
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 77230080,
+      "site-0": 77815808
+     },
+     "host_busy_fraction": 0.25579361609094886,
+     "loadavg": [
+      11.21240234375,
+      10.4658203125,
+      10.5595703125
+     ],
+     "sampler_wall_s": 4.3539328670012765
+    },
+    {
+     "rep": 1,
+     "wall_s": 4.15690136901685,
+     "requests": 1000,
+     "ok": 627,
+     "rejected": 373,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 177,
+     "client_cpu_s": 0.9620310000000005,
+     "container_cpu_s": {
+      "evidence": 2.337423,
+      "site-0": 10.214429
+     },
+     "container_mem_max_bytes": {
+      "evidence": 78188544,
+      "site-0": 79409152
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 79237120,
+      "site-0": 82309120
+     },
+     "host_busy_fraction": 0.33059823959421153,
+     "loadavg": [
+      11.91650390625,
+      10.62451171875,
+      10.6103515625
+     ],
+     "sampler_wall_s": 4.161980545002734
+    },
+    {
+     "rep": 2,
+     "wall_s": 3.806088280020049,
+     "requests": 1000,
+     "ok": 626,
+     "rejected": 374,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 176,
+     "client_cpu_s": 0.994307,
+     "container_cpu_s": {
+      "evidence": 2.262901,
+      "site-0": 9.535538
+     },
+     "container_mem_max_bytes": {
+      "evidence": 80977920,
+      "site-0": 78041088
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 82989056,
+      "site-0": 82309120
+     },
+     "host_busy_fraction": 0.33852459016393444,
+     "loadavg": [
+      11.91650390625,
+      10.62451171875,
+      10.6103515625
+     ],
+     "sampler_wall_s": 3.8118325239920523
+    },
+    {
+     "rep": 3,
+     "wall_s": 3.968118107004557,
+     "requests": 1000,
+     "ok": 627,
+     "rejected": 373,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 177,
+     "client_cpu_s": 1.0334370000000002,
+     "container_cpu_s": {
+      "evidence": 2.363773,
+      "site-0": 9.742938
+     },
+     "container_mem_max_bytes": {
+      "evidence": 81944576,
+      "site-0": 80470016
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 83849216,
+      "site-0": 82812928
+     },
+     "host_busy_fraction": 0.31079826732673266,
+     "loadavg": [
+      11.4423828125,
+      10.54736328125,
+      10.58544921875
+     ],
+     "sampler_wall_s": 3.9736219000187702
+    },
+    {
+     "rep": 4,
+     "wall_s": 3.880997790984111,
+     "requests": 1000,
+     "ok": 627,
+     "rejected": 373,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 177,
+     "client_cpu_s": 1.0413859999999993,
+     "container_cpu_s": {
+      "evidence": 2.326309,
+      "site-0": 9.753865
+     },
+     "container_mem_max_bytes": {
+      "evidence": 83488768,
+      "site-0": 80343040
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 84766720,
+      "site-0": 82812928
+     },
+     "host_busy_fraction": 0.33900226757369617,
+     "loadavg": [
+      11.40673828125,
+      10.55517578125,
+      10.587890625
+     ],
+     "sampler_wall_s": 3.8869613670103718
+    }
+   ],
+   "n_sites": 1,
+   "transport": "http"
+  },
+  {
+   "n_workers": 50,
+   "ops_per_worker": 20,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 3.6010495600057766,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.8276979999999998,
+     "container_cpu_s": {
+      "evidence": 1.240734,
+      "site-0": 9.557081
+     },
+     "container_mem_max_bytes": {
+      "evidence": 83320832,
+      "site-0": 142348288
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 85098496,
+      "site-0": 144646144
+     },
+     "host_busy_fraction": 0.3011942395504039,
+     "loadavg": [
+      11.61474609375,
+      10.61279296875,
+      10.6064453125
+     ],
+     "sampler_wall_s": 3.6050006079894956
+    },
+    {
+     "rep": 1,
+     "wall_s": 3.6635052709898446,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.7758699999999994,
+     "container_cpu_s": {
+      "evidence": 1.265209,
+      "site-0": 9.578834
+     },
+     "container_mem_max_bytes": {
+      "evidence": 83615744,
+      "site-0": 147300352
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 85221376,
+      "site-0": 149467136
+     },
+     "host_busy_fraction": 0.3741891430522363,
+     "loadavg": [
+      12.12646484375,
+      10.73583984375,
+      10.646484375
+     ],
+     "sampler_wall_s": 3.6683543949911837
+    },
+    {
+     "rep": 2,
+     "wall_s": 3.683716955012642,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.6891569999999998,
+     "container_cpu_s": {
+      "evidence": 1.265154,
+      "site-0": 9.785222
+     },
+     "container_mem_max_bytes": {
+      "evidence": 83640320,
+      "site-0": 150233088
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 85803008,
+      "site-0": 152911872
+     },
+     "host_busy_fraction": 0.33065206229676536,
+     "loadavg": [
+      13.55810546875,
+      11.0556640625,
+      10.75048828125
+     ],
+     "sampler_wall_s": 3.689430672005983
+    },
+    {
+     "rep": 3,
+     "wall_s": 3.57638169900747,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.6654020000000003,
+     "container_cpu_s": {
+      "evidence": 1.197314,
+      "site-0": 9.531795
+     },
+     "container_mem_max_bytes": {
+      "evidence": 83427328,
+      "site-0": 151105536
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 85803008,
+      "site-0": 153559040
+     },
+     "host_busy_fraction": 0.3238045738045738,
+     "loadavg": [
+      17.59765625,
+      11.93505859375,
+      11.03662109375
+     ],
+     "sampler_wall_s": 3.5807232310180552
+    },
+    {
+     "rep": 4,
+     "wall_s": 3.804486392007675,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.6932709999999993,
+     "container_cpu_s": {
+      "evidence": 1.197206,
+      "site-0": 9.682757
+     },
+     "container_mem_max_bytes": {
+      "evidence": 83226624,
+      "site-0": 150462464
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 85803008,
+      "site-0": 153559040
+     },
+     "host_busy_fraction": 0.35304807533454485,
+     "loadavg": [
+      17.59765625,
+      11.93505859375,
+      11.03662109375
+     ],
+     "sampler_wall_s": 3.808799899998121
+    }
+   ],
+   "n_sites": 1,
+   "transport": "http"
+  },
+  {
+   "n_workers": 100,
+   "ops_per_worker": 20,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 7.582024272996932,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.9574180000000005,
+     "container_cpu_s": {
+      "evidence": 2.496093,
+      "site-0": 19.819023
+     },
+     "container_mem_max_bytes": {
+      "evidence": 84008960,
+      "site-0": 151224320
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 85848064,
+      "site-0": 153968640
+     },
+     "host_busy_fraction": 0.34750951514148604,
+     "loadavg": [
+      16.44921875,
+      11.95556640625,
+      11.0576171875
+     ],
+     "sampler_wall_s": 7.588594488013769
+    },
+    {
+     "rep": 1,
+     "wall_s": 7.502643286978127,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 4.020256,
+     "container_cpu_s": {
+      "evidence": 2.498685,
+      "site-0": 21.27092
+     },
+     "container_mem_max_bytes": {
+      "evidence": 79060992,
+      "site-0": 152932352
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 85848064,
+      "site-0": 154714112
+     },
+     "host_busy_fraction": 0.3490169719374895,
+     "loadavg": [
+      15.39013671875,
+      11.87451171875,
+      11.04052734375
+     ],
+     "sampler_wall_s": 7.510015185980592
+    },
+    {
+     "rep": 2,
+     "wall_s": 7.168395576009061,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.8430649999999993,
+     "container_cpu_s": {
+      "evidence": 2.432745,
+      "site-0": 20.874432
+     },
+     "container_mem_max_bytes": {
+      "evidence": 79753216,
+      "site-0": 153710592
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 85848064,
+      "site-0": 156418048
+     },
+     "host_busy_fraction": 0.3476885217085604,
+     "loadavg": [
+      15.11865234375,
+      11.876953125,
+      11.0458984375
+     ],
+     "sampler_wall_s": 7.174884257983649
+    },
+    {
+     "rep": 3,
+     "wall_s": 7.0156349199824035,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.887682000000005,
+     "container_cpu_s": {
+      "evidence": 2.390611,
+      "site-0": 19.781789
+     },
+     "container_mem_max_bytes": {
+      "evidence": 78991360,
+      "site-0": 156487680
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 85848064,
+      "site-0": 158343168
+     },
+     "host_busy_fraction": 0.34899030335379416,
+     "loadavg": [
+      15.1259765625,
+      11.98095703125,
+      11.08837890625
+     ],
+     "sampler_wall_s": 7.021263125992846
+    },
+    {
+     "rep": 4,
+     "wall_s": 7.559397314005764,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.957251999999997,
+     "container_cpu_s": {
+      "evidence": 2.533826,
+      "site-0": 20.690492
+     },
+     "container_mem_max_bytes": {
+      "evidence": 79446016,
+      "site-0": 156893184
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 85848064,
+      "site-0": 158564352
+     },
+     "host_busy_fraction": 0.38602397766464114,
+     "loadavg": [
+      14.95556640625,
+      11.998046875,
+      11.09912109375
+     ],
+     "sampler_wall_s": 7.5652664020017255
+    }
+   ],
+   "n_sites": 1,
+   "transport": "http"
+  },
+  {
+   "n_workers": 1,
+   "ops_per_worker": 1000,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 10.488817539007869,
+     "requests": 1000,
+     "ok": 607,
+     "rejected": 393,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 161,
+     "client_cpu_s": 0.7820090000000022,
+     "container_cpu_s": {
+      "evidence": 3.227226,
+      "site-0": 7.580911,
+      "site-1": 0.253067
+     },
+     "container_mem_max_bytes": {
+      "evidence": 52043776,
+      "site-0": 51773440,
+      "site-1": 50098176
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 53272576,
+      "site-0": 52346880,
+      "site-1": 50630656
+     },
+     "host_busy_fraction": 0.2404692082111437,
+     "loadavg": [
+      12.6904296875,
+      11.728515625,
+      11.04248046875
+     ],
+     "sampler_wall_s": 10.492395245004445
+    },
+    {
+     "rep": 1,
+     "wall_s": 9.690883956005564,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.6970489999999927,
+     "container_cpu_s": {
+      "evidence": 2.965661,
+      "site-0": 7.070472,
+      "site-1": 0.234836
+     },
+     "container_mem_max_bytes": {
+      "evidence": 52695040,
+      "site-0": 51736576,
+      "site-1": 51527680
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 53735424,
+      "site-0": 52531200,
+      "site-1": 52056064
+     },
+     "host_busy_fraction": 0.2089713450663956,
+     "loadavg": [
+      11.97509765625,
+      11.60546875,
+      11.00927734375
+     ],
+     "sampler_wall_s": 9.695348556997487
+    },
+    {
+     "rep": 2,
+     "wall_s": 9.516730158007704,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.6716260000000034,
+     "container_cpu_s": {
+      "evidence": 2.925382,
+      "site-0": 6.923438,
+      "site-1": 0.236332
+     },
+     "container_mem_max_bytes": {
+      "evidence": 52776960,
+      "site-0": 51953664,
+      "site-1": 52527104
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 53735424,
+      "site-0": 52531200,
+      "site-1": 53047296
+     },
+     "host_busy_fraction": 0.2366329709453875,
+     "loadavg": [
+      12.0576171875,
+      11.62890625,
+      11.02001953125
+     ],
+     "sampler_wall_s": 9.520516646996839
+    },
+    {
+     "rep": 3,
+     "wall_s": 9.325704506016336,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.6996859999999998,
+     "container_cpu_s": {
+      "evidence": 2.901984,
+      "site-0": 6.721822,
+      "site-1": 0.200029
+     },
+     "container_mem_max_bytes": {
+      "evidence": 55435264,
+      "site-0": 51789824,
+      "site-1": 52518912
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 56258560,
+      "site-0": 52858880,
+      "site-1": 53047296
+     },
+     "host_busy_fraction": 0.2011547650650385,
+     "loadavg": [
+      11.654296875,
+      11.5576171875,
+      11.0029296875
+     ],
+     "sampler_wall_s": 9.330131505994359
+    },
+    {
+     "rep": 4,
+     "wall_s": 9.510708483023336,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.6970079999999967,
+     "container_cpu_s": {
+      "evidence": 2.916774,
+      "site-0": 6.884915,
+      "site-1": 0.243088
+     },
+     "container_mem_max_bytes": {
+      "evidence": 55218176,
+      "site-0": 52260864,
+      "site-1": 52518912
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 56258560,
+      "site-0": 53071872,
+      "site-1": 53047296
+     },
+     "host_busy_fraction": 0.2698324022346369,
+     "loadavg": [
+      11.02490234375,
+      11.42431640625,
+      10.96484375
+     ],
+     "sampler_wall_s": 9.515716786001576
+    }
+   ],
+   "n_sites": 2,
+   "transport": "http"
+  },
+  {
+   "n_workers": 10,
+   "ops_per_worker": 100,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 3.9541652030020487,
+     "requests": 1000,
+     "ok": 612,
+     "rejected": 388,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 159,
+     "client_cpu_s": 1.176005999999994,
+     "container_cpu_s": {
+      "evidence": 3.103753,
+      "site-0": 4.935015,
+      "site-1": 4.923395
+     },
+     "container_mem_max_bytes": {
+      "evidence": 54759424,
+      "site-0": 75251712,
+      "site-1": 77131776
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 56532992,
+      "site-0": 77066240,
+      "site-1": 80687104
+     },
+     "host_busy_fraction": 0.3016248619656097,
+     "loadavg": [
+      10.7021484375,
+      11.3505859375,
+      10.943359375
+     ],
+     "sampler_wall_s": 3.9589180549955927
+    },
+    {
+     "rep": 1,
+     "wall_s": 3.8415255679865368,
+     "requests": 1000,
+     "ok": 619,
+     "rejected": 381,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 169,
+     "client_cpu_s": 1.1945459999999954,
+     "container_cpu_s": {
+      "evidence": 3.251274,
+      "site-0": 4.770519,
+      "site-1": 4.833358
+     },
+     "container_mem_max_bytes": {
+      "evidence": 55291904,
+      "site-0": 76070912,
+      "site-1": 81174528
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 56532992,
+      "site-0": 77770752,
+      "site-1": 83030016
+     },
+     "host_busy_fraction": 0.3093038601121742,
+     "loadavg": [
+      10.3251953125,
+      11.26171875,
+      10.91650390625
+     ],
+     "sampler_wall_s": 3.845657054014737
+    },
+    {
+     "rep": 2,
+     "wall_s": 3.5541455750062596,
+     "requests": 1000,
+     "ok": 618,
+     "rejected": 382,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 168,
+     "client_cpu_s": 1.087890999999999,
+     "container_cpu_s": {
+      "evidence": 3.104725,
+      "site-0": 4.504989,
+      "site-1": 4.458141
+     },
+     "container_mem_max_bytes": {
+      "evidence": 54341632,
+      "site-0": 78495744,
+      "site-1": 82206720
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 56532992,
+      "site-0": 80457728,
+      "site-1": 84262912
+     },
+     "host_busy_fraction": 0.3622933520928597,
+     "loadavg": [
+      10.298828125,
+      11.24072265625,
+      10.9111328125
+     ],
+     "sampler_wall_s": 3.5578508710023016
+    },
+    {
+     "rep": 3,
+     "wall_s": 3.7660319299902767,
+     "requests": 1000,
+     "ok": 622,
+     "rejected": 378,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 172,
+     "client_cpu_s": 1.1616959999999992,
+     "container_cpu_s": {
+      "evidence": 3.112185,
+      "site-0": 4.649222,
+      "site-1": 4.863394
+     },
+     "container_mem_max_bytes": {
+      "evidence": 54398976,
+      "site-0": 78888960,
+      "site-1": 82788352
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 56532992,
+      "site-0": 81330176,
+      "site-1": 84721664
+     },
+     "host_busy_fraction": 0.2957414576670594,
+     "loadavg": [
+      10.298828125,
+      11.24072265625,
+      10.9111328125
+     ],
+     "sampler_wall_s": 3.771551390993409
+    },
+    {
+     "rep": 4,
+     "wall_s": 3.6290326330054086,
+     "requests": 1000,
+     "ok": 619,
+     "rejected": 381,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 169,
+     "client_cpu_s": 1.104813,
+     "container_cpu_s": {
+      "evidence": 3.194053,
+      "site-0": 4.645874,
+      "site-1": 4.629632
+     },
+     "container_mem_max_bytes": {
+      "evidence": 55504896,
+      "site-0": 80732160,
+      "site-1": 83513344
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 56532992,
+      "site-0": 82251776,
+      "site-1": 84828160
+     },
+     "host_busy_fraction": 0.3302752293577982,
+     "loadavg": [
+      10.35498046875,
+      11.236328125,
+      10.91162109375
+     ],
+     "sampler_wall_s": 3.634325198974693
+    }
+   ],
+   "n_sites": 2,
+   "transport": "http"
+  },
+  {
+   "n_workers": 50,
+   "ops_per_worker": 20,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 1.8782538050145376,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.5581219999999973,
+     "container_cpu_s": {
+      "evidence": 1.104629,
+      "site-0": 4.501397,
+      "site-1": 4.75457
+     },
+     "container_mem_max_bytes": {
+      "evidence": 54890496,
+      "site-0": 106770432,
+      "site-1": 119656448
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 56532992,
+      "site-0": 109334528,
+      "site-1": 123797504
+     },
+     "host_busy_fraction": 0.45326460481099656,
+     "loadavg": [
+      11.44775390625,
+      11.4482421875,
+      10.98193359375
+     ],
+     "sampler_wall_s": 1.883370630996069
+    },
+    {
+     "rep": 1,
+     "wall_s": 1.9588749889808241,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.668523999999998,
+     "container_cpu_s": {
+      "evidence": 1.132762,
+      "site-0": 4.554004,
+      "site-1": 4.914982
+     },
+     "container_mem_max_bytes": {
+      "evidence": 54616064,
+      "site-0": 119795712,
+      "site-1": 126148608
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 56532992,
+      "site-0": 122986496,
+      "site-1": 131698688
+     },
+     "host_busy_fraction": 0.525974025974026,
+     "loadavg": [
+      11.44775390625,
+      11.4482421875,
+      10.98193359375
+     ],
+     "sampler_wall_s": 1.9642121490032878
+    },
+    {
+     "rep": 2,
+     "wall_s": 1.872197655000491,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.5363730000000047,
+     "container_cpu_s": {
+      "evidence": 1.067931,
+      "site-0": 4.354723,
+      "site-1": 4.703057
+     },
+     "container_mem_max_bytes": {
+      "evidence": 54403072,
+      "site-0": 122732544,
+      "site-1": 130301952
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 56532992,
+      "site-0": 124702720,
+      "site-1": 132157440
+     },
+     "host_busy_fraction": 0.4573002754820937,
+     "loadavg": [
+      11.732421875,
+      11.50732421875,
+      11.00390625
+     ],
+     "sampler_wall_s": 1.876024960016366
+    },
+    {
+     "rep": 3,
+     "wall_s": 1.9744829800038133,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.595793999999998,
+     "container_cpu_s": {
+      "evidence": 1.096077,
+      "site-0": 4.394967,
+      "site-1": 4.857002
+     },
+     "container_mem_max_bytes": {
+      "evidence": 55025664,
+      "site-0": 125554688,
+      "site-1": 131227648
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 57118720,
+      "site-0": 128028672,
+      "site-1": 133074944
+     },
+     "host_busy_fraction": 0.5014643670680117,
+     "loadavg": [
+      11.732421875,
+      11.50732421875,
+      11.00390625
+     ],
+     "sampler_wall_s": 1.9800492899958044
+    },
+    {
+     "rep": 4,
+     "wall_s": 1.9879788469988853,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.7131779999999992,
+     "container_cpu_s": {
+      "evidence": 1.144056,
+      "site-0": 4.651643,
+      "site-1": 4.936332
+     },
+     "container_mem_max_bytes": {
+      "evidence": 55848960,
+      "site-0": 126083072,
+      "site-1": 131694592
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 57118720,
+      "site-0": 128028672,
+      "site-1": 134684672
+     },
+     "host_busy_fraction": 0.5018975332068312,
+     "loadavg": [
+      12.07421875,
+      11.58203125,
+      11.03076171875
+     ],
+     "sampler_wall_s": 1.9927275119989645
+    }
+   ],
+   "n_sites": 2,
+   "transport": "http"
+  },
+  {
+   "n_workers": 100,
+   "ops_per_worker": 20,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 3.7733478250156622,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.4579089999999866,
+     "container_cpu_s": {
+      "evidence": 2.193654,
+      "site-0": 9.132568,
+      "site-1": 9.639216
+     },
+     "container_mem_max_bytes": {
+      "evidence": 55844864,
+      "site-0": 136777728,
+      "site-1": 148267008
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 57454592,
+      "site-0": 138985472,
+      "site-1": 150798336
+     },
+     "host_busy_fraction": 0.48639918395103704,
+     "loadavg": [
+      11.66748046875,
+      11.505859375,
+      11.0087890625
+     ],
+     "sampler_wall_s": 3.7813351299846545
+    },
+    {
+     "rep": 1,
+     "wall_s": 3.785009577026358,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.5595699999999937,
+     "container_cpu_s": {
+      "evidence": 2.194078,
+      "site-0": 9.06106,
+      "site-1": 9.754523
+     },
+     "container_mem_max_bytes": {
+      "evidence": 55992320,
+      "site-0": 137342976,
+      "site-1": 153075712
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 57454592,
+      "site-0": 140316672,
+      "site-1": 154910720
+     },
+     "host_busy_fraction": 0.5227466348611348,
+     "loadavg": [
+      12.7353515625,
+      11.72998046875,
+      11.083984375
+     ],
+     "sampler_wall_s": 3.7928953720256686
+    },
+    {
+     "rep": 2,
+     "wall_s": 3.8647745640191715,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.655550000000005,
+     "container_cpu_s": {
+      "evidence": 2.234159,
+      "site-0": 9.264055,
+      "site-1": 9.643634
+     },
+     "container_mem_max_bytes": {
+      "evidence": 55439360,
+      "site-0": 137617408,
+      "site-1": 154648576
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 57552896,
+      "site-0": 140316672,
+      "site-1": 156979200
+     },
+     "host_busy_fraction": 0.5148514851485149,
+     "loadavg": [
+      13.3974609375,
+      11.88427734375,
+      11.1376953125
+     ],
+     "sampler_wall_s": 3.8725937939889263
+    },
+    {
+     "rep": 3,
+     "wall_s": 3.857821972022066,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.556623000000016,
+     "container_cpu_s": {
+      "evidence": 2.254851,
+      "site-0": 9.181323,
+      "site-1": 9.698406
+     },
+     "container_mem_max_bytes": {
+      "evidence": 56066048,
+      "site-0": 137056256,
+      "site-1": 155492352
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 57765888,
+      "site-0": 140316672,
+      "site-1": 158031872
+     },
+     "host_busy_fraction": 0.4810593362386859,
+     "loadavg": [
+      13.3974609375,
+      11.88427734375,
+      11.1376953125
+     ],
+     "sampler_wall_s": 3.867608123982791
+    },
+    {
+     "rep": 4,
+     "wall_s": 3.8599697439931333,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.598725999999999,
+     "container_cpu_s": {
+      "evidence": 2.18973,
+      "site-0": 9.198013,
+      "site-1": 9.686626
+     },
+     "container_mem_max_bytes": {
+      "evidence": 56397824,
+      "site-0": 143491072,
+      "site-1": 156741632
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 57765888,
+      "site-0": 145076224,
+      "site-1": 158248960
+     },
+     "host_busy_fraction": 0.548754330968487,
+     "loadavg": [
+      13.28515625,
+      11.88623046875,
+      11.142578125
+     ],
+     "sampler_wall_s": 3.8664576440060046
+    }
+   ],
+   "n_sites": 2,
+   "transport": "http"
+  },
+  {
+   "n_workers": 1,
+   "ops_per_worker": 1000,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 12.69571260100929,
+     "requests": 1000,
+     "ok": 607,
+     "rejected": 393,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 161,
+     "client_cpu_s": 0.8938950000000148,
+     "container_cpu_s": {
+      "evidence": 7.209627,
+      "site-0": 8.4271,
+      "site-1": 0.332317,
+      "site-2": 0.341117,
+      "site-3": 0.328307,
+      "site-4": 0.33071
+     },
+     "container_mem_max_bytes": {
+      "evidence": 56623104,
+      "site-0": 50921472,
+      "site-1": 50544640,
+      "site-2": 50536448,
+      "site-3": 50540544,
+      "site-4": 50098176
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 57860096,
+      "site-0": 51716096,
+      "site-1": 51085312,
+      "site-2": 51318784,
+      "site-3": 51077120,
+      "site-4": 50610176
+     },
+     "host_busy_fraction": 0.22230274919070397,
+     "loadavg": [
+      11.7275390625,
+      11.66748046875,
+      11.10400390625
+     ],
+     "sampler_wall_s": 12.699719191994518
+    },
+    {
+     "rep": 1,
+     "wall_s": 11.462522846995853,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.7430090000000007,
+     "container_cpu_s": {
+      "evidence": 7.028283,
+      "site-0": 7.425725,
+      "site-1": 0.331397,
+      "site-2": 0.353214,
+      "site-3": 0.350828,
+      "site-4": 0.338337
+     },
+     "container_mem_max_bytes": {
+      "evidence": 56745984,
+      "site-0": 51073024,
+      "site-1": 51998720,
+      "site-2": 51986432,
+      "site-3": 52236288,
+      "site-4": 51982336
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 57860096,
+      "site-0": 51924992,
+      "site-1": 52596736,
+      "site-2": 52510720,
+      "site-3": 53022720,
+      "site-4": 52789248
+     },
+     "host_busy_fraction": 0.2189784946236559,
+     "loadavg": [
+      11.2685546875,
+      11.5693359375,
+      11.08056640625
+     ],
+     "sampler_wall_s": 11.467596661008429
+    },
+    {
+     "rep": 2,
+     "wall_s": 11.390806326991878,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.7495229999999964,
+     "container_cpu_s": {
+      "evidence": 6.941014,
+      "site-0": 7.453852,
+      "site-1": 0.292251,
+      "site-2": 0.3099,
+      "site-3": 0.288334,
+      "site-4": 0.304376
+     },
+     "container_mem_max_bytes": {
+      "evidence": 58032128,
+      "site-0": 51785728,
+      "site-1": 52260864,
+      "site-2": 52506624,
+      "site-3": 52502528,
+      "site-4": 52248576
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 59858944,
+      "site-0": 52322304,
+      "site-1": 52785152,
+      "site-2": 53026816,
+      "site-3": 53022720,
+      "site-4": 52789248
+     },
+     "host_busy_fraction": 0.21517963102815837,
+     "loadavg": [
+      11.79052734375,
+      11.68017578125,
+      11.12255859375
+     ],
+     "sampler_wall_s": 11.394687873020303
+    },
+    {
+     "rep": 3,
+     "wall_s": 11.786849852011073,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.7434520000000049,
+     "container_cpu_s": {
+      "evidence": 6.935799,
+      "site-0": 7.875386,
+      "site-1": 0.291155,
+      "site-2": 0.28575,
+      "site-3": 0.303313,
+      "site-4": 0.310513
+     },
+     "container_mem_max_bytes": {
+      "evidence": 59604992,
+      "site-0": 51912704,
+      "site-1": 52252672,
+      "site-2": 52768768,
+      "site-3": 52248576,
+      "site-4": 52506624
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 60485632,
+      "site-0": 52928512,
+      "site-1": 52785152,
+      "site-2": 53026816,
+      "site-3": 53022720,
+      "site-4": 52789248
+     },
+     "host_busy_fraction": 0.22016011644832606,
+     "loadavg": [
+      13.4501953125,
+      12.0234375,
+      11.2392578125
+     ],
+     "sampler_wall_s": 11.790300630003912
+    },
+    {
+     "rep": 4,
+     "wall_s": 11.42939690098865,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.7427179999999964,
+     "container_cpu_s": {
+      "evidence": 7.096223,
+      "site-0": 7.421758,
+      "site-1": 0.306937,
+      "site-2": 0.294222,
+      "site-3": 0.30318,
+      "site-4": 0.316893
+     },
+     "container_mem_max_bytes": {
+      "evidence": 58912768,
+      "site-0": 52678656,
+      "site-1": 52977664,
+      "site-2": 52953088,
+      "site-3": 52957184,
+      "site-4": 53223424
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 60485632,
+      "site-0": 52953088,
+      "site-1": 53493760,
+      "site-2": 53485568,
+      "site-3": 53489664,
+      "site-4": 53567488
+     },
+     "host_busy_fraction": 0.2386235729216916,
+     "loadavg": [
+      12.49560546875,
+      11.87646484375,
+      11.203125
+     ],
+     "sampler_wall_s": 11.435843293002108
+    }
+   ],
+   "n_sites": 5,
+   "transport": "http"
+  },
+  {
+   "n_workers": 10,
+   "ops_per_worker": 100,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 4.415256389009301,
+     "requests": 1000,
+     "ok": 608,
+     "rejected": 392,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 155,
+     "client_cpu_s": 1.1878670000000113,
+     "container_cpu_s": {
+      "evidence": 5.929869,
+      "site-0": 2.051542,
+      "site-1": 2.147633,
+      "site-2": 2.169449,
+      "site-3": 2.227687,
+      "site-4": 2.19152
+     },
+     "container_mem_max_bytes": {
+      "evidence": 60010496,
+      "site-0": 72892416,
+      "site-1": 74706944,
+      "site-2": 76197888,
+      "site-3": 73666560,
+      "site-4": 76627968
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 62779392,
+      "site-0": 73994240,
+      "site-1": 76779520,
+      "site-2": 78077952,
+      "site-3": 75165696,
+      "site-4": 78008320
+     },
+     "host_busy_fraction": 0.42400666851903307,
+     "loadavg": [
+      12.21533203125,
+      11.82861328125,
+      11.19091796875
+     ],
+     "sampler_wall_s": 4.41874603999895
+    },
+    {
+     "rep": 1,
+     "wall_s": 4.616950180003187,
+     "requests": 1000,
+     "ok": 619,
+     "rejected": 381,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 169,
+     "client_cpu_s": 1.225734000000017,
+     "container_cpu_s": {
+      "evidence": 6.550323,
+      "site-0": 2.069769,
+      "site-1": 2.22277,
+      "site-2": 2.189905,
+      "site-3": 2.115057,
+      "site-4": 2.154826
+     },
+     "container_mem_max_bytes": {
+      "evidence": 61947904,
+      "site-0": 75091968,
+      "site-1": 77471744,
+      "site-2": 77750272,
+      "site-3": 76595200,
+      "site-4": 76673024
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 64000000,
+      "site-0": 76890112,
+      "site-1": 79212544,
+      "site-2": 79622144,
+      "site-3": 78966784,
+      "site-4": 80130048
+     },
+     "host_busy_fraction": 0.34487385936661297,
+     "loadavg": [
+      12.5986328125,
+      11.91455078125,
+      11.22216796875
+     ],
+     "sampler_wall_s": 4.621549755014712
+    },
+    {
+     "rep": 2,
+     "wall_s": 4.604708269005641,
+     "requests": 1000,
+     "ok": 622,
+     "rejected": 378,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 172,
+     "client_cpu_s": 1.239190999999991,
+     "container_cpu_s": {
+      "evidence": 6.721974,
+      "site-0": 2.145387,
+      "site-1": 2.29154,
+      "site-2": 2.130675,
+      "site-3": 2.131185,
+      "site-4": 2.308312
+     },
+     "container_mem_max_bytes": {
+      "evidence": 62693376,
+      "site-0": 76267520,
+      "site-1": 79237120,
+      "site-2": 80179200,
+      "site-3": 78327808,
+      "site-4": 77565952
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 64000000,
+      "site-0": 77520896,
+      "site-1": 80261120,
+      "site-2": 81928192,
+      "site-3": 79560704,
+      "site-4": 80130048
+     },
+     "host_busy_fraction": 0.37014563106796117,
+     "loadavg": [
+      12.55029296875,
+      11.916015625,
+      11.2265625
+     ],
+     "sampler_wall_s": 4.61017645400716
+    },
+    {
+     "rep": 3,
+     "wall_s": 4.645070428989129,
+     "requests": 1000,
+     "ok": 620,
+     "rejected": 380,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 170,
+     "client_cpu_s": 1.244739999999993,
+     "container_cpu_s": {
+      "evidence": 6.485994,
+      "site-0": 2.104603,
+      "site-1": 2.15945,
+      "site-2": 2.221835,
+      "site-3": 2.196213,
+      "site-4": 2.317044
+     },
+     "container_mem_max_bytes": {
+      "evidence": 64204800,
+      "site-0": 78114816,
+      "site-1": 79032320,
+      "site-2": 83243008,
+      "site-3": 81223680,
+      "site-4": 78798848
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 65318912,
+      "site-0": 80216064,
+      "site-1": 80789504,
+      "site-2": 84746240,
+      "site-3": 81223680,
+      "site-4": 80302080
+     },
+     "host_busy_fraction": 0.3494579945799458,
+     "loadavg": [
+      14.66845703125,
+      12.36572265625,
+      11.3759765625
+     ],
+     "sampler_wall_s": 4.649129078024998
+    },
+    {
+     "rep": 4,
+     "wall_s": 4.658406585018383,
+     "requests": 1000,
+     "ok": 624,
+     "rejected": 376,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 174,
+     "client_cpu_s": 1.205600000000004,
+     "container_cpu_s": {
+      "evidence": 6.603195,
+      "site-0": 2.095572,
+      "site-1": 2.344642,
+      "site-2": 2.236355,
+      "site-3": 2.212869,
+      "site-4": 2.154151
+     },
+     "container_mem_max_bytes": {
+      "evidence": 64552960,
+      "site-0": 78376960,
+      "site-1": 79613952,
+      "site-2": 83709952,
+      "site-3": 80437248,
+      "site-4": 78848000
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 65601536,
+      "site-0": 80437248,
+      "site-1": 81956864,
+      "site-2": 84746240,
+      "site-3": 82165760,
+      "site-4": 80478208
+     },
+     "host_busy_fraction": 0.3440075665450615,
+     "loadavg": [
+      14.66845703125,
+      12.36572265625,
+      11.3759765625
+     ],
+     "sampler_wall_s": 4.663131625013193
+    }
+   ],
+   "n_sites": 5,
+   "transport": "http"
+  },
+  {
+   "n_workers": 50,
+   "ops_per_worker": 20,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 1.526037814997835,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.6945199999999971,
+     "container_cpu_s": {
+      "evidence": 1.08845,
+      "site-0": 1.784032,
+      "site-1": 1.869039,
+      "site-2": 1.884351,
+      "site-3": 1.87618,
+      "site-4": 1.837945
+     },
+     "container_mem_max_bytes": {
+      "evidence": 66703360,
+      "site-0": 91213824,
+      "site-1": 96137216,
+      "site-2": 97771520,
+      "site-3": 96014336,
+      "site-4": 93933568
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 67481600,
+      "site-0": 93405184,
+      "site-1": 99069952,
+      "site-2": 99459072,
+      "site-3": 98164736,
+      "site-4": 95674368
+     },
+     "host_busy_fraction": 0.7107781939242613,
+     "loadavg": [
+      14.85546875,
+      12.44287109375,
+      11.40625
+     ],
+     "sampler_wall_s": 1.5302288529928774
+    },
+    {
+     "rep": 1,
+     "wall_s": 1.5249846070073545,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.8046389999999803,
+     "container_cpu_s": {
+      "evidence": 1.066239,
+      "site-0": 1.813516,
+      "site-1": 1.932397,
+      "site-2": 2.001882,
+      "site-3": 1.939427,
+      "site-4": 1.971733
+     },
+     "container_mem_max_bytes": {
+      "evidence": 66191360,
+      "site-0": 94085120,
+      "site-1": 97718272,
+      "site-2": 98377728,
+      "site-3": 96206848,
+      "site-4": 96067584
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 67481600,
+      "site-0": 95977472,
+      "site-1": 99913728,
+      "site-2": 100777984,
+      "site-3": 98459648,
+      "site-4": 98750464
+     },
+     "host_busy_fraction": 0.5932059447983015,
+     "loadavg": [
+      14.85546875,
+      12.44287109375,
+      11.40625
+     ],
+     "sampler_wall_s": 1.5304714080120903
+    },
+    {
+     "rep": 2,
+     "wall_s": 1.560903415986104,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.8782819999999987,
+     "container_cpu_s": {
+      "evidence": 1.09964,
+      "site-0": 1.944269,
+      "site-1": 2.025768,
+      "site-2": 2.037291,
+      "site-3": 2.047546,
+      "site-4": 1.984416
+     },
+     "container_mem_max_bytes": {
+      "evidence": 66154496,
+      "site-0": 94445568,
+      "site-1": 99012608,
+      "site-2": 99700736,
+      "site-3": 97411072,
+      "site-4": 98033664
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 67481600,
+      "site-0": 96534528,
+      "site-1": 101679104,
+      "site-2": 102645760,
+      "site-3": 99659776,
+      "site-4": 99295232
+     },
+     "host_busy_fraction": 0.6179867986798679,
+     "loadavg": [
+      14.62646484375,
+      12.43505859375,
+      11.40966796875
+     ],
+     "sampler_wall_s": 1.5665906220092438
+    },
+    {
+     "rep": 3,
+     "wall_s": 1.4705689859983977,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.7623079999999902,
+     "container_cpu_s": {
+      "evidence": 1.079893,
+      "site-0": 1.774967,
+      "site-1": 1.877601,
+      "site-2": 1.894935,
+      "site-3": 1.889877,
+      "site-4": 1.910293
+     },
+     "container_mem_max_bytes": {
+      "evidence": 66699264,
+      "site-0": 96460800,
+      "site-1": 99491840,
+      "site-2": 101859328,
+      "site-3": 97943552,
+      "site-4": 97808384
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 67481600,
+      "site-0": 98136064,
+      "site-1": 102322176,
+      "site-2": 102703104,
+      "site-3": 99811328,
+      "site-4": 101548032
+     },
+     "host_busy_fraction": 0.6123251748251748,
+     "loadavg": [
+      14.62646484375,
+      12.43505859375,
+      11.40966796875
+     ],
+     "sampler_wall_s": 1.4747660249995533
+    },
+    {
+     "rep": 4,
+     "wall_s": 1.5347082510124892,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.8153999999999968,
+     "container_cpu_s": {
+      "evidence": 1.073197,
+      "site-0": 1.84855,
+      "site-1": 1.945424,
+      "site-2": 1.922463,
+      "site-3": 1.996516,
+      "site-4": 1.918579
+     },
+     "container_mem_max_bytes": {
+      "evidence": 66633728,
+      "site-0": 97026048,
+      "site-1": 100843520,
+      "site-2": 100962304,
+      "site-3": 98582528,
+      "site-4": 97894400
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 67686400,
+      "site-0": 99454976,
+      "site-1": 103251968,
+      "site-2": 103686144,
+      "site-3": 101310464,
+      "site-4": 101548032
+     },
+     "host_busy_fraction": 0.6088039867109635,
+     "loadavg": [
+      14.62646484375,
+      12.43505859375,
+      11.40966796875
+     ],
+     "sampler_wall_s": 1.5394125419843476
+    }
+   ],
+   "n_sites": 5,
+   "transport": "http"
+  },
+  {
+   "n_workers": 100,
+   "ops_per_worker": 20,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 2.8827650700113736,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.3894829999999985,
+     "container_cpu_s": {
+      "evidence": 2.064089,
+      "site-0": 3.70185,
+      "site-1": 3.750462,
+      "site-2": 3.629122,
+      "site-3": 3.714948,
+      "site-4": 3.534814
+     },
+     "container_mem_max_bytes": {
+      "evidence": 65867776,
+      "site-0": 106086400,
+      "site-1": 108097536,
+      "site-2": 105947136,
+      "site-3": 107307008,
+      "site-4": 111415296
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 67702784,
+      "site-0": 108441600,
+      "site-1": 110297088,
+      "site-2": 108044288,
+      "site-3": 109162496,
+      "site-4": 112201728
+     },
+     "host_busy_fraction": 0.6561176732783597,
+     "loadavg": [
+      15.53759765625,
+      12.66064453125,
+      11.48828125
+     ],
+     "sampler_wall_s": 2.8881524530006573
+    },
+    {
+     "rep": 1,
+     "wall_s": 2.9762902399816085,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 899,
+     "error": 0,
+     "timeout": 0,
+     "transport": 1,
+     "changed": 100,
+     "client_cpu_s": 3.5654030000000034,
+     "container_cpu_s": {
+      "evidence": 2.131352,
+      "site-0": 3.65776,
+      "site-1": 3.748017,
+      "site-2": 3.747554,
+      "site-3": 3.788251,
+      "site-4": 3.623627
+     },
+     "container_mem_max_bytes": {
+      "evidence": 65863680,
+      "site-0": 106926080,
+      "site-1": 111517696,
+      "site-2": 108896256,
+      "site-3": 109793280,
+      "site-4": 110354432
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 67702784,
+      "site-0": 110256128,
+      "site-1": 113790976,
+      "site-2": 110526464,
+      "site-3": 111869952,
+      "site-4": 112308224
+     },
+     "host_busy_fraction": 0.6076358930112166,
+     "loadavg": [
+      15.013671875,
+      12.599609375,
+      11.474609375
+     ],
+     "sampler_wall_s": 2.983251648984151
+    },
+    {
+     "rep": 2,
+     "wall_s": 2.955485876009334,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.5240499999999884,
+     "container_cpu_s": {
+      "evidence": 2.082634,
+      "site-0": 3.707379,
+      "site-1": 3.734294,
+      "site-2": 3.677521,
+      "site-3": 3.735057,
+      "site-4": 3.647878
+     },
+     "container_mem_max_bytes": {
+      "evidence": 65843200,
+      "site-0": 108539904,
+      "site-1": 117608448,
+      "site-2": 112975872,
+      "site-3": 113143808,
+      "site-4": 110440448
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 67702784,
+      "site-0": 110596096,
+      "site-1": 118419456,
+      "site-2": 115126272,
+      "site-3": 115335168,
+      "site-4": 112975872
+     },
+     "host_busy_fraction": 0.6065037101702313,
+     "loadavg": [
+      15.4931640625,
+      12.7392578125,
+      11.52587890625
+     ],
+     "sampler_wall_s": 2.962372523994418
+    },
+    {
+     "rep": 3,
+     "wall_s": 2.9101306420052424,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.4433699999999874,
+     "container_cpu_s": {
+      "evidence": 2.11431,
+      "site-0": 3.6341,
+      "site-1": 3.729905,
+      "site-2": 3.806718,
+      "site-3": 3.763726,
+      "site-4": 3.626708
+     },
+     "container_mem_max_bytes": {
+      "evidence": 65077248,
+      "site-0": 115527680,
+      "site-1": 117469184,
+      "site-2": 115372032,
+      "site-3": 114319360,
+      "site-4": 111529984
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 67702784,
+      "site-0": 116932608,
+      "site-1": 118833152,
+      "site-2": 116764672,
+      "site-3": 115888128,
+      "site-4": 113324032
+     },
+     "host_busy_fraction": 0.652832674571805,
+     "loadavg": [
+      15.4931640625,
+      12.7392578125,
+      11.52587890625
+     ],
+     "sampler_wall_s": 2.916914266999811
+    },
+    {
+     "rep": 4,
+     "wall_s": 2.925815986993257,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.462970999999996,
+     "container_cpu_s": {
+      "evidence": 2.155738,
+      "site-0": 3.644147,
+      "site-1": 3.626506,
+      "site-2": 3.710748,
+      "site-3": 3.674818,
+      "site-4": 3.656385
+     },
+     "container_mem_max_bytes": {
+      "evidence": 65089536,
+      "site-0": 118910976,
+      "site-1": 115191808,
+      "site-2": 118177792,
+      "site-3": 112156672,
+      "site-4": 112009216
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 67702784,
+      "site-0": 121131008,
+      "site-1": 118833152,
+      "site-2": 120438784,
+      "site-3": 115888128,
+      "site-4": 113774592
+     },
+     "host_busy_fraction": 0.6489035087719298,
+     "loadavg": [
+      16.0947265625,
+      12.90966796875,
+      11.587890625
+     ],
+     "sampler_wall_s": 2.933175322978059
+    }
+   ],
+   "n_sites": 5,
+   "transport": "http"
+  },
+  {
+   "n_workers": 1,
+   "ops_per_worker": 1000,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 14.675293011008762,
+     "requests": 1000,
+     "ok": 607,
+     "rejected": 393,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 161,
+     "client_cpu_s": 0.8676810000000046,
+     "container_cpu_s": {
+      "evidence": 15.178967,
+      "site-0": 7.893839,
+      "site-1": 0.325212,
+      "site-2": 0.317401,
+      "site-3": 0.350366,
+      "site-4": 0.295303,
+      "site-5": 0.306385,
+      "site-6": 0.314945,
+      "site-7": 0.303563,
+      "site-8": 0.300413,
+      "site-9": 0.312346
+     },
+     "container_mem_max_bytes": {
+      "evidence": 62349312,
+      "site-0": 51564544,
+      "site-1": 49983488,
+      "site-2": 49958912,
+      "site-3": 50016256,
+      "site-4": 50814976,
+      "site-5": 50814976,
+      "site-6": 50802688,
+      "site-7": 49991680,
+      "site-8": 50806784,
+      "site-9": 50802688
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 64200704,
+      "site-0": 52420608,
+      "site-1": 50507776,
+      "site-2": 50343936,
+      "site-3": 50515968,
+      "site-4": 51343360,
+      "site-5": 51081216,
+      "site-6": 51081216,
+      "site-7": 50257920,
+      "site-8": 51322880,
+      "site-9": 51073024
+     },
+     "host_busy_fraction": 0.2514349887696531,
+     "loadavg": [
+      13.2041015625,
+      12.53515625,
+      11.51513671875
+     ],
+     "sampler_wall_s": 14.679974208003841
+    },
+    {
+     "rep": 1,
+     "wall_s": 15.091747202008264,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.8088889999999935,
+     "container_cpu_s": {
+      "evidence": 15.980233,
+      "site-0": 7.916494,
+      "site-1": 0.359609,
+      "site-2": 0.316726,
+      "site-3": 0.360109,
+      "site-4": 0.367912,
+      "site-5": 0.38213,
+      "site-6": 0.377998,
+      "site-7": 0.343913,
+      "site-8": 0.353149,
+      "site-9": 0.373149
+     },
+     "container_mem_max_bytes": {
+      "evidence": 67735552,
+      "site-0": 51691520,
+      "site-1": 52142080,
+      "site-2": 51851264,
+      "site-3": 52158464,
+      "site-4": 52518912,
+      "site-5": 52264960,
+      "site-6": 52240384,
+      "site-7": 51892224,
+      "site-8": 52228096,
+      "site-9": 52244480
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 68595712,
+      "site-0": 52719616,
+      "site-1": 52666368,
+      "site-2": 52633600,
+      "site-3": 52428800,
+      "site-4": 52776960,
+      "site-5": 52781056,
+      "site-6": 52768768,
+      "site-7": 52420608,
+      "site-8": 52830208,
+      "site-9": 52776960
+     },
+     "host_busy_fraction": 0.24716,
+     "loadavg": [
+      12.3701171875,
+      12.37939453125,
+      11.47998046875
+     ],
+     "sampler_wall_s": 15.095667121000588
+    },
+    {
+     "rep": 2,
+     "wall_s": 14.912813547998667,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.8390770000000032,
+     "container_cpu_s": {
+      "evidence": 15.603971,
+      "site-0": 8.003978,
+      "site-1": 0.35178,
+      "site-2": 0.298518,
+      "site-3": 0.294354,
+      "site-4": 0.292241,
+      "site-5": 0.32545,
+      "site-6": 0.342258,
+      "site-7": 0.319603,
+      "site-8": 0.317058,
+      "site-9": 0.343809
+     },
+     "container_mem_max_bytes": {
+      "evidence": 68317184,
+      "site-0": 52027392,
+      "site-1": 54288384,
+      "site-2": 54079488,
+      "site-3": 54317056,
+      "site-4": 52260864,
+      "site-5": 52514816,
+      "site-6": 52252672,
+      "site-7": 54296576,
+      "site-8": 52232192,
+      "site-9": 52502528
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 69971968,
+      "site-0": 52899840,
+      "site-1": 54558720,
+      "site-2": 54538240,
+      "site-3": 54845440,
+      "site-4": 52785152,
+      "site-5": 52785152,
+      "site-6": 52776960,
+      "site-7": 54575104,
+      "site-8": 52830208,
+      "site-9": 52776960
+     },
+     "host_busy_fraction": 0.27380806471381297,
+     "loadavg": [
+      11.876953125,
+      12.27734375,
+      11.4609375
+     ],
+     "sampler_wall_s": 14.918338999996195
+    },
+    {
+     "rep": 3,
+     "wall_s": 14.700404003990116,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.8107300000000066,
+     "container_cpu_s": {
+      "evidence": 15.591943,
+      "site-0": 7.756477,
+      "site-1": 0.351407,
+      "site-2": 0.327167,
+      "site-3": 0.342135,
+      "site-4": 0.343462,
+      "site-5": 0.321317,
+      "site-6": 0.338421,
+      "site-7": 0.348188,
+      "site-8": 0.317392,
+      "site-9": 0.356282
+     },
+     "container_mem_max_bytes": {
+      "evidence": 70119424,
+      "site-0": 52379648,
+      "site-1": 55013376,
+      "site-2": 54984704,
+      "site-3": 55046144,
+      "site-4": 53428224,
+      "site-5": 53686272,
+      "site-6": 53420032,
+      "site-7": 55037952,
+      "site-8": 53493760,
+      "site-9": 54140928
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 71606272,
+      "site-0": 53071872,
+      "site-1": 55541760,
+      "site-2": 55517184,
+      "site-3": 55574528,
+      "site-4": 54222848,
+      "site-5": 54210560,
+      "site-6": 53948416,
+      "site-7": 55562240,
+      "site-8": 53760000,
+      "site-9": 54677504
+     },
+     "host_busy_fraction": 0.27085128205128206,
+     "loadavg": [
+      11.73974609375,
+      12.23046875,
+      11.45849609375
+     ],
+     "sampler_wall_s": 14.705458403012017
+    },
+    {
+     "rep": 4,
+     "wall_s": 14.865459672000725,
+     "requests": 1000,
+     "ok": 611,
+     "rejected": 389,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 166,
+     "client_cpu_s": 0.7945000000000277,
+     "container_cpu_s": {
+      "evidence": 15.947738,
+      "site-0": 7.909689,
+      "site-1": 0.342228,
+      "site-2": 0.325996,
+      "site-3": 0.332227,
+      "site-4": 0.342715,
+      "site-5": 0.338171,
+      "site-6": 0.358375,
+      "site-7": 0.336061,
+      "site-8": 0.337974,
+      "site-9": 0.356829
+     },
+     "container_mem_max_bytes": {
+      "evidence": 71438336,
+      "site-0": 52649984,
+      "site-1": 55001088,
+      "site-2": 55246848,
+      "site-3": 55021568,
+      "site-4": 55119872,
+      "site-5": 54403072,
+      "site-6": 54398976,
+      "site-7": 54767616,
+      "site-8": 55369728,
+      "site-9": 55578624
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 72949760,
+      "site-0": 53420032,
+      "site-1": 55541760,
+      "site-2": 55517184,
+      "site-3": 55816192,
+      "site-4": 55648256,
+      "site-5": 54923264,
+      "site-6": 54923264,
+      "site-7": 55562240,
+      "site-8": 56160256,
+      "site-9": 56606720
+     },
+     "host_busy_fraction": 0.23633885423980835,
+     "loadavg": [
+      10.455078125,
+      11.92431640625,
+      11.3701171875
+     ],
+     "sampler_wall_s": 14.870404073997634
+    }
+   ],
+   "n_sites": 10,
+   "transport": "http"
+  },
+  {
+   "n_workers": 10,
+   "ops_per_worker": 100,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 5.837536514009116,
+     "requests": 1000,
+     "ok": 610,
+     "rejected": 390,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 157,
+     "client_cpu_s": 1.2680229999999995,
+     "container_cpu_s": {
+      "evidence": 11.151777,
+      "site-0": 1.244492,
+      "site-1": 1.213362,
+      "site-2": 1.200396,
+      "site-3": 1.303014,
+      "site-4": 1.195195,
+      "site-5": 1.181944,
+      "site-6": 1.230581,
+      "site-7": 1.261584,
+      "site-8": 1.291313,
+      "site-9": 1.299857
+     },
+     "container_mem_max_bytes": {
+      "evidence": 74235904,
+      "site-0": 69656576,
+      "site-1": 72925184,
+      "site-2": 73695232,
+      "site-3": 72228864,
+      "site-4": 73875456,
+      "site-5": 73408512,
+      "site-6": 71196672,
+      "site-7": 73199616,
+      "site-8": 74379264,
+      "site-9": 73039872
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 77119488,
+      "site-0": 70893568,
+      "site-1": 74936320,
+      "site-2": 75444224,
+      "site-3": 74104832,
+      "site-4": 75694080,
+      "site-5": 75272192,
+      "site-6": 73338880,
+      "site-7": 75223040,
+      "site-8": 76185600,
+      "site-9": 75091968
+     },
+     "host_busy_fraction": 0.35654145077720206,
+     "loadavg": [
+      10.31103515625,
+      11.84423828125,
+      11.349609375
+     ],
+     "sampler_wall_s": 5.84256241901312
+    },
+    {
+     "rep": 1,
+     "wall_s": 6.263292756979354,
+     "requests": 1000,
+     "ok": 630,
+     "rejected": 370,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 180,
+     "client_cpu_s": 1.263099000000011,
+     "container_cpu_s": {
+      "evidence": 12.803163,
+      "site-0": 1.231817,
+      "site-1": 1.192816,
+      "site-2": 1.212775,
+      "site-3": 1.255818,
+      "site-4": 1.346261,
+      "site-5": 1.243184,
+      "site-6": 1.287172,
+      "site-7": 1.23191,
+      "site-8": 1.249857,
+      "site-9": 1.232214
+     },
+     "container_mem_max_bytes": {
+      "evidence": 74907648,
+      "site-0": 71483392,
+      "site-1": 74530816,
+      "site-2": 74743808,
+      "site-3": 76238848,
+      "site-4": 75862016,
+      "site-5": 76746752,
+      "site-6": 73457664,
+      "site-7": 73613312,
+      "site-8": 74473472,
+      "site-9": 74608640
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 77189120,
+      "site-0": 72929280,
+      "site-1": 76800000,
+      "site-2": 76578816,
+      "site-3": 77783040,
+      "site-4": 77914112,
+      "site-5": 77250560,
+      "site-6": 75784192,
+      "site-7": 76120064,
+      "site-8": 76443648,
+      "site-9": 77119488
+     },
+     "host_busy_fraction": 0.34760806338381306,
+     "loadavg": [
+      10.20556640625,
+      11.796875,
+      11.3369140625
+     ],
+     "sampler_wall_s": 6.267890780000016
+    },
+    {
+     "rep": 2,
+     "wall_s": 5.965999701991677,
+     "requests": 1000,
+     "ok": 622,
+     "rejected": 378,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 172,
+     "client_cpu_s": 1.2062080000000037,
+     "container_cpu_s": {
+      "evidence": 12.711597,
+      "site-0": 1.321862,
+      "site-1": 1.193144,
+      "site-2": 1.284174,
+      "site-3": 1.236922,
+      "site-4": 1.273183,
+      "site-5": 1.220028,
+      "site-6": 1.222114,
+      "site-7": 1.189063,
+      "site-8": 1.19027,
+      "site-9": 1.234088
+     },
+     "container_mem_max_bytes": {
+      "evidence": 75603968,
+      "site-0": 71737344,
+      "site-1": 74969088,
+      "site-2": 76447744,
+      "site-3": 76759040,
+      "site-4": 78630912,
+      "site-5": 76107776,
+      "site-6": 75235328,
+      "site-7": 74780672,
+      "site-8": 75825152,
+      "site-9": 75689984
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 77971456,
+      "site-0": 73318400,
+      "site-1": 76800000,
+      "site-2": 78835712,
+      "site-3": 78725120,
+      "site-4": 78630912,
+      "site-5": 77733888,
+      "site-6": 77627392,
+      "site-7": 76627968,
+      "site-8": 77709312,
+      "site-9": 79785984
+     },
+     "host_busy_fraction": 0.3838447748602763,
+     "loadavg": [
+      9.86865234375,
+      11.7001953125,
+      11.30810546875
+     ],
+     "sampler_wall_s": 5.9700768860057
+    },
+    {
+     "rep": 3,
+     "wall_s": 6.356318171019666,
+     "requests": 1000,
+     "ok": 624,
+     "rejected": 376,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 174,
+     "client_cpu_s": 1.25695300000001,
+     "container_cpu_s": {
+      "evidence": 12.750835,
+      "site-0": 1.204675,
+      "site-1": 1.316419,
+      "site-2": 1.218239,
+      "site-3": 1.293213,
+      "site-4": 1.170953,
+      "site-5": 1.191046,
+      "site-6": 1.251531,
+      "site-7": 1.26747,
+      "site-8": 1.293751,
+      "site-9": 1.21607
+     },
+     "container_mem_max_bytes": {
+      "evidence": 76636160,
+      "site-0": 72929280,
+      "site-1": 77471744,
+      "site-2": 77524992,
+      "site-3": 76972032,
+      "site-4": 78913536,
+      "site-5": 77586432,
+      "site-6": 76161024,
+      "site-7": 76455936,
+      "site-8": 76390400,
+      "site-9": 78807040
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 78098432,
+      "site-0": 74231808,
+      "site-1": 78286848,
+      "site-2": 79798272,
+      "site-3": 78725120,
+      "site-4": 80748544,
+      "site-5": 79802368,
+      "site-6": 78684160,
+      "site-7": 79040512,
+      "site-8": 78753792,
+      "site-9": 80941056
+     },
+     "host_busy_fraction": 0.37030464359656906,
+     "loadavg": [
+      10.19970703125,
+      11.73876953125,
+      11.32275390625
+     ],
+     "sampler_wall_s": 6.361912230990129
+    },
+    {
+     "rep": 4,
+     "wall_s": 6.164701831992716,
+     "requests": 1000,
+     "ok": 621,
+     "rejected": 379,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 171,
+     "client_cpu_s": 1.3048780000000022,
+     "container_cpu_s": {
+      "evidence": 12.854411,
+      "site-0": 1.322629,
+      "site-1": 1.21436,
+      "site-2": 1.224771,
+      "site-3": 1.186392,
+      "site-4": 1.163924,
+      "site-5": 1.246121,
+      "site-6": 1.249047,
+      "site-7": 1.168917,
+      "site-8": 1.315555,
+      "site-9": 1.223282
+     },
+     "container_mem_max_bytes": {
+      "evidence": 84135936,
+      "site-0": 74141696,
+      "site-1": 76836864,
+      "site-2": 78094336,
+      "site-3": 77156352,
+      "site-4": 80379904,
+      "site-5": 79536128,
+      "site-6": 78716928,
+      "site-7": 76558336,
+      "site-8": 78422016,
+      "site-9": 79974400
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 86188032,
+      "site-0": 76378112,
+      "site-1": 79245312,
+      "site-2": 79990784,
+      "site-3": 79310848,
+      "site-4": 82714624,
+      "site-5": 81166336,
+      "site-6": 78987264,
+      "site-7": 79040512,
+      "site-8": 80744448,
+      "site-9": 82640896
+     },
+     "host_busy_fraction": 0.3483088834555827,
+     "loadavg": [
+      9.87451171875,
+      11.61572265625,
+      11.28662109375
+     ],
+     "sampler_wall_s": 6.170134246000089
+    }
+   ],
+   "n_sites": 10,
+   "transport": "http"
+  },
+  {
+   "n_workers": 50,
+   "ops_per_worker": 20,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 1.436703284009127,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.7091909999999757,
+     "container_cpu_s": {
+      "evidence": 1.063406,
+      "site-0": 0.921609,
+      "site-1": 0.973241,
+      "site-2": 0.910438,
+      "site-3": 0.963492,
+      "site-4": 0.929994,
+      "site-5": 0.940203,
+      "site-6": 0.970246,
+      "site-7": 0.936097,
+      "site-8": 0.941527,
+      "site-9": 0.908312
+     },
+     "container_mem_max_bytes": {
+      "evidence": 91979776,
+      "site-0": 88293376,
+      "site-1": 89886720,
+      "site-2": 90730496,
+      "site-3": 93609984,
+      "site-4": 96784384,
+      "site-5": 96993280,
+      "site-6": 90521600,
+      "site-7": 89841664,
+      "site-8": 90730496,
+      "site-9": 92721152
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 94404608,
+      "site-0": 90411008,
+      "site-1": 92315648,
+      "site-2": 92401664,
+      "site-3": 96014336,
+      "site-4": 98897920,
+      "site-5": 98066432,
+      "site-6": 92676096,
+      "site-7": 92393472,
+      "site-8": 93384704,
+      "site-9": 94707712
+     },
+     "host_busy_fraction": 0.6171839856050383,
+     "loadavg": [
+      9.87451171875,
+      11.61572265625,
+      11.28662109375
+     ],
+     "sampler_wall_s": 1.440744947991334
+    },
+    {
+     "rep": 1,
+     "wall_s": 1.5618585840275045,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.6941439999999943,
+     "container_cpu_s": {
+      "evidence": 1.024017,
+      "site-0": 0.944549,
+      "site-1": 0.957505,
+      "site-2": 0.972206,
+      "site-3": 0.977087,
+      "site-4": 0.930012,
+      "site-5": 0.964803,
+      "site-6": 0.970049,
+      "site-7": 0.884764,
+      "site-8": 0.904855,
+      "site-9": 0.980827
+     },
+     "container_mem_max_bytes": {
+      "evidence": 91947008,
+      "site-0": 89067520,
+      "site-1": 91459584,
+      "site-2": 91725824,
+      "site-3": 95137792,
+      "site-4": 96882688,
+      "site-5": 96903168,
+      "site-6": 91959296,
+      "site-7": 90906624,
+      "site-8": 92418048,
+      "site-9": 94302208
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 94404608,
+      "site-0": 90742784,
+      "site-1": 93487104,
+      "site-2": 93495296,
+      "site-3": 96628736,
+      "site-4": 98897920,
+      "site-5": 98787328,
+      "site-6": 93704192,
+      "site-7": 92504064,
+      "site-8": 93982720,
+      "site-9": 96464896
+     },
+     "host_busy_fraction": 0.6776045939294504,
+     "loadavg": [
+      10.685546875,
+      11.75537109375,
+      11.33349609375
+     ],
+     "sampler_wall_s": 1.5668136719905306
+    },
+    {
+     "rep": 2,
+     "wall_s": 1.4592485389730427,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.7493559999999775,
+     "container_cpu_s": {
+      "evidence": 1.114667,
+      "site-0": 0.93653,
+      "site-1": 0.952197,
+      "site-2": 0.926298,
+      "site-3": 0.944244,
+      "site-4": 0.941831,
+      "site-5": 0.954875,
+      "site-6": 0.928586,
+      "site-7": 0.940722,
+      "site-8": 0.988366,
+      "site-9": 0.94542
+     },
+     "container_mem_max_bytes": {
+      "evidence": 91684864,
+      "site-0": 90066944,
+      "site-1": 91721728,
+      "site-2": 91873280,
+      "site-3": 93900800,
+      "site-4": 99794944,
+      "site-5": 96993280,
+      "site-6": 93609984,
+      "site-7": 92848128,
+      "site-8": 93081600,
+      "site-9": 95322112
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 94404608,
+      "site-0": 92012544,
+      "site-1": 93880320,
+      "site-2": 94048256,
+      "site-3": 96825344,
+      "site-4": 101081088,
+      "site-5": 99426304,
+      "site-6": 95244288,
+      "site-7": 94588928,
+      "site-8": 96153600,
+      "site-9": 97935360
+     },
+     "host_busy_fraction": 0.6216931216931217,
+     "loadavg": [
+      10.685546875,
+      11.75537109375,
+      11.33349609375
+     ],
+     "sampler_wall_s": 1.4644202330091503
+    },
+    {
+     "rep": 3,
+     "wall_s": 1.432318024977576,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.673813999999993,
+     "container_cpu_s": {
+      "evidence": 1.054051,
+      "site-0": 0.966051,
+      "site-1": 0.94919,
+      "site-2": 0.94569,
+      "site-3": 0.995196,
+      "site-4": 0.962775,
+      "site-5": 0.928898,
+      "site-6": 0.91035,
+      "site-7": 0.899565,
+      "site-8": 0.865758,
+      "site-9": 0.923619
+     },
+     "container_mem_max_bytes": {
+      "evidence": 91947008,
+      "site-0": 90263552,
+      "site-1": 91791360,
+      "site-2": 91918336,
+      "site-3": 93949952,
+      "site-4": 98942976,
+      "site-5": 97353728,
+      "site-6": 93741056,
+      "site-7": 94310400,
+      "site-8": 95391744,
+      "site-9": 96903168
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 94404608,
+      "site-0": 92098560,
+      "site-1": 94412800,
+      "site-2": 94048256,
+      "site-3": 96825344,
+      "site-4": 101081088,
+      "site-5": 100306944,
+      "site-6": 96600064,
+      "site-7": 96002048,
+      "site-8": 97951744,
+      "site-9": 100073472
+     },
+     "host_busy_fraction": 0.633318445734703,
+     "loadavg": [
+      10.685546875,
+      11.75537109375,
+      11.33349609375
+     ],
+     "sampler_wall_s": 1.4370507659914438
+    },
+    {
+     "rep": 4,
+     "wall_s": 1.468183244985994,
+     "requests": 1000,
+     "ok": 550,
+     "rejected": 450,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 50,
+     "client_cpu_s": 1.7531649999999956,
+     "container_cpu_s": {
+      "evidence": 1.074295,
+      "site-0": 0.959582,
+      "site-1": 0.946525,
+      "site-2": 0.93516,
+      "site-3": 0.922462,
+      "site-4": 0.945788,
+      "site-5": 0.885727,
+      "site-6": 0.950374,
+      "site-7": 0.900253,
+      "site-8": 0.92248,
+      "site-9": 0.918957
+     },
+     "container_mem_max_bytes": {
+      "evidence": 92164096,
+      "site-0": 91185152,
+      "site-1": 93601792,
+      "site-2": 94121984,
+      "site-3": 94556160,
+      "site-4": 97992704,
+      "site-5": 98156544,
+      "site-6": 96071680,
+      "site-7": 94597120,
+      "site-8": 96927744,
+      "site-9": 97046528
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 94404608,
+      "site-0": 93548544,
+      "site-1": 95760384,
+      "site-2": 96526336,
+      "site-3": 96825344,
+      "site-4": 101081088,
+      "site-5": 100306944,
+      "site-6": 97087488,
+      "site-7": 97107968,
+      "site-8": 98820096,
+      "site-9": 100073472
+     },
+     "host_busy_fraction": 0.5925274725274725,
+     "loadavg": [
+      11.431640625,
+      11.892578125,
+      11.38037109375
+     ],
+     "sampler_wall_s": 1.4735578499967232
+    }
+   ],
+   "n_sites": 10,
+   "transport": "http"
+  },
+  {
+   "n_workers": 100,
+   "ops_per_worker": 20,
+   "repeats": [
+    {
+     "rep": 0,
+     "wall_s": 2.9861615390109364,
+     "requests": 2000,
+     "ok": 1099,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 1,
+     "changed": 100,
+     "client_cpu_s": 3.512790000000024,
+     "container_cpu_s": {
+      "evidence": 2.120314,
+      "site-0": 1.831883,
+      "site-1": 1.871003,
+      "site-2": 1.928246,
+      "site-3": 1.906636,
+      "site-4": 1.863272,
+      "site-5": 1.862296,
+      "site-6": 1.852493,
+      "site-7": 1.836058,
+      "site-8": 1.79491,
+      "site-9": 1.872592
+     },
+     "container_mem_max_bytes": {
+      "evidence": 91631616,
+      "site-0": 105984000,
+      "site-1": 101769216,
+      "site-2": 109760512,
+      "site-3": 105955328,
+      "site-4": 109629440,
+      "site-5": 113299456,
+      "site-6": 109297664,
+      "site-7": 107978752,
+      "site-8": 114110464,
+      "site-9": 111800320
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 94404608,
+      "site-0": 107614208,
+      "site-1": 103325696,
+      "site-2": 111104000,
+      "site-3": 107257856,
+      "site-4": 111505408,
+      "site-5": 114401280,
+      "site-6": 110608384,
+      "site-7": 109056000,
+      "site-8": 115785728,
+      "site-9": 113856512
+     },
+     "host_busy_fraction": 0.636168384879725,
+     "loadavg": [
+      14.0400390625,
+      12.42578125,
+      11.5556640625
+     ],
+     "sampler_wall_s": 2.9916444270056672
+    },
+    {
+     "rep": 1,
+     "wall_s": 2.9148274720064364,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.480759999999975,
+     "container_cpu_s": {
+      "evidence": 2.170113,
+      "site-0": 1.889004,
+      "site-1": 1.773051,
+      "site-2": 1.836797,
+      "site-3": 1.836512,
+      "site-4": 1.825412,
+      "site-5": 1.853531,
+      "site-6": 1.797812,
+      "site-7": 1.842127,
+      "site-8": 1.820935,
+      "site-9": 1.83445
+     },
+     "container_mem_max_bytes": {
+      "evidence": 91267072,
+      "site-0": 110555136,
+      "site-1": 103956480,
+      "site-2": 111202304,
+      "site-3": 107016192,
+      "site-4": 111165440,
+      "site-5": 115396608,
+      "site-6": 112295936,
+      "site-7": 109338624,
+      "site-8": 115908608,
+      "site-9": 114429952
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 94404608,
+      "site-0": 112431104,
+      "site-1": 105762816,
+      "site-2": 113008640,
+      "site-3": 109158400,
+      "site-4": 112930816,
+      "site-5": 117510144,
+      "site-6": 113627136,
+      "site-7": 110686208,
+      "site-8": 117850112,
+      "site-9": 116551680
+     },
+     "host_busy_fraction": 0.6274293286219081,
+     "loadavg": [
+      14.0400390625,
+      12.42578125,
+      11.5556640625
+     ],
+     "sampler_wall_s": 2.921239294024417
+    },
+    {
+     "rep": 2,
+     "wall_s": 3.028370112006087,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.6234149999999943,
+     "container_cpu_s": {
+      "evidence": 2.118023,
+      "site-0": 1.953154,
+      "site-1": 1.880667,
+      "site-2": 1.77238,
+      "site-3": 1.969215,
+      "site-4": 1.961048,
+      "site-5": 1.90346,
+      "site-6": 1.869508,
+      "site-7": 1.899894,
+      "site-8": 1.827341,
+      "site-9": 1.889269
+     },
+     "container_mem_max_bytes": {
+      "evidence": 91533312,
+      "site-0": 111017984,
+      "site-1": 104468480,
+      "site-2": 111534080,
+      "site-3": 106356736,
+      "site-4": 111783936,
+      "site-5": 115859456,
+      "site-6": 112504832,
+      "site-7": 110850048,
+      "site-8": 112156672,
+      "site-9": 115924992
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 94404608,
+      "site-0": 112431104,
+      "site-1": 106586112,
+      "site-2": 113152000,
+      "site-3": 109158400,
+      "site-4": 114556928,
+      "site-5": 117510144,
+      "site-6": 113934336,
+      "site-7": 112193536,
+      "site-8": 117850112,
+      "site-9": 117968896
+     },
+     "host_busy_fraction": 0.6032047227493148,
+     "loadavg": [
+      14.91796875,
+      12.634765625,
+      11.6279296875
+     ],
+     "sampler_wall_s": 3.036392795998836
+    },
+    {
+     "rep": 3,
+     "wall_s": 2.994769411016023,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.5205190000000073,
+     "container_cpu_s": {
+      "evidence": 2.109928,
+      "site-0": 1.854037,
+      "site-1": 1.823786,
+      "site-2": 1.898194,
+      "site-3": 1.832295,
+      "site-4": 1.850174,
+      "site-5": 1.80117,
+      "site-6": 1.804403,
+      "site-7": 1.869889,
+      "site-8": 1.790401,
+      "site-9": 1.833268
+     },
+     "container_mem_max_bytes": {
+      "evidence": 91484160,
+      "site-0": 110673920,
+      "site-1": 104775680,
+      "site-2": 113618944,
+      "site-3": 107204608,
+      "site-4": 117624832,
+      "site-5": 111800320,
+      "site-6": 113184768,
+      "site-7": 105906176,
+      "site-8": 111865856,
+      "site-9": 117587968
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 94404608,
+      "site-0": 113094656,
+      "site-1": 106586112,
+      "site-2": 114962432,
+      "site-3": 109158400,
+      "site-4": 119627776,
+      "site-5": 117510144,
+      "site-6": 115924992,
+      "site-7": 112193536,
+      "site-8": 117850112,
+      "site-9": 119529472
+     },
+     "host_busy_fraction": 0.6216100790091822,
+     "loadavg": [
+      15.4853515625,
+      12.79052734375,
+      11.68408203125
+     ],
+     "sampler_wall_s": 3.0012335109931882
+    },
+    {
+     "rep": 4,
+     "wall_s": 2.9981371109897736,
+     "requests": 2000,
+     "ok": 1100,
+     "rejected": 900,
+     "error": 0,
+     "timeout": 0,
+     "transport": 0,
+     "changed": 100,
+     "client_cpu_s": 3.5016530000000046,
+     "container_cpu_s": {
+      "evidence": 2.113353,
+      "site-0": 1.908227,
+      "site-1": 1.794166,
+      "site-2": 1.937946,
+      "site-3": 1.858231,
+      "site-4": 1.868449,
+      "site-5": 1.809584,
+      "site-6": 1.782232,
+      "site-7": 1.86236,
+      "site-8": 1.79818,
+      "site-9": 1.861259
+     },
+     "container_mem_max_bytes": {
+      "evidence": 91258880,
+      "site-0": 107999232,
+      "site-1": 105443328,
+      "site-2": 114266112,
+      "site-3": 110776320,
+      "site-4": 118005760,
+      "site-5": 111771648,
+      "site-6": 119226368,
+      "site-7": 107597824,
+      "site-8": 110329856,
+      "site-9": 122347520
+     },
+     "container_mem_peak_bytes": {
+      "evidence": 94404608,
+      "site-0": 113094656,
+      "site-1": 107229184,
+      "site-2": 115859456,
+      "site-3": 112947200,
+      "site-4": 119906304,
+      "site-5": 117510144,
+      "site-6": 121077760,
+      "site-7": 112193536,
+      "site-8": 117850112,
+      "site-9": 125042688
+     },
+     "host_busy_fraction": 0.6458511548331908,
+     "loadavg": [
+      15.4853515625,
+      12.79052734375,
+      11.68408203125
+     ],
+     "sampler_wall_s": 3.00586739598657
+    }
+   ],
+   "n_sites": 10,
+   "transport": "http"
+  }
+ ],
+ "containers": {
+  "1": {
+   "evidence": {
+    "image": "sha256:01bce97a99176e838362ec89da7e666e6475c428fc0ae3beb80d1ff110bbc1b6",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-0": {
+    "image": "sha256:03ae9b5281e560cd506a56ff4369122a0fe120ab1e6e3b4732cde2a480d59d90",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   }
+  },
+  "2": {
+   "evidence": {
+    "image": "sha256:01bce97a99176e838362ec89da7e666e6475c428fc0ae3beb80d1ff110bbc1b6",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-0": {
+    "image": "sha256:03ae9b5281e560cd506a56ff4369122a0fe120ab1e6e3b4732cde2a480d59d90",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-1": {
+    "image": "sha256:3ef993579bd21b85d60cc35f60cd1c5bd683e8c556a6e26001f0fb77effb66d1",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   }
+  },
+  "5": {
+   "evidence": {
+    "image": "sha256:01bce97a99176e838362ec89da7e666e6475c428fc0ae3beb80d1ff110bbc1b6",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-0": {
+    "image": "sha256:03ae9b5281e560cd506a56ff4369122a0fe120ab1e6e3b4732cde2a480d59d90",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-1": {
+    "image": "sha256:3ef993579bd21b85d60cc35f60cd1c5bd683e8c556a6e26001f0fb77effb66d1",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-2": {
+    "image": "sha256:91d577a3781376937c10f5f9b13c8cceac20dd8040c0dbfc1d4cb49588da67e5",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-3": {
+    "image": "sha256:b9ac7b3c06473d281f6f236e5c9812d714b02545f15d262efc7a9103158b8509",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-4": {
+    "image": "sha256:c2749f1c3c6da57839fbcf16fcdff88cc57d1b3e8abdf922e7296547bee699c1",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   }
+  },
+  "10": {
+   "evidence": {
+    "image": "sha256:01bce97a99176e838362ec89da7e666e6475c428fc0ae3beb80d1ff110bbc1b6",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-0": {
+    "image": "sha256:03ae9b5281e560cd506a56ff4369122a0fe120ab1e6e3b4732cde2a480d59d90",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-1": {
+    "image": "sha256:3ef993579bd21b85d60cc35f60cd1c5bd683e8c556a6e26001f0fb77effb66d1",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-2": {
+    "image": "sha256:91d577a3781376937c10f5f9b13c8cceac20dd8040c0dbfc1d4cb49588da67e5",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-3": {
+    "image": "sha256:b9ac7b3c06473d281f6f236e5c9812d714b02545f15d262efc7a9103158b8509",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-4": {
+    "image": "sha256:c2749f1c3c6da57839fbcf16fcdff88cc57d1b3e8abdf922e7296547bee699c1",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-5": {
+    "image": "sha256:f6d310b18d2c10ecd3811e04fe25cb8d289fa692352835c7a87bed6da1a97449",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-6": {
+    "image": "sha256:92e5628a3c6970c5f47c108ad3954eca69a575adbee4500223eb5abeadb03fe8",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-7": {
+    "image": "sha256:8887112d980e68922a2b9e152c67985989d778af40efbc2da37931813ea46b4e",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-8": {
+    "image": "sha256:e04d49e2f25b64c08eecb6ee9edc863711e1b6db4466a3daf5c6546f80ecd7b0",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-9": {
+    "image": "sha256:a148a8751090cf1ae2e5d6f4b12abc70b2dee7ceb7fb2f502e11f361200383d6",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   }
+  }
+ },
+ "containers_end": {
+  "1": {
+   "evidence": {
+    "image": "sha256:01bce97a99176e838362ec89da7e666e6475c428fc0ae3beb80d1ff110bbc1b6",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-0": {
+    "image": "sha256:03ae9b5281e560cd506a56ff4369122a0fe120ab1e6e3b4732cde2a480d59d90",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   }
+  },
+  "2": {
+   "evidence": {
+    "image": "sha256:01bce97a99176e838362ec89da7e666e6475c428fc0ae3beb80d1ff110bbc1b6",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-0": {
+    "image": "sha256:03ae9b5281e560cd506a56ff4369122a0fe120ab1e6e3b4732cde2a480d59d90",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-1": {
+    "image": "sha256:3ef993579bd21b85d60cc35f60cd1c5bd683e8c556a6e26001f0fb77effb66d1",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   }
+  },
+  "5": {
+   "evidence": {
+    "image": "sha256:01bce97a99176e838362ec89da7e666e6475c428fc0ae3beb80d1ff110bbc1b6",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-0": {
+    "image": "sha256:03ae9b5281e560cd506a56ff4369122a0fe120ab1e6e3b4732cde2a480d59d90",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-1": {
+    "image": "sha256:3ef993579bd21b85d60cc35f60cd1c5bd683e8c556a6e26001f0fb77effb66d1",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-2": {
+    "image": "sha256:91d577a3781376937c10f5f9b13c8cceac20dd8040c0dbfc1d4cb49588da67e5",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-3": {
+    "image": "sha256:b9ac7b3c06473d281f6f236e5c9812d714b02545f15d262efc7a9103158b8509",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-4": {
+    "image": "sha256:c2749f1c3c6da57839fbcf16fcdff88cc57d1b3e8abdf922e7296547bee699c1",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   }
+  },
+  "10": {
+   "evidence": {
+    "image": "sha256:01bce97a99176e838362ec89da7e666e6475c428fc0ae3beb80d1ff110bbc1b6",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-0": {
+    "image": "sha256:03ae9b5281e560cd506a56ff4369122a0fe120ab1e6e3b4732cde2a480d59d90",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-1": {
+    "image": "sha256:3ef993579bd21b85d60cc35f60cd1c5bd683e8c556a6e26001f0fb77effb66d1",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-2": {
+    "image": "sha256:91d577a3781376937c10f5f9b13c8cceac20dd8040c0dbfc1d4cb49588da67e5",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-3": {
+    "image": "sha256:b9ac7b3c06473d281f6f236e5c9812d714b02545f15d262efc7a9103158b8509",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-4": {
+    "image": "sha256:c2749f1c3c6da57839fbcf16fcdff88cc57d1b3e8abdf922e7296547bee699c1",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-5": {
+    "image": "sha256:f6d310b18d2c10ecd3811e04fe25cb8d289fa692352835c7a87bed6da1a97449",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-6": {
+    "image": "sha256:92e5628a3c6970c5f47c108ad3954eca69a575adbee4500223eb5abeadb03fe8",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-7": {
+    "image": "sha256:8887112d980e68922a2b9e152c67985989d778af40efbc2da37931813ea46b4e",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-8": {
+    "image": "sha256:e04d49e2f25b64c08eecb6ee9edc863711e1b6db4466a3daf5c6546f80ecd7b0",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-9": {
+    "image": "sha256:a148a8751090cf1ae2e5d6f4b12abc70b2dee7ceb7fb2f502e11f361200383d6",
+    "/app/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   }
+  }
+ },
+ "finished_utc": "2026-10-13T11:54:45.119212+00:00"
+}

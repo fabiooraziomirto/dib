@@ -32,6 +32,7 @@ CODE = ROOT / "code"
 DIST = CODE / "src/dib/registry/distributed"
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(CODE))
+sys.path.insert(0, str(CODE / "src"))  # mtls client context in up() (fix after attempt 1, audit 127)
 import mgmt_bench  # noqa: E402
 
 PROJECT = "dibsweep"

@@ -1,0 +1,166 @@
+#0 building with "default" instance using docker driver
+
+#1 [evidence internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.27kB done
+#1 DONE 0.0s
+
+#2 [evidence internal] load metadata for docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#2 DONE 0.0s
+
+#3 [evidence internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [evidence  1/12] FROM docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#4 DONE 0.0s
+
+#5 [evidence internal] load build context
+#5 transferring context: 629B done
+#5 DONE 0.0s
+
+#6 [evidence  4/12] COPY src/dib/registry/distributed/service.py /app/service.py
+#6 CACHED
+
+#7 [evidence  7/12] COPY src/dib/core/io.py /app/dib/core/io.py
+#7 CACHED
+
+#8 [evidence 11/12] COPY src/dib/registry/__init__.py /app/dib/registry/__init__.py
+#8 CACHED
+
+#9 [evidence  8/12] COPY src/dib/core/models.py /app/dib/core/models.py
+#9 CACHED
+
+#10 [evidence 10/12] COPY src/dib/evaluation/mud_export.py /app/dib/evaluation/mud_export.py
+#10 CACHED
+
+#11 [evidence  3/12] RUN pip install --no-cache-dir fastapi>=0.111 uvicorn==0.51.0 httpx>=0.27 pydantic>=2
+#11 CACHED
+
+#12 [evidence  2/12] WORKDIR /app
+#12 CACHED
+
+#13 [evidence  9/12] COPY src/dib/evaluation/__init__.py /app/dib/evaluation/__init__.py
+#13 CACHED
+
+#14 [evidence  6/12] COPY src/dib/core/__init__.py /app/dib/core/__init__.py
+#14 CACHED
+
+#15 [evidence  5/12] COPY src/dib/__init__.py /app/dib/__init__.py
+#15 CACHED
+
+#16 [evidence 12/12] COPY src/dib/registry/distributed/mtls.py /app/dib/registry/distributed/mtls.py
+#16 CACHED
+
+#17 [evidence] exporting to image
+#17 exporting layers done
+#17 writing image sha256:01bce97a99176e838362ec89da7e666e6475c428fc0ae3beb80d1ff110bbc1b6 done
+#17 naming to docker.io/library/dibsweep-evidence done
+#17 DONE 0.0s
+
+#18 [evidence] resolving provenance for metadata file
+#18 DONE 0.0s
+
+#19 [site-1 internal] load build definition from Dockerfile
+#19 transferring dockerfile: 1.27kB done
+#19 DONE 0.0s
+
+#20 [site-0 internal] load build definition from Dockerfile
+#20 transferring dockerfile: 1.27kB done
+#20 DONE 0.0s
+
+#2 [site-0 internal] load metadata for docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#2 DONE 0.0s
+
+#21 [site-0 internal] load .dockerignore
+#21 transferring context: 2B done
+#21 DONE 0.0s
+
+#22 [site-1 internal] load .dockerignore
+#22 transferring context: 2B done
+#22 DONE 0.0s
+
+#4 [site-1  1/12] FROM docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#4 DONE 0.0s
+
+#23 [site-0 internal] load build context
+#23 transferring context: 629B done
+#23 DONE 0.0s
+
+#24 [site-1 internal] load build context
+#24 transferring context: 629B done
+#24 DONE 0.0s
+
+#25 [site-0  5/12] COPY src/dib/__init__.py /app/dib/__init__.py
+#25 CACHED
+
+#26 [site-0  4/12] COPY src/dib/registry/distributed/service.py /app/service.py
+#26 CACHED
+
+#11 [site-0  3/12] RUN pip install --no-cache-dir fastapi>=0.111 uvicorn==0.51.0 httpx>=0.27 pydantic>=2
+#11 CACHED
+
+#27 [site-0  6/12] COPY src/dib/core/__init__.py /app/dib/core/__init__.py
+#27 CACHED
+
+#28 [site-0  7/12] COPY src/dib/core/io.py /app/dib/core/io.py
+#28 CACHED
+
+#29 [site-0 11/12] COPY src/dib/registry/__init__.py /app/dib/registry/__init__.py
+#29 CACHED
+
+#12 [site-0  2/12] WORKDIR /app
+#12 CACHED
+
+#30 [site-0  8/12] COPY src/dib/core/models.py /app/dib/core/models.py
+#30 CACHED
+
+#31 [site-0 10/12] COPY src/dib/evaluation/mud_export.py /app/dib/evaluation/mud_export.py
+#31 CACHED
+
+#32 [site-0  9/12] COPY src/dib/evaluation/__init__.py /app/dib/evaluation/__init__.py
+#32 CACHED
+
+#33 [site-1 12/12] COPY src/dib/registry/distributed/mtls.py /app/dib/registry/distributed/mtls.py
+#33 CACHED
+
+#34 [site-0] exporting to image
+#34 exporting layers done
+#34 writing image sha256:03ae9b5281e560cd506a56ff4369122a0fe120ab1e6e3b4732cde2a480d59d90 done
+#34 naming to docker.io/library/dibsweep-site-0 done
+#34 DONE 0.0s
+
+#35 [site-1] exporting to image
+#35 exporting layers done
+#35 writing image sha256:3ef993579bd21b85d60cc35f60cd1c5bd683e8c556a6e26001f0fb77effb66d1 done
+#35 naming to docker.io/library/dibsweep-site-1 done
+#35 DONE 0.0s
+
+#36 [site-1] resolving provenance for metadata file
+#36 DONE 0.0s
+
+#37 [site-0] resolving provenance for metadata file
+#37 DONE 0.0s
+time="2026-10-13T13:47:30+02:00" level=warning msg="Docker Compose is configured to build using Bake, but buildx isn't installed"
+ evidence  Built
+ site-0  Built
+ site-1  Built
+ Network dibsweep_default  Creating
+ Network dibsweep_default  Created
+ Volume dibsweep_site_1_data  Creating
+ Volume dibsweep_site_1_data  Created
+ Volume dibsweep_evidence_data  Creating
+ Volume dibsweep_evidence_data  Created
+ Volume dibsweep_site_0_data  Creating
+ Volume dibsweep_site_0_data  Created
+ Container dibsweep-evidence-1  Creating
+ Container dibsweep-evidence-1  Created
+ Container dibsweep-site-1-1  Creating
+ Container dibsweep-site-0-1  Creating
+ Container dibsweep-site-1-1  Created
+ Container dibsweep-site-0-1  Created
+ Container dibsweep-evidence-1  Starting
+ Container dibsweep-evidence-1  Started
+ Container dibsweep-site-1-1  Starting
+ Container dibsweep-site-0-1  Starting
+ Container dibsweep-site-1-1  Started
+ Container dibsweep-site-0-1  Started

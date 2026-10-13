@@ -1,0 +1,45 @@
+{
+ "prereg": "docs/audit/123",
+ "transport": "mtls",
+ "started_utc": "2026-10-13T11:54:46.478874+00:00",
+ "commit": "e1ad277bb0bfd133c27325ddaf34eb4b4304ddb3",
+ "dirty": [
+  "?? experiments_tnsm/site_sweep_20261013/http/",
+  "?? experiments_tnsm/site_sweep_20261013/mtls/"
+ ],
+ "tree_sha256": {
+  "code/src/dib/registry/distributed/service.py": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+  "code/src/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9",
+  "code/src/dib/registry/distributed/Dockerfile": "50adfd9dd41d4a7a9d19a992684bd7d108973318979b0ec7749671b327a8a5a9",
+  "code/src/dib/registry/distributed/generate_compose.py": "22c5be5ab390c17c1b38d77bf20c9e3cd4138e44c5d8b41bdbb1ecdcf64c4541",
+  "experiments_tnsm/site_sweep_20261013/mgmt_bench.py": "dcb5b69c25580636e2beaf56a6abfb87941365fc4e432ce1c6ef6c8562f17bb5",
+  "experiments_tnsm/site_sweep_20261013/sweep.py": "0c7d0c59777fd9017ae4c7974a5c1d993240c30386cacabeaef3c1032384056e",
+  "code/scripts/distributed_concurrency_benchmark.py": "035ab45ea5972fb2bad6a294a5705701e48983f6fcdb45e582e19693b61e9eb5"
+ },
+ "python": "3.12.15",
+ "nproc": 16,
+ "mix": [
+  "query",
+  "commit",
+  "query",
+  "commit",
+  "query",
+  "commit",
+  "query",
+  "attest",
+  "commit",
+  "query",
+  "commit",
+  "query",
+  "dispute",
+  "commit",
+  "query",
+  "restore",
+  "query",
+  "commit"
+ ],
+ "client": "one process, ThreadPoolExecutor(W); shared httpx.Client timeout 5 s (http) or one client per identity (mtls)",
+ "cells": [],
+ "fatal": "ModuleNotFoundError: No module named 'dib'",
+ "finished_utc": "2026-10-13T11:55:30.457754+00:00"
+}
