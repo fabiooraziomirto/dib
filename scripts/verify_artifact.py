@@ -351,6 +351,55 @@ def check_v42_additions() -> None:
               t["direct_commit_over_veto_blocked"], True)
 
 
+# --- 2026-10-13 reruns on the reference service (docs/audit/119-120) --------
+# The packaged results/restore_ablation and results/offline_veto were produced by
+# service.py 31863043 (commit 9413c20). Their provenance checks above are KEPT and
+# still fail: they state a fact about that evidence. The reruns below are checked
+# against the service in this tree; promoting them into results/ is a separate,
+# user-approved step.
+SUPERSEDED = {
+    "ablation source matches packaged service": "experiments_tnsm/lifecycle_rerun_20261013 (audit 120)",
+    "offline veto: service matches packaged distributed service": "experiments_tnsm/lifecycle_rerun_20261013 (audit 120)",
+}
+
+
+def check_lifecycle_rerun_20261013() -> None:
+    print("\nRerun on the reference service (audit 119-120)")
+    d = "experiments_tnsm/lifecycle_rerun_20261013"
+    service = hashlib.sha256((ROOT / "code/src/dib/registry/distributed/service.py").read_bytes()).hexdigest()
+    man = json.loads(text(f"{d}/manifest.json"))
+    abl = json.loads(text(f"{d}/restore_ablation.json"))
+    ov = json.loads(text(f"{d}/offline_veto.json"))
+    check("rerun: ablation service = this tree", abl["service_sha256"], service)
+    check("rerun: offline veto service = this tree", ov["service_sha256"], service)
+    check("rerun: module loaded by the uvicorn subprocesses = this tree", man["subprocess_module_sha256"], service)
+    check("rerun: ablation generator = this tree", abl["script_sha256"],
+          hashlib.sha256((ROOT / "code/scripts/v36_restore_ablation.py").read_bytes()).hexdigest())
+    check("rerun: offline veto generator = this tree", ov["script_sha256"],
+          hashlib.sha256((ROOT / "code/scripts/offline_veto_reconciliation.py").read_bytes()).hexdigest())
+    for name, run in man["runs"].items():
+        check(f"rerun: {name} result sha256 = manifest", hashlib.sha256(text(f"{d}/{name}.json").encode()).hexdigest(),
+              run["result_sha256"])
+        check(f"rerun: {name} exit code", run["returncode"], 0)
+    check("rerun: ablation cases", len(abl["cases"]), 18)
+    for policy, ace_count, veto_count in (("persistent_approval", 12, 6), ("review_reset", 0, 0), ("dib", 0, 6)):
+        cases = [c for c in abl["cases"] if c["policy"] == policy]
+        finals = [next(t for t in c["trace"] if t["event"] == "restored_and_reconciled") for c in cases]
+        check(f"rerun {policy}: subject ACEs without fresh commit (trace)", sum(sum(f["subject_aces"]) for f in finals), ace_count)
+        check(f"rerun {policy}: vetoes preserved", sum(c["local_veto_preserved"] for c in cases), veto_count)
+        check(f"rerun {policy}: control fact exported at every step",
+              all(t["control_aces"] == [1, 1, 1] for c in cases for t in c["trace"]), True)
+    t = ov["trials"]
+    check("rerun offline veto: trials", len(t), 30)
+    check("rerun offline veto: veto local after restart", sum(x["after"]["veto"] == dict(state="revoked", origin="local", last_applied_seq=3) for x in t), 30)
+    check("rerun offline veto: stale Active -> MonitorOnly", sum(x["after"]["active"]["state"] == "monitor-only" for x in t), 30)
+    check("rerun offline veto: neither vetoed nor stale fact exports",
+          sum(x["exports_after_reconcile"]["veto"] == [0, 0, 0] and x["exports_after_reconcile"]["active"] == [0, 0, 0] for x in t), 30)
+    check("rerun offline veto: unrelated fact exports everywhere", sum(x["exports_after_reconcile"]["unrelated"] == [1, 1, 1] for x in t), 30)
+    for key in ("repeated_reconcile_noop", "stale_replay_ignored", "direct_commit_over_veto_blocked", "explicit_recovery_passed"):
+        check(f"rerun offline veto: {key}", sum(bool(x[key]) for x in t), 30)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--with-tests", action="store_true", help="also run the unit suite")
@@ -363,12 +412,16 @@ def main() -> int:
     check_scalability()
     check_new_lifecycle()
     check_v42_additions()
+    check_lifecycle_rerun_20261013()
     if args.with_tests:
         run_unit_tests()
 
     print(f"\n{len(PASSED)} checks passed, {len(FAILED)} failed")
     for line in FAILED:
         print("  FAILED " + line)
+        label = line.split(": got ", 1)[0]
+        if label in SUPERSEDED:
+            print(f"         (historical evidence, superseded by {SUPERSEDED[label]}; still counted as failed)")
     return 1 if FAILED else 0
 
 
