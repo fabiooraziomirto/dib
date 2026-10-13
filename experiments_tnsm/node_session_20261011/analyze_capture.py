@@ -61,13 +61,15 @@ def connections(caps: dict) -> list[dict]:
                                              and x["t"] >= r["t"]]
             rin = [] if site is None else sorted((x for x in site["rows"] if x["dir"] == "in" and x["src"] == ev_ip and x["sport"] == sport and x["dst"] == site_ip and x["dport"] == PORT
                                                   and x["len"] > 0 and x["t"] >= r["t"]), key=lambda x: x["t"])
+            ev_synack = next((x for x in sorted(ev["rows"], key=lambda x: x["t"]) if x["dir"] == "in" and x["src"] == site_ip and x["dport"] == sport and x["sport"] == PORT
+                              and x["flags"] & SYN and x["flags"] & ACK and x["t"] >= r["t"]), None)
             synack = next((x for x in sorted(srows, key=lambda x: x["t"]) if x["flags"] & SYN and x["flags"] & ACK), None)
             se = sorted((x for x in srows if x["len"] > 0), key=lambda x: x["t"])
             tls = bool(es) and es[0]["p0"].startswith("1603")
             t_cf = es[1]["t"] if tls and len(es) > 1 else None
             n_sf = sum(1 for x in se if t_cf is not None and x["t"] < t_cf)
             out.append({"sport": sport, "site_ip": site_ip, "tls": tls, "es_data": [(x["t"], x["len"]) for x in es], "se_data": [(x["t"], x["len"]) for x in se], "n_sf": n_sf,
-                        "es_in_lens": [x["len"] for x in rin], "syn_mss": r["mss"], "synack_mss": None if synack is None else synack["mss"], "valid": synack is not None and bool(es) and bool(se)})
+                        "synack_in_t": None if ev_synack is None else ev_synack["t"], "es_in_lens": [x["len"] for x in rin], "syn_mss": r["mss"], "synack_mss": None if synack is None else synack["mss"], "valid": synack is not None and bool(es) and bool(se)})
     return out
 
 
@@ -120,6 +122,37 @@ def units(conns: list[dict]) -> dict:
     return out
 
 
+BURST_S = 0.003
+WIN = (0.03, 0.12)
+MIN_BURSTS = 80
+
+
+def clienthello_bursts(conns: list[dict]) -> dict:
+    """Addendum 1 of audit 116 (H-P2a): first copy of the ClientHello of each C connection, seen in the sender tap between 0.03 s and 0.12 s after the SYN-ACK arrived at the evidence;
+    its burst (rows within 3 ms) is a unit (one row longer than 1448) or split (two or more rows summing above 1448). Rows with data more than 0.3 s after the burst are listed by length."""
+    cs = [c for c in conns if c["tls"] and c["es_data"] and c["synack_in_t"] is not None]
+    unit = split = out = 0
+    late: collections.Counter = collections.Counter()
+    for c in cs:
+        first_t = c["es_data"][0][0]
+        if not WIN[0] <= first_t - c["synack_in_t"] <= WIN[1]:
+            out += 1
+            continue
+        burst = [x for x in c["es_data"] if x[0] - first_t <= BURST_S]
+        if len(burst) == 1 and burst[0][1] > MSS_EFFECTIVE:
+            unit += 1
+        elif len(burst) >= 2 and sum(x[1] for x in burst) > MSS_EFFECTIVE:
+            split += 1
+        for x in c["es_data"]:
+            if x[0] - first_t > 0.3:
+                late[str(x[1])] += 1
+    n = unit + split
+    quota = unit / n if n else 0.0
+    verdetto = "non valutabile" if n < MIN_BURSTS else ("confermata" if quota >= THRESHOLD else "falsificata")
+    return {"connessioni_C": len(cs), "valutabili": n, "unita": unit, "spezzate": split, "escluse_prima_copia_fuori_finestra": out, "quota_unita": quota, "H-P2a": verdetto,
+            "lunghezze_righe_oltre_0.3s": dict(late)}
+
+
 def to_md(res: dict) -> str:
     lines = ["| arm | connessioni | valide | ipotesi | verdetto | quota con la struttura attesa |", "|---|---|---|---|---|---|"]
     for arm in ("D", "C"):
@@ -139,7 +172,7 @@ def to_md(res: dict) -> str:
 def main() -> None:
     d = Path(sys.argv[1])
     conns = load_all(d)
-    md = to_md(verdict(conns)) + "\n### Unità osservate in ingresso al sito (osservazione, audit 116)\n\n" + json.dumps(units(conns), ensure_ascii=False) + "\n"
+    md = to_md(verdict(conns)) + "\n### Unità osservate in ingresso al sito (osservazione, audit 116)\n\n" + json.dumps(units(conns), ensure_ascii=False) + "\n\n### Addendum 1 (H-P2a, ClientHello come unità o spezzato)\n\n" + json.dumps(clienthello_bursts(conns), ensure_ascii=False) + "\n"
     if "--out" in sys.argv:
         Path(sys.argv[sys.argv.index("--out") + 1]).write_text(md)
     print(md)

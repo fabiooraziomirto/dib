@@ -191,3 +191,38 @@ def test_units_intact_and_split(tmp_path):
     write_captures(tmp_path, [(ev2, st2 + st2_in)])
     u2 = ac.units(ac.connections(ac.load(tmp_path)))
     assert u2["C"]["primo_segmento_E_S_oltre_MSS"] == 1 and u2["C"]["di_cui_arrivati_spezzati"] == 1 and u2["C"]["ingresso_uguale_all_uscita"] == 0
+
+
+def burst_conn(sport, ch_rows, synack_in=0.06, t0=0.0):
+    """Evidence tap of a TLS connection: SYN out, SYN-ACK in at synack_in, ClientHello rows (dt after the SYN-ACK arrival, length) out."""
+    ev = [pk(t0, EV, sport, S0, 8000, SYN, mss=1460), pk(t0 + synack_in, S0, 8000, EV, sport, SYN | ACK, mss=1460, d="in")]
+    for dt, ln in ch_rows:
+        ev.append(pk(t0 + synack_in + dt, EV, sport, S0, 8000, ACK | PSH, ln, p0="1603010200"))
+    ev.append(pk(t0 + synack_in + max(dt for dt, _ in ch_rows) + 0.2, EV, sport, S0, 8000, ACK | PSH, 853, p0="1403030001"))   # the client flight follows the (last) ClientHello
+    st = [pk(t0 + .06, S0, 8000, EV, sport, SYN | ACK, mss=1460), pk(t0 + .4, S0, 8000, EV, sport, ACK | PSH, 100, p0="1703030000")]
+    return ev, st
+
+
+def test_clienthello_bursts_unit_split_and_excluded(tmp_path):
+    cs = [burst_conn(40001, [(0.06, 1537)]), burst_conn(40002, [(0.06, 1448), (0.061, 89)], t0=5.0), burst_conn(40003, [(0.8, 1448), (0.801, 89)], t0=10.0)]
+    write_captures(tmp_path, cs)
+    b = ac.clienthello_bursts(ac.connections(ac.load(tmp_path)))
+    assert b["valutabili"] == 2 and b["unita"] == 1 and b["spezzate"] == 1 and b["escluse_prima_copia_fuori_finestra"] == 1
+
+
+def test_clienthello_bursts_verdict_threshold(tmp_path):
+    cs = [burst_conn(40000 + i, [(0.06, 1537)], t0=i * 3.0) for i in range(95)] + [burst_conn(41000 + i, [(0.06, 1448), (0.061, 89)], t0=400 + i * 3.0) for i in range(5)]
+    write_captures(tmp_path, cs)
+    b = ac.clienthello_bursts(ac.connections(ac.load(tmp_path)))
+    assert b["H-P2a"] == "confermata" and abs(b["quota_unita"] - 0.95) < 1e-9
+    cs.append(burst_conn(42000, [(0.06, 1448), (0.061, 89)], t0=800.0))
+    write_captures(tmp_path, cs)
+    assert ac.clienthello_bursts(ac.connections(ac.load(tmp_path)))["H-P2a"] == "falsificata"
+
+
+def test_clienthello_bursts_not_evaluable_and_retransmission_lengths(tmp_path):
+    cs = [burst_conn(40000 + i, [(0.06, 1537)], t0=i * 3.0) for i in range(10)]
+    ev, st = burst_conn(41000, [(0.06, 1537), (1.0, 1448), (1.001, 89)], t0=100.0)
+    write_captures(tmp_path, cs + [(ev, st)])
+    b = ac.clienthello_bursts(ac.connections(ac.load(tmp_path)))
+    assert b["H-P2a"] == "non valutabile" and b["lunghezze_righe_oltre_0.3s"] == {"1448": 1, "89": 1, "853": 1}   # the client flight is also more than 0.3 s after the first burst here
