@@ -226,3 +226,12 @@ def test_clienthello_bursts_not_evaluable_and_retransmission_lengths(tmp_path):
     write_captures(tmp_path, cs + [(ev, st)])
     b = ac.clienthello_bursts(ac.connections(ac.load(tmp_path)))
     assert b["H-P2a"] == "non valutabile" and b["lunghezze_righe_oltre_0.3s"] == {"1448": 1, "89": 1, "853": 1}   # the client flight is also more than 0.3 s after the first burst here
+
+
+def test_retransmitted_syn_does_not_create_a_second_connection(tmp_path):
+    """Found on the lossy capture (audit 118): a retransmitted SYN with the same source port made a second, truncated entry (client flight and request only) that was counted as an arm D connection."""
+    ev, st = conn(40001, True)
+    ev.insert(1, pk(1.2, EV, 40001, S0, 8000, SYN, mss=1460))     # SYN again 1.2 s later, same source port
+    write_captures(tmp_path, [(ev, st)])
+    cs = ac.connections(ac.load(tmp_path))
+    assert len(cs) == 1 and cs[0]["tls"] and len(cs[0]["es_data"]) == 4

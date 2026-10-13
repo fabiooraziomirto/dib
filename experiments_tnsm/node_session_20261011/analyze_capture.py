@@ -51,8 +51,12 @@ def connections(caps: dict) -> list[dict]:
     sites = {c["ip"]: c for n, c in caps.items() if not n.startswith("dibtnsm-evidence")}
     ev_ip = ev["ip"]
     out = []
-    for r in ev["rows"]:
+    seen_syn = set()
+    for r in sorted(ev["rows"], key=lambda x: x["t"]):
         if r["dir"] == "out" and r["src"] == ev_ip and r["dport"] == PORT and r["flags"] & SYN and not r["flags"] & ACK:
+            if (r["sport"], r["dst"]) in seen_syn:      # a retransmitted SYN is the same connection (audit 118)
+                continue
+            seen_syn.add((r["sport"], r["dst"]))
             sport, site_ip = r["sport"], r["dst"]
             es = sorted((x for x in ev["rows"] if x["dir"] == "out" and x["src"] == ev_ip and x["sport"] == sport and x["dst"] == site_ip and x["dport"] == PORT and x["len"] > 0
                          and x["t"] >= r["t"]), key=lambda x: x["t"])
