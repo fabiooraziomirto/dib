@@ -358,14 +358,27 @@ def check_v42_additions() -> None:
 # against the service in this tree; promoting them into results/ is a separate,
 # user-approved step.
 SUPERSEDED = {
-    "ablation source matches packaged service": "experiments_tnsm/lifecycle_rerun_20261013 (audit 120)",
-    "offline veto: service matches packaged distributed service": "experiments_tnsm/lifecycle_rerun_20261013 (audit 120)",
+    "ablation source matches packaged service": "experiments_tnsm/lifecycle_rerun_20261013_g3fix (audits 120, 126)",
+    "offline veto: service matches packaged distributed service": "experiments_tnsm/lifecycle_rerun_20261013_g3fix (audits 120, 126)",
 }
 
 
-def check_lifecycle_rerun_20261013() -> None:
-    print("\nRerun on the reference service (audit 119-120)")
+def check_lifecycle_rerun_superseded_3ffa57ee() -> None:
+    """Audit 120 rerun, on service 3ffa57ee (before the audit-126 guard). Checked for internal
+    consistency only: it is NOT claimed to match the service in this tree."""
+    print("\nRerun on service 3ffa57ee (audit 120; superseded by audit 126, internal consistency only)")
     d = "experiments_tnsm/lifecycle_rerun_20261013"
+    man = json.loads(text(f"{d}/manifest.json"))
+    for name, run in man["runs"].items():
+        check(f"3ffa57ee rerun: {name} result sha256 = manifest", hashlib.sha256(text(f"{d}/{name}.json").encode()).hexdigest(),
+              run["result_sha256"])
+        check(f"3ffa57ee rerun: {name} records service 3ffa57ee", json.loads(text(f"{d}/{name}.json"))["service_sha256"],
+              "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8")
+
+
+def check_lifecycle_rerun_20261013() -> None:
+    print("\nRerun on the service in this tree (audit 119-120, 126)")
+    d = "experiments_tnsm/lifecycle_rerun_20261013_g3fix"
     service = hashlib.sha256((ROOT / "code/src/dib/registry/distributed/service.py").read_bytes()).hexdigest()
     man = json.loads(text(f"{d}/manifest.json"))
     abl = json.loads(text(f"{d}/restore_ablation.json"))
@@ -412,6 +425,7 @@ def main() -> int:
     check_scalability()
     check_new_lifecycle()
     check_v42_additions()
+    check_lifecycle_rerun_superseded_3ffa57ee()
     check_lifecycle_rerun_20261013()
     if args.with_tests:
         run_unit_tests()

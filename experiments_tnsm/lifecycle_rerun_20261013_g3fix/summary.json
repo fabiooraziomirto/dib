@@ -1,0 +1,95 @@
+{
+ "provenance": {
+  "tree service = reference of audit 119 or the audit-126 fix": true,
+  "ablation service = reference": true,
+  "offline veto service = reference": true,
+  "subprocess module = reference": true,
+  "tree clean at run": true,
+  "result hashes match manifest": true,
+  "generators exited 0": true
+ },
+ "ablation": {
+  "service_sha256": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+  "per_policy": {
+   "persistent_approval": {
+    "cases": 6,
+    "subject_aces_without_fresh_commit": 12,
+    "site_case_opportunities": 18,
+    "vetoes_preserved": 6,
+    "control_unchanged_every_step": true,
+    "disconnected_site2_subject_aces": [
+     1,
+     1,
+     1
+    ],
+    "explicit_recovery_all": true
+   },
+   "review_reset": {
+    "cases": 6,
+    "subject_aces_without_fresh_commit": 0,
+    "site_case_opportunities": 18,
+    "vetoes_preserved": 0,
+    "control_unchanged_every_step": true,
+    "disconnected_site2_subject_aces": [
+     0,
+     0,
+     0
+    ],
+    "explicit_recovery_all": true
+   },
+   "dib": {
+    "cases": 6,
+    "subject_aces_without_fresh_commit": 0,
+    "site_case_opportunities": 18,
+    "vetoes_preserved": 6,
+    "control_unchanged_every_step": true,
+    "disconnected_site2_subject_aces": [
+     0,
+     0,
+     0
+    ],
+    "explicit_recovery_all": true
+   }
+  },
+  "criteria": {
+   "A1 persistent_approval": true,
+   "A2 persistent_approval": true,
+   "A4 persistent_approval": true,
+   "A1 review_reset": true,
+   "A2 review_reset": true,
+   "A4 review_reset": true,
+   "A1 dib": true,
+   "A2 dib": true,
+   "A4 dib": true,
+   "A3 dib: disconnected site-2 exports nothing after reconcile": true,
+   "case count 18, distinct combinations 18": true,
+   "A5/A6/A7 ablation asserts held (every case recorded)": true
+  }
+ },
+ "offline_veto": {
+  "service_sha256": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+  "python": "3.12.15",
+  "counts": {
+   "trials": 30,
+   "veto_local_after_restart": 30,
+   "stale_active_to_monitor_only": 30,
+   "veto_and_stale_export_nothing": 30,
+   "unrelated_exports_everywhere": 30,
+   "repeated_reconcile_noop": 30,
+   "stale_replay_ignored": 30,
+   "direct_commit_over_veto_blocked": 30,
+   "explicit_recovery_passed": 30,
+   "pending_two_restores_seq3": 30
+  },
+  "criteria": {
+   "trials >= 30": true,
+   "A2 veto preserved": true,
+   "A3 stale Active invalidated": true,
+   "A4 unrelated fact exported": true,
+   "A5 idempotent reconcile": true,
+   "A6 stale replay ignored": true,
+   "A7 direct commit over veto blocked": true
+  }
+ },
+ "all_criteria_hold": true
+}

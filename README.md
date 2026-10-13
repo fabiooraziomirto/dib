@@ -196,6 +196,8 @@ they document. No code or configuration in this repository depends on those path
 
 DIB manages partial MUD policy proposals under authenticated-consortium assumptions. It
 does not establish that approved traffic is benign, does not guarantee immediate
-withdrawal at an unreachable gateway, and does not implement caller authentication or
-role enforcement — those are deployment assumptions, stated in the paper's threat model
-and listed in `docs/KNOWN_LIMITATIONS.md`.
+withdrawal at an unreachable gateway. Caller authentication and role enforcement are
+implemented in the distributed services as opt-in mutual TLS (`DIB_DIST_MTLS=1`,
+`code/src/dib/registry/distributed/mtls.py`; certificate SAN URI mapped server-side to a
+site and a role). With the default (off), every endpoint is unauthenticated and the
+reporting `site_id` is taken from the request payload.
