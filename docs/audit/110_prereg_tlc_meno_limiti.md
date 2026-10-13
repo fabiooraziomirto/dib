@@ -259,3 +259,45 @@ Poi, in `v8/` con il modello originale, invariate: `Q1_quorum2_e3`, `Q2_quorum2_
 ### 9.5 Cosa va nel paper (provvisorio)
 - `X4b_V5` e `Xm3b` come previsto: "con fallimenti e crash, durante un episodio nessun sito esporta o può confermare, e un sito resta indietro solo dopo un fallimento ed è riparato dall'anti-entropia; senza fallimenti vale la forma stretta con le cinque parti necessarie".
 - `Xm3b` non viola: si dichiara che con fallimenti la necessità della quarta parte non è dimostrata (limite).
+
+## 10. Risultati (eseguiti) dell'addendum 8.6 e delle 7 configurazioni riprese
+Esecuzione 2026-10-12 15:36 UTC → 2026-10-13 07:11 UTC (orari del manifest), un TLC alla volta, `run_tlc.sh <cfg> 28 8`, jar sha256 `237332bd…`, OpenJDK 17.0.19.
+Modello v8b per le prime tre righe (hash diverso da v8: solo le definizioni V4 e V5 aggiunte); modello originale v8 per le altre 7. Log in `v8b/logs/` e `v8/logs/`, righe per run in
+`logs_v8b_resume2.out`, manifest in `logs/manifest.tsv` di ciascuna cartella. SANY pulito su V5 prima del lancio. La sequenza è stata lanciata dopo il via esplicito dell'utente, a validazione audit 95 conclusa.
+
+| cfg | Previsione | Esito | Stati distinti | Prof. | Durata | Log (righe: esito / conteggio / profondità) |
+|---|---|---|---|---|---|---|
+| `Xm3b_nofinish_V5` | violazione di V5 (o altra) senza fallimenti | **confermata** (V5 violata) | 240.996 | 12 | 5 s | `v8b/logs/Xm3b_nofinish_V5.log` r. 26 / 554 / 555 |
+| `Xm4b_noseq_V5` | violazione di una proprietà elencata | **confermata** (`LastAppliedMonotone`, proprietà d'azione) | 626 | 6 | <1 s | r. 25 / 337 / 338 |
+| `X4b_V5` | nessuna violazione | **confermata** | 154.363.430 | 43 | 1 h 07 min | r. 97 / 102 / 103 |
+| `Q1_quorum2_e3` | nessuna violazione di ALL3 | **confermata** | 129.575.354 | 45 | 49 min 47 s | r. 77 / 82 / 83 |
+| `Q2_quorum2_e2_p` | nessuna violazione di ALL2 | **confermata** | 50.611.560 | 43 | 16 min 18 s | r. 42 / 47 / 48 |
+| `L2a_loss2` | nessuna violazione di SLOSS | **confermata** | 7.270.016 | 40 | 2 min 25 s | r. 28 / 33 / 34 |
+| `L2b_loss2_p` | nessuna violazione di SLOSS | **confermata** | 45.837.116 | 43 | 14 min 10 s | r. 40 / 45 / 46 |
+| `F2_two_facts` | nessuna violazione di ALL2 | **confermata** | 148.251.876 | 47 | 1 h 03 min | r. 93 / 98 / 99 |
+| `S3_three_sites` | nessuna violazione di ALL2 | **confermata** | 712.287.745 | 50 | 6 h 06 min | r. 415 / 420 / 421 |
+| `S2e3_both_split` | nessuna violazione di ALL3 | **confermata** | 303.567.729 | 54 | 1 h 59 min | r. 151 / 156 / 157 |
+(`X4a_V4`, 154.363.430 stati, profondità 43, 1 h 06 min, è in sez. 9.1; `X4b_V5` ne è la forma più stretta e dà lo stesso conteggio.) `Q1_quorum2_e3` e `S2e3_both_split` usano V3
+(`MaxFails = MaxCrashes = 0`: V5 coincide con V3). Con le perdite (`L2a`, `L2b`) ExportSafe/V2/V3 sono esclusi apposta (finestra D19, audit 93 sez. 1).
+
+**Risorse:** picco di RAM usata a livello di sistema 28,5 GB (campioni ogni 60 s, include altri processi; heap TLC 28 GB, mai OOM); disco libero minimo 32 GB (osservato prima della pulizia del disco da parte dell'utente; poi ≥ 145 GB), watchdog (8 GB) mai scattato.
+`S3_three_sites` è il run più grande finora (712 milioni di stati) e ha chiuso entro 28 GB: non è servito il tetto a 40 GB. Nessun run incompleto nella sequenza finale.
+
+### 10.1 Esito complessivo della v8 (sez. 7, 9 e 10)
+Verificato dal modello v8 (letture fallite di `/query` e `/commit`, giri di reconcile abbandonati, crash e riavvio del sito con la pulizia D1):
+- sicurezza con **fallimenti e crash** a 2 eventi (`X1`, `X2` con partizioni, `X3` con una perdita) e a 3 eventi (`X4b_V5`: V5 + `ExportSafeAtReachableSites` + `I1_CommitOnUndisputedEvidence`, 154 milioni di stati);
+- convergenza e fine dell'esposizione con fallimenti e crash a 1 evento (`X5`);
+- quorum 2 con la correzione (`Q1` a 3 eventi, `Q2` con partizioni), fino a 2 perdite (`L2a`, `L2b`), 2 fatti (`F2`), 3 siti (`S3`), entrambi i siti divisi a 3 eventi (`S2e3`).
+Non vacuità: `Xm1`, `Xm2` (mutazioni di v8), `Xm3b` e `Xm4b` violano la proprietà prevista. La forma stretta V3 **non vale** con letture fallite (traccia di sez. 7.2); vale la forma V5 (sez. 9.3).
+
+### 10.2 NON VERIFICATO
+- **Concorrenza** (più richieste pendenti per sito, estensione 7): non iniziata; richiede un nuovo addendum pre-registrato prima di qualunque run.
+- **Convergenza a 3 eventi con fallimenti:** la riparazione del caso di sez. 7.2 è coperta dalla vivacità solo a 1 evento con fallimenti e crash (`X5`) e a 2 eventi con una perdita (`Lv_e2`, audit 93).
+- **Sicurezza con perdite e V2/V3/ExportSafe:** esclusi per la finestra D19 (sez. 3, audit 93).
+- **`MaxFails = 1` e `MaxCrashes = 1`:** nessuna verifica con due fallimenti o due crash.
+- **Comportamento del codice** oltre alle righe di `service.py` lette per la traccia di 7.2 (`:476-481`, `:522-523`, `:582`).
+- Le 15 configurazioni originali sono tutte eseguite o sostituite (`X4_e3_fc` falsificata, sostituita da `X4a_V4`/`X4b_V5`); tutte sul modello a 2 siti salvo `S3_three_sites`.
+
+### 10.3 Cosa va nel paper (decisione dell'utente)
+Esito "tutto confermato" con la riserva di sez. 8.4: la frase sul modello elenca letture fallite, crash e riavvio, una o due consegne perse, partizioni, quorum 2, 2 fatti, 3 siti, fino a 3 eventi. Si dichiara che
+la sospensione stretta (V3) vale senza fallimenti e che con fallimenti vale la forma V5 (sito indietro riparato dall'anti-entropia). Limiti restanti: finestra D19, concorrenza non verificata, convergenza a 3 eventi con fallimenti non verificata.
