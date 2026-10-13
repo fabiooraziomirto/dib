@@ -12,7 +12,8 @@ from pathlib import Path
 
 DOCKER = "docker"
 SPEC = {"lan": None, "wan": "delay 80ms loss 1%", "degraded": "delay 200ms loss 5%",
-        "x1": "delay 60ms loss 6%", "x2": "delay 100ms loss 4%", "x3": "delay 150ms loss 6%", "x4": "delay 150ms loss 8%"}   # audit 107
+        "x1": "delay 60ms loss 6%", "x2": "delay 100ms loss 4%", "x3": "delay 150ms loss 6%", "x4": "delay 150ms loss 8%",
+        "z1": "delay 60ms", "z3": "delay 150ms"}   # audit 107, 113 (z: lossless)
 LOADER = ["/hostlib/ld-linux-x86-64.so.2", "--library-path", "/hostlib", "/hosttc"]
 
 

@@ -55,3 +55,8 @@ def test_x_profiles_specs():
     import userspace_netem as u
     assert u.SPEC["x1"] == "delay 60ms loss 6%" and u.SPEC["x2"] == "delay 100ms loss 4%" and u.SPEC["x3"] == "delay 150ms loss 6%" and u.SPEC["x4"] == "delay 150ms loss 8%"
     assert u.SPEC["degraded"] == "delay 200ms loss 5%" and u.SPEC["lan"] is None
+
+
+def test_lossless_specs():
+    import userspace_netem as u
+    assert u.SPEC["z1"] == "delay 60ms" and u.SPEC["z3"] == "delay 150ms"

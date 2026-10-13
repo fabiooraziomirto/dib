@@ -30,3 +30,12 @@ def test_p1_to_p4(name):
 def test_p5_existing_unchanged():
     assert r.PROFILES["degraded"] == {"d": 0.200, "R": 0.400, "loss_rt": 0.10}
     assert r.B1_EPISODES["degraded"] == 50 and r.B1_EPISODES["lan"] == 10
+
+
+# ---- audit 113: lossless profiles for the node T-0 of the mTLS gap (same delays as x1 and x3, no loss)
+@pytest.mark.parametrize("name,d,R", [("z1", 0.060, 0.12), ("z3", 0.150, 0.30)])
+def test_lossless_profiles(name, d, R):
+    assert r.PROFILES[name] == {"d": d, "R": R, "loss_rt": 0.0}
+    lo, hi = r.RTT_EXPECT_MS[name][0]
+    assert lo == pytest.approx(0.8 * 1000 * R) and hi == pytest.approx(1.2 * 1000 * R)
+    assert r.B1_EPISODES[name] == 30

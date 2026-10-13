@@ -129,6 +129,9 @@ PROFILES = {
     "x2": {"d": 0.100, "R": 0.200, "loss_rt": 0.08},
     "x3": {"d": 0.150, "R": 0.300, "loss_rt": 0.12},
     "x4": {"d": 0.150, "R": 0.300, "loss_rt": 0.16},
+    # audit 113: lossless profiles (same delays as x1 and x3) for the node T-0 of the mTLS gap
+    "z1": {"d": 0.060, "R": 0.120, "loss_rt": 0.0},
+    "z3": {"d": 0.150, "R": 0.300, "loss_rt": 0.0},
 }
 # Expected TCP connect RTT (ms) evidence -> site-i, as (lo, hi), per profile (profile check, no sudo needed).
 # Tolerance (declared 2026-10-10, before the wan block): +-20% of the expected RTT R = 2d, applied to the MEDIAN of 3 connections per
@@ -155,11 +158,13 @@ RTT_EXPECT_MS = {
     "x2": {i: _band(200.0) for i in range(N_SITES)},
     "x3": {i: _band(300.0) for i in range(N_SITES)},
     "x4": {i: _band(300.0) for i in range(N_SITES)},
+    "z1": {i: _band(120.0) for i in range(N_SITES)},
+    "z3": {i: _band(300.0) for i in range(N_SITES)},
 }
 ARMS = {"D": {"mtls": 0}, "C": {"mtls": 1}, "default": {"mtls": 0}}   # `default` = reference only (B1 at lan)
 N_RTT = {"D": 2, "default": 2, "C": 3}
 ATTEMPT_HARD_S = {"D": 3.0, "default": 3.0, "C": 4.0}   # sum of per-phase 1 s timeouts of one attempt (audit 14 V1)
-B1_EPISODES = {"lan": 10, "regional": 10, "wan": 10, "degraded": 50, "extreme": 10, "mixed": 10, "x1": 50, "x2": 50, "x3": 50, "x4": 50}
+B1_EPISODES = {"lan": 10, "regional": 10, "wan": 10, "degraded": 50, "extreme": 10, "mixed": 10, "x1": 50, "x2": 50, "x3": 50, "x4": 50, "z1": 30, "z3": 30}
 B2_KS = {"lan": [1, 10, 50], "wan": [1, 10], "degraded": [1, 10], "regional": [1, 10], "mixed": [1, 10], "extreme": [1]}
 B2_TS = [5, 15]
 FANOUTS = [1, 10]
