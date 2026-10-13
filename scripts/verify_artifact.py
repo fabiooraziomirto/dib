@@ -256,6 +256,8 @@ def check_new_lifecycle() -> None:
     result = json.loads(text("results/restore_ablation/results.json"))
     check("ablation source matches packaged service", result["service_sha256"],
           hashlib.sha256((ROOT / "code/src/dib/registry/distributed/service.py").read_bytes()).hexdigest())
+    check("ablation cases identical to the historical run (31863043)",
+          result["cases"] == json.loads(text("results/restore_ablation/historical_31863043/results.json"))["cases"], True)
     check("ablation script matches packaged generator", result["script_sha256"],
           hashlib.sha256((ROOT / "code/scripts/v36_restore_ablation.py").read_bytes()).hexdigest())
     check("distinct policy/scenario combinations", len({(c['policy'], c['veto_time'], c['disconnected']) for c in result['cases']}), 18)
@@ -278,7 +280,9 @@ def check_new_lifecycle() -> None:
         check(f'q={q}: duplicate votes', p['duplicate_reports_add_votes'], False)
         check(f'q={q}: fresh commits', p['restoration_requires_new_commits'], True)
         check(f'q={q}: old votes cleared', p['old_votes_cleared'], True)
-    flood = json.loads(text('results/dispute_flood/dispute_flood_summary.json'))
+    # historical single run (v43 import, service hash not recorded), kept under its new path; the
+    # evaluated-service reruns are checked in check_sweep_flood_20261013 and below
+    flood = json.loads(text('results/dispute_flood/historical_v43_import/dispute_flood_summary.json'))
     check('flood: authorizations suspended', flood['attacker']['site_records_suspended'], 1000)
     check('flood: withdrawal seconds', round(flood['attacker']['wall_s'], 1), 11.3)
     check('flood: recovery seconds', round(flood['recovery']['wall_s'], 1), 21.6)
@@ -329,11 +333,14 @@ def check_v42_additions() -> None:
           hashlib.sha256((ROOT / "code/scripts/offline_veto_reconciliation.py").read_bytes()).hexdigest())
     check("offline veto: service matches packaged distributed service", ov["service_sha256"],
           hashlib.sha256((ROOT / "code/src/dib/registry/distributed/service.py").read_bytes()).hexdigest())
-    check("offline veto: trial count", len(ov["trials"]), 10)
-    check("offline veto: vetoes preserved", ov["summary"]["vetoes_preserved"], 10)
-    check("offline veto: stale approvals cleared", ov["summary"]["stale_approvals_cleared"], 10)
-    check("offline veto: unrelated facts preserved", ov["summary"]["unrelated_facts_preserved"], 10)
-    check("offline veto: explicit recoveries passed", ov["summary"]["explicit_recoveries_passed"], 10)
+    # 30 trials since the promotion of 2026-10-13 (audit 129; the 10-trial run is historical_31863043/)
+    check("offline veto: trial count", len(ov["trials"]), 30)
+    check("offline veto: vetoes preserved", ov["summary"]["vetoes_preserved"], 30)
+    check("offline veto: stale approvals cleared", ov["summary"]["stale_approvals_cleared"], 30)
+    check("offline veto: unrelated facts preserved", ov["summary"]["unrelated_facts_preserved"], 30)
+    check("offline veto: explicit recoveries passed", ov["summary"]["explicit_recoveries_passed"], 30)
+    old = json.loads(text("results/offline_veto/historical_31863043/results.json"))
+    check("offline veto: first 10 trials identical to the historical run", ov["trials"][:10] == old["trials"], True)
     for t in ov["trials"]:
         check(f"offline veto trial {t['trial']}: veto survives with local origin",
               t["after"]["veto"]["origin"], "local")

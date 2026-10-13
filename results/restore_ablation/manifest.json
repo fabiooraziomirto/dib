@@ -1,0 +1,55 @@
+{
+ "prereg": "docs/audit/119_congelamento_e_prereg_rerun_lifecycle.md sez. 4",
+ "commit": "637cbf1be9e8c2cedffc9009d07a37d254a1993f",
+ "dirty_files": [],
+ "service_sha256_tree": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+ "subprocess_module_origin": "/root/Desktop/DIB_tnsm_g3fix/code/src/dib/registry/distributed/service.py",
+ "subprocess_module_sha256": "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab",
+ "generators_sha256": {
+  "restore_ablation": "8387487e799871a4a5ba1bdc1dfbfbe494d4922cba428afeeff83f8ddff51266",
+  "offline_veto": "ae9fc1431bf98f410b1c521bd48825386146f04a3ad06186d1807f1fcd006cf8"
+ },
+ "python": "3.12.15",
+ "host": {
+  "platform": "Linux-6.8.12-18-pve-x86_64-with-glibc2.35",
+  "nproc": 16,
+  "loadavg_start": [
+   8.345703125,
+   10.51123046875,
+   11.52783203125
+  ],
+  "loadavg_end": [
+   12.73486328125,
+   11.26806640625,
+   11.7177734375
+  ]
+ },
+ "started_utc": "2026-10-13T09:29:38.616069+00:00",
+ "runs": {
+  "restore_ablation": {
+   "command": [
+    "/opt/conda/envs/dib312/bin/python",
+    "v36_restore_ablation.py",
+    "--output",
+    "restore_ablation.json"
+   ],
+   "returncode": 0,
+   "wall_s": 8.37,
+   "result_sha256": "80ee4119de80c0dd168dd137ab273c8c5327f61cda707dae036ce7b3a3e9f78a"
+  },
+  "offline_veto": {
+   "command": [
+    "/opt/conda/envs/dib312/bin/python",
+    "offline_veto_reconciliation.py",
+    "--trials",
+    "30",
+    "--output",
+    "offline_veto.json"
+   ],
+   "returncode": 0,
+   "wall_s": 50.53,
+   "result_sha256": "1b70e45bde8addf688d1ac2c0bdf1aac0ba0bdcd311923c05af11a663ee0678e"
+  }
+ },
+ "finished_utc": "2026-10-13T09:30:37.517220+00:00"
+}

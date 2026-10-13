@@ -3,7 +3,7 @@
   "paper_source": "paper/main.tex",
   "selected_configuration": "configs/graph_free_selected.yaml",
   "seed_policy": "Seeded aggregates use seeds 0-19; A1, Sybil and drift use seed 42; cross-lab, OpenWrt and concurrency use seed 0.",
-  "note": "Every 'result' path is relative to the repository root. 'generator' names the script that produced it; scripts requiring licensed traces cannot be re-run from this repository alone (see README, 'Data and licensing').",
+  "note": "Every 'result' path is relative to the repository root. 'generator' names the script that produced it; scripts requiring licensed traces cannot be re-run from this repository alone (see README, 'Data and licensing'). Since 2026-10-13 (audit 129) the evaluated service is service.py 83d8c99a; superseded claims carry 'superseded_by' and 'status'.",
   "claims": [
     {
       "id": "tla_base_states",
@@ -43,7 +43,9 @@
       "value": "equal-stack topology sweep (N=1,2,5,10 site containers, everything else fixed): one site saturates at 320.9 ops/s, two or more reach 523-558, so distribution is worth 1.63-1.75x at 50 and 100 writers; the whole gain arrives at N=2 and the evidence service is the ceiling beyond it; ten sites are 20.6% slower than one at a single writer; 6 unexpected errors in 64,400 timed operations",
       "result": "results/site_count/site_count_summary.csv, results/site_count/throughput_n1.csv, results/site_count/throughput_n2.csv, results/site_count/throughput_n5.csv, results/site_count/throughput_n10.csv",
       "generator": "bash code/scripts/distributed_site_count_sweep.sh",
-      "input": "Docker images declared in code/src/dib/registry/distributed/docker-compose.yml"
+      "input": "Docker images declared in code/src/dib/registry/distributed/docker-compose.yml",
+      "superseded_by": "site_sweep_management",
+      "status": "historical (service 54f635cb, contribute no-op counted, responses not classified)"
     },
     {
       "id": "registry_regression",
@@ -59,7 +61,8 @@
       "value": "10/10 runs complete; MonitorOnly exports no rule, commit permits TCP/8080 and UDP/5353, dispute removes the nftables rules and the probe is refused",
       "result": "results/openwrt/campaign-10runs/campaign_summary.json",
       "generator": "openwrt/run_campaign.py --runs 10",
-      "input": "Docker images declared in openwrt/docker-compose.yml"
+      "input": "Docker images declared in openwrt/docker-compose.yml",
+      "status": "historical (in-process registry, no timing); the paper cites gateway_withdrawal"
     },
     {
       "id": "openwrt_distributed_driven",
@@ -211,7 +214,9 @@
       "value": "530.3 +/- 7.8 ops/s and p99 454.8 +/- 9.1 ms at 100 writers; median latency 9.5/35.9/90.7/168.7 ms at 1/10/50/100 writers",
       "result": "results/distributed/throughput_distributed_5rep.csv",
       "generator": "code/scripts/distributed_concurrency_benchmark.py",
-      "input": "none"
+      "input": "none",
+      "superseded_by": "site_sweep_management",
+      "status": "historical (service 54f635cb, contribute no-op counted, responses not classified)"
     },
     {
       "id": "fault_injection_reconciliation",
@@ -240,10 +245,11 @@
     {
       "id": "restoration_policy_ablation",
       "section": "RQ1",
-      "value": "six sequences per policy: persistent approval exports 12/18 subject ACEs without new commits and preserves 6/6 vetoes; blanket reset 0/18 and 0/6; DIB 0/18 and 6/6",
+      "value": "six sequences per policy: persistent approval exports 12/18 subject ACEs without new commits and preserves 6/6 vetoes; blanket reset 0/18 and 0/6; DIB 0/18 and 6/6 [service 83d8c99a; cases identical to 31863043 and 3ffa57ee]",
       "result": "results/restore_ablation/results.json",
       "generator": "PYTHONPATH=code/src python code/scripts/v36_restore_ablation.py --output /tmp/restore-ablation.json",
-      "input": "none; deterministic sequential in-process API cases"
+      "input": "none; deterministic sequential in-process API cases",
+      "audit": "docs/audit/120, 126"
     },
     {
       "id": "suspension_threshold_api",
@@ -256,10 +262,11 @@
     {
       "id": "dispute_flood",
       "section": "VI-H",
-      "value": "100 requests suspend 1,000 site authorizations in 11.3s; read throughput 432.3 to 366.0 ops/s; recovery 11 requests/fact in 21.6s",
-      "result": "results/dispute_flood/dispute_flood_summary.json",
-      "generator": "code/scripts/dispute_flood.py",
-      "input": "networked distributed service deployment; historical measurement, not re-run for v36"
+      "value": "on service 83d8c99a, 5 fresh deployments: 100 disputes by one identity suspend 1,000 site authorizations in a median 5.16 s (4.77-5.63); concurrent reads 662 to 228 ops/s; recovery 11 requests/fact, 23.9 s; only HTTP 200",
+      "result": "results/dispute_flood/dispute_flood_summary_rep0.json, results/dispute_flood/dispute_flood_summary_rep1.json, results/dispute_flood/dispute_flood_summary_rep2.json, results/dispute_flood/dispute_flood_summary_rep3.json, results/dispute_flood/dispute_flood_summary_rep4.json, results/dispute_flood/manifest.json",
+      "generator": "experiments_tnsm/dispute_flood_20261013/flood_run.py (runs code/scripts/dispute_flood.py unchanged)",
+      "input": "networked distributed service deployment; historical measurement, not re-run for v36",
+      "audit": "docs/audit/127"
     },
     {
       "id": "a1_resolved_peer_counterfactual",
@@ -280,10 +287,29 @@
     {
       "id": "offline_veto_reconciliation",
       "section": "RQ1",
-      "value": "ten trials over real loopback HTTP with independent site/evidence processes: a local veto recorded before a target site is killed survives a complete missed dispute/confirmation/restore episode for that fact; the formerly Active subject at the same site returns to MonitorOnly on reconciliation; neither exports before a fresh commit; an unrelated Active fact stays exportable throughout; repeated reconciliation and stale replay are no-ops; direct commit over the veto is rejected (HTTP 409)",
+      "value": "thirty trials (first ten identical to the historical run) over real loopback HTTP with independent site/evidence processes: a local veto recorded before a target site is killed survives a complete missed dispute/confirmation/restore episode for that fact; the formerly Active subject at the same site returns to MonitorOnly on reconciliation; neither exports before a fresh commit; an unrelated Active fact stays exportable throughout; repeated reconciliation and stale replay are no-ops; direct commit over the veto is rejected (HTTP 409) [service 83d8c99a]",
       "result": "results/offline_veto/results.json",
       "generator": "code/scripts/offline_veto_reconciliation.py",
-      "input": "none"
+      "input": "none",
+      "audit": "docs/audit/120, 126"
+    },
+    {
+      "id": "gateway_withdrawal",
+      "section": "Evaluation",
+      "value": "210 dispute episodes with mTLS (lan 100 + 10 veto, wan 50, degraded 50) all withdraw the fact and spare an unrelated one; median t1 24 ms / 0.42 s / 1.02 s, new connections refused 0.38 / 0.77 / 1.40 s, policy installed 5.49 / 5.88 / 6.50 s; established connections never cut; unrelated flow refused ~5.1 s per osMUD restart; restore alone never re-enables, fresh commit does, vetoes survive",
+      "result": "results/gateway_withdrawal/lan/summary.json, results/gateway_withdrawal/wan/summary.json, results/gateway_withdrawal/degraded/summary.json, results/gateway_withdrawal/smoke_83d8c99a/summary.json",
+      "generator": "experiments_tnsm/gateway_withdrawal_20261013/run_campaigns.sh; analyze.py",
+      "input": "none (Docker: OpenWrt 23.05.5, osMUD 852918e, distributed service)",
+      "audit": "docs/audit/121, 122, 127"
+    },
+    {
+      "id": "site_sweep_management",
+      "section": "Scalability",
+      "value": "management-path sweep on service 83d8c99a (no contribute no-op, responses classified): at 50-100 writers N>=2 sites give 1.90-2.51x (http) and 1.49-1.69x (mtls) the attempted throughput of one site, CIs above 1; 2 transport errors (http) and 0 (mtls) in 100,000 requests each; busiest cells client-limited, no bottleneck attributed",
+      "result": "results/site_sweep_management/http/summary.json, results/site_sweep_management/mtls/summary.json",
+      "generator": "experiments_tnsm/site_sweep_20261013/sweep.py; analyze.py",
+      "input": "none",
+      "audit": "docs/audit/123, 127"
     }
   ]
 }

@@ -1,0 +1,3 @@
+# Offline veto and missed-episode reconciliation — evaluated service
+
+`results.json`: 30 trials (historical campaign: 10) of `code/scripts/offline_veto_reconciliation.py` (unchanged, sha `ae9fc143…`) with three site processes and one evidence process over loopback HTTP, on `service.py` `83d8c99a…` (`manifest.json` records the hash of the module the uvicorn processes load). In 30/30: the local veto survives the restart and the missed episode, the stale Active approval returns to MonitorOnly, neither exports, the unrelated fact exports everywhere, a repeated reconcile and a stale replay are no-ops, and a direct commit over the veto gets 409. The first 10 trials are identical to the historical run on `31863043…` (`historical_31863043/`). Audits 119, 120, 126.
