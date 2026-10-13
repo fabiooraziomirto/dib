@@ -52,3 +52,9 @@ registry single-node (fuori ambito, design 9 Q4); revoca come rimozione dalla de
 1. Frase per il paper sulla revoca: "effetto alla prima richiesta dopo la rilettura del file; altrimenti entro la scadenza del certificato".
 2. Multi-SAN: ipotesi dichiarata oppure modifica a `resolve` (non proposta qui; `code/src` non toccato).
 3. D-b, D-c, D-d: allineare il design al codice (documentare `operator`) o stringere il codice. Non toccato.
+
+## 5. Decisioni dell'utente (2026-10-13)
+1. **Revoca:** il paper scrive il limite così com'è: la revoca ha effetto alla prima richiesta dopo la rilettura del file di identità da parte del servizio; verso un servizio con file non aggiornato vale fino alla scadenza del certificato. Non si scrive "revoca immediata".
+2. **Multi-SAN:** si dichiara l'ipotesi "un SAN per certificato" (design 3.1, garantita dall'emissione della CA). `resolve` (`mtls.py:134-142`) non cambia; `code/src` non è toccato.
+3. **D-b, D-c, D-d:** si aggiorna il design (tabella 3.3) per documentare il ruolo `operator` su `/scores`, `/scores/by_id`, `/attest`, `/dispute` e l'accesso di qualunque identità mappata a `/health` del sito; `service.py` non cambia. Resta aperta, se lo si ritiene sensibile, la sola `/health` del sito (espone `site_id` e `reconcile.last_error`, `service.py:731-735`): non decisa.
+Nessuna modifica a `code/src`, `formal/`, `claims.json`, `results/`. L'aggiornamento della tabella di `13_mtls_design.md` non è ancora fatto (file di design: da fare su richiesta).
