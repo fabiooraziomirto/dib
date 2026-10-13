@@ -32,3 +32,12 @@ Trasporto `http` (stesso trasporto dello storico), poi `mtls` (PKI di `make_dist
 
 ## 5. Validità, esclusioni, retry
 Nessuna esclusione di richieste o ripetizioni. Un fallimento infrastrutturale (compose up, health, hash) prima di registrare celle di un N ferma lo sweep di quel trasporto; si rilancia una sola volta l'intero trasporto, documentandolo. Carico concorrente: l'host esegue altri progetti (load average ~10 su 16 core); è registrato per ripetizione e limita la generalità dei numeri assoluti (un solo host, nessun WAN: separazione di processi, non distribuzione geografica).
+
+## Addendum 1 — dispute flood sul servizio valutato (prima del lancio; dopo lo sweep)
+Scopo: sostituire il placeholder di `main_10p.tex:499` ("withdrawal-time and read-throughput figures") con una misura sul servizio `83d8c99a`. L'evidenza storica `results/dispute_flood` non registra alcun hash.
+Generatore `code/scripts/dispute_flood.py` invariato: 100 fatti, 10 siti, HTTP; il generatore non supporta mTLS. 5 ripetizioni, ognuna su una topologia nuova; hash verificato nei container prima e dopo (`experiments_tnsm/dispute_flood_20261013/flood_run.py`). Il wrapper conta gli status HTTP dai log di accesso dei container, perché il generatore non classifica le letture legittime.
+Criteri:
+- H-D1, blast radius: 100/100 dispute applicate; export da 100 a 0 ACE in tutti i 10 siti; dopo il recovery di nuovo 100; recovery = 11 richieste per fatto (1 restore + 10 commit). Deve valere in 5/5.
+- H-D2: nessuno status 5xx in nessun container.
+- Descrittive: tempo del flood (100 dispute, una identità, un thread), throughput e p50/p99 delle letture legittime a riposo e durante il flood, tempo di recovery. Riportate come mediana e intervallo fra le 5 ripetizioni.
+Nessun retry; nessuna esclusione.
