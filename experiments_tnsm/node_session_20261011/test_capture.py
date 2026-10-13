@@ -176,3 +176,18 @@ def test_helper_new_generation_after_quiet_period():
 def test_helper_exec_cmd_runs_as_root_detached():
     c = ch.exec_cmd("dibtnsm-site-3-1", 2)
     assert c[:5] == ["docker", "exec", "-d", "-u", "0"] and "/capture/gen2/dibtnsm-site-3-1.jsonl" in c and c[-2:] == ["--name", "dibtnsm-site-3-1"]
+
+
+def test_units_intact_and_split(tmp_path):
+    ev, st = conn(40001, True)
+    st_in = [pk(r["t"], r["src"], r["sport"], r["dst"], r["dport"], r["flags"], r["len"], p0=r["p0"], d="in") for r in ev if r["len"] > 0]
+    write_captures(tmp_path, [(ev, st + st_in)])
+    cs = ac.connections(ac.load(tmp_path))
+    u = ac.units(cs)
+    assert u["C"]["valide"] == 1 and u["C"]["ingresso_uguale_all_uscita"] == 1 and u["C"]["primo_segmento_E_S_oltre_MSS"] == 0   # 517 byte ClientHello
+    ev2, st2 = conn(40002, True, es_lens=[1537, 853, 226, 93])
+    st2_in = [pk(r["t"], r["src"], r["sport"], r["dst"], r["dport"], r["flags"], r["len"], p0=r["p0"], d="in") for r in ev2 if r["len"] > 0]
+    st2_in = [x if x["len"] != 1537 else {**x, "len": 1448} for x in st2_in] + [pk(1.0, EV, 40002, S0, 8000, 24, 89, p0="00", d="in")]
+    write_captures(tmp_path, [(ev2, st2 + st2_in)])
+    u2 = ac.units(ac.connections(ac.load(tmp_path)))
+    assert u2["C"]["primo_segmento_E_S_oltre_MSS"] == 1 and u2["C"]["di_cui_arrivati_spezzati"] == 1 and u2["C"]["ingresso_uguale_all_uscita"] == 0

@@ -1,0 +1,4 @@
+2026-10-13T07:59:08Z applier pid 2290884 profile z1
+2026-10-13T07:59:08Z capture helper pid 2290886
+2026-10-13T07:59:08Z run.py b1 z1 arms D,C fanouts 10 episodes 10
+2026-10-13T08:02:29Z run.py rc=0

@@ -59,13 +59,15 @@ def connections(caps: dict) -> list[dict]:
             site = sites.get(site_ip)
             srows = [] if site is None else [x for x in site["rows"] if x["dir"] == "out" and x["src"] == site_ip and x["sport"] == PORT and x["dst"] == ev_ip and x["dport"] == sport
                                              and x["t"] >= r["t"]]
+            rin = [] if site is None else sorted((x for x in site["rows"] if x["dir"] == "in" and x["src"] == ev_ip and x["sport"] == sport and x["dst"] == site_ip and x["dport"] == PORT
+                                                  and x["len"] > 0 and x["t"] >= r["t"]), key=lambda x: x["t"])
             synack = next((x for x in sorted(srows, key=lambda x: x["t"]) if x["flags"] & SYN and x["flags"] & ACK), None)
             se = sorted((x for x in srows if x["len"] > 0), key=lambda x: x["t"])
             tls = bool(es) and es[0]["p0"].startswith("1603")
             t_cf = es[1]["t"] if tls and len(es) > 1 else None
             n_sf = sum(1 for x in se if t_cf is not None and x["t"] < t_cf)
             out.append({"sport": sport, "site_ip": site_ip, "tls": tls, "es_data": [(x["t"], x["len"]) for x in es], "se_data": [(x["t"], x["len"]) for x in se], "n_sf": n_sf,
-                        "syn_mss": r["mss"], "synack_mss": None if synack is None else synack["mss"], "valid": synack is not None and bool(es) and bool(se)})
+                        "es_in_lens": [x["len"] for x in rin], "syn_mss": r["mss"], "synack_mss": None if synack is None else synack["mss"], "valid": synack is not None and bool(es) and bool(se)})
     return out
 
 
@@ -105,6 +107,19 @@ def verdict(conns: list[dict]) -> dict:
     return res
 
 
+def units(conns: list[dict]) -> dict:
+    """Addendum of audit 116 (post-hoc observation, not a pre-registered hypothesis of the first run): per arm, share of valid connections whose E->S data segments arrive at the SITE's ingress tap
+    with the same lengths as they left the evidence tap (the segment is a single unit end to end), and the share whose first E->S data segment is larger than the MSS 1448 at the sender."""
+    out = {}
+    for arm in ("D", "C"):
+        valid = [c for c in conns if c["tls"] == (arm == "C") and c["valid"]]
+        intact = [c for c in valid if [x[1] for x in c["es_data"]] == c["es_in_lens"]]
+        big = [c for c in valid if c["es_data"] and c["es_data"][0][1] > MSS_EFFECTIVE]
+        split = [c for c in big if len(c["es_in_lens"]) > len(c["es_data"])]
+        out[arm] = {"valide": len(valid), "ingresso_uguale_all_uscita": len(intact), "primo_segmento_E_S_oltre_MSS": len(big), "di_cui_arrivati_spezzati": len(split)}
+    return out
+
+
 def to_md(res: dict) -> str:
     lines = ["| arm | connessioni | valide | ipotesi | verdetto | quota con la struttura attesa |", "|---|---|---|---|---|---|"]
     for arm in ("D", "C"):
@@ -123,7 +138,8 @@ def to_md(res: dict) -> str:
 
 def main() -> None:
     d = Path(sys.argv[1])
-    md = to_md(verdict(load_all(d)))
+    conns = load_all(d)
+    md = to_md(verdict(conns)) + "\n### Unità osservate in ingresso al sito (osservazione, audit 116)\n\n" + json.dumps(units(conns), ensure_ascii=False) + "\n"
     if "--out" in sys.argv:
         Path(sys.argv[sys.argv.index("--out") + 1]).write_text(md)
     print(md)
