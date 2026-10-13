@@ -11,6 +11,7 @@
 | Modello verificato fuori campione nel banco netns (sei condizioni, entro 1,7 punti) | `netns_testbed` | 75-82 |
 | Fan-out concorrente 3,1-7,1 volte più veloce; 3 280 episodi con perdita senza siti non riconciliati | banco netns | 79, 81 |
 | TLC: 4 311 852 e 48 960 stati (modello originale); 402 633 492 stati con 3 eventi e partizioni, cinque mutanti | `formal/` (invariato), `tla_fsm` (altra sessione) | 63-68, 92-93 |
+| TLC v8 (letture fallite, giri di reconcile abbandonati, crash/riavvio con pulizia D1): X4b_V5 3 eventi 154 363 430 stati; quorum 2, 2 perdite, 2 fatti, 3 siti (712 287 745 stati), tutti senza violazione; V3 stretta FALSIFICATA con letture fallite (traccia sez. 7.2), vale V5; limiti: concorrenza, convergenza a 3 eventi con fallimenti | `DIB_tnsm_v8` branch `tnsm-fsm-v8`, audit 110 sez. 7-11 (numero in collisione con il mio 110, da rinumerare al merge) | 110 (v8) |
 | Modello di autorizzazione mTLS: dieci configurazioni senza controesempio, sei mutanti | `tla_authz` (altra sessione) | 111-112 |
 | Resto dell'Evaluation (mutanti M1-M6, ablazione del restore, gateway osMUD, selezione dei candidati, avversari) | invariati rispetto a `main_wip.tex` | v43-import, `results/` |
 

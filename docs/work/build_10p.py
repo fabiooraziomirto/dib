@@ -95,6 +95,10 @@ def step3_trims(t: str) -> str:
     old = "(after reconnection, convergence stayed within its bound in every measured cell)"
     assert t.count(old) == 1
     t = t.replace(old, "(after reconnection, the median convergence stayed within its bound in every measured cell)")
+    # step 6a (page budget, v8 text added): cite only XACML for deny-overrides
+    old = "policy frameworks~\\cite{xacml3, ponder}"
+    assert t.count(old) == 1, t.count(old)
+    t = t.replace(old, "policy frameworks~\\cite{xacml3}")
     # step 6: drop the bibliography items that are no longer cited after the cuts
     import re as _re
     a = t.index("\\begin{thebibliography}")
