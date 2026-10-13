@@ -239,7 +239,7 @@ traccia minima.
 | `L1a_e3_np` (3 eventi, MaxLoss 1, senza partizioni) | idem | **confermata** | 119.425.107 | 44 | 44 min | `v6loss/logs/L1a_e3_np.log:71,76` |
 | `L2_m6_nolock` (MaxLoss 1, MaxToggles 3) | `OutboxNeverDropsUnapplied` violata | **confermata** | 496.278 al momento della violazione | 12 | 5 s | `v6loss_m/logs/L2_m6_nolock.log:26` |
 | `L1a_e2_p` (2 eventi, MaxLoss 1, MaxToggles 2) | nessuna violazione dell'insieme S | **confermata** | 32.885.070 | 42 | 9 min 58 s | `v6loss/logs/L1a_e2_p.log:35,40` |
-| `Lv_e2` (v7, 2 eventi) | come `Lv_e1` | (in corso) | | | | |
+| `Lv_e2` (v7, 2 eventi) | come `Lv_e1` | **confermata** | 25.812.446 | 40 | 2 h 08 min (controllo temporale finale 18 min 13 s) | `v7live/logs/Lv_e2.log:131,136` |
 
 **Traccia di `Lv_noae_e1`** (verificata a mano):
 1. Query(s2), EvDispute;
@@ -255,7 +255,20 @@ sez. 8.
 **H-L1a: CONFERMATA** in tutte e tre le configurazioni pre-registrate (2 eventi senza e con
 partizioni, 3 eventi senza partizioni). **H-L2:** i mutanti separabili m2, m3 e m6 sono ancora
 trovati con MaxLoss 1; m4 e m5 non sono separabili (sez. 4). **H-L3 (v7, 1 evento): confermata**;
-`Lv_e2` in corso.
+`Lv_e2` confermata.
 
 Risorse: picco di RAM di sistema ~22 GB su 64 nei controlli; disco libero ≥ 33 GB; nessun intervento
 del watchdog; nessun OOM.
+
+## 12. Esito complessivo dell'audit 93 (2026-10-12, 14:00Z)
+Tutte le ipotesi della sez. 9-10 sono confermate.
+- **Safety** con una consegna persa (H-L1a): 2 eventi senza e con partizioni, 3 eventi senza
+  partizioni.
+- **Non vacuità** (H-L2): m2, m3, m6 ritrovati; m4 e m5 non separabili, come dichiarato.
+- **Vivacità sulle righe di decisione** (H-L3 v7): con 1 e con 2 eventi l'evento perso viene
+  recuperato e l'esposizione si chiude. Il mutante senza anti-entropia fallisce con un `Lose` nella
+  traccia.
+- **Finestra D19 confermata**, anche senza correzione.
+
+Il seguito (letture fallite, crash, quorum 2, MaxLoss 2, fatti, siti) è nell'audit 110, eseguito da
+un'altra sessione nella worktree `/root/Desktop/DIB_tnsm_v8`, branch `tnsm-fsm-v8`.
