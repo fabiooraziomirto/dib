@@ -20,3 +20,6 @@ Sugli input validi il comportamento è identico (la guardia scatta solo per copp
 | Sweep di scalabilità (audit 123) | — | parte direttamente su `83d8c99a` |
 | B2k, R1e, R1f, banco netns | `3ffa57ee` o precedenti | non rieseguiti: il paper dichiara la versione misurata e che la guardia non tocca i percorsi validi |
 Il merge in `tnsm-final-campaigns` avviene solo a campagne gateway finite (il loro harness ricostruisce le immagini dall'albero e ne verifica l'hash alla fine).
+
+## Addendum 1 — pre-registrazione dello smoke gateway su `83d8c99a` (prima del lancio)
+`gateway_bench.py` invariato, 5 episodi standard per profilo (lan, wan, degraded), finestra 15 s, mTLS, cartelle `experiments_tnsm/gateway_withdrawal_20261013/smoke_83d8c99a_{lan,wan,degraded}`. Criteri: hash `83d8c99a` negli 11 container all'inizio e alla fine; H-G1, H-G3, H-G4 e H-G5 valgono in 5/5 per profilo. Le mediane di t1 e t2 sono esplorative: la previsione è che stiano entro ±10 % dalle mediane di audit 122, perché la guardia non tocca i percorsi validi. Con 5 episodi non si stima nessuna coda. Subito dopo, in sequenza, parte lo sweep di audit 123 (`http`, poi `mtls`) su `83d8c99a`.
