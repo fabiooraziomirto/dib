@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 REFERENCE_SERVICE = "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8"
+GUARDED_SERVICE = "83d8c99a063656904d227030f28e4b207a2f56939c424b17a21d866c62e0e0ab"  # audit 126
 EXPECTED = {  # policy -> (subject ACEs without fresh commit / 18, vetoes preserved / 6): audit 119 A1, A2
     "persistent_approval": (12, 6),
     "review_reset": (0, 0),
@@ -83,10 +84,12 @@ def main(directory: Path) -> int:
     ov = json.loads((directory / "offline_veto.json").read_text())
     man = json.loads((directory / "manifest.json").read_text())
     a, o = judge_ablation(abl), judge_offline(ov)
+    reference = man.get("service_sha256_tree", REFERENCE_SERVICE)  # the tree's service at run time
     prov = {
-        "ablation service = reference": abl["service_sha256"] == REFERENCE_SERVICE,
-        "offline veto service = reference": ov["service_sha256"] == REFERENCE_SERVICE,
-        "subprocess module = reference": man["subprocess_module_sha256"] == REFERENCE_SERVICE,
+        "tree service = reference of audit 119 or the audit-126 fix": reference in (REFERENCE_SERVICE, GUARDED_SERVICE),
+        "ablation service = reference": abl["service_sha256"] == reference,
+        "offline veto service = reference": ov["service_sha256"] == reference,
+        "subprocess module = reference": man["subprocess_module_sha256"] == reference,
         "tree clean at run": man["dirty_files"] == [],
         "result hashes match manifest": all(
             hashlib.sha256((directory / f"{k}.json").read_bytes()).hexdigest() == v["result_sha256"]
