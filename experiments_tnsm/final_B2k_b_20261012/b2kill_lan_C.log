@@ -1,0 +1,8 @@
+generator path (ms): {'reused_ms': 1.8397060048300773, 'fresh_ms': 4.683116014348343, 'n': 5, 'reused_ok': True, 'fresh_ok': None}
+[1/6] b2kill C f=10 T=5 rows=20 excluded=0 flagged=True bg_other=2.2177 steal=0.104 gen_proc=0.06
+[2/6] b2kill C f=10 T=5 rows=20 excluded=0 flagged=True bg_other=1.9012 steal=0.061 gen_proc=0.04
+[3/6] b2kill C f=10 T=5 rows=20 excluded=0 flagged=True bg_other=2.4126 steal=0.11 gen_proc=0.04
+generator path (ms): {'reused_ms': 2.0381239883136004, 'fresh_ms': 4.478810005821288, 'n': 5, 'reused_ok': True, 'fresh_ok': None}
+[4/6] b2kill C f=10 T=15 rows=20 excluded=0 flagged=True bg_other=2.3852 steal=0.093 gen_proc=0.03
+[5/6] b2kill C f=10 T=15 rows=20 excluded=0 flagged=True bg_other=1.4113 steal=0.127 gen_proc=0.06
+[6/6] b2kill C f=10 T=15 rows=20 excluded=0 flagged=True bg_other=2.4093 steal=0.149 gen_proc=0.04
