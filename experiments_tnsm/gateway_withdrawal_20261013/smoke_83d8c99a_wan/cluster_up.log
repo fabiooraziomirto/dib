@@ -1,0 +1,432 @@
+#0 building with "default" instance using docker driver
+
+#1 [evidence internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.27kB done
+#1 DONE 0.0s
+
+#2 [evidence internal] load metadata for docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#2 DONE 0.0s
+
+#3 [evidence internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [evidence  1/12] FROM docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#4 DONE 0.0s
+
+#5 [evidence internal] load build context
+#5 transferring context: 629B done
+#5 DONE 0.0s
+
+#6 [evidence  2/12] WORKDIR /app
+#6 CACHED
+
+#7 [evidence 11/12] COPY src/dib/registry/__init__.py /app/dib/registry/__init__.py
+#7 CACHED
+
+#8 [evidence  9/12] COPY src/dib/evaluation/__init__.py /app/dib/evaluation/__init__.py
+#8 CACHED
+
+#9 [evidence 10/12] COPY src/dib/evaluation/mud_export.py /app/dib/evaluation/mud_export.py
+#9 CACHED
+
+#10 [evidence  3/12] RUN pip install --no-cache-dir fastapi>=0.111 uvicorn==0.51.0 httpx>=0.27 pydantic>=2
+#10 CACHED
+
+#11 [evidence  6/12] COPY src/dib/core/__init__.py /app/dib/core/__init__.py
+#11 CACHED
+
+#12 [evidence  4/12] COPY src/dib/registry/distributed/service.py /app/service.py
+#12 CACHED
+
+#13 [evidence  7/12] COPY src/dib/core/io.py /app/dib/core/io.py
+#13 CACHED
+
+#14 [evidence  8/12] COPY src/dib/core/models.py /app/dib/core/models.py
+#14 CACHED
+
+#15 [evidence  5/12] COPY src/dib/__init__.py /app/dib/__init__.py
+#15 CACHED
+
+#16 [evidence 12/12] COPY src/dib/registry/distributed/mtls.py /app/dib/registry/distributed/mtls.py
+#16 CACHED
+
+#17 [evidence] exporting to image
+#17 exporting layers done
+#17 writing image sha256:5b59613107c94e0d8c3d1b345dfde8419c47fd5137ff20d4f1d33639047f4309 done
+#17 naming to docker.io/library/dibgw-evidence done
+#17 DONE 0.0s
+
+#18 [evidence] resolving provenance for metadata file
+#18 DONE 0.0s
+
+#19 [site-8 internal] load build definition from Dockerfile
+#19 transferring dockerfile: 1.27kB 0.0s done
+#19 DONE 0.0s
+
+#20 [site-6 internal] load build definition from Dockerfile
+#20 transferring dockerfile: 1.27kB 0.0s done
+#20 DONE 0.0s
+
+#21 [site-5 internal] load build definition from Dockerfile
+#21 transferring dockerfile: 1.27kB done
+#21 DONE 0.0s
+
+#22 [site-4 internal] load build definition from Dockerfile
+#22 transferring dockerfile: 1.27kB done
+#22 DONE 0.0s
+
+#23 [site-2 internal] load build definition from Dockerfile
+#23 transferring dockerfile: 1.27kB done
+#23 DONE 0.0s
+
+#24 [site-9 internal] load build definition from Dockerfile
+#24 transferring dockerfile: 1.27kB done
+#24 DONE 0.0s
+
+#25 [site-6 internal] load .dockerignore
+#25 transferring context: 2B done
+#25 DONE 0.0s
+
+#26 [site-8 internal] load .dockerignore
+#26 transferring context: 2B done
+#26 DONE 0.0s
+
+#4 [site-8  1/12] FROM docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#4 DONE 0.0s
+
+#27 [site-0 internal] load build definition from Dockerfile
+#27 transferring dockerfile: 1.27kB done
+#27 DONE 0.1s
+
+#28 [site-5 internal] load .dockerignore
+#28 transferring context: 2B done
+#28 DONE 0.0s
+
+#29 [site-9 internal] load .dockerignore
+#29 transferring context: 2B done
+#29 DONE 0.0s
+
+#2 [site-0 internal] load metadata for docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#2 DONE 0.0s
+
+#30 [site-6 internal] load build context
+#30 transferring context: 629B done
+#30 DONE 0.0s
+
+#4 [site-7  1/12] FROM docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#4 DONE 0.0s
+
+#31 [site-2 internal] load .dockerignore
+#31 transferring context: 2B done
+#31 DONE 0.0s
+
+#32 [site-3 internal] load build definition from Dockerfile
+#32 transferring dockerfile: 1.27kB done
+#32 DONE 0.1s
+
+#33 [site-7 internal] load build definition from Dockerfile
+#33 transferring dockerfile: 1.27kB done
+#33 DONE 0.1s
+
+#34 [site-4 internal] load .dockerignore
+#34 transferring context: 2B done
+#34 DONE 0.1s
+
+#35 [site-1 internal] load build definition from Dockerfile
+#35 transferring dockerfile: 1.27kB done
+#35 DONE 0.1s
+
+#36 [site-6  8/12] COPY src/dib/core/models.py /app/dib/core/models.py
+#36 CACHED
+
+#37 [site-6  9/12] COPY src/dib/evaluation/__init__.py /app/dib/evaluation/__init__.py
+#37 CACHED
+
+#10 [site-6  3/12] RUN pip install --no-cache-dir fastapi>=0.111 uvicorn==0.51.0 httpx>=0.27 pydantic>=2
+#10 CACHED
+
+#38 [site-6 11/12] COPY src/dib/registry/__init__.py /app/dib/registry/__init__.py
+#38 CACHED
+
+#39 [site-6  7/12] COPY src/dib/core/io.py /app/dib/core/io.py
+#39 CACHED
+
+#40 [site-6  4/12] COPY src/dib/registry/distributed/service.py /app/service.py
+#40 CACHED
+
+#41 [site-6  6/12] COPY src/dib/core/__init__.py /app/dib/core/__init__.py
+#41 CACHED
+
+#6 [site-6  2/12] WORKDIR /app
+#6 CACHED
+
+#42 [site-6 10/12] COPY src/dib/evaluation/mud_export.py /app/dib/evaluation/mud_export.py
+#42 CACHED
+
+#43 [site-6  5/12] COPY src/dib/__init__.py /app/dib/__init__.py
+#43 CACHED
+
+#44 [site-6 12/12] COPY src/dib/registry/distributed/mtls.py /app/dib/registry/distributed/mtls.py
+#44 CACHED
+
+#45 [site-8 internal] load build context
+#45 transferring context: 629B done
+#45 DONE 0.0s
+
+#2 [site-1 internal] load metadata for docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#2 DONE 0.1s
+
+#46 [site-0 internal] load .dockerignore
+#46 transferring context: 2B done
+#46 DONE 0.0s
+
+#47 [site-2 internal] load build context
+#47 transferring context: 629B done
+#47 DONE 0.0s
+
+#48 [site-5 internal] load build context
+#48 transferring context: 629B done
+#48 DONE 0.0s
+
+#49 [site-3 internal] load .dockerignore
+#49 transferring context: 2B done
+#49 DONE 0.0s
+
+#50 [site-1 internal] load .dockerignore
+#50 transferring context: 2B done
+#50 DONE 0.0s
+
+#51 [site-7 internal] load .dockerignore
+#51 transferring context: 2B done
+#51 DONE 0.0s
+
+#52 [site-4 internal] load build context
+#52 transferring context: 629B done
+#52 DONE 0.1s
+
+#53 [site-9 internal] load build context
+#53 transferring context: 629B done
+#53 DONE 0.1s
+
+#54 [site-6] exporting to image
+#54 exporting layers done
+#54 writing image sha256:eea66cf4cf39eebb9cac509583a4d9fa4a3c414079469ed2a07158c415268143 done
+#54 naming to docker.io/library/dibgw-site-6 done
+#54 DONE 0.1s
+
+#4 [site-1  1/12] FROM docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#4 DONE 0.0s
+
+#55 [site-6] resolving provenance for metadata file
+#55 DONE 0.0s
+
+#56 [site-8  9/12] COPY src/dib/evaluation/__init__.py /app/dib/evaluation/__init__.py
+#56 CACHED
+
+#10 [site-8  3/12] RUN pip install --no-cache-dir fastapi>=0.111 uvicorn==0.51.0 httpx>=0.27 pydantic>=2
+#10 CACHED
+
+#57 [site-8  6/12] COPY src/dib/core/__init__.py /app/dib/core/__init__.py
+#57 CACHED
+
+#58 [site-8 10/12] COPY src/dib/evaluation/mud_export.py /app/dib/evaluation/mud_export.py
+#58 CACHED
+
+#59 [site-8  5/12] COPY src/dib/__init__.py /app/dib/__init__.py
+#59 CACHED
+
+#60 [site-8  7/12] COPY src/dib/core/io.py /app/dib/core/io.py
+#60 CACHED
+
+#61 [site-8  8/12] COPY src/dib/core/models.py /app/dib/core/models.py
+#61 CACHED
+
+#62 [site-8  4/12] COPY src/dib/registry/distributed/service.py /app/service.py
+#62 CACHED
+
+#6 [site-8  2/12] WORKDIR /app
+#6 CACHED
+
+#63 [site-8 11/12] COPY src/dib/registry/__init__.py /app/dib/registry/__init__.py
+#63 CACHED
+
+#64 [site-3 12/12] COPY src/dib/registry/distributed/mtls.py /app/dib/registry/distributed/mtls.py
+#64 CACHED
+
+#65 [site-8] exporting to image
+#65 exporting layers done
+#65 writing image sha256:83df9a7be3aa31579b435c73448de366a95bab1ed8ec88e34facb9a85200993d done
+#65 naming to docker.io/library/dibgw-site-8 done
+#65 DONE 0.0s
+
+#66 [site-2] exporting to image
+#66 exporting layers done
+#66 writing image sha256:8b792e141b69f82bda6e79cf601fa62263e3871b60dc8edc5632379e4b084c20 done
+#66 naming to docker.io/library/dibgw-site-2 done
+#66 DONE 0.0s
+
+#67 [site-7 internal] load build context
+#67 transferring context: 629B done
+#67 DONE 0.0s
+
+#68 [site-5] exporting to image
+#68 exporting layers done
+#68 writing image sha256:1e14e02fe1b906767a4bbcb111b8e90537990744ff44267fd878c555111bb55e done
+#68 naming to docker.io/library/dibgw-site-5 done
+#68 DONE 0.0s
+
+#69 [site-1 internal] load build context
+#69 transferring context: 629B done
+#69 DONE 0.0s
+
+#70 [site-4] exporting to image
+#70 exporting layers done
+#70 writing image sha256:55160610310086aa092d067b03fb5fd9eef1f6a9272bc491656a883ed366ec5b done
+#70 naming to docker.io/library/dibgw-site-4 done
+#70 DONE 0.0s
+
+#71 [site-0 internal] load build context
+#71 transferring context: 629B done
+#71 DONE 0.0s
+
+#72 [site-9] exporting to image
+#72 exporting layers done
+#72 writing image sha256:7fe5bb2c6e977d1fe73be137a67b6ea29634f1ef6c7cf9d8a1612237ffc063f4 done
+#72 naming to docker.io/library/dibgw-site-9 done
+#72 DONE 0.0s
+
+#73 [site-3 internal] load build context
+#73 transferring context: 629B done
+#73 DONE 0.0s
+
+#74 [site-7] exporting to image
+#74 exporting layers done
+#74 writing image sha256:a906c11d6dc0e656d6ed27056aaa1322f490da8325e2212085d83fe90155dec9 done
+#74 naming to docker.io/library/dibgw-site-7 done
+#74 DONE 0.0s
+
+#75 [site-0] exporting to image
+#75 exporting layers done
+#75 writing image sha256:d04bf961ff4242b88363a16eed4971aa8c416762b0b3b3d742b5e8393cc15af1 done
+#75 naming to docker.io/library/dibgw-site-0 done
+#75 DONE 0.0s
+
+#76 [site-1] exporting to image
+#76 exporting layers done
+#76 writing image sha256:2262e75ffb617cd39aa731c2d79587e02827cc8330fcca75cbc2dae8be6dee1e done
+#76 naming to docker.io/library/dibgw-site-1 done
+#76 DONE 0.0s
+
+#77 [site-3] exporting to image
+#77 exporting layers done
+#77 writing image sha256:f306a410cd3e47463998bbf012afbbe52687b6742fa1ac0d01cecfa84a605aab done
+#77 naming to docker.io/library/dibgw-site-3 done
+#77 DONE 0.0s
+
+#78 [site-1] resolving provenance for metadata file
+#78 DONE 0.0s
+
+#79 [site-4] resolving provenance for metadata file
+#79 DONE 0.1s
+
+#80 [site-2] resolving provenance for metadata file
+#80 DONE 0.1s
+
+#81 [site-0] resolving provenance for metadata file
+#81 DONE 0.0s
+
+#82 [site-5] resolving provenance for metadata file
+#82 DONE 0.0s
+
+#83 [site-7] resolving provenance for metadata file
+#83 DONE 0.0s
+
+#84 [site-9] resolving provenance for metadata file
+#84 DONE 0.1s
+
+#85 [site-8] resolving provenance for metadata file
+#85 DONE 0.1s
+
+#86 [site-3] resolving provenance for metadata file
+#86 DONE 0.0s
+time="2026-10-13T13:34:41+02:00" level=warning msg="Docker Compose is configured to build using Bake, but buildx isn't installed"
+ evidence  Built
+ site-0  Built
+ site-1  Built
+ site-2  Built
+ site-3  Built
+ site-4  Built
+ site-5  Built
+ site-6  Built
+ site-7  Built
+ site-8  Built
+ site-9  Built
+ Network dibgw_default  Creating
+ Network dibgw_default  Created
+ Volume dibgw_site_7_data  Creating
+ Volume dibgw_site_7_data  Created
+ Volume dibgw_site_4_data  Creating
+ Volume dibgw_site_4_data  Created
+ Volume dibgw_site_2_data  Creating
+ Volume dibgw_site_2_data  Created
+ Volume dibgw_site_9_data  Creating
+ Volume dibgw_site_9_data  Created
+ Volume dibgw_site_5_data  Creating
+ Volume dibgw_site_5_data  Created
+ Volume dibgw_site_6_data  Creating
+ Volume dibgw_site_6_data  Created
+ Volume dibgw_site_1_data  Creating
+ Volume dibgw_site_1_data  Created
+ Volume dibgw_evidence_data  Creating
+ Volume dibgw_evidence_data  Created
+ Volume dibgw_site_0_data  Creating
+ Volume dibgw_site_0_data  Created
+ Volume dibgw_site_8_data  Creating
+ Volume dibgw_site_8_data  Created
+ Volume dibgw_site_3_data  Creating
+ Volume dibgw_site_3_data  Created
+ Container dibgw-evidence-1  Creating
+ Container dibgw-evidence-1  Created
+ Container dibgw-site-3-1  Creating
+ Container dibgw-site-4-1  Creating
+ Container dibgw-site-9-1  Creating
+ Container dibgw-site-8-1  Creating
+ Container dibgw-site-0-1  Creating
+ Container dibgw-site-2-1  Creating
+ Container dibgw-site-1-1  Creating
+ Container dibgw-site-6-1  Creating
+ Container dibgw-site-5-1  Creating
+ Container dibgw-site-7-1  Creating
+ Container dibgw-site-8-1  Created
+ Container dibgw-site-2-1  Created
+ Container dibgw-site-6-1  Created
+ Container dibgw-site-3-1  Created
+ Container dibgw-site-7-1  Created
+ Container dibgw-site-1-1  Created
+ Container dibgw-site-5-1  Created
+ Container dibgw-site-4-1  Created
+ Container dibgw-site-9-1  Created
+ Container dibgw-site-0-1  Created
+ Container dibgw-evidence-1  Starting
+ Container dibgw-evidence-1  Started
+ Container dibgw-site-3-1  Starting
+ Container dibgw-site-1-1  Starting
+ Container dibgw-site-0-1  Starting
+ Container dibgw-site-7-1  Starting
+ Container dibgw-site-2-1  Starting
+ Container dibgw-site-8-1  Starting
+ Container dibgw-site-5-1  Starting
+ Container dibgw-site-9-1  Starting
+ Container dibgw-site-4-1  Starting
+ Container dibgw-site-6-1  Starting
+ Container dibgw-site-7-1  Started
+ Container dibgw-site-4-1  Started
+ Container dibgw-site-2-1  Started
+ Container dibgw-site-8-1  Started
+ Container dibgw-site-6-1  Started
+ Container dibgw-site-9-1  Started
+ Container dibgw-site-3-1  Started
+ Container dibgw-site-0-1  Started
+ Container dibgw-site-5-1  Started
+ Container dibgw-site-1-1  Started

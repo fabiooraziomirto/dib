@@ -1,0 +1,8 @@
+2026-10-13T11:28:48.942533+00:00 cluster up
+2026-10-13T11:29:33.115027+00:00 router up
+2026-10-13T11:30:48.222963+00:00 sanity {'wrong_port_8081': False, 'wrong_destination': False, 'subject_8080': True}
+2026-10-13T11:31:29.385619+00:00 ep0 std: complete 
+2026-10-13T11:32:10.453030+00:00 ep1 std: complete 
+2026-10-13T11:32:51.509892+00:00 ep2 std: complete 
+2026-10-13T11:33:32.576717+00:00 ep3 std: complete 
+2026-10-13T11:34:13.575927+00:00 ep4 std: complete 
