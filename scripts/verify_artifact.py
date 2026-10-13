@@ -413,6 +413,44 @@ def check_lifecycle_rerun_20261013() -> None:
         check(f"rerun offline veto: {key}", sum(bool(x[key]) for x in t), 30)
 
 
+def check_gateway_20261013() -> None:
+    """Gateway withdrawal campaigns (audits 121-122) on service 3ffa57ee, before the audit-126 guard;
+    the guard does not change any valid transition. Counts re-read from summary.json, provenance
+    from each manifest (hash inside the 11 containers at start and end)."""
+    print("\nGateway withdrawal t0-t3 (audits 121-122; service 3ffa57ee)")
+    d = "experiments_tnsm/gateway_withdrawal_20261013"
+    for run, n_std, n_veto in (("lan_mtls", 100, 10), ("wan_mtls", 50, 0), ("degraded_mtls", 50, 0)):
+        man = json.loads(text(f"{d}/{run}/manifest.json"))
+        check(f"gateway {run}: no fatal error", man.get("fatal"), None)
+        check(f"gateway {run}: mTLS", man["mtls"], True)
+        for when in ("cluster_start", "cluster_end"):
+            check(f"gateway {run}: {when} service hash in all 11 containers",
+                  sorted({c["/app/service.py"] for c in man["provenance"][when].values()}),
+                  ["3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8"])
+            check(f"gateway {run}: {when} container count", len(man["provenance"][when]), 11)
+        summ = json.loads(text(f"{d}/analysis_{run.split('_')[0]}/summary.json"))
+        for kind, n in (("std", n_std), ("veto", n_veto)):
+            if not n:
+                continue
+            s = summ[f"{run.split('_')[0]}/{kind}"]
+            c = s["checks"]
+            check(f"gateway {run}/{kind}: episodes", s["episodes"], n)
+            for key in ("export_after_t1_is_control_only", "subject_blocked_after_t2", "restore_alone_blocked",
+                        "reenabled_after_commit", "ctl_ok_after_t2", "est_control_survived_episode"):
+                check(f"gateway {run}/{kind}: {key} (of measured)", c[key], c["measured"])
+            check(f"gateway {run}/{kind}: control failures outside reloads", c["ctl_failures_outside_reloads_total"], 0)
+            if kind == "veto":
+                for key in ("veto_kept_after_restore", "commit_over_veto_refused", "veto_export_without_subject"):
+                    check(f"gateway {run}/veto: {key}", c[key], n)
+            check(f"gateway {run}/{kind}: established subject connections cut", s["established_cut"]["cut"], 0)
+    headline = {"lan": (0.024, 5.494, 0.382), "wan": (0.418, 5.875, 0.766), "degraded": (1.020, 6.504, 1.398)}
+    for prof, (t1, t2, t3) in headline.items():
+        m = json.loads(text(f"{d}/analysis_{prof}/summary.json"))[f"{prof}/std"]["metrics"]
+        check(f"gateway {prof}: median t1 (s)", round(m["d_t1"]["median"], 3), t1, 0.0005)
+        check(f"gateway {prof}: median t2 (s)", round(m["d_t2"]["median"], 3), t2, 0.0005)
+        check(f"gateway {prof}: median t3 new connections (s)", round(m["d_t3"]["median"], 3), t3, 0.0005)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--with-tests", action="store_true", help="also run the unit suite")
@@ -427,6 +465,7 @@ def main() -> int:
     check_v42_additions()
     check_lifecycle_rerun_superseded_3ffa57ee()
     check_lifecycle_rerun_20261013()
+    check_gateway_20261013()
     if args.with_tests:
         run_unit_tests()
 
