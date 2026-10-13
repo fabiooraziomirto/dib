@@ -1,0 +1,103 @@
+diff --git a/docs/main_10p.tex b/docs/main_10p_rev.tex
+index 5b9662f..572a551 100644
+--- a/docs/main_10p.tex
++++ b/docs/main_10p_rev.tex
+@@ -48,7 +48,7 @@ In the event of compromise, their lifecycle may require coordinated withdrawal w
+
+This paper presents Device Intent Blueprint (DIB), a framework designed to facilitate the creation and sharing of MUD policies by separating shared traffic evidence from local authorization. Candidate communications enter a review queue and generate MUD rules only after local approval.  A shared dispute triggers coordinated withdrawal while local decisions are preserved. DIB records the approval validity and the origin of revocation, allowing disconnected sites to reconcile even after missing an entire withdrawal-and-restoration episode.
+
+ We evaluate DIB through {+bounded (finite-instance)+} exhaustive lifecycle model checking, an OpenWrt/osMUD testbed, and experiments on three IoT traffic datasets. The results show that DIB works as intended: it preserves local authorization during coordinated withdrawal and recovery, reconciles [-disconnected sites-]{+a restarted site with median convergence+} within a [-measured bound after reconnection,-]{+pre-registered bound,+} and supports flexible candidate selection. A protocol-level model exposed races between evidence reads and local updates, one of which lets an approval survive a restoration; the corrected design is verified in the model and implemented in the evaluated prototype.[-Overall, the tests confirm that DIB works as intended, with median convergence after reconnection within the pre-registered bound.-] 
+\end{abstract}
+
+\begin{IEEEkeywords}
+@@ -111,7 +111,7 @@ G3 is a lifecycle invariant, formalized as I1--I3 in Sec.~\ref{subsec:lifecycle}
+
+\subsection{Roles, Trust Boundary, and Assumptions}
+\label{subsec:trust}
+Members submit observations, read [-their own candidates,-]{+shared scores,+} and send \emph{dispute notices}, i.e., requests to withdraw a fact. Each site's operator alone approves, revokes, and restores facts at that site. A consortium administrator alone performs global restoration after a dispute. The evidence service aggregates evidence, selects candidates, and orders and distributes lifecycle updates; it is trusted for this, not to authorize. Each site's MUD manager and gateway apply only that site's policy.
+
+The boundary of each site's administrative domain (dashed boxes in Fig.~\ref{fig:architecture}) is the only place where authorization is created. Inputs that cross it from outside, such as observations, candidates, disputes, and restorations, can at most place a fact in review or withdraw its rule; they cannot install a rule. The goals rely on six assumptions:
+\begin{itemize}
+@@ -408,7 +408,7 @@ Faulty evidence service & G2 & holds no local authorization state \\
+\end{tabular}
+\end{table}
+
+\textbf{G3.} G3 follows from the lifecycle guards (I1--I3, Eq.~\ref{eq:exportable}), which hold for any content of shared evidence; A1--A4 therefore cannot create local authorization under AS1, AS4, and AS5. A faulty evidence service can delay withdrawal or issue unfounded disputes and restorations, but a restoration returns records to MonitorOnly (Table~\ref{tab:transitions}), so it cannot make a fact exportable [-either.-]{+either; sites ignore any update whose target state differs from Table~\ref{tab:transitions}.+} A site that misses an episode applies the latest ordered update on reconnection, without a time bound (AS6). The prototype enforces them with a two-phase commit that re-reads the evidence before a record becomes Active (Sec.~\ref{sec:lifecycle-results}).
+
+\textbf{G2.} G2 is the guarantee of Criterion~\ref{crit:poison-bound} and holds only under AS2 and with raw breadth. Under trust weighting, an adversary-only fact has $C_s^{trust}=W$, where $W=\sum_{i\in S_{d,e}}w_i/\sum_{i\in ES_d}w_i$ is the adversaries' weighted share, so the same algebra rejects it whenever $W<f^\star$. The weights, however, grow with $b_i$, which counts the facts that site $i$ itself contributes: a member that contributes many facts reaches full weight while honest sites with fewer contributions keep lower weights, so $W$ can exceed the raw share, and a fact can pass with a raw share below $f^\star$. Results obtained with trust weighting are therefore not covered by Criterion~\ref{crit:poison-bound}, and clustering has no analogous bound. Fabricated identities beyond AS2 and A1 traffic reported by more than a fraction $f_s$ of observers fall outside G2. Admission failure creates a false proposal, not a rule (G3).
+
+@@ -416,9 +416,9 @@ Faulty evidence service & G2 & holds no local authorization state \\
+
+\section{Implementation and Evaluation Method}
+\label{sec:impl}
+The distributed prototype separates shared evidence from site-local decisions into distinct services (Sec.~\ref{sec:scalability-results}). [-Registry transactions apply per-fact dispute/restore changes atomically,-]{+Each service is a Python/FastAPI process+} with [-up-]{+its own SQLite database. Opt-in mutual TLS maps the client certificate's SAN URI+} to [-ten retries for conflicting writes. The implementation uses Python-]{+a site+} and [-FastAPI, with SQLAlchemy~2 and SQLite for persistence.-]{+role; without it, endpoints are unauthenticated.+}
+
+[-To test whether lifecycle changes reach gateway-]{+For+} enforcement,[-we run-] unmodified osMUD[-commit-] \texttt{852918e} {+runs+} in a privileged[-Docker container with the-] OpenWrt 23.05.5 [-root filesystem. Restarting osMUD after-]{+container; on+} each[-policy-] change [-applies-]{+the harness exports the site's+} MUD [-ACLs as-]{+file and restarts osMUD, and polls state,+} nftables[-rules. We record ACEs, effective-] rules,[-registry/osMUD state,-] and[-a live-] TCP [-probe for each transition.-]{+connections every 10--50~ms on one clock.+} Exports are unsigned and signature validation is disabled.
+
+Candidate-selection experiments use three traffic datasets. UNSW-IoTraffic~\cite{sivanathan2019classifying} supplies 27 device types and 28 traffic-derived reference profiles; its single capture is shuffled and partitioned round-robin into ten pseudo-sites (seed 42 unless stated). Mon(IoT)r~\cite{moniotr} provides US and UK captures after collapsing VPN variants; YourThings~\cite{alrawi2019yourthings} adds a third deployment for cross-lab comparisons (Sec.~\ref{sec:loo-results}). We retain device-initiated flows with a port and global peer or public name. UNSW associates IPs with same-site HTTP Host and TLS Server Name Indication (SNI) within 24 hours; Mon(IoT)r uses cumulative DNS.
+
+@@ -434,13 +434,13 @@ For reproducibility, the anonymized repository supplied with the submission cont
+
+\section{Evaluation}
+\label{sec:eval}
+We assess whether DIB preserves local authorization during withdrawal and recovery, how fast both are under delay and loss, and what candidate selection achieves on captured traffic. [-Timing experiments-]{+Withdrawal and recovery timing+} run ten site services and an evidence service in Docker on one 16-vCPU KVM node, with \texttt{tc netem} on every container; [-hypotheses-]{+gateway timing runs on a separate shared 16-core host with \texttt{netem} on the evidence service's link only. Hypotheses+} were fixed before the runs. {+Gateway timing predates the target-state guard (Sec.~\ref{subsec:security-analysis}); a smoke run after it matched.+}
+
+\subsection{Authorization and Recovery}
+\label{sec:lifecycle-results}
+The TLA+ model represents three sites and two facts, distinguishing the dispute opener, confirmer, and bystander. Exhaustive exploration of 4,311,852 states finds no violation of I1--I3 or the export checks: only local commits create fresh authorization, export requires it, and disputes invalidate it without affecting unrelated facts. With one of three sites [-disconnected-]{+disconnected, one fact,+} and local revoke and restore enabled, 48,960 states show no violation. A model of the implemented non-atomic query and commit protocol (two sites, one fact) explores 402,633,492 states with three evidence events and partitions without violations; removing any of its five corrections produces one. Adding failed evidence reads, abandoned reconcile runs, and site crash with restart cleanup, safety holds [-with-]{+in separate configurations:+} three events {+with a failed read and a crash+} (154,363,430 states), {+three sites (712,287,745), and+} partitions,[-two-] lost deliveries, quorum two,[-two facts,-] and [-three sites (712,287,745 states); removing-]{+two facts. Removing+} the cleanup produces a violation.[-Strict suspension at every reachable site holds without failures; with failed reads, a site left behind is repaired by anti-entropy.-] These checks are exhaustive only within their finite configurations; they do not cover gateway timing, concurrent requests per site, three-event convergence with failures, or linearizability.
+
+To identify which safeguards prevent failures, we remove six lifecycle guards in separate model variants, M1--M6. Each produces a distinct authorization failure involving grant handling, site confinement, revocation origin, or export control (Table~\ref{tab:tla}). A separate model of the mTLS authorization rules, extracted from the service code, checks role and site confinement; its ten base configurations find no counterexample and six mutants each violate the property they remove. [-\textbf{[PLACEHOLDER: scope on revocation timing-]{+It assumes mutual TLS+} and [-multi-SAN certificates, to confirm.]}-]{+one identity per certificate.+}
+
+\begin{table}[t]
+\centering
+@@ -453,21 +453,21 @@ ID & Property & Guard removed & Counterexample \\
+\midrule
+M1 & Grant coherence & restore recreates grant & authorization without commit \\
+M2 & I2 site confinement & cross-site commit & remote commit alters $s'$ \\
+M3 & {+Export requires Active & disputed export & ACE emitted while Disputed \\+}
+{+M4 & Dispute suspends everywhere & local-restore ignores open dispute & site escapes live dispute \\+}
+{+M5 &+} I2 local-revoke confinement & local-revoke fans out & remote site's record changes \\
+[-M4-]{+M6+} & I3 global restore preserves local revoke & restore ignores revocation origin & local veto erased \\[-M5 & I3 local-restore conservative & local-restore ignores open dispute & site escapes live dispute \\-]
+[-M6 & Export requires Active & disputed export & ACE emitted while Disputed \\-]
+\bottomrule
+\end{tabular}
+\end{table}
+
+The registry tests exercise these rules through one- and two-dispute episodes, repeated restoration, and local vetoes recorded before or during withdrawal. Among three restoration policies, only DIB prevents export of a disputed fact without a new commit while preserving every local veto: reusing approvals exports the fact at 12 of 18 non-vetoing sites, and resetting all records to review erases all six vetoes. [-All ten OpenWrt/osMUD-]{+In 210+} gateway [-cases apply the exported policies as expected: MonitorOnly produces no rule, the first-]{+episodes with mutual TLS (100 \emph{lan}, 50 \emph{wan}, 50 \emph{degraded}, 10 with a veto), every+} dispute [-removes the nftables rules,-]{+withdrew its fact+} and [-access resumes only after a global restore-]{+spared an unrelated one: medians of 24~ms to invalidate the site approval (0.42, 1.02~s), 0.38~s to refuse new connections,+} and {+5.49~s to install the policy (5.88, 6.50~s), mostly osMUD's restart, which also paused the unrelated fact for 5.1~s. Established connections were never cut. Restore alone never re-enabled access;+} a fresh [-commit.-]{+commit did; vetoes survived.+}
+
+\subsection{Recovery After [-Disconnection}-]{+a Site Restart}+}
+\label{sec:scalability-results}
+When a site becomes unreachable, the service retains only the latest pending target for each fact and applies it on reconnection through the same idempotent path, using a monotonic per-fact sequence number; a restore target therefore invalidates an old Active approval even if the preceding dispute never reached the site. We kill one [-site, complete-]{+site while+} $k$ [-withdrawal-and-restore episodes at the others,-]{+distinct endpoints are each disputed, confirmed, and restored,+} restart it, and measure [-the time until it converges,-]{+convergence from its start (a site that stays up while partitioned is not measured),+} for $k=1$, 10, and 50 (50 at \emph{lan} only), reconciliation interval $T\in\{5,15\}$~s, with and without mutual TLS, in three network profiles (\emph{lan}, \emph{wan}: 80~ms and 1\% loss per direction, \emph{degraded}: 200~ms and 5\%). Each of the 28 cells has 30 trials (two series of 10 and 20 trials with different seeds, pooled). The pre-registered bound is $1.5+0.1T+\max(5,D_{run})$~s, 7.0--8.6~s.
+
+The median convergence is 0.6--1.4~s at \emph{lan}, including 50 missed episodes (0.7--1.4~s), 1.4--2.1~s at \emph{wan}, and 2.4--4.1~s at \emph{degraded}; it stays below the bound in all 28 cells. [-All 834 completed-]{+Six of 840+} trials [-(840 planned; six-]{+were+} excluded [-for a-]{+(five+} refused {+setups, one non-empty queue; 16+} setup [-request) end-]{+retries); in the other 834 the restarted site ends+} with every [-site-]{+fact+} in [-the MonitorOnly state and no transient record.-]{+MonitorOnly.+} At \emph{degraded}, 3 of 234 trials exceed the bound (by 0.1 to 4.0~s); in the one we traced, with mutual TLS, the first reconciliation attempt timed out in the TLS handshake (5~s) and the second succeeded.
+
+\subsection{Withdrawal Under Emulated Network Delay and Loss}
+\label{sec:netem-results}
+@@ -496,7 +496,7 @@ C, 10 sites & late share & 0.280 & 0.314 & 0.340 \\
+
+\subsection{Suspension Policy and Availability}
+\label{sec:suspension-policy}
+With immediate suspension, one member's requests withdraw the disputed facts across ten sites and take exports from the approved ACEs to zero, while the services keep answering; under two-reporter suspension the first report is retained and the second opens the dispute, duplicate reports add no votes, and local vetoes recorded during withdrawal survive restoration with fresh commits required for export. [-\textbf{[PLACEHOLDER: withdrawal-time and read-throughput figures-]{+One identity's 100 disputes withdrew 1,000 site records in a median 5.2~s, cutting concurrent read throughput from 662+} to [-remeasure on the final service.]}-]{+228 operations/s.+}
+
+\subsection{Candidate Selection on Captured Traffic}
+\label{sec:utility-results}
+@@ -549,19 +549,19 @@ The operating point chosen from the adversarial bound is not the one that maximi
+
+Recovery requires approval validity and revocation origin, whether represented through states or history. The mutations (Table~\ref{tab:tla}) and the restoration-policy ablation (Sec.~\ref{sec:lifecycle-results}) expose failures when this information or its checks are omitted. The review process still requires evaluation with operators.
+
+Candidate selection can adapt without changing local authorization or recovery. Quorum accounts for most queue reduction at US/UK; ordering explains the advantage over unranked pooling. Threshold-then-rank suits deployments that maintain the bounded raw-breadth share assumption of Criterion~\ref{crit:poison-bound}. Trust weighting and clustering mitigate tested identity inflation but fail under padding. Ranked union yields [-slightly more-]{+at least as many+} receiver-observed endpoints at matched [-budgets,-]{+budgets (35/39/40 vs.\ 35/37/37),+} but no tested policy establishes benignity or necessity. Review capacity should inform the retention window $W$, whose practical value remains open.
+
+Local control does not eliminate withdrawal's availability costs. One reporter can interrupt service under immediate suspension; requiring two preserves permissions until corroboration but delays withdrawal if no second report arrives. Both policies remain vulnerable to collusion, and the prototype lacks dispute rate limits and reputation penalties. Unreachable gateways can retain stale rules until reconnection, with no[-established-] withdrawal deadline [-while unreachable (after reconnection, the median convergence stayed within its bound in every measured cell). In the prototype-]{+meanwhile. A site can record+} a {+veto offline, but its+} local [-revocation looks up the fact at-]{+restore reads+} the evidence service [-first, so a site that cannot reach it cannot record a veto until-]{+and is refused while+} it [-reconnects.-]{+is unreachable, unlike in the model.+}
+
+
+The shared evidence service is a[-throughput bottleneck and-] single point of failure for candidate flow and withdrawal [-propagation.-]{+propagation, and every site's commit reads it twice.+} It holds no local authorization state: failure can delay withdrawal but cannot[-itself-] grant or revoke local [-permissions. Replication and recovery remain-]{+permissions; replication remains a+} deployment [-concerns. Co-located experiments-]{+concern. Experiments+} emulate delay and loss on[-one host pair rather than measure-] a [-real wide-area network,-]{+single host+} and [-do not evaluate-]{+use no+} production [-workloads;-]{+workload;+} finite models assume authenticated [-callers, and-]{+callers;+} gateway tests disable signature [-validation.-]{+validation, and withdrawal there stops only new connections.+} Deployment requires the authentication, roles, and signing integration in Sec.~\ref{subsec:trust}.
+
+The pseudo-site partition and six-type alignment restrict generalization. Coverage of fleets using these mechanisms remains unverified.
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+This paper presented DIB for managing locally authorized MUD policies from shared IoT observations. [-Finite-model-]{+Bounded model+} checks and[-guard-removal-] mutations assess its [-authorization lifecycle;-]{+lifecycle,+} OpenWrt/osMUD [-tests demonstrate enforcement. Outage-]{+episodes measure withdrawal at the gateway, and outage+} experiments show that one collapsed update preserves[-local-] vetoes and invalidates stale [-approvals after a missed withdrawal and restoration episode. Candidate-selection and suspension experiments quantify review volume and availability costs.-]{+approvals.+} Future work will evaluate operator review, mechanisms to bound gateway withdrawal time, and recovery of the shared evidence service.
+
+\setlength{\IEEEbibitemsep}{0pt}
+\begin{thebibliography}{00}
