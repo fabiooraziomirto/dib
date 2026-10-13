@@ -1,0 +1,85 @@
+{
+  "ietf-mud:mud": {
+    "mud-version": 1,
+    "mud-url": "http://mud-server:8000/camera.json",
+    "last-update": "2026-10-13T08:40:29.012682+00:00",
+    "cache-validity": 48,
+    "is-supported": true,
+    "systeminfo": "DIB corroborated policy for camera",
+    "from-device-policy": {
+      "access-lists": {
+        "access-list": [
+          {
+            "name": "dib-camera-fr"
+          }
+        ]
+      }
+    },
+    "to-device-policy": {
+      "access-lists": {
+        "access-list": [
+          {
+            "name": "dib-camera-to"
+          }
+        ]
+      }
+    }
+  },
+  "ietf-access-control-list:access-lists": {
+    "acl": [
+      {
+        "name": "dib-camera-fr",
+        "acl-type": "ipv4-acl-type",
+        "aces": {
+          "ace": [
+            {
+              "rule-name": "dib-camera-fr-0",
+              "matches": {
+                "ipv4": {
+                  "ietf-acldns:dst-dnsname": "allowed.test",
+                  "protocol": 6
+                },
+                "tcp": {
+                  "destination-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 8080
+                  },
+                  "ietf-mud:direction-initiated": "from-device"
+                }
+              },
+              "actions": {
+                "forwarding": "accept"
+              }
+            },
+            {
+              "rule-name": "dib-camera-fr-1",
+              "matches": {
+                "ipv4": {
+                  "ietf-acldns:dst-dnsname": "allowed.test",
+                  "protocol": 6
+                },
+                "tcp": {
+                  "destination-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 9090
+                  },
+                  "ietf-mud:direction-initiated": "from-device"
+                }
+              },
+              "actions": {
+                "forwarding": "accept"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "dib-camera-to",
+        "acl-type": "ipv4-acl-type",
+        "aces": {
+          "ace": []
+        }
+      }
+    ]
+  }
+}

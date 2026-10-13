@@ -1,0 +1,228 @@
+{
+ "prereg": "docs/audit/121",
+ "started_utc": "2026-10-13T08:46:46.722126+00:00",
+ "profile": "lan",
+ "mtls": true,
+ "episodes_requested": 1,
+ "veto_episodes_requested": 0,
+ "window_s": 5.0,
+ "commit": "819215ffd428a0f177ccbf299aba79be85aeaac6",
+ "dirty": [
+  "?? experiments_tnsm/gateway_withdrawal_20261013/"
+ ],
+ "tree_sha256": {
+  "code/src/dib/registry/distributed/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+  "code/src/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9",
+  "code/src/dib/registry/distributed/Dockerfile": "50adfd9dd41d4a7a9d19a992684bd7d108973318979b0ec7749671b327a8a5a9",
+  "code/src/dib/registry/distributed/generate_compose.py": "22c5be5ab390c17c1b38d77bf20c9e3cd4138e44c5d8b41bdbb1ecdcf64c4541",
+  "openwrt/Dockerfile.router": "029f6b7dc321aeb2627de79a206b6f8b0719da4963d6034993589ee0c56309c3",
+  "openwrt/router-entrypoint.sh": "31ef6803967c8e6eb0f278a841daba41063be60edf5e03cfc0c65ae02907659a",
+  "openwrt/docker-compose.yml": "bf2f661d17d015addb116e72db22746d43aa553b51beb164e8eec7820fdadc11",
+  "experiments_tnsm/gateway_withdrawal_20261013/gateway_bench.py": "2d45c42ec317f4d8b9e1ce205409c816e109b26818b1710a203d8a5a550199f6",
+  "experiments_tnsm/gateway_withdrawal_20261013/probe.py": "caef9418e3c81ee75492c50f627b6f674c2114e847ab7fa290b3c1cfe587089d",
+  "experiments_tnsm/gateway_withdrawal_20261013/echo_stream.py": "dad2e95d0669d9da8d15cf618d1c42b04aaae2bc01ba7fffe4156dc3ed2fc4d5"
+ },
+ "python": "3.12.15",
+ "host": {
+  "nproc": 16,
+  "loadavg_start": [
+   10.123046875,
+   10.11376953125,
+   9.74853515625
+  ],
+  "loadavg_end": [
+   13.10693359375,
+   10.7587890625,
+   9.986328125
+  ]
+ },
+ "clock": "CLOCK_MONOTONIC of the host kernel (time.monotonic), shared by containers (no time namespace)",
+ "probes": {
+  "new_conn_period_s": 0.02,
+  "new_conn_timeout_s": 0.5,
+  "est_period_s": 0.05,
+  "est_timeout_s": 1.0,
+  "poll_sleep_s": 0.005
+ },
+ "reload": "kill osmud + docker exec -d router-entrypoint.sh (as openwrt/run_distributed.sh), orchestrated by the harness",
+ "mud_signature": "unsigned MUD file; osMUD runs with -i (signature validation bypass), openwrt/README.md",
+ "netem": {
+  "container_eth0": "qdisc noqueue 0: root refcnt 2",
+  "host_veth67d120b": "qdisc noqueue 0: root refcnt 2"
+ },
+ "gateway_sanity": {
+  "wrong_port_8081": false,
+  "wrong_destination": false,
+  "subject_8080": true
+ },
+ "episodes": [
+  {
+   "episode": 0,
+   "kind": "std",
+   "status": "complete",
+   "reason": null
+  }
+ ],
+ "provenance": {
+  "cluster_start": {
+   "evidence": {
+    "container": "dibgw-evidence-1",
+    "image": "sha256:3ef6512de7a60753aa5a357c04c2404b7afafa803ba1c283f3e50deef30145bd",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-0": {
+    "container": "dibgw-site-0-1",
+    "image": "sha256:4cf783ee30ed9c037037d80f49fa545cd64e51f377b40fb960473bcbaac3dcde",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-1": {
+    "container": "dibgw-site-1-1",
+    "image": "sha256:3381b7d0a8b4e417411ac992b110d64610b823d3478de43eee07961a7f6e44a7",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-2": {
+    "container": "dibgw-site-2-1",
+    "image": "sha256:29666de8390a00c2021b2f744fd74dc7ababf30e2a995de55fb394dc144ec325",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-3": {
+    "container": "dibgw-site-3-1",
+    "image": "sha256:2d95da9e8123135424a9bd17ffb9cd75ace31f374983619b78cf58464501de18",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-4": {
+    "container": "dibgw-site-4-1",
+    "image": "sha256:887f68a5bbe4165fabe171a8b705bc0cb4430caa4055ed763248aa73e9602d82",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-5": {
+    "container": "dibgw-site-5-1",
+    "image": "sha256:be536a24444964cda32fe766a173115e1f2273a9698be4bf99cbab2bf9fe6f8e",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-6": {
+    "container": "dibgw-site-6-1",
+    "image": "sha256:7e7fc667201e57dbc5ac2fd8c7f8b67c4af99d32725d4d7ad8e8dbb4b3f860d6",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-7": {
+    "container": "dibgw-site-7-1",
+    "image": "sha256:2cc101167b617df0727a138580d66a42b442931906005227de81c3d90b70e8c7",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-8": {
+    "container": "dibgw-site-8-1",
+    "image": "sha256:c7384c1af17fb1dad316d43110a2c33cbbd9d51b503bcc514789b2961e38d2cf",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-9": {
+    "container": "dibgw-site-9-1",
+    "image": "sha256:9124ce52a98854659d940d4acfd7299a746e97bf13e3e57918180f2ce47810f1",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   }
+  },
+  "time_namespace": {
+   "host": "time:[4026531834]",
+   "router": "time:[4026531834]",
+   "device": "time:[4026531834]"
+  },
+  "router_start": {
+   "image": "sha256:f2ea0befbb3307fc7c51bb9ede6117c0787c3ff0c4c13a0b14a3c733c19b1319",
+   "/usr/sbin/osmud": "62c6485f076ef1e012ce3a114e1e0933c6f2e8c7756eb79fb89d11592aded0bd",
+   "/usr/local/bin/router-entrypoint.sh": "31ef6803967c8e6eb0f278a841daba41063be60edf5e03cfc0c65ae02907659a",
+   "/etc/osmud/commit_ip_fw_rules.sh": "1a1b76facb69fd7f56972ff8772ef7100b68553f92808a9955c77894978151b4",
+   "/etc/osmud/rollback_ip_fw_rules.sh": "4533c416c23267fd6c81913aba098fc6b9f7e82e81661e3b1aecb65899eced1b",
+   "/etc/osmud/create_ip_fw_rule.sh": "68d14a7f2ea103d83d0ce248d998dcb4af30fd95cfb7e85ef1dd378e58e78f75",
+   "/etc/osmud/remove_ip_fw_rule.sh": "e6ac93155407aeaee3c2c86588e6a6b34f80c5fc282faf3330615948b0fd33cc"
+  },
+  "cluster_end": {
+   "evidence": {
+    "container": "dibgw-evidence-1",
+    "image": "sha256:3ef6512de7a60753aa5a357c04c2404b7afafa803ba1c283f3e50deef30145bd",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-0": {
+    "container": "dibgw-site-0-1",
+    "image": "sha256:4cf783ee30ed9c037037d80f49fa545cd64e51f377b40fb960473bcbaac3dcde",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-1": {
+    "container": "dibgw-site-1-1",
+    "image": "sha256:3381b7d0a8b4e417411ac992b110d64610b823d3478de43eee07961a7f6e44a7",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-2": {
+    "container": "dibgw-site-2-1",
+    "image": "sha256:29666de8390a00c2021b2f744fd74dc7ababf30e2a995de55fb394dc144ec325",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-3": {
+    "container": "dibgw-site-3-1",
+    "image": "sha256:2d95da9e8123135424a9bd17ffb9cd75ace31f374983619b78cf58464501de18",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-4": {
+    "container": "dibgw-site-4-1",
+    "image": "sha256:887f68a5bbe4165fabe171a8b705bc0cb4430caa4055ed763248aa73e9602d82",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-5": {
+    "container": "dibgw-site-5-1",
+    "image": "sha256:be536a24444964cda32fe766a173115e1f2273a9698be4bf99cbab2bf9fe6f8e",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-6": {
+    "container": "dibgw-site-6-1",
+    "image": "sha256:7e7fc667201e57dbc5ac2fd8c7f8b67c4af99d32725d4d7ad8e8dbb4b3f860d6",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-7": {
+    "container": "dibgw-site-7-1",
+    "image": "sha256:2cc101167b617df0727a138580d66a42b442931906005227de81c3d90b70e8c7",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-8": {
+    "container": "dibgw-site-8-1",
+    "image": "sha256:c7384c1af17fb1dad316d43110a2c33cbbd9d51b503bcc514789b2961e38d2cf",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   },
+   "site-9": {
+    "container": "dibgw-site-9-1",
+    "image": "sha256:9124ce52a98854659d940d4acfd7299a746e97bf13e3e57918180f2ce47810f1",
+    "/app/service.py": "3ffa57ee549512e4d3341738c8ec052a86a3c11f4a05f37f82614868fc822af8",
+    "/app/dib/registry/distributed/mtls.py": "4833dae39a4a592cda82b7dc1a22663d5b2c1f2ade58014d1c1fe0060812b7c9"
+   }
+  },
+  "router_end": {
+   "image": "sha256:f2ea0befbb3307fc7c51bb9ede6117c0787c3ff0c4c13a0b14a3c733c19b1319",
+   "/usr/sbin/osmud": "62c6485f076ef1e012ce3a114e1e0933c6f2e8c7756eb79fb89d11592aded0bd",
+   "/usr/local/bin/router-entrypoint.sh": "31ef6803967c8e6eb0f278a841daba41063be60edf5e03cfc0c65ae02907659a",
+   "/etc/osmud/commit_ip_fw_rules.sh": "1a1b76facb69fd7f56972ff8772ef7100b68553f92808a9955c77894978151b4",
+   "/etc/osmud/rollback_ip_fw_rules.sh": "4533c416c23267fd6c81913aba098fc6b9f7e82e81661e3b1aecb65899eced1b",
+   "/etc/osmud/create_ip_fw_rule.sh": "68d14a7f2ea103d83d0ce248d998dcb4af30fd95cfb7e85ef1dd378e58e78f75",
+   "/etc/osmud/remove_ip_fw_rule.sh": "e6ac93155407aeaee3c2c86588e6a6b34f80c5fc282faf3330615948b0fd33cc"
+  }
+ },
+ "finished_utc": "2026-10-13T08:47:51.658633+00:00"
+}

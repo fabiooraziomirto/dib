@@ -1,0 +1,117 @@
+{
+ "episode": 1,
+ "kind": "std",
+ "profile": "lan",
+ "started": 240095.038677229,
+ "loadavg": [
+  7.56201171875,
+  8.767578125,
+  9.2548828125
+ ],
+ "status": "complete",
+ "setup": {
+  "export_ports": [
+   8080,
+   9090
+  ],
+  "mud_sha256": "51069dd5b3007e5bffe845a214db321026a3b1664d4bfa9d2d9799778fe4be4a"
+ },
+ "precondition": {
+  "subject_new_ok": true,
+  "control_new_ok": true,
+  "est_open": {
+   "9090": true,
+   "8080": true
+  }
+ },
+ "t_react": 240101.017982615,
+ "dispute": {
+  "t0s": 240100.989907158,
+  "status": 200,
+  "body": "{\"applied\":true}",
+  "t0r": 240101.030945661
+ },
+ "t0_obs": [
+  240100.991021519,
+  240101.010928467
+ ],
+ "t1_obs": [
+  240101.008534704,
+  240101.016997776
+ ],
+ "export": [
+  240101.017985109,
+  240101.024205012
+ ],
+ "export_ports": [
+  9090
+ ],
+ "export_mud_sha256": "17d403f966f9777118c298203c7dac8509164c9c1b738710e8370c37aaab285f",
+ "reload": [
+  240101.024277888,
+  240101.330783533
+ ],
+ "tf_obs": [
+  240101.38702634,
+  240101.401433937
+ ],
+ "t2_obs": [
+  240106.47618106,
+  240106.495466031
+ ],
+ "poll_periods": {
+  "evidence": {
+   "n": 937,
+   "median_s": 0.006578505999641493,
+   "max_s": 0.016319917020155117
+  },
+  "site0": {
+   "n": 946,
+   "median_s": 0.006532900006277487,
+   "max_s": 0.013607425993541256
+  },
+  "rules": {
+   "n": 610,
+   "median_s": 0.008283595001557842,
+   "max_s": 0.01962553898920305
+  }
+ },
+ "window_end": 240112.000963929,
+ "recovery": {
+  "restore_status": 200,
+  "site0_state_after_restore": "monitor-only",
+  "site0_origin_after_restore": null,
+  "export_ports_after_restore": [
+   9090
+  ],
+  "restore_rules_applied": true,
+  "subject_after_restore": {
+   "probes": 150,
+   "ok": 0
+  },
+  "commit_status": 200,
+  "export_ports_after_commit": [
+   8080,
+   9090
+  ],
+  "t_commit": 240120.504105186,
+  "export": [
+   240120.529412017,
+   240120.533429717
+  ],
+  "reload": [
+   240120.533632908,
+   240120.851250436
+  ],
+  "tf_obs": [
+   240120.911778394,
+   240120.931411818
+  ],
+  "t2_obs": [
+   240126.028495017,
+   240126.036394632
+  ],
+  "reenabled_new_conn": 240126.040093503
+ },
+ "probe_records": 3561
+}

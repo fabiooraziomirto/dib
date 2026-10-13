@@ -1,0 +1,10 @@
+2026-10-13T08:38:08.858482+00:00 cluster up
+2026-10-13T08:39:15.953483+00:00 router up
+2026-10-13T08:40:28.951047+00:00 sanity {'wrong_port_8081': False, 'wrong_destination': False, 'subject_8080': True}
+2026-10-13T08:40:28.970971+00:00 ep0: setup failed once (setup export has ports [-1, -1]); repair
+2026-10-13T08:40:28.978924+00:00 ep0 std: setup_invalid SetupError: setup export has ports [-1, -1]
+2026-10-13T08:40:28.987585+00:00 ep1: setup failed once (setup export has ports [-1, -1]); repair
+2026-10-13T08:40:28.996042+00:00 ep1 std: setup_invalid SetupError: setup export has ports [-1, -1]
+2026-10-13T08:40:29.005314+00:00 ep2: setup failed once (setup export has ports [-1, -1]); repair
+2026-10-13T08:40:29.014172+00:00 ep2 veto: setup_invalid SetupError: setup export has ports [-1, -1]
+2026-10-13T08:40:29.014197+00:00 3 consecutive setup failures: campaign stopped

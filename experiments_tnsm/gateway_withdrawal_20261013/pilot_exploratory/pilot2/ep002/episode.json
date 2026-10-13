@@ -1,0 +1,123 @@
+{
+ "episode": 2,
+ "kind": "veto",
+ "profile": "lan",
+ "started": 240126.125828485,
+ "loadavg": [
+  10.0390625,
+  9.2138671875,
+  9.38623046875
+ ],
+ "status": "complete",
+ "setup": {
+  "export_ports": [
+   8080,
+   9090
+  ],
+  "mud_sha256": "a96b29e561b3fdeaf821da94eb876b2ba45c1bf845bd6665f06ce705182edb66"
+ },
+ "precondition": {
+  "subject_new_ok": true,
+  "control_new_ok": true,
+  "est_open": {
+   "9090": true,
+   "8080": true
+  }
+ },
+ "t_react": 240132.062993128,
+ "dispute": {
+  "t0s": 240132.036634493,
+  "status": 200,
+  "body": "{\"applied\":true}",
+  "t0r": 240132.063414619
+ },
+ "t0_obs": [
+  240132.038095204,
+  240132.048598195
+ ],
+ "t1_obs": [
+  240132.051885413,
+  240132.0614752
+ ],
+ "export": [
+  240132.062994251,
+  240132.068884464
+ ],
+ "export_ports": [
+  9090
+ ],
+ "export_mud_sha256": "171137cfb6c844168e54b180e1802e34d21f5f8fb7b2dc382db274318bdb9bf4",
+ "reload": [
+  240132.06894641,
+  240132.362588164
+ ],
+ "tf_obs": [
+  240132.416016068,
+  240132.432429941
+ ],
+ "t2_obs": [
+  240137.513703842,
+  240137.525932831
+ ],
+ "poll_periods": {
+  "evidence": {
+   "n": 962,
+   "median_s": 0.006387767003616318,
+   "max_s": 0.01591757099959068
+  },
+  "site0": {
+   "n": 972,
+   "median_s": 0.006335950980428606,
+   "max_s": 0.021486522018676624
+  },
+  "rules": {
+   "n": 614,
+   "median_s": 0.008211759995901957,
+   "max_s": 0.021477886009961367
+  }
+ },
+ "window_end": 240143.030113899,
+ "recovery": {
+  "local_revoke_status": 200,
+  "restore_status": 200,
+  "site0_state_after_restore": "revoked",
+  "site0_origin_after_restore": "local",
+  "commit_over_veto_status": 409,
+  "export_ports_after_restore": [
+   9090
+  ],
+  "restore_rules_applied": true,
+  "subject_after_restore": {
+   "probes": 150,
+   "ok": 0
+  },
+  "local_restore_status": 200,
+  "export_ports_after_local_restore": [
+   9090
+  ],
+  "commit_status": 200,
+  "export_ports_after_commit": [
+   8080,
+   9090
+  ],
+  "t_commit": 240151.57932966,
+  "export": [
+   240151.589295742,
+   240151.590893421
+  ],
+  "reload": [
+   240151.590946741,
+   240151.892490554
+  ],
+  "tf_obs": [
+   240151.945016625,
+   240151.967556264
+  ],
+  "t2_obs": [
+   240157.062260048,
+   240157.086555571
+  ],
+  "reenabled_new_conn": 240157.081238693
+ },
+ "probe_records": 3561
+}

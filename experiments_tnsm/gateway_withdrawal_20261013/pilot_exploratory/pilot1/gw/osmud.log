@@ -1,0 +1,35 @@
+2026-09-13 08:40:23 INFO::GENERAL::  Starting OSMUD controlling with initial settings:
+2026-09-13 08:40:23 INFO::GENERAL::    PID FILE: /run/osmud/osmud.pid
+2026-09-13 08:40:23 INFO::GENERAL::    DHCP event file: /run/osmud/dhcp_event.txt
+2026-09-13 08:40:23 INFO::GENERAL::    DNS white-list file: /run/osmud/dnswhitelist
+2026-09-13 08:40:23 INFO::GENERAL::    MUD file storage directory: /var/state/osmud/mudfiles
+2026-09-13 08:40:23 INFO::GENERAL::    sMUD startup configuration file: /etc/osmud.conf
+2026-09-13 08:40:23 INFO::GENERAL::    osMUD logger path and file: /artifacts/osmud.log
+2026-09-13 08:40:28 DEBUG::GENERAL::Data read on device
+2026-09-13 08:40:28 DEBUG::GENERAL::2026-08-08T12:00:00|NEW|OpenWRT.lan|DHCP|1,3,6,15|MUD|http://mud-server:8000/camera.json|-|02:42:ac:1e:00:02|172.30.0.2|camera|
+2026-09-13 08:40:28 DEBUG::GENERAL::Executing on dhcpmasq info
+2026-09-13 08:40:28 INFO::GENERAL::NEW Device Action: IP: 172.30.0.2, MAC: 02:42:ac:1e:00:02
+2026-09-13 08:40:28 DEBUG::COMMUNICATION::curl_easy_perform() doing it now....
+2026-09-13 08:40:28 DEBUG::COMMUNICATION::in write data
+2026-09-13 08:40:28 DEBUG::COMMUNICATION::curl_easy_perform() success
+2026-09-13 08:40:28 DEBUG::COMMUNICATION::curl_easy_perform() doing it now....
+2026-09-13 08:40:28 DEBUG::COMMUNICATION::in write data
+2026-09-13 08:40:28 DEBUG::COMMUNICATION::curl_easy_perform() success
+2026-09-13 08:40:28 DEBUG::MUD_FILE_OPERATIONS::IN ****NEW**** MUD and SIG FILE RETRIEVED!!!
+2026-09-13 08:40:28 DEBUG::GENERAL::IN ****NEW**** validateMudFileWithSig()
+2026-09-13 08:40:28 DEBUG::GENERAL::openssl cms -verify -in /var/state/osmud/mudfiles/camera.p7s -inform DER -content /var/state/osmud/mudfiles/camera.json -purpose any
+2026-09-13 08:40:28 ERROR::DEVICE_INTERFACE::openssl cms -verify -in /var/state/osmud/mudfiles/camera.p7s -inform DER -content /var/state/osmud/mudfiles/camera.json -purpose any
+2026-09-13 08:40:28 DEBUG::GENERAL::IN ****NEW**** executeMudWithDhcpContext()
+2026-09-13 08:40:28 DEBUG::GENERAL::/etc/osmud/create_mud_db_entry.sh -d /var/state/osmud/mudfilesmudStateFile.txt -i 172.30.0.2 -m 02:42:ac:1e:00:02 -c camera -u http://mud-server:8000/camera.json -f /var/state/osmud/mudfiles/camera.json
+2026-09-13 08:40:28 DEBUG::GENERAL::/etc/osmud/remove_ip_fw_rule.sh -i 172.30.0.2 -m 02:42:ac:1e:00:02
+2026-09-13 08:40:28 INFO::DEVICE_INTERFACE::Applying *from* dns ace rule.
+2026-09-13 08:40:28 DEBUG::GENERAL::/etc/osmud/create_ip_fw_rule.sh -s lan -d wan -i 172.30.0.2 -a any -j 172.31.0.10 -b 8080:8080 -p tcp -n dib-camera-fr-0 -t ACCEPT -f all -c camera
+2026-09-13 08:40:28 INFO::DEVICE_INTERFACE::Applying *from* dns ace rule.
+2026-09-13 08:40:28 DEBUG::GENERAL::/etc/osmud/create_ip_fw_rule.sh -s lan -d wan -i 172.30.0.2 -a any -j 172.31.0.10 -b 9090:9090 -p tcp -n dib-camera-fr-1 -t ACCEPT -f all -c camera
+2026-09-13 08:40:28 INFO::DEVICE_INTERFACE::Successfully installed fromAccess rule.
+2026-09-13 08:40:28 INFO::DEVICE_INTERFACE::Successfully installed toAccess rule.
+2026-09-13 08:40:28 DEBUG::GENERAL::/etc/osmud/create_ip_fw_rule.sh -s lan -d wan -i 172.30.0.2 -a any -j any -b any -p all -n REJECT-ALL -t DENY -f all -c camera
+2026-09-13 08:40:28 DEBUG::GENERAL::/etc/osmud/commit_ip_fw_rules.sh
+2026-09-13 08:40:28 DEBUG::GENERAL::/etc/osmud/create_mud_db_entry.sh -d /var/state/osmud/mudfilesmudStateFile.txt -i 172.30.0.2 -m 02:42:ac:1e:00:02 -c camera -u http://mud-server:8000/camera.json -f /var/state/osmud/mudfiles/camera.json
+2026-09-13 08:40:33 DEBUG::GENERAL::No data when reading but expected data.... Returning no data...
+2026-09-13 08:40:38 DEBUG::GENERAL::No data when reading but expected data.... Returning no data...

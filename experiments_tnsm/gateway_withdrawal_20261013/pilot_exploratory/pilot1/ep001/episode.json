@@ -1,0 +1,15 @@
+{
+ "episode": 1,
+ "kind": "std",
+ "profile": "lan",
+ "started": 239953.713620063,
+ "loadavg": [
+  10.15283203125,
+  9.43505859375,
+  9.51220703125
+ ],
+ "status": "setup_invalid",
+ "setup_retry": "setup export has ports [-1, -1]",
+ "reason": "SetupError: setup export has ports [-1, -1]",
+ "probe_records": 0
+}

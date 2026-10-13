@@ -1,0 +1,193 @@
+{
+ "generator": "code/scripts/make_dist_pki.py",
+ "openssl": "OpenSSL 3.0.12 24 Oct 2023 (Library: OpenSSL 3.0.12 24 Oct 2023)",
+ "n_sites": 10,
+ "not_before": "20261013083810Z",
+ "not_after": "20261016083810Z",
+ "valid_hours": 72.0,
+ "device_types_per_site": [
+  "camera"
+ ],
+ "extra_san_ip": [],
+ "ca_dir": "/tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_pilot3_wan.ca",
+ "key_material": "random (openssl genpkey); everything else is a function of the arguments",
+ "ca_sha256": "98fdc8dabf6d567ab23e06a37338400487af877011e96bfc0533f61df0897f7b",
+ "certificates": [
+  {
+   "name": "evidence",
+   "san_uri": "spiffe://dib.consortium/evidence",
+   "dns": [
+    "evidence"
+   ],
+   "serial": "1001",
+   "sha256": "c32aed22b66208f04017a5983cf68492e561dc3a42a5f45328c6083013f11149"
+  },
+  {
+   "name": "admin",
+   "san_uri": "spiffe://dib.consortium/admin/bench-admin",
+   "dns": [],
+   "serial": "1002",
+   "sha256": "05aebb37f5bff1aae9e35d544702831e987568e913889f20e74106779dc110a2"
+  },
+  {
+   "name": "site-0",
+   "san_uri": "spiffe://dib.consortium/site/site-0",
+   "dns": [
+    "site-0"
+   ],
+   "serial": "1003",
+   "sha256": "7526e18dd40dbcae5b406cdf5fa5352323a985aa7adf7a8be75bf419751fa970"
+  },
+  {
+   "name": "site-1",
+   "san_uri": "spiffe://dib.consortium/site/site-1",
+   "dns": [
+    "site-1"
+   ],
+   "serial": "1004",
+   "sha256": "437b303f42f66f24837519c88823f2a05f4ed7d53422e5cfa8e4de2c4abc4fb9"
+  },
+  {
+   "name": "site-2",
+   "san_uri": "spiffe://dib.consortium/site/site-2",
+   "dns": [
+    "site-2"
+   ],
+   "serial": "1005",
+   "sha256": "3ae12238238a1ddf2c37f0611ae8bea84299468273f47fb78433b2b9c08855c2"
+  },
+  {
+   "name": "site-3",
+   "san_uri": "spiffe://dib.consortium/site/site-3",
+   "dns": [
+    "site-3"
+   ],
+   "serial": "1006",
+   "sha256": "ede66310af6480faeef6c350c0f12f7cc263dd0aee0ee487b1732f82388022f9"
+  },
+  {
+   "name": "site-4",
+   "san_uri": "spiffe://dib.consortium/site/site-4",
+   "dns": [
+    "site-4"
+   ],
+   "serial": "1007",
+   "sha256": "0b3541c273d1263a136d896462548fb369721a3e245a879dfd580daf4f7646e0"
+  },
+  {
+   "name": "site-5",
+   "san_uri": "spiffe://dib.consortium/site/site-5",
+   "dns": [
+    "site-5"
+   ],
+   "serial": "1008",
+   "sha256": "02d1d2b43fd3d3e2d1c111b470e74a12a6bdf255d2f1b983ea04ca60187671d0"
+  },
+  {
+   "name": "site-6",
+   "san_uri": "spiffe://dib.consortium/site/site-6",
+   "dns": [
+    "site-6"
+   ],
+   "serial": "1009",
+   "sha256": "8b364fda5321cb5edb04bde19c49d01e1b5bf09cb27f1de5a32ff63a16c891c2"
+  },
+  {
+   "name": "site-7",
+   "san_uri": "spiffe://dib.consortium/site/site-7",
+   "dns": [
+    "site-7"
+   ],
+   "serial": "100A",
+   "sha256": "c4b5f40fb7a7b0111f041a1465a0d4f8b054d9352a8167e32ece4a877a391168"
+  },
+  {
+   "name": "site-8",
+   "san_uri": "spiffe://dib.consortium/site/site-8",
+   "dns": [
+    "site-8"
+   ],
+   "serial": "100B",
+   "sha256": "c5d610bfe62c7e49cd625739b67ff0dce178c7a9cb94840d3eec9cd045732ea5"
+  },
+  {
+   "name": "site-9",
+   "san_uri": "spiffe://dib.consortium/site/site-9",
+   "dns": [
+    "site-9"
+   ],
+   "serial": "100C",
+   "sha256": "f9287b450b7987f10a4e7563f9e8afc924f15a70b457e2599c2efa73776d289b"
+  },
+  {
+   "name": "op-site-0",
+   "san_uri": "spiffe://dib.consortium/site/site-0/operator",
+   "dns": [],
+   "serial": "100D",
+   "sha256": "dfaec66d22cb3219ee489b2eaa1c9bb8c75ac7ab711866f18c11aa9ed5ea4785"
+  },
+  {
+   "name": "op-site-1",
+   "san_uri": "spiffe://dib.consortium/site/site-1/operator",
+   "dns": [],
+   "serial": "100E",
+   "sha256": "8aec009a410bfba3ccfd531f006e8c8cfa8096cdeef5b4fb194d12f7cad00c6d"
+  },
+  {
+   "name": "op-site-2",
+   "san_uri": "spiffe://dib.consortium/site/site-2/operator",
+   "dns": [],
+   "serial": "100F",
+   "sha256": "aa50a4f5993f9e2610ef64f0fa901448c50b3c381d651a1a160610ffad5337dc"
+  },
+  {
+   "name": "op-site-3",
+   "san_uri": "spiffe://dib.consortium/site/site-3/operator",
+   "dns": [],
+   "serial": "1010",
+   "sha256": "186d753e34e153c3bce4dc7a2cf2350835cc577a075ff0ab481fd92ab6e5bd5e"
+  },
+  {
+   "name": "op-site-4",
+   "san_uri": "spiffe://dib.consortium/site/site-4/operator",
+   "dns": [],
+   "serial": "1011",
+   "sha256": "cf6e048e14f86f60b79a1bf53de37395b847557902567332f9acd4e50cf337b6"
+  },
+  {
+   "name": "op-site-5",
+   "san_uri": "spiffe://dib.consortium/site/site-5/operator",
+   "dns": [],
+   "serial": "1012",
+   "sha256": "765b77a75babadadc265409354173b55e76b5b70e64b8b62f17bc67a9521d584"
+  },
+  {
+   "name": "op-site-6",
+   "san_uri": "spiffe://dib.consortium/site/site-6/operator",
+   "dns": [],
+   "serial": "1013",
+   "sha256": "f8bd4c30bbe2fc492b80630facd4c42938f26c6f8bb918914715a1ab10e24ec6"
+  },
+  {
+   "name": "op-site-7",
+   "san_uri": "spiffe://dib.consortium/site/site-7/operator",
+   "dns": [],
+   "serial": "1014",
+   "sha256": "85a0cf97b4f23a8451acee2a67c7779757dc4bf9df89c9d67bee3f745b68c0cf"
+  },
+  {
+   "name": "op-site-8",
+   "san_uri": "spiffe://dib.consortium/site/site-8/operator",
+   "dns": [],
+   "serial": "1015",
+   "sha256": "bb7813ed4e087207027708b1a7fe25450779d193137e6c83c480195db9015c93"
+  },
+  {
+   "name": "op-site-9",
+   "san_uri": "spiffe://dib.consortium/site/site-9/operator",
+   "dns": [],
+   "serial": "1016",
+   "sha256": "b161bc89536912b90c60479a655b0aa8d4e49ad6211dac7a467b741502e18b44"
+  }
+ ]
+}
