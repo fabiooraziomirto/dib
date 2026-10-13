@@ -1,0 +1,303 @@
+services:
+  evidence:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=evidence
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_FANOUT_CONCURRENCY=10
+      - DIB_DIST_SITE_URL_0=https://site-0:8000
+      - DIB_DIST_SITE_URL_1=https://site-1:8000
+      - DIB_DIST_SITE_URL_2=https://site-2:8000
+      - DIB_DIST_SITE_URL_3=https://site-3:8000
+      - DIB_DIST_SITE_URL_4=https://site-4:8000
+      - DIB_DIST_SITE_URL_5=https://site-5:8000
+      - DIB_DIST_SITE_URL_6=https://site-6:8000
+      - DIB_DIST_SITE_URL_7=https://site-7:8000
+      - DIB_DIST_SITE_URL_8=https://site-8:8000
+      - DIB_DIST_SITE_URL_9=https://site-9:8000
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/evidence.crt
+      - DIB_DIST_TLS_KEY=/pki/evidence.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - evidence_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    ports:
+      - "18100:8000"
+  site-0:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=0
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-0.crt
+      - DIB_DIST_TLS_KEY=/pki/site-0.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_0_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18110:8000"
+  site-1:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=1
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-1.crt
+      - DIB_DIST_TLS_KEY=/pki/site-1.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_1_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18111:8000"
+  site-2:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=2
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-2.crt
+      - DIB_DIST_TLS_KEY=/pki/site-2.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_2_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18112:8000"
+  site-3:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=3
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-3.crt
+      - DIB_DIST_TLS_KEY=/pki/site-3.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_3_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18113:8000"
+  site-4:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=4
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-4.crt
+      - DIB_DIST_TLS_KEY=/pki/site-4.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_4_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18114:8000"
+  site-5:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=5
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-5.crt
+      - DIB_DIST_TLS_KEY=/pki/site-5.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_5_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18115:8000"
+  site-6:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=6
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-6.crt
+      - DIB_DIST_TLS_KEY=/pki/site-6.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_6_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18116:8000"
+  site-7:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=7
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-7.crt
+      - DIB_DIST_TLS_KEY=/pki/site-7.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_7_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18117:8000"
+  site-8:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=8
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-8.crt
+      - DIB_DIST_TLS_KEY=/pki/site-8.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_8_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18118:8000"
+  site-9:
+    build:
+      context: /root/Desktop/DIB_tnsm_final/code
+      dockerfile: src/dib/registry/distributed/Dockerfile
+    command: ["python", "-m", "dib.registry.distributed.mtls", "--app", "service:app", "--port", "8000"]
+    environment:
+      - DIB_DIST_ROLE=site
+      - DIB_DIST_SITE_INDEX=9
+      - DIB_DIST_N_SITES=10
+      - DIB_DIST_EVIDENCE_URL=https://evidence:8000
+      - DIB_DIST_DATA_DIR=/data
+      - DIB_DIST_RECONCILE_INTERVAL=5
+      - DIB_DIST_RECONCILE_JITTER=0.5
+      - DIB_DIST_RECONCILE_TIMEOUT=5.0
+      - DIB_DIST_MTLS=1
+      - DIB_DIST_TLS_CERT=/pki/site-9.crt
+      - DIB_DIST_TLS_KEY=/pki/site-9.key
+      - DIB_DIST_TLS_CA=/pki/ca.crt
+      - DIB_DIST_IDENTITIES=/pki/identities.json
+    volumes:
+      - site_9_data:/data
+      - /tmp/claude-0/-root-Desktop-DIB-tnsm-merged/bf9c37cb-5231-43be-b586-6bfd0e628b8d/scratchpad/pki_campaign/degraded:/pki:ro
+    depends_on:
+      - evidence
+    ports:
+      - "18119:8000"
+volumes:
+  evidence_data:
+  site_0_data:
+  site_1_data:
+  site_2_data:
+  site_3_data:
+  site_4_data:
+  site_5_data:
+  site_6_data:
+  site_7_data:
+  site_8_data:
+  site_9_data:

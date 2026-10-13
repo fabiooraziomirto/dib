@@ -1,0 +1,142 @@
+{
+ "episode": 96,
+ "kind": "std",
+ "profile": "lan",
+ "started": 244669.852570507,
+ "loadavg": [
+  8.02880859375,
+  8.8330078125,
+  9.5380859375
+ ],
+ "status": "complete",
+ "setup": {
+  "export_ports": [
+   8080,
+   9090
+  ],
+  "mud_sha256": "9cfeb634e1718a9fafdbb78884dfdc82c1d229ab184781bf16aa2a9cad0e22ca",
+  "reload": [
+   244669.87362531,
+   244670.160340017
+  ],
+  "tf_obs": [
+   244670.211586316,
+   244670.225450091
+  ],
+  "t2_obs": [
+   244675.320590549,
+   244675.374067285
+  ]
+ },
+ "precondition": {
+  "subject_new_ok": true,
+  "control_new_ok": true,
+  "est_open": {
+   "8080": true,
+   "9090": true
+  }
+ },
+ "t_react": 244675.855933848,
+ "dispute": {
+  "t0s": 244675.831970024,
+  "status": 200,
+  "body": "{\"applied\":true}",
+  "t0r": 244675.857170971
+ },
+ "t0_obs": [
+  244675.828358905,
+  244675.844663462
+ ],
+ "t1_obs": [
+  244675.843179827,
+  244675.854544621
+ ],
+ "export": [
+  244675.855936103,
+  244675.863951379
+ ],
+ "export_ports": [
+  9090
+ ],
+ "export_mud_sha256": "cf599c9e3014ba827a40cf8e353caddd2b8a083afc06c529052fd9d36b9e6dc8",
+ "reload": [
+  244675.864033002,
+  244676.138856206
+ ],
+ "tf_obs": [
+  244676.190430912,
+  244676.209497724
+ ],
+ "t2_obs": [
+  244681.284693111,
+  244681.307685482
+ ],
+ "poll_periods": {
+  "evidence": {
+   "n": 908,
+   "median_s": 0.006735093018505722,
+   "max_s": 0.013953534013126045
+  },
+  "site0": {
+   "n": 925,
+   "median_s": 0.006617652979912236,
+   "max_s": 0.01159037702018395
+  },
+  "rules": {
+   "n": 597,
+   "median_s": 0.008428141009062529,
+   "max_s": 0.024302109028212726
+  }
+ },
+ "window_end": 244696.812309912,
+ "recovery": {
+  "restore_status": 200,
+  "site0_state_after_restore": "monitor-only",
+  "site0_origin_after_restore": null,
+  "export_ports_after_restore": [
+   9090
+  ],
+  "restore_rules_applied": true,
+  "restore_reload": [
+   244696.851244669,
+   244697.15985585
+  ],
+  "restore_tf_obs": [
+   244697.21341494,
+   244697.233746587
+  ],
+  "restore_t2_obs": [
+   244702.310176512,
+   244702.337876009
+  ],
+  "subject_after_restore": {
+   "probes": 150,
+   "ok": 0
+  },
+  "commit_status": 200,
+  "export_ports_after_commit": [
+   8080,
+   9090
+  ],
+  "t_commit": 244705.349441639,
+  "export": [
+   244705.371207578,
+   244705.374557576
+  ],
+  "reload": [
+   244705.374859433,
+   244705.688992619
+  ],
+  "tf_obs": [
+   244705.739421243,
+   244705.759661829
+  ],
+  "t2_obs": [
+   244710.848755005,
+   244710.877490236
+  ],
+  "reenabled_new_conn": 244710.866698959
+ },
+ "probe_records": 4953,
+ "ended": 244710.966507067
+}
