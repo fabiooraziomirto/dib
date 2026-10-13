@@ -1,0 +1,3 @@
+2026-10-13T05:34:10Z applier pid 1730686 profile x2
+2026-10-13T05:34:10Z run.py b1 x2 arms D,C fanouts 10 episodes default
+2026-10-13T05:57:33Z run.py rc=0

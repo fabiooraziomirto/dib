@@ -1,0 +1,4 @@
+generator path (ms): {'reused_ms': 102.54606601665728, 'fresh_ms': 203.19956497405656, 'n': 5, 'reused_ok': True, 'fresh_ok': True}
+[1/2] b1 D f=10 T=5 rows=50 excluded=0 flagged=True bg_other=1.3532 steal=0.055 gen_proc=0.01
+generator path (ms): {'reused_ms': 103.24151001987047, 'fresh_ms': 306.96560101932846, 'n': 5, 'reused_ok': True, 'fresh_ok': None}
+[2/2] b1 C f=10 T=5 rows=50 excluded=0 flagged=True bg_other=1.3766 steal=0.088 gen_proc=0.02
